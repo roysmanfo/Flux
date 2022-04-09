@@ -4,12 +4,11 @@ class General:
     def help():
         import os
         cDir = os.getcwd()
-        os.chdir(f'{cDir}\\cmds\\files\\')
-        with open('commands.json','r') as file:
+        dir = f'{cDir}\\source\\cmds\\files\\'
+        with open(f'{dir}\\commands.json','r') as file:
             l = json.load(file)
             for i in l:
                 print(f'{Fore.WHITE + l[i].upper()}')
-        os.chdir(cDir)
     
     def help_detailed():
         #Qui verranno date informazioni sulla sintassi dei comandi

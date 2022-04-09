@@ -17,13 +17,8 @@ def cmd(cmd,username):
     import os
     cDir = os.getcwd()+'\\Cristal'
 
-    #In questo modo anche se l'utente mescola lettere maiuscole e minuscole,
-    #il comando sarà sempre in maiuscolo
-    for i in range(len(cmd)):
-        cmd[i] = cmd[i].upper()
-
     #Controllo del comando inserito
-    with open(f'{os.getcwd()}\\cmds\\files\\commands_{username}.json','r') as file:
+    with open(f'{os.getcwd()}\\source\\cmds\\files\\commands_{username}.json','r') as file:
         try:
             command = json.load(file)
             

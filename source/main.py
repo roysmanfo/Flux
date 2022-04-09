@@ -21,17 +21,23 @@ while ReadyToStart == False:
         isLogged =  Login.reLog()
 
 user = f'User{user}'
-username = nick
 NAME = nick
 #Inizio
 for i in range(5):
-    cmd = input(f'{Fore.WHITE + nick + Fore.BLUE}>  ')#Input dell'utente
-    cmd = utils.Utils.decode(cmd)#Transformo il comando in una lista
+    #Input dell'utente
+    cmd = input(f'{Fore.WHITE + nick + Fore.BLUE}>  ')
+    #Transformo il comando in una lista
+    cmd = utils.Utils.decode(cmd)
+    
+    #In questo modo anche se l'utente mescola lettere maiuscole e minuscole,
+    #il comando sarà sempre in maiuscolo
+    for i in range(len(cmd)):
+        cmd[i] = cmd[i].upper()
 
-    with open(f'{os.getcwd()}\\cmds\\files\\commands_{NAME}.json','r') as file:
+    with open(f'{os.getcwd()}\\source\\cmds\\files\\commands_{NAME}.json','r') as file:
         cmdNames = json.load(file)
         if cmd[0] == cmdNames['NICKNAME']:
             import cmds.nickname
-            nick = cmds.nickname.change(username)
+            nick = cmds.nickname.change()
         else:
-            cmdhandler.cmd(cmd, username)
+            cmdhandler.cmd(cmd, NAME)
