@@ -31,6 +31,11 @@ def cmd(cmd,username):
                 calc.calc()
                 return
             
+            if cmd[0] == command['DATE']:
+                from cmds import now
+                now.DateAndTime.date()
+                return
+
             if cmd[0] == command['HELP']:
                 import cmds.help
                 cmds.help.General.help()
@@ -40,6 +45,11 @@ def cmd(cmd,username):
                 import cmds.nickname
                 name = cmds.nickname.change()
                 return name
+
+            if cmd[0] == command['TIME']:
+                from cmds import now
+                now.DateAndTime.time()
+                return
 
 
             else:
