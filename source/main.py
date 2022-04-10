@@ -34,7 +34,7 @@ for i in range(5):
     for i in range(len(cmd)):
         cmd[i] = cmd[i].upper()
 
-    with open(f'{os.getcwd()}\\source\\cmds\\files\\commands_{NAME}.json','r') as file:
+    with open(f'{os.getcwd()}\cmds\\files\\commands_{NAME}.json','r') as file:
         cmdNames = json.load(file)
         if cmd[0] == cmdNames['NICKNAME']:
             import cmds.nickname

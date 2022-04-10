@@ -19,7 +19,7 @@ def cmd(cmd,username):
     cDir = os.getcwd()+'\\Cristal'
 
     #Controllo del comando inserito
-    with open(f'{os.getcwd()}\\source\\cmds\\files\\commands_{username}.json','r') as file:
+    with open(f'{os.getcwd()}\\cmds\\files\\commands_{username}.json','r') as file:
         try:
             command = json.load(file)
             
