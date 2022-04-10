@@ -5,6 +5,7 @@
 # | | \  /   \ | | | / ___/
 # | __/  | | |  \ /  \__ \
 # | | \  \___/   |  /____/
+from importlib.resources import path
 import json
 from colorama import Fore
 
@@ -22,9 +23,14 @@ def cmd(cmd,username):
         try:
             command = json.load(file)
             
-            #if cmd == command['COUNTEXTENSION']:
-            #    import cm
-            #    help.help()
+            if cmd[0] == command['COUNTEXTENSION']:
+                from cmds import countextension
+                extension = input(f'{Fore.WHITE}Inserisci l\'estensione: {Fore.BLUE}')
+                pathToFile = input(f'{Fore.WHITE}Inserisci il percorso del file: {Fore.BLUE}')
+                if pathToFile == '':
+                    pathToFile = None
+                countextension.count_extension(extension, pathToFile)
+                return
 
             if cmd[0] == command['CALC']:
                 from cmds import calc
