@@ -3,7 +3,7 @@
 
 import json, colorama
 from json.decoder import JSONDecodeError
-import os
+import os, time
 from colorama import Fore, Style
 colorama.init(autoreset=True)
 
@@ -109,7 +109,11 @@ def log(dir):
                     user = 1
                 os.system('cls')#Pulisce la console
                 username = l[f'User{str(user)}']['name']
-                print(f'Benvenuto in Cristal, { str(username) }')
+                wellcome = f'Benvenuto in Cristal, { str(username) }'
+                for i in wellcome:
+                    print(i, end='')
+                    time.sleep(0.025)
+                print()
             
             return 0, user, str(l[f'User{user}']['name']) # Tutto apposto, il file è presente e l'utente è loggato
         

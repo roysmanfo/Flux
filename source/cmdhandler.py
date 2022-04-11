@@ -23,13 +23,9 @@ def cmd(cmd,username):
         try:
             command = json.load(file)
             
-            if cmd[0] == command['COUNTEXTENSION']:
-                from cmds import countextension
-                extension = input(f'{Fore.WHITE}Inserisci l\'estensione: {Fore.BLUE}')
-                pathToFile = input(f'{Fore.WHITE}Inserisci il percorso del file: {Fore.BLUE}')
-                if pathToFile == '':
-                    pathToFile = None
-                countextension.count_extension(extension, pathToFile)
+            if cmd[0] == command['COUNTFILE']:
+                from cmds import countfile
+                countfile.execute()
                 return
 
             if cmd[0] == command['CALC']:
