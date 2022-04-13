@@ -30,7 +30,7 @@ def cmd(cmd,username):
 
             if cmd[0] == command['CALC']:
                 from cmds import calc
-                calc.calc()
+                calc.run(cmd)
                 return
             
             if cmd[0] == command['DATE']:
