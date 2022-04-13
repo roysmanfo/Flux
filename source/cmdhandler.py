@@ -43,11 +43,6 @@ def cmd(cmd,username):
                 cmds.help.General.help()
                 return
             
-            if cmd[0] == command['NICKNAME']:
-                import cmds.nickname
-                name = cmds.nickname.change()
-                return name
-
             if cmd[0] == command['TIME']:
                 from cmds import now
                 now.DateAndTime.time()

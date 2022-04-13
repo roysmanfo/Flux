@@ -25,19 +25,19 @@ NAME = nick
 #Inizio
 for i in range(5):
     #Input dell'utente
-    cmd = input(f'{Fore.WHITE + nick + Fore.BLUE}>  ')
+    cmd = input(f'{Fore.WHITE}{str(nick)}{Fore.BLUE}>  ')
     #Transformo il comando in una lista
     cmd = utils.Utils.decode(cmd)
     
     #In questo modo anche se l'utente mescola lettere maiuscole e minuscole,
     #il comando sarà sempre in maiuscolo
-    for i in range(len(cmd)):
-        cmd[i] = cmd[i].upper()
-
+    cmd[0] = cmd[0].upper()
     with open(f'{os.getcwd()}\cmds\\files\\commands_{NAME}.json','r') as file:
         cmdNames = json.load(file)
         if cmd[0] == cmdNames['NICKNAME']:
             import cmds.nickname
-            nick = cmds.nickname.change()
+            nick = cmds.nickname.run(cmd, nick)
         else:
+            for i in enumerate(cmd):
+                cmd[i[0]] = cmd[i[0]].upper()
             cmdhandler.cmd(cmd, NAME)

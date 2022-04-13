@@ -1,9 +1,5 @@
 #Dato un path di un file, restituisce il numero di file con estensione specificata.
-#esempio:
-#input: .py
-#percorso: C:\Users\User\Desktop\python\test
-#output: Sono presenti 81989 file .py nella cartella: C:\Users\User\Desktop\python\test
-#se non viene fornito il path, viene utilizzato il percorso corrente
+
 import os
 from colorama import Fore
 
