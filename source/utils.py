@@ -34,3 +34,15 @@ class Performance:
         except:
             #print(f'{Fore.RED}Test 1 failed')
             return False
+
+class Security:
+    def cript(string:str=None):
+        if string == None:
+            return None
+        else:
+            return string.encode('utf-8').hex()
+    def decript(string:str=None):
+        if string == None:
+            return None
+        else:
+            return bytes.fromhex(string).decode('utf-8')

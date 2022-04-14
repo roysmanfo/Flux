@@ -5,6 +5,7 @@ import json, colorama
 from json.decoder import JSONDecodeError
 import os, time
 from colorama import Fore, Style
+import utils
 colorama.init(autoreset=True)
 
 userRole = ''
@@ -53,7 +54,14 @@ def register(dir):
                                     print('Prova con un nuovo nome utente\n')
                                 except JSONDecodeError:
                                     UserNameApproved = True
-            UserPassword = input('Password:  ')
+            UserPassword = ''
+            while len(UserPassword) < 8:
+                UserPassword = input('Password:  ')
+                if len(UserPassword) < 8:
+                    print(f'{Fore.RED}La password deve essere di almeno 8 caratteri{Fore.WHITE}')
+            
+            UserPassword = utils.Security.cript(UserPassword)
+
             Dir = os.getcwd()
             # Controllo o creazione della directory dove verrà salvato il file Users.json
             try:
