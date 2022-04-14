@@ -35,7 +35,7 @@ def cmd(cmd,username):
             
             if cmd[0] == command['DATE']:
                 from cmds import now
-                now.DateAndTime.date()
+                now.run(cmd)
                 return
 
             if cmd[0] == command['HELP']:
@@ -45,7 +45,7 @@ def cmd(cmd,username):
             
             if cmd[0] == command['TIME']:
                 from cmds import now
-                now.DateAndTime.time()
+                now.run(cmd)
                 return
 
 
