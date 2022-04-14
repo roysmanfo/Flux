@@ -36,10 +36,18 @@ class DateAndTime():
 class Help():
     def date_help():
         #Scrive l'help per la data
-        print(f'\n{Fore.MAGENTA}Date')
-        print(f'{Fore.WHITE}Scrive la data attuale')
+        print(f'\n{Fore.MAGENTA}Date{Fore.WHITE}')
+        print('Scrive la data attuale')
+        print('Sintassi: date | date [OPZIONE]')
+        print('OPZIONI:')
+        print('\t--HELP | --H:\t\tScrive l\'help per la data')
+        print('\t--HELP-ALL | --HA:\tScrive l\'help per la data e l\'ora')
         
     def time_help():
         #Scrive l'help per l'ora
         print(f'\n{Fore.MAGENTA}Time')
         print(f'{Fore.WHITE}Scrive l\'ora attuale')
+        print(f'{Fore.WHITE}Sintassi: time | time [OPZIONE]')
+        print(f'{Fore.WHITE}OPZIONI:')
+        print(f'{Fore.WHITE}\t--HELP | --H:\t\tScrive l\'help per l\'ora')
+        print(f'{Fore.WHITE}\t--HELP-ALL | --HA:\tScrive l\'help per la data e l\'ora')

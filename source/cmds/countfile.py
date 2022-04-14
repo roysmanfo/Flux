@@ -3,8 +3,8 @@
 import os
 from colorama import Fore
 
-def main(cmd):
-    if cmd[1] == '--HELP' or cmd[1] == '-H':
+def run(cmd):
+    if cmd[1] == '--HELP' or cmd[1] == '--H':
         help()
     else:
         execute(cmd)
@@ -13,7 +13,7 @@ def count_extension(extension, pathToFile=None):
     try:
         
         if pathToFile is None or pathToFile == "":
-            pathToFile = os.getcwd()
+            pathToFile = '\\'
         count = 0
         for file in os.listdir(pathToFile):
             if file.endswith(extension):
@@ -42,8 +42,9 @@ def execute(cmd):
     count_extension(extension, pathToFile)
 
 def help():
+    print(f'{Fore.MAGENTA}COUNTFILE')
     print(f'\n{Fore.WHITE}Questo comando permette di contare il numero di file con una determinata estensione')
     print(f'{Fore.WHITE}Sintassi: countfile <estensione> <percorso>')
-    print(f'{Fore.WHITE}Se non viene specificato il percorso, verrà utilizzato il percorso corrente')
-    print(f'\n{Fore.WHITE}Esempio: countfile.py .py')
-    print(f'{Fore.WHITE}Esempio: countfile.py .py C:\\Users\\User\\Desktop\\test')
+    print(f'{Fore.WHITE}Se non viene specificato il percorso, verrà usata la cartella base')
+    print(f'\n{Fore.WHITE}Esempio: countfile .exe')
+    print(f'{Fore.WHITE}Esempio: countfile .exe C:\\Users\\User\\Desktop\\test')

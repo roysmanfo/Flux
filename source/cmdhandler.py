@@ -25,7 +25,7 @@ def cmd(cmd,username):
             
             if cmd[0] == command['COUNTFILE']:
                 from cmds import countfile
-                countfile.main(cmd)
+                countfile.run(cmd)
                 return
 
             if cmd[0] == command['CALC']:
