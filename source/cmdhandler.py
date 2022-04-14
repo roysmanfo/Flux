@@ -33,6 +33,11 @@ def cmd(cmd,username):
                 calc.run(cmd)
                 return
             
+            if cmd[0] == command['DIR']:
+                from cmds import dir
+                dir.run(cmd)
+                return
+
             if cmd[0] == command['DATE']:
                 from cmds import now
                 now.run(cmd)
