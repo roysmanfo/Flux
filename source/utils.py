@@ -1,14 +1,27 @@
 # Funzioni untili per il progetto
 
 class Utils:
+    #scrivi una funzione che data una stringa, restituisce una lista di parole
+    def string_to_list(string:str=None):
+        if string == None or string == '':
+            string = ['']
+            return string
+        else:
+            return Utils.decode(string)
+
     #Permette di distribuire il comando da formato stringa a diversi elementi di una lista
-    def decode(string = 'shutdown /s'):
+    def decode(string:str=None):
         words = []
         for i in string:
             if i == ' ':
                 words.append(string[:string.index(i)])
                 string = string[string.index(i)+1:]
         words.append(string)
+        leght = len(words)
+        while leght > 0:
+            if words[leght-1] == '':
+                words.pop(leght-1)
+            leght -= 1
         return words
 
 class Performance:   

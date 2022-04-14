@@ -27,8 +27,8 @@ for i in range(5):
     #Input dell'utente
     cmd = input(f'{Fore.WHITE}{str(nick)}{Fore.BLUE}>  ')
     #Transformo il comando in una lista
-    cmd = utils.Utils.decode(cmd)
-    
+    cmd = utils.Utils.string_to_list(cmd)
+
     #In questo modo anche se l'utente mescola lettere maiuscole e minuscole,
     #il comando sarà sempre in maiuscolo
     cmd[0] = cmd[0].upper()
