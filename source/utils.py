@@ -1,7 +1,7 @@
 # Funzioni untili per il progetto
 
 class Utils:
-    #scrivi una funzione che data una stringa, restituisce una lista di parole
+    #Data una stringa, restituisce una lista di parole
     def string_to_list(string:str=None):
         if string == None or string == '':
             string = ['']
@@ -23,10 +23,19 @@ class Utils:
                 words.pop(leght-1)
             leght -= 1
         return words
+    
+    def countdown(n:int) -> None:
+        import time
+        start = n + 1 #In questo modo stampa anche 0
+        for _ in range(start):
+            print(n)
+            n -= 1
+            time.sleep(1)
+
 
 class Performance:   
     #Testa la velocità della rete
-    def webPerformance(name = 'roysmanfohub.web.app', numberOfThreads = 10):
+    def webPerformance(name:str = 'roysmanfohub.web.app', numberOfThreads:int = 10) -> None:
         try:
             import os
             os.system(f'ping -n {numberOfThreads} {name}')
@@ -36,12 +45,12 @@ class Performance:
             return False
 
 class Security:
-    def cript(string:str=None):
+    def cript(string:str=None) -> str:
         if string == None:
             return None
         else:
             return string.encode('utf-8').hex()
-    def decript(string:str=None):
+    def decript(string:str=None) -> str:
         if string == None:
             return None
         else:

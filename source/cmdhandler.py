@@ -5,14 +5,17 @@
 # | | \  /   \ | | | / ___/
 # | __/  | | |  \ /  \__ \
 # | | \  \___/   |  /____/
-from importlib.resources import path
+
+from decimal import DivisionByZero
 import json
 from colorama import Fore
+import update
 
 def cmdNotFound(problem):
     print(problem)
 
 def cmd(cmd,username):
+    update.update(cmd)
     Fore.RESET
     #Permette al cmdhandler di accedere al nome dei comandi
     import os
@@ -22,10 +25,15 @@ def cmd(cmd,username):
     with open(f'{os.getcwd()}\\cmds\\files\\commands_{username}.json','r') as file:
         try:
             command = json.load(file)
-            
+            r = ''
             if cmd[0] == command['COUNTFILE']:
                 from cmds import countfile
                 countfile.run(cmd)
+                return
+            
+            if cmd[0] == command['CLOSE']:
+                from cmds import system
+                r = system.run(cmd)
                 return
 
             if cmd[0] == command['CALC']:
@@ -61,5 +69,9 @@ def cmd(cmd,username):
                     print(f'{Fore.WHITE}Il comando "{Fore.YELLOW + cmd[0] + Fore.WHITE}" è un comando sconosciuto')
       
         except Exception as problem:
-            cmdNotFound(problem)
+            if r == 'close' or ZeroDivisionError:
+                print(problem)
+                print(Fore.BLACK + int('s'))
+            else:
+                cmdNotFound(problem)
         
