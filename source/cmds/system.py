@@ -54,7 +54,7 @@ class Close:
     def close() -> None:
         print(f'{Fore.BLACK}',end='')
         os.system('exit')
-        return 'close'
+        return False
         
 
     def close_with_countdown(n) -> None:
