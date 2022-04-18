@@ -43,6 +43,5 @@ while continue_execution:
             cmd = [ i.upper() for i in cmd ]
             continue_execution = cmds.system.run(cmd)
         else:
-            for i in enumerate(cmd):
-                cmd[i[0]] = cmd[i[0]].upper()
+            cmd = [ i.upper() for i in cmd ]
             cmdhandler.cmd(cmd, NAME)
