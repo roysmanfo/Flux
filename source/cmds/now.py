@@ -14,24 +14,30 @@ def run(cmd):
             print(Fore.RED + 'Error: Invalid command.')
     else:
         if cmd[0] == 'DATE':
-            DateAndTime.date()
+            DateAndTime.response(cmd[0])
         elif cmd[0] == 'TIME':
-            DateAndTime.time()
+            DateAndTime.response(cmd[0])
         else:
             print(Fore.RED + 'Error: Invalid command.')
         
 class DateAndTime():
-    def date():
-        #Scrive la data attuale
+    def response(command):
+        if command == 'DATE':
+            print(DateAndTime.date())
+        elif command == 'TIME':
+            print(DateAndTime.time())
+        
+    def date() -> str:
+        #Restituisce la data attuale
         import datetime
         now = datetime.datetime.now()
-        print(now.strftime("%d/%m/%Y"))
+        return now.strftime("%d/%m/%Y")
 
-    def time():
-        #Scrive l'ora attuale
+    def time() -> str:
+        #Restituisce l'ora attuale
         import datetime
         now = datetime.datetime.now()
-        print(now.strftime("%H:%M:%S"))
+        return now.strftime("%H:%M:%S")
 
 class Help():
     def date_help():
@@ -51,3 +57,12 @@ class Help():
         print(f'{Fore.WHITE}OPZIONI:')
         print(f'{Fore.WHITE}\t--HELP | --H:\t\tScrive l\'help per l\'ora')
         print(f'{Fore.WHITE}\t--HELP-ALL | --HA:\tScrive l\'help per la data e l\'ora')
+
+class TimeUtils:
+    def countdown(n:int) -> None:
+        import time
+        start = n + 1 #In questo modo stampa anche 0
+        for _ in range(start):
+            print(n)
+            n -= 1
+            time.sleep(1)

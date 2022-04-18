@@ -5,14 +5,16 @@
 # | | \  /   \ | | | / ___/
 # | __/  | | |  \ /  \__ \
 # | | \  \___/   |  /____/
-from importlib.resources import path
+
 import json
 from colorama import Fore
+import update
 
 def cmdNotFound(problem):
     print(problem)
 
 def cmd(cmd,username):
+    update.update(cmd)
     Fore.RESET
     #Permette al cmdhandler di accedere al nome dei comandi
     import os
@@ -21,8 +23,9 @@ def cmd(cmd,username):
     #Controllo del comando inserito
     with open(f'{os.getcwd()}\\cmds\\files\\commands_{username}.json','r') as file:
         try:
+
             command = json.load(file)
-            
+
             if cmd[0] == command['COUNTFILE']:
                 from cmds import countfile
                 countfile.run(cmd)
@@ -52,7 +55,6 @@ def cmd(cmd,username):
                 from cmds import now
                 now.run(cmd)
                 return
-
 
             else:
                 if cmd == ['']:

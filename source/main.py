@@ -23,7 +23,8 @@ while ReadyToStart == False:
 user = f'User{user}'
 NAME = nick
 #Inizio
-for i in range(5):
+continue_execution = True
+while continue_execution:
     #Input dell'utente
     cmd = input(f'{Fore.WHITE}{str(nick)}{Fore.BLUE}>  ')
     #Transformo il comando in una lista
@@ -37,7 +38,10 @@ for i in range(5):
         if cmd[0] == cmdNames['NICKNAME']:
             import cmds.nickname
             nick = cmds.nickname.run(cmd, nick)
+        if cmd[0] == cmdNames['CLOSE']:
+            import cmds.system
+            cmd = [ i.upper() for i in cmd ]
+            continue_execution = cmds.system.run(cmd)
         else:
-            for i in enumerate(cmd):
-                cmd[i[0]] = cmd[i[0]].upper()
+            cmd = [ i.upper() for i in cmd ]
             cmdhandler.cmd(cmd, NAME)
