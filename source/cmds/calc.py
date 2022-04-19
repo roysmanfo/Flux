@@ -4,12 +4,16 @@
 from colorama import Fore
 
 def run(cmd):
-    if cmd[1] == '--HELP' or cmd[1] == '--H':
+    if len(cmd) == 1:
+        calc()
+    
+    elif cmd[1] == '--HELP' or cmd[1] == '--H':
         help()
     elif cmd[1] == '-HELP' or cmd[1] == '-H':
         print(f'{Fore.WHITE}Forse volevi dire {Fore.CYAN}calc --help{Fore.WHITE} oppure {Fore.CYAN}calc --h{Fore.WHITE}?')
     else:
-        calc()
+        if cmd[1][0] == '-' and cmd[1][1] == '-':
+            print(f'{Fore.WHITE}L\'attributo "{Fore.YELLOW}{cmd[1]}{Fore.WHITE}" non esiste')
 
 def calc():
     try:
