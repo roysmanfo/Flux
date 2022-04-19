@@ -81,7 +81,7 @@ class Close:
     def help() -> None:
         print(f'{Fore.MAGENTA}CLOSE{Fore.WHITE}')
         print(f'\nPermette di chiudere l\'applicazione')
-        print(f'\nSintassi: close <OPZIONE> | close <OPZIONE> <SECONDI>')
+        print(f'\nSintassi: close [OPZIONE] | close [OPZIONE] <SECONDI>')
         print(f'OPZIONI:')
         print(f'\t--COUNTDOWN\t\tPermette di chiudere l\'applicazione mostrando un countdown in un numero di secondi')
         print(f'\t--HELP\t\t\tMostra questo messaggio')

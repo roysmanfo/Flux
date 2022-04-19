@@ -46,8 +46,10 @@ class Help():
         print('Scrive la data attuale')
         print('Sintassi: date | date [OPZIONE]')
         print('OPZIONI:')
-        print('\t--HELP | --H:\t\tScrive l\'help per la data')
-        print('\t--HELP-ALL | --HA:\tScrive l\'help per la data e l\'ora')
+        print('\t--HELP:\t\t\tScrive l\'help per la data')
+        print('\t--H:\t\t\tScrive l\'help per la data')
+        print('\t--HELP-ALL:\t\tScrive l\'help per la data e l\'ora')
+        print('\t--HA:\t\t\tScrive l\'help per la data e l\'ora')
         
     def time_help():
         #Scrive l'help per l'ora
@@ -55,8 +57,10 @@ class Help():
         print(f'{Fore.WHITE}Scrive l\'ora attuale')
         print(f'{Fore.WHITE}Sintassi: time | time [OPZIONE]')
         print(f'{Fore.WHITE}OPZIONI:')
-        print(f'{Fore.WHITE}\t--HELP | --H:\t\tScrive l\'help per l\'ora')
-        print(f'{Fore.WHITE}\t--HELP-ALL | --HA:\tScrive l\'help per la data e l\'ora')
+        print(f'{Fore.WHITE}\t--HELP:\t\t\tScrive l\'help per l\'ora')
+        print(f'{Fore.WHITE}\t--H:\t\t\tScrive l\'help per l\'ora')
+        print(f'{Fore.WHITE}\t--HELP-ALL:\t\tScrive l\'help per la data e l\'ora')
+        print(f'{Fore.WHITE}\t--HA:\t\t\tScrive l\'help per la data e l\'ora')
 
 class TimeUtils:
     def countdown(n:int) -> None:
