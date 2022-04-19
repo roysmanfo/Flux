@@ -9,30 +9,35 @@ import os, asyncio, colorama
 from colorama import Fore, Style
 colorama.init()
 
-def run(cmd:list):#NOTE: questo comanso di default è solo per il testing
+def run(cmd:list) -> bool:#NOTE: questo comanso di default è solo per il testing
     import os, asyncio, colorama
     from colorama import Fore, Style
     colorama.init()
 
 
     if len(cmd) > 1:
-        if cmd[1] == '--HELP' or cmd[1] == '--H':
-            help()
         if cmd[0] == 'CLOSE':
             return Close.start(cmd)
     else:
         if cmd[0] == 'CLOSE':
             return Close.close()
+        elif cmd[0] == 'CLS':
+            ClearScreen.clear()
 
 class Close:
     # Sintassi: close | close <secondi> | close <opzione> <HH:MM:SS>
-    def start(cmd: list, options: str = None) -> None:
+    def start(cmd: list, options: str = None) -> bool:
         if len(cmd) == 1:
             # close
             return Close.close()
+        
         elif '-' in cmd[1][0] and '-' in cmd[1][1]:
             # Ha un attributo
-            if cmd[1] == '--COUNTDOWN':
+            if cmd[1] == '--HELP' or cmd[1] == '--H':
+                Close.help()
+                return True
+                
+            elif cmd[1] == '--COUNTDOWN':
                 try:
                     Close.close_with_countdown(int(cmd[2]) if len(cmd) > 2 else 10)
                 except ValueError:
@@ -51,13 +56,13 @@ class Close:
         return
         #Close.programmed(cmd[1])
     
-    def close() -> None:
+    def close() -> bool:
         print(f'{Fore.BLACK}',end='')
         os.system('exit')
         return False
         
 
-    def close_with_countdown(n) -> None:
+    def close_with_countdown(n) -> bool:
         from .now import TimeUtils
         
         from colorama import Fore
@@ -73,6 +78,20 @@ class Close:
         asyncio.sleep(1)
         print(courent_time)
 
+    def help() -> None:
+        print(f'{Fore.MAGENTA}CLOSE{Fore.WHITE}')
+        print(f'\nPermette di chiudere l\'applicazione')
+        print(f'\nSintassi: close <OPZIONE> | close <OPZIONE> <SECONDI>')
+        print(f'OPZIONI:')
+        print(f'\t--COUNTDOWN\t\tPermette di chiudere l\'applicazione mostrando un countdown in un numero di secondi')
+        print(f'\t--HELP\t\t\tMostra questo messaggio')
+
+class ClearScreen:
+    def __init__(self):
+        pass
+    
+    def clear() -> None:
+        os.system('cls')
 
 def help(options: list) -> None:
     pass

@@ -26,32 +26,37 @@ def cmd(cmd,username):
 
             command = json.load(file)
 
-            if cmd[0] == command['COUNTFILE']:
-                from cmds import countfile
-                countfile.run(cmd)
-                return
-
             if cmd[0] == command['CALC']:
                 from cmds import calc
                 calc.run(cmd)
                 return
-            
-            if cmd[0] == command['DIR']:
+
+            elif cmd[0] == command['COUNTFILE']:
+                from cmds import countfile
+                countfile.run(cmd)
+                return
+
+            elif cmd[0] == command['CLS']:
+                from cmds import window
+                window.run(cmd)
+                return
+
+            elif cmd[0] == command['DIR']:
                 from cmds import dir
                 dir.run(cmd)
                 return
 
-            if cmd[0] == command['DATE']:
+            elif cmd[0] == command['DATE']:
                 from cmds import now
                 now.run(cmd)
                 return
 
-            if cmd[0] == command['HELP']:
+            elif cmd[0] == command['HELP']:
                 import cmds.help
                 cmds.help.General.help()
                 return
             
-            if cmd[0] == command['TIME']:
+            elif cmd[0] == command['TIME']:
                 from cmds import now
                 now.run(cmd)
                 return

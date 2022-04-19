@@ -35,13 +35,16 @@ while continue_execution:
     cmd[0] = cmd[0].upper()
     with open(f'{os.getcwd()}\cmds\\files\\commands_{NAME}.json','r') as file:
         cmdNames = json.load(file)
+
         if cmd[0] == cmdNames['NICKNAME']:
             import cmds.nickname
             nick = cmds.nickname.run(cmd, nick)
-        if cmd[0] == cmdNames['CLOSE']:
+
+        elif cmd[0] == cmdNames['CLOSE']:
             import cmds.window
             cmd = [ i.upper() for i in cmd ]
             continue_execution = cmds.window.run(cmd)
+
         else:
             cmd = [ i.upper() for i in cmd ]
             cmdhandler.cmd(cmd, NAME)
