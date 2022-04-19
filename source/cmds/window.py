@@ -7,6 +7,7 @@
 #from asyncio import create_task, tasks
 import os, asyncio, colorama
 from colorama import Fore, Style
+
 colorama.init()
 
 def run(cmd:list) -> bool:#NOTE: questo comanso di default è solo per il testing
@@ -16,9 +17,12 @@ def run(cmd:list) -> bool:#NOTE: questo comanso di default è solo per il testin
 
 
     if len(cmd) > 1:
-        if cmd[0] == 'CLOSE':
+        if cmd[1] == '--HELP' or cmd[1] == '--H':
+            return Help.run(cmd)
+        elif cmd[0] == 'CLOSE':
             return Close.start(cmd)
     else:
+
         if cmd[0] == 'CLOSE':
             return Close.close()
         elif cmd[0] == 'CLS':
@@ -33,11 +37,7 @@ class Close:
         
         elif '-' in cmd[1][0] and '-' in cmd[1][1]:
             # Ha un attributo
-            if cmd[1] == '--HELP' or cmd[1] == '--H':
-                Close.help()
-                return True
-                
-            elif cmd[1] == '--COUNTDOWN':
+            if cmd[1] == '--COUNTDOWN':
                 try:
                     Close.close_with_countdown(int(cmd[2]) if len(cmd) > 2 else 10)
                 except ValueError:
@@ -93,5 +93,17 @@ class ClearScreen:
     def clear() -> None:
         os.system('cls')
 
-def help(options: list) -> None:
-    pass
+    def help() -> None:
+        print(f'{Fore.MAGENTA}CLS{Fore.WHITE}')
+        print(f'\nCancella tutto quel che e\' sullo schermo')
+        print(f'Sintassi: cls')
+        
+class Help:
+    def run(cmd: list) -> True:
+        if cmd[0] == 'CLOSE':
+            Close.help()
+        elif cmd[0] == 'CLS':
+            ClearScreen.help()
+
+        return True
+
