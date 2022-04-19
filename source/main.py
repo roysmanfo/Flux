@@ -39,9 +39,9 @@ while continue_execution:
             import cmds.nickname
             nick = cmds.nickname.run(cmd, nick)
         if cmd[0] == cmdNames['CLOSE']:
-            import cmds.system
+            import cmds.window
             cmd = [ i.upper() for i in cmd ]
-            continue_execution = cmds.system.run(cmd)
+            continue_execution = cmds.window.run(cmd)
         else:
             cmd = [ i.upper() for i in cmd ]
             cmdhandler.cmd(cmd, NAME)
