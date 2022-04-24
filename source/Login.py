@@ -11,6 +11,7 @@ colorama.init(autoreset=True)
 userRole = ''
 tree = '\\Cristal\\Files\\Login'
 n = 0
+
 def roleCheck():#Serve a sapere che ruolo dare all'utente se non c'è un admin
     global userRole
     i = open(f'{tree}\\Users.json','w')
@@ -41,18 +42,24 @@ def register(dir):
 
             UserNameApproved = False
             while UserNameApproved != True:
-                            UserName = input('Nome utente:  ')
-                            with open(f'{tree}\\Users.json','r') as l:
-                                try:
-                                    file = json.load(l)
-                                    for i in file:
-                                        name = file[i]['name']
-                                        if UserName != name:
-                                            UserNameApproved = True
-                                    print(f'\nA quanto pare, esiste già un utente con {Style.BRIGHT}{UserName}{Style.RESET_ALL} come nome utente')
-                                    print('Prova con un nuovo nome utente\n')
-                                except JSONDecodeError:
-                                    UserNameApproved = True
+                UserName = input('Nome utente:  ')
+                while UserName == '':
+                    UserName = input('Nome utente:  ')
+                    if UserName == '':
+                        print(f'{Fore.RED}Il nome utente non può essere vuoto{Fore.RESET}')
+
+                with open(f'{tree}\\Users.json','r') as l:
+                    try:
+                        file = json.load(l)
+                        for i in file:
+                            name = file[i]['name']
+                            if UserName != name and UserName != '':
+                                UserNameApproved = True
+                        print(f'\nA quanto pare, esiste già un utente con {Style.BRIGHT}{UserName}{Style.RESET_ALL} come nome utente')
+                        print('Prova con un nuovo nome utente\n')
+                    except JSONDecodeError:
+                        UserNameApproved = True
+                        
             UserPassword = ''
             while len(UserPassword) < 8:
                 UserPassword = input('Password:  ')
@@ -83,33 +90,40 @@ def register(dir):
             
             
             os.chdir(Dir)
-            # Creazione del file settings
-            os.makedirs(f'.\{UserName}\settings ')
+            # Creazione della directory settings
 
-            with open(f'settings\settings_{UserName}.json','w') as file:
+            setting_dir = f'.\\users\\{UserName}\ '
+            try:
+                os.makedirs(setting_dir)
+            except FileExistsError:
+                # La directory esiste già, quindi non c'è bisogno di crearla, possiamo passare avanti
+                pass
+
+            with open(r'.\users\\'+UserName+r'\settings.json','w') as file:
                 # Scrittura delle informazioni di default
                 settings = {
                             "lang":{
                                 "file-lang":"it"
                             },
                             "outputs":{
-                                "output-dir":"/Cristal/output"
+                                "output-dir":f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\"
                             }
                         }
 
                 # Scrittura sul file settings_{UserName}.json sell'utente
-                json.dumps(settings, file, indent=4)
-
+                json.dump(settings, file, indent=4)
 
             os.chdir(Dir)
 
             #Scrittura file contenente lista comandi personalizzabili
-            commandFile = open(f'{dir}\\cmds\files\commands.json','r')
-            with open(f'{dir}\\cmds\\files\\commands{UserName}.json','w') as file:
+            commandFile = open(f'.\\cmds\\files\commands.json','r')
+            with open(f'.\\cmds\\files\\commands_{UserName}.json','w') as file:
                 file.writelines(commandFile)
 
             print(f'{Fore.GREEN}Registrazione completata con successo')
+
             os.chdir(Dir)
+            return 1, None
 def log(dir):
     
     #Utente registrato nell'app

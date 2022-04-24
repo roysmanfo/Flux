@@ -31,11 +31,19 @@ class Utils:
             print(n)
             n -= 1
             time.sleep(1)
+    
+    def get_path_dir(target_dir:str) -> str:
+        import os
+        return os.path.join(os.path.expanduser('~'), target_dir)
+
+    def get_path_file(target_dir:str, file_name:str) -> str:
+        import os
+        return os.path.join(os.path.expanduser('~'), target_dir, file_name)
 
 
 class Performance:   
     #Testa la velocità della rete
-    def webPerformance(name:str = 'roysmanfohub.web.app', numberOfThreads:int = 10) -> None:
+    def ping(name:str = 'roysmanfohub.web.app', numberOfThreads:int = 10) -> None:
         try:
             import os
             os.system(f'ping -n {numberOfThreads} {name}')
@@ -46,12 +54,12 @@ class Performance:
 
 class Security:
     def cript(string:str=None) -> str:
-        if string == None:
+        if string is None:
             return None
         else:
             return string.encode('utf-8').hex()
     def decript(string:str=None) -> str:
-        if string == None:
+        if string is None:
             return None
         else:
             return bytes.fromhex(string).decode('utf-8')

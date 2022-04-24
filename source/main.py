@@ -1,4 +1,12 @@
-#NOTE: il comando nickname è un comando che non funziona, perchè non cambia il nick
+# GitHub: RoysManfo/Cristal
+# Description: Main file for the program
+#   ______    ___  ___ 
+#  |      \  |   \/   |
+#  |  | __/  |        |
+#  |  |  \   |  |\/|  |
+#  |__|\__\  |__|  |__|
+#
+
 import os, json
 import colorama
 from colorama import Fore
