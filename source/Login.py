@@ -26,7 +26,7 @@ def roleCheck():#Serve a sapere che ruolo dare all'utente se non c'è un admin
         else:
             userRole = 'Guest'
     return userRole
-def numberCheck():
+def numberCheck() -> int:
     global n
     with open(f'{tree}\\Users.json','r') as l:
         try:
@@ -84,6 +84,21 @@ def register(dir):
                     fileCredenziali. writelines(f'\n        "{i}": {User[i]}')
 
                 fileCredenziali.writelines("\n    }\n}\n")
+            
+            # Creazione del file settings.json
+
+            with open(f'{tree}\\settings.json','w') as file:
+                settings = {
+                    "dir": {
+                        "defoult-output-dir": '"\documents\Cristal\output",',
+                    },
+                    "lang": {
+                        "file-lang": '"it",',
+                    }
+                }
+                #Scrivi sul file settings.json i valori di default contenuti in settings usando json.dump
+                json.dump(settings, file)
+
             os.chdir(dir)
 
             #Scrittura file contenente lista comandi personalizzabili
@@ -124,8 +139,7 @@ def log(dir):
                 print()
             
             return 0, user, str(l[f'User{user}']['name']) # Tutto apposto, il file è presente e l'utente è loggato
-        
-        except OSError or IOError or FileNotFoundError:
+        except Exception:
             os.makedirs(f'{tree}\\')
             os.chdir(f'{tree}\\')
             print(f'{Fore.RED}\nC\'e stato un problema con il file, si è verificato un errore')
