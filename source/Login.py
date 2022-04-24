@@ -11,6 +11,7 @@ colorama.init(autoreset=True)
 userRole = ''
 tree = '\\Cristal\\Files\\Login'
 n = 0
+
 def roleCheck():#Serve a sapere che ruolo dare all'utente se non c'è un admin
     global userRole
     i = open(f'{tree}\\Users.json','w')
@@ -26,15 +27,14 @@ def roleCheck():#Serve a sapere che ruolo dare all'utente se non c'è un admin
         else:
             userRole = 'Guest'
     return userRole
-def numberCheck():
+def numberCheck() -> int:
     global n
     with open(f'{tree}\\Users.json','r') as l:
         try:
             f = json.load(l)
-            n = 0
             n = len(f)
         except JSONDecodeError:
-            n = 1
+            n = 0
     return n + 1
 def register(dir):
             role = str(roleCheck())
@@ -42,18 +42,24 @@ def register(dir):
 
             UserNameApproved = False
             while UserNameApproved != True:
-                            UserName = input('Nome utente:  ')
-                            with open(f'{tree}\\Users.json','r') as l:
-                                try:
-                                    file = json.load(l)
-                                    for i in file:
-                                        name = file[i]['name']
-                                        if UserName != name:
-                                            UserNameApproved = True
-                                    print(f'\nA quanto pare, esiste già un utente con {Style.BRIGHT}{UserName}{Style.RESET_ALL} come nome utente')
-                                    print('Prova con un nuovo nome utente\n')
-                                except JSONDecodeError:
-                                    UserNameApproved = True
+                UserName = input('Nome utente:  ')
+                while UserName == '':
+                    UserName = input('Nome utente:  ')
+                    if UserName == '':
+                        print(f'{Fore.RED}Il nome utente non può essere vuoto{Fore.RESET}')
+
+                with open(f'{tree}\\Users.json','r') as l:
+                    try:
+                        file = json.load(l)
+                        for i in file:
+                            name = file[i]['name']
+                            if UserName != name and UserName != '':
+                                UserNameApproved = True
+                        print(f'\nA quanto pare, esiste già un utente con {Style.BRIGHT}{UserName}{Style.RESET_ALL} come nome utente')
+                        print('Prova con un nuovo nome utente\n')
+                    except JSONDecodeError:
+                        UserNameApproved = True
+                        
             UserPassword = ''
             while len(UserPassword) < 8:
                 UserPassword = input('Password:  ')
@@ -72,27 +78,52 @@ def register(dir):
             # Scrittura sul file
             with open('Users.json', 'w') as fileCredenziali:
                 User = {
-                    "name": f'"{UserName}",',
-                    "password": f'"{UserPassword}",',
-                    "email": 'null,',
-                    "role": f'"{role}",',
-                    "status": '"Online"'# Andrà cambiato in offline quando si scrive il comando close
+                    "User" + str(userNumber): {
+                        "name": f'{UserName}',
+                        "password": f'{UserPassword}',
+                        "email": 'null,',
+                        "role": f'{role}',
+                        "status": 'Active'# Andrà cambiato in Inactive se si vuole cambiare utente
+                    }
                 }
+                json.dump(User, fileCredenziali, indent=4)
+            
+            
+            os.chdir(Dir)
+            # Creazione della directory settings
 
-                fileCredenziali.writelines('{\n    "User'+str(userNumber)+'": {')
-                for i in User:
-                    fileCredenziali. writelines(f'\n        "{i}": {User[i]}')
+            setting_dir = f'.\\users\\{UserName}\ '
+            try:
+                os.makedirs(setting_dir)
+            except FileExistsError:
+                # La directory esiste già, quindi non c'è bisogno di crearla, possiamo passare avanti
+                pass
 
-                fileCredenziali.writelines("\n    }\n}\n")
-            os.chdir(dir)
+            with open(r'.\users\\'+UserName+r'\settings.json','w') as file:
+                # Scrittura delle informazioni di default
+                settings = {
+                            "lang":{
+                                "file-lang":"it"
+                            },
+                            "outputs":{
+                                "output-dir":f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\"
+                            }
+                        }
+
+                # Scrittura sul file settings_{UserName}.json sell'utente
+                json.dump(settings, file, indent=4)
+
+            os.chdir(Dir)
 
             #Scrittura file contenente lista comandi personalizzabili
-            commandFile = open(f'{dir}\\cmds\files\commands.json','r')
-            with open(f'{dir}\\cmds\\files\\commands{UserName}.json','w') as file:
+            commandFile = open(f'.\\cmds\\files\commands.json','r')
+            with open(f'.\\cmds\\files\\commands_{UserName}.json','w') as file:
                 file.writelines(commandFile)
 
             print(f'{Fore.GREEN}Registrazione completata con successo')
+
             os.chdir(Dir)
+            return 1, None
 def log(dir):
     
     #Utente registrato nell'app
@@ -124,8 +155,7 @@ def log(dir):
                 print()
             
             return 0, user, str(l[f'User{user}']['name']) # Tutto apposto, il file è presente e l'utente è loggato
-        
-        except OSError or IOError or FileNotFoundError:
+        except Exception:
             os.makedirs(f'{tree}\\')
             os.chdir(f'{tree}\\')
             print(f'{Fore.RED}\nC\'e stato un problema con il file, si è verificato un errore')
