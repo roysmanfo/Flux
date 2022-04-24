@@ -31,10 +31,9 @@ def numberCheck() -> int:
     with open(f'{tree}\\Users.json','r') as l:
         try:
             f = json.load(l)
-            n = 0
             n = len(f)
         except JSONDecodeError:
-            n = 1
+            n = 0
     return n + 1
 def register(dir):
             role = str(roleCheck())
@@ -72,34 +71,37 @@ def register(dir):
             # Scrittura sul file
             with open('Users.json', 'w') as fileCredenziali:
                 User = {
-                    "name": f'"{UserName}",',
-                    "password": f'"{UserPassword}",',
-                    "email": 'null,',
-                    "role": f'"{role}",',
-                    "status": '"Online"'# Andrà cambiato in offline quando si scrive il comando close
-                }
-
-                fileCredenziali.writelines('{\n    "User'+str(userNumber)+'": {')
-                for i in User:
-                    fileCredenziali. writelines(f'\n        "{i}": {User[i]}')
-
-                fileCredenziali.writelines("\n    }\n}\n")
-            
-            # Creazione del file settings.json
-
-            with open(f'{tree}\\settings.json','w') as file:
-                settings = {
-                    "dir": {
-                        "defoult-output-dir": '"\documents\Cristal\output",',
-                    },
-                    "lang": {
-                        "file-lang": '"it",',
+                    "User" + str(userNumber): {
+                        "name": f'{UserName}',
+                        "password": f'{UserPassword}',
+                        "email": 'null,',
+                        "role": f'{role}',
+                        "status": 'Active'# Andrà cambiato in Inactive se si vuole cambiare utente
                     }
                 }
-                #Scrivi sul file settings.json i valori di default contenuti in settings usando json.dump
-                json.dump(settings, file)
+                json.dump(User, fileCredenziali, indent=4)
+            
+            
+            os.chdir(Dir)
+            # Creazione del file settings
+            os.makedirs(f'.\{UserName}\settings ')
 
-            os.chdir(dir)
+            with open(f'settings\settings_{UserName}.json','w') as file:
+                # Scrittura delle informazioni di default
+                settings = {
+                            "lang":{
+                                "file-lang":"it"
+                            },
+                            "outputs":{
+                                "output-dir":"/Cristal/output"
+                            }
+                        }
+
+                # Scrittura sul file settings_{UserName}.json sell'utente
+                json.dumps(settings, file, indent=4)
+
+
+            os.chdir(Dir)
 
             #Scrittura file contenente lista comandi personalizzabili
             commandFile = open(f'{dir}\\cmds\files\commands.json','r')
