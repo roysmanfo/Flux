@@ -2,6 +2,8 @@ from gtts import gTTS
 import speech_recognition as sr
 import os
 
+# NOTE: Questa funzione non è ancora stata implementata
+# NOTE: Le informazioni verranno richieste in modo separato e non tutto in una riga
 
 # Sintassi: speech --audio <lang> <name> --file  <filePath> <FileDestination>    Conversione file
 #           speech --audio <text> <FileDestination> <lang>                      Conversione testo   
