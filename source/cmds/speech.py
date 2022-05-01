@@ -2,6 +2,7 @@ from gtts import gTTS
 import speech_recognition as sr
 import os
 
+
 # NOTE: Questa funzione non è ancora stata implementata
 # NOTE: Le informazioni verranno richieste in modo separato e non tutto in una riga
 
@@ -12,25 +13,23 @@ import os
 #           speech --text                        Conversione testo
 
 def run(cmd:list, user_name:str, settings_file_path:str):
-    import os, sys
-    courent_dir = os.getcwd()
-    #sys.path.append(os.chdir('..\\'))
+
     from ..utils import utils
     from colorama import Fore
+
     if cmd[1] == '--AUDIO' and '--TEXT' not in cmd:
         if '--FILE' in cmd:
             # .txt => .mp3
             
             lang = input('Lingua: ')
             name = input('Nome file: ')
-
-            while go_on == False:
+            go_ahead = False
+            while go_ahead == False:
                 filePath = input('Percorso file: ')
-                if os.path.isfile(filePath):
-                    go_on = True
+                if utils.Utils.check_if_file_exists(filePath):
+                    go_ahead = True
                 else:
                     print(f'{Fore.RED}Il file {filePath} non esiste{Fore.RESET}')
-                    go_on = False
 
             text = open(filePath, 'r').read()
             fileDestination = input('Percorso destinazione: ')
@@ -40,12 +39,13 @@ def run(cmd:list, user_name:str, settings_file_path:str):
         elif '--FILE' not in cmd:
             # text => .mp3
             pass
-            
+
 
 class TextToSpeech:
     def convert_to_speeck(text:str, lang:str, name:str, file_path:str, destination:str, settings_file_path:str) -> None:
-        import json, utils, colorama
+        import json, colorama
         from colorama import Fore
+        from ..utils import utils
         colorama.init()
         
         with open(settings_file_path, 'r') as file:

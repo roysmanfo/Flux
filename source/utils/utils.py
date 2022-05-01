@@ -1,6 +1,24 @@
 # Funzioni untili per il progetto
 
 class Utils:
+    """
+    Funzioni utili per diverse operazioni, come il calcolo delle dimensioni di un file,
+    il calcolo del tempo di esecuzione di una funzione, ecc.
+    """
+
+    #Calcola la dimensione di un file
+    def get_file_size(file_path:str) -> int:
+        import os
+        return os.path.getsize(file_path)
+
+    #Calcola il tempo di esecuzione di una funzione
+    def get_execution_time(func:callable) -> float:
+        import time
+        start = time.time()
+        func()
+        end = time.time()
+        return end - start
+
     #Data una stringa, restituisce una lista di parole
     def string_to_list(string:str=None):
         if string == None or string == '':
@@ -48,9 +66,9 @@ class Utils:
         return os.path.isdir(target_dir)
     
     #Controlla se un file esiste
-    def check_if_file_exists(target_dir:str, file_name:str) -> bool:
+    def check_if_file_exists(target:str) -> bool:
         import os
-        return os.path.isfile(target_dir, file_name)
+        return os.path.isfile(r'{}'.format(target))
 
 class Performance:   
     #Testa la velocità della rete
