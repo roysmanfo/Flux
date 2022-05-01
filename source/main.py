@@ -10,7 +10,7 @@
 import os, json
 import colorama
 from colorama import Fore
-import Login, cmdhandler
+import Login, cmd_handler
 from .utils import utils
 
 colorama.init(autoreset=True)
@@ -56,4 +56,4 @@ while continue_execution:
 
         else:
             cmd = [ i.upper() for i in cmd ]
-            cmdhandler.cmd(cmd, NAME)
+            cmd_handler.cmd(cmd, NAME)
