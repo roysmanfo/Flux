@@ -10,7 +10,8 @@
 import os, json
 import colorama
 from colorama import Fore
-import Login, cmdhandler, utils
+import Login, cmdhandler
+from .utils import utils
 
 colorama.init(autoreset=True)
 

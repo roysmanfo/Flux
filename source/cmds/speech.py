@@ -14,8 +14,8 @@ import os
 def run(cmd:list, user_name:str, settings_file_path:str):
     import os, sys
     courent_dir = os.getcwd()
-    sys.path.append(os.chdir('..\\'))
-    import utils
+    #sys.path.append(os.chdir('..\\'))
+    from ..utils import utils
     from colorama import Fore
     if cmd[1] == '--AUDIO' and '--TEXT' not in cmd:
         if '--FILE' in cmd:

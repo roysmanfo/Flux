@@ -5,7 +5,7 @@ import json, colorama
 from json.decoder import JSONDecodeError
 import os, time
 from colorama import Fore, Style
-import utils
+from .utils import utils
 colorama.init(autoreset=True)
 
 userRole = ''
