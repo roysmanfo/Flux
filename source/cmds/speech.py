@@ -1,12 +1,12 @@
 from gtts import gTTS
-#import speech_recognition as sr
+import speech_recognition as sr
 import os
 
 
 # NOTE: Questa funzione non è ancora stata implementata
 # NOTE: Le informazioni verranno richieste in modo separato e non tutto in una riga
 
-# Sintassi: speech --audio [OPZIONE]             Conversione file
+# Sintassi: speech --audio --file             Conversione file
 #           speech --audio                       Conversione testo   
 
 # Sintassi: speech --text [OPZIONE]              Conversione file
@@ -35,15 +35,28 @@ def run(cmd:list, user_name:str, settings_file_path:str):
             text = open(file_path, 'r').read()
             fileDestination = input('Percorso destinazione: ')
 
-            TextToSpeech.convert_to_speeck(text, lang, name, file_path ,fileDestination, settings_file_path)
+            TextToSpeech.convert_to_speech(text, lang, name, file_path ,fileDestination, settings_file_path)
 
         elif '--FILE' not in cmd:
-            # text => .mp3
-            pass
+            lang = input('Lingua: ')
+            name = input('Nome file: ')
+            go_ahead = False
+            
+            fileDestination = input('Percorso destinazione: ')
+            text = input('Testo: ')
+
+            TextToSpeech.convert_to_speech(
+                text = text,
+                lang = lang,
+                name = name,
+                destination = fileDestination,
+                settings_file_path = settings_file_path,
+                file_path=''
+                )
 
 
 class TextToSpeech:
-    def convert_to_speeck(text:str, lang:str, name:str, file_path:str, destination:str, settings_file_path:str) -> None:
+    def convert_to_speech(text:str, lang:str, name:str, file_path:str, destination:str, settings_file_path:str) -> None:
         import json, colorama
         from colorama import Fore
         import utils
@@ -91,4 +104,4 @@ class TextToSpeech:
             except FileNotFoundError:
                 print(f'{Fore.RED}La directory {destination} non esiste{Fore.RESET}')
         
-run( ['SPEECH', '--AUDIO', '--FILE'] ,'Test',r'C:\Users\HP\Desktop\Cristal\Cristal\source\users\Test\settings.json')
+run( ['SPEECH', '--AUDIO'] ,'Test',r'C:\Users\HP\Desktop\Cristal\Cristal\source\users\Test\settings.json')
