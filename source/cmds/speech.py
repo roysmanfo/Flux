@@ -1,5 +1,5 @@
 from gtts import gTTS
-import speech_recognition as sr
+#import speech_recognition as sr
 import os
 
 
@@ -13,8 +13,8 @@ import os
 #           speech --text                        Conversione testo
 
 def run(cmd:list, user_name:str, settings_file_path:str):
-
-    from ..utils import utils
+    # NOTE: https://docs.python.org/3/tutorial/modules.html#intra-package-references
+    import utils
     from colorama import Fore
 
     if cmd[1] == '--AUDIO' and '--TEXT' not in cmd:
@@ -24,17 +24,18 @@ def run(cmd:list, user_name:str, settings_file_path:str):
             lang = input('Lingua: ')
             name = input('Nome file: ')
             go_ahead = False
-            while go_ahead == False:
-                filePath = input('Percorso file: ')
-                if utils.Utils.check_if_file_exists(filePath):
+
+            while not go_ahead:
+                file_path = input('Percorso file: ')
+                if utils.Utils.check_if_file_exists(file_path):
                     go_ahead = True
                 else:
-                    print(f'{Fore.RED}Il file {filePath} non esiste{Fore.RESET}')
+                    print(f'{Fore.RED}Il file {file_path} non esiste{Fore.RESET}')
 
-            text = open(filePath, 'r').read()
+            text = open(file_path, 'r').read()
             fileDestination = input('Percorso destinazione: ')
-            
-            TextToSpeech.convert_to_speeck(text, lang, name, fileDestination, settings_file_path)
+
+            TextToSpeech.convert_to_speeck(text, lang, name, file_path ,fileDestination, settings_file_path)
 
         elif '--FILE' not in cmd:
             # text => .mp3
@@ -45,33 +46,47 @@ class TextToSpeech:
     def convert_to_speeck(text:str, lang:str, name:str, file_path:str, destination:str, settings_file_path:str) -> None:
         import json, colorama
         from colorama import Fore
-        from ..utils import utils
+        import utils
         colorama.init()
         
+
         with open(settings_file_path, 'r') as file:
             settings = json.load(file)
 
-            if text is None:
+            if text == '':
                 text = 'Cristal'
-            if lang is None:
+            if lang == '':
                 lang = settings['lang']['file-lang']
-            if name is None:
+            if name == '':
                 name = 'CristalAudio_'
 
-            if file_path is None:
+            if file_path == '':
                 file_path = utils.Utils.get_path_dir('Documents')
-            if destination is None:
+            if destination == '':
                 destination = settings['outputs']['output-dir'] + 'audio\\'
 
             try:
                 print('Elaborazione in corso...')
                 tts = gTTS(text=text, lang=lang)
                 n = 1
-                for file in os.listdir(destination):
-                    if file == f'{name}{n}.mp3':
-                        n += 1
-                file_name = f'{name}{n}.mp3'
-                os.chdir(destination)
+                try:
+                    os.makedirs(destination)
+                    os.chdir(destination)
+                    for file in os.listdir(destination):
+                        if file == f'{name}{n}.mp3':
+                            n += 1
+                    file_name = f'{name}{n}.mp3'
+                    if destination == settings['outputs']['output-dir'] + 'audio\\':
+                        print(f'{Fore.GREEN}File creato: {file_name} in {destination}')
+                except FileNotFoundError:
+                    #Se la directory non esiste, verrà creata
+                    os.mkdir(destination)
+                    os.chdir(destination)
+                    for file in os.listdir(destination):
+                        if file == f'{name}{n}.mp3':
+                            n += 1
+                    file_name = f'{name}{n}.mp3'
+
                 tts.save(file_name)
             except FileNotFoundError:
                 print(f'{Fore.RED}La directory {destination} non esiste{Fore.RESET}')

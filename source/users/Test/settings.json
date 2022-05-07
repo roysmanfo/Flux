@@ -3,8 +3,8 @@
         "file-lang": "it"
     },
     "outputs": {
-        "output-dir": "C:\\Users\\HP\\Documents\\Cristal\\",
-        "audio": "C:\\Users\\HP\\Documents\\Cristal\\audio\\",
-        "text": "C:\\Users\\HP\\Documents\\Cristal\\text\\"
+        "output-dir": "C:\\Users\\HP\\Documents\\Cristal\\output\\",
+        "audio": "C:\\Users\\HP\\Documents\\Cristal\\outputaudio\\",
+        "text": "C:\\Users\\HP\\Documents\\Cristal\\output\\text\\"
     }
 }
