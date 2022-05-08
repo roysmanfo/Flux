@@ -2,25 +2,24 @@ from gtts import gTTS
 import speech_recognition as sr
 import os
 
-
+# NOTE: https://docs.python.org/3/tutorial/modules.html#intra-package-references
 # NOTE: Questa funzione non è ancora stata implementata
 # NOTE: Le informazioni verranno richieste in modo separato e non tutto in una riga
 
-# Sintassi: speech --audio --file             Conversione file
+# Sintassi: speech --audio --file                Conversione file
 #           speech --audio                       Conversione testo   
 
 # Sintassi: speech --text [OPZIONE]              Conversione file
 #           speech --text                        Conversione testo
 
 def run(cmd:list, user_name:str, settings_file_path:str):
-    # NOTE: https://docs.python.org/3/tutorial/modules.html#intra-package-references
+
     import utils
     from colorama import Fore
 
     if cmd[1] == '--AUDIO' and '--TEXT' not in cmd:
         if '--FILE' in cmd:
-            # .txt => .mp3
-            
+            # Da file a file
             lang = input('Lingua: ')
             name = input('Nome file: ')
             go_ahead = False
@@ -38,22 +37,20 @@ def run(cmd:list, user_name:str, settings_file_path:str):
             TextToSpeech.convert_to_speech(text, lang, name, file_path ,fileDestination, settings_file_path)
 
         elif '--FILE' not in cmd:
+            pass
+
+    if cmd[1] == '--TEXT' and '--AUDIO' not in cmd:   
+        if '--FILE' in cmd:
+            # Salva in un il file
             lang = input('Lingua: ')
             name = input('Nome file: ')
             go_ahead = False
-            
+
             fileDestination = input('Percorso destinazione: ')
-            text = input('Testo: ')
-
-            TextToSpeech.convert_to_speech(
-                text = text,
-                lang = lang,
-                name = name,
-                destination = fileDestination,
-                settings_file_path = settings_file_path,
-                file_path=''
-                )
-
+            TextToSpeech.convert_to_text(lang, name, fileDestination, settings_file_path)
+        elif '--FILE' not in cmd:
+            # Stamperà il testo a schermo
+            pass
 
 class TextToSpeech:
     def convert_to_speech(text:str, lang:str, name:str, file_path:str, destination:str, settings_file_path:str) -> None:
@@ -76,7 +73,7 @@ class TextToSpeech:
             if file_path == '':
                 file_path = utils.Utils.get_path_dir('Documents')
             if destination == '':
-                destination = settings['outputs']['output-dir'] + 'audio\\'
+                destination = settings['outputs']['audio']
 
             try:
                 print('Elaborazione in corso...')
@@ -89,7 +86,7 @@ class TextToSpeech:
                         if file == f'{name}{n}.mp3':
                             n += 1
                     file_name = f'{name}{n}.mp3'
-                    if destination == settings['outputs']['output-dir'] + 'audio\\':
+                    if destination == settings['outputs']['audio']:
                         print(f'{Fore.GREEN}File creato: {file_name} in {destination}')
                 except FileNotFoundError:
                     #Se la directory non esiste, verrà creata
@@ -103,5 +100,55 @@ class TextToSpeech:
                 tts.save(file_name)
             except FileNotFoundError:
                 print(f'{Fore.RED}La directory {destination} non esiste{Fore.RESET}')
+
+    def convert_to_text(lang:str, name:str, destination:str, settings_file_path:str) -> None:
+        import json, colorama
+        from colorama import Fore
+        import utils
+        colorama.init()
+
+        with open(settings_file_path, 'r') as file:
+            settings = json.load(file)
+
+        if lang == '':
+            lang = settings['lang']['file-lang']
+        if name == '':
+            name = 'CristalText_'
+        if destination == '':
+            destination = settings['outputs']['text']
+
+        try:
+            print('Elaborazione in corso...')
+            recognizer_istance = sr.Recognizer()
+            
+            with sr.Microphone() as source:
+                recognizer_istance.adjust_for_ambient_noise(source)
+                print("In Ascolto")
+                audio = recognizer_istance.listen(source)
+                print('Elaborazione...')
+            
+            try:
+
+                text = recognizer_istance.recognize_google(audio, language='it-IT')
+                print(f'{Fore.GREEN}Registrazione riuscita{Fore.RESET}')
+
+                os.makedirs(destination)
+                os.chdir(destination)
+
+                n = 1
+                for file in os.listdir(destination):
+                    if file == f'{name}{n}.txt':
+                        n += 1
+                file_name = f'{name}{n}.txt'
+
+                with open(file_name, 'w') as file:
+                    file.writelines(text)
+                    print(f'{Fore.GREEN}File creato: {name}.txt in {destination}')
+                
+            except sr.UnknownValueError:
+                print(f'{Fore.RED}Errore nella registrazione{Fore.RESET}')
         
-run( ['SPEECH', '--AUDIO'] ,'Test',r'C:\Users\HP\Desktop\Cristal\Cristal\source\users\Test\settings.json')
+        except Exception as e:
+            print(e)
+        
+run( ['SPEECH', '--TEXT', '--FILE'] ,'Test',r'C:\Users\HP\Desktop\Cristal\Cristal\source\users\Test\settings.json')
