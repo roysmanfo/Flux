@@ -116,7 +116,7 @@ class TextToSpeech:
         if lang == '':
             lang = settings['lang']['general-lang']
         if name == '':
-            name = 'CristalText_'
+            name = settings['file-name']['text']
         if destination == '':
             destination = settings['outputs']['text']
 
