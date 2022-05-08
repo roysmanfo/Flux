@@ -20,33 +20,48 @@ def run(cmd:list, user_name:str, settings_file_path:str):
     if cmd[1] == '--AUDIO' and '--TEXT' not in cmd:
         if '--FILE' in cmd:
             # Da file a file
-            lang = input('Lingua: ')
-            name = input('Nome file: ')
+            lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
+            name = input(f'{Fore.WHITE}Nome file:{Fore.BLUE} ')
             go_ahead = False
 
             while not go_ahead:
-                file_path = input('Percorso file: ')
+                file_path = input(f'{Fore.WHITE}Percorso file:{Fore.BLUE} ')
                 if utils.Utils.check_if_file_exists(file_path):
                     go_ahead = True
                 else:
                     print(f'{Fore.RED}Il file {file_path} non esiste{Fore.RESET}')
 
             text = open(file_path, 'r').read()
-            fileDestination = input('Percorso destinazione: ')
+            fileDestination = input(f'{Fore.WHITE}Percorso destinazione:{Fore.BLUE} ')
 
             TextToSpeech.convert_to_speech(text, lang, name, file_path ,fileDestination, settings_file_path)
 
         elif '--FILE' not in cmd:
-            pass
+            # Da testo a file
+            lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
+            name = input(f'{Fore.WHITE}Nome file:{Fore.BLUE} ')
+            go_ahead = False
+
+            while not go_ahead:
+                file_path = input(f'{Fore.WHITE}Percorso file:{Fore.BLUE} ')
+                if utils.Utils.check_if_file_exists(file_path):
+                    go_ahead = True
+                else:
+                    print(f'{Fore.RED}Il file {file_path} non esiste{Fore.RESET}')
+
+            text = input(f'{Fore.WHITE}Testo:{Fore.BLUE} ')
+            fileDestination = input(f'{Fore.WHITE}Percorso destinazione:{Fore.BLUE} ')
+
+            TextToSpeech.convert_to_speech(text, lang, name, file_path ,fileDestination, settings_file_path)
 
     if cmd[1] == '--TEXT' and '--AUDIO' not in cmd:   
         if '--FILE' in cmd:
             # Salva in un il file
-            lang = input('Lingua: ')
-            name = input('Nome file: ')
+            lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
+            name = input(f'{Fore.WHITE}Nome file:{Fore.BLUE} ')
             go_ahead = False
 
-            fileDestination = input('Percorso destinazione: ')
+            fileDestination = input(f'{Fore.WHITE}Percorso destinazione:{Fore.BLUE} ')
             TextToSpeech.convert_to_text(lang, name, fileDestination, settings_file_path)
         elif '--FILE' not in cmd:
             # Stamperà il testo a schermo
@@ -76,7 +91,7 @@ class TextToSpeech:
                 destination = settings['outputs']['audio']
 
             try:
-                print('Elaborazione in corso...')
+                print(f'{Fore.WHITE}Elaborazione in corso...')
                 tts = gTTS(text=text, lang=lang)
                 n = 1
                 try:
@@ -88,6 +103,7 @@ class TextToSpeech:
                     file_name = f'{name}{n}.mp3'
                     if destination == settings['outputs']['audio']:
                         print(f'{Fore.GREEN}File creato: {file_name} in {destination}')
+
                 except FileNotFoundError:
                     #Se la directory non esiste, verrà creata
                     os.mkdir(destination)
@@ -126,7 +142,7 @@ class TextToSpeech:
             
             with sr.Microphone() as source:
                 recognizer_istance.adjust_for_ambient_noise(source)
-                print("In Ascolto")
+                print(f"{Fore.WHITE}In Ascolto")
                 audio = recognizer_istance.listen(source)
                 print('\nElaborazione in corso...')
             
