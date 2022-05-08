@@ -5,7 +5,7 @@ import json, colorama
 from json.decoder import JSONDecodeError
 import os, time
 from colorama import Fore, Style
-import utils
+from .utils import utils
 colorama.init(autoreset=True)
 
 userRole = ''
@@ -36,6 +36,43 @@ def numberCheck() -> int:
         except JSONDecodeError:
             n = 0
     return n + 1
+def create_directories(settings = None):
+    # Creazione delle directory di output
+    default_dir = f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\output\\"
+    settings = {
+                    "lang":{
+                        "general-lang":"it-IT",
+                        "file-lang":"it"
+                    },
+                    "file-name": {
+                        "audio": "CristalAudio_",
+                        "text": "CristalText_"
+                    },
+                    "outputs":{
+                        "output-dir": default_dir,
+                        "audio": f"{default_dir}audio\\",
+                        "text": f"{default_dir}text\\",
+                    }
+                }
+    courent_dir = os.getcwd()
+    try:
+        new_dir = utils.Utils.get_path_dir("Documents\\Cristal\\")
+        check_dir = os.chdir(new_dir)
+        print(check_dir)
+        if check_dir == None:
+            os.mkdir(f'{utils.Utils.get_path_dir(settings["outputs"]["output-dir"])}')
+        
+            for dir in settings['outputs']:
+                if dir == 'output-dir':
+                    continue
+                os.mkdir(f'{settings["outputs"][dir]}')
+
+        os.chdir(courent_dir)
+    except FileExistsError:
+        print(f'{Fore.GREEN}La directory {new_dir} esiste già{Fore.RESET}')
+        time.sleep(1)
+        os.chdir(courent_dir)
+
 def register(dir):
             role = str(roleCheck())
             userNumber = numberCheck()
@@ -99,16 +136,19 @@ def register(dir):
                 # La directory esiste già, quindi non c'è bisogno di crearla, possiamo passare avanti
                 pass
 
-            with open(r'.\users\\'+UserName+r'\settings.json','w') as file:
+            with open(r'.\\users\\'+UserName+r'\settings.json','w') as file:
                 # Scrittura delle informazioni di default
+                default_dir = f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\output\\"
                 settings = {
-                            "lang":{
-                                "file-lang":"it"
-                            },
-                            "outputs":{
-                                "output-dir":f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\"
-                            }
-                        }
+                    "lang":{
+                        "file-lang":"it"
+                    },
+                    "outputs":{
+                        "output-dir": default_dir,
+                        "audio": f"{default_dir}audio\\",
+                        "text": f"{default_dir}text\\",
+                    }
+                }
 
                 # Scrittura sul file settings_{UserName}.json sell'utente
                 json.dump(settings, file, indent=4)
@@ -121,6 +161,8 @@ def register(dir):
                 file.writelines(commandFile)
 
             print(f'{Fore.GREEN}Registrazione completata con successo')
+            
+            time.sleep(2)
 
             os.chdir(Dir)
             return 1, None
@@ -186,5 +228,6 @@ def logout(dir):
 
 
 if __name__ == '__main__':
-    print('Questo file non è eseguibile')
+    #print('Questo file non è eseguibile')
+    create_directories()
     os.system('pause')
