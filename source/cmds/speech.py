@@ -102,6 +102,9 @@ class TextToSpeech:
                 print(f'{Fore.RED}La directory {destination} non esiste{Fore.RESET}')
 
     def convert_to_text(lang:str, name:str, destination:str, settings_file_path:str) -> None:
+        """
+        Visti i problemi con pyAudio, questa funzione non è ancora stata implementata
+        """
         import json, colorama
         from colorama import Fore
         import utils
@@ -111,25 +114,25 @@ class TextToSpeech:
             settings = json.load(file)
 
         if lang == '':
-            lang = settings['lang']['file-lang']
+            lang = settings['lang']['general-lang']
         if name == '':
             name = 'CristalText_'
         if destination == '':
             destination = settings['outputs']['text']
 
         try:
-            print('Elaborazione in corso...')
+            
             recognizer_istance = sr.Recognizer()
             
             with sr.Microphone() as source:
                 recognizer_istance.adjust_for_ambient_noise(source)
                 print("In Ascolto")
                 audio = recognizer_istance.listen(source)
-                print('Elaborazione...')
+                print('\nElaborazione in corso...')
             
             try:
 
-                text = recognizer_istance.recognize_google(audio, language='it-IT')
+                text = recognizer_istance.recognize_google(audio, language=lang)
                 print(f'{Fore.GREEN}Registrazione riuscita{Fore.RESET}')
 
                 os.makedirs(destination)
@@ -148,7 +151,7 @@ class TextToSpeech:
             except sr.UnknownValueError:
                 print(f'{Fore.RED}Errore nella registrazione{Fore.RESET}')
         
-        except Exception as e:
-            print(e)
+        except Exception:
+            print(f'{Fore.RED}Errore sconosciuto{Fore.RESET}')
         
 run( ['SPEECH', '--TEXT', '--FILE'] ,'Test',r'C:\Users\HP\Desktop\Cristal\Cristal\source\users\Test\settings.json')

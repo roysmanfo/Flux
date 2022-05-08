@@ -41,7 +41,12 @@ def create_directories(settings = None):
     default_dir = f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\output\\"
     settings = {
                     "lang":{
+                        "general-lang":"it-IT",
                         "file-lang":"it"
+                    },
+                    "file-name": {
+                        "audio": "CristalAudio_",
+                        "text": "CristalText_"
                     },
                     "outputs":{
                         "output-dir": default_dir,
