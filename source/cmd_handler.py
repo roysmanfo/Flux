@@ -8,7 +8,7 @@
 
 import json
 from colorama import Fore
-from .utils import update
+from utils import update
 
 def cmdNotFound(problem):
     print(problem)

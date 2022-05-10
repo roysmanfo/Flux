@@ -12,13 +12,25 @@ import os
 # Sintassi: speech --text [OPZIONE]              Conversione file
 #           speech --text                        Conversione testo
 
-def run(cmd:list, user_name:str, settings_file_path:str):
+def run(cmd:list, settings_file_path:str):
 
     import utils
     from colorama import Fore
+    if len(cmd) == 1:
+        Errors.no_argument_error()
+    elif '--HELP' in cmd and len(cmd) == 2:
+        Help.help()
 
-    if cmd[1] == '--AUDIO' and '--TEXT' not in cmd:
+    elif '--AUDIO' in cmd and '--TEXT' not in cmd:
         if '--FILE' in cmd:
+            # Controllo se non ci sono attributi sconosciuti
+            for i in cmd:
+                if '--' in i:
+                    does_attr_exist = Check.unknown_attribute(i)
+                if does_attr_exist == False:
+                    Errors.unknown_attribute_error(i)
+                    return
+
             # Da file a file
             lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
             name = input(f'{Fore.WHITE}Nome file:{Fore.BLUE} ')
@@ -36,7 +48,7 @@ def run(cmd:list, user_name:str, settings_file_path:str):
 
             TextToSpeech.convert_to_speech(text, lang, name, file_path ,fileDestination, settings_file_path)
 
-        elif '--FILE' not in cmd:
+        elif '--FILE' not in cmd and '--TEXT' in cmd:
             # Da testo a file
             lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
             name = input(f'{Fore.WHITE}Nome file:{Fore.BLUE} ')
@@ -54,7 +66,11 @@ def run(cmd:list, user_name:str, settings_file_path:str):
 
             TextToSpeech.convert_to_speech(text, lang, name, file_path ,fileDestination, settings_file_path)
 
-    if cmd[1] == '--TEXT' and '--AUDIO' not in cmd:   
+        else:
+            Errors.no_argument_error()
+    if '--TEXT' in cmd and '--AUDIO' not in cmd: 
+        # NOTE: Questa parte non è ancora stata ne finita, ne implementata per problemi tecnici
+
         if '--FILE' in cmd:
             # Salva in un il file
             lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
@@ -137,9 +153,7 @@ class TextToSpeech:
             destination = settings['outputs']['text']
 
         try:
-            
             recognizer_istance = sr.Recognizer()
-            
             with sr.Microphone() as source:
                 recognizer_istance.adjust_for_ambient_noise(source)
                 print(f"{Fore.WHITE}In Ascolto")
@@ -167,7 +181,56 @@ class TextToSpeech:
             except sr.UnknownValueError:
                 print(f'{Fore.RED}Errore nella registrazione{Fore.RESET}')
         
-        except Exception:
+        except Exception as e:
+            print(e)
             print(f'{Fore.RED}Errore sconosciuto{Fore.RESET}')
+
+class Check:
+    def unknown_attribute(attribute) -> bool:
+        """
+        Controlla se un attributo esiste
+        """
+        attrs = ['--AUDIO', '--TEXT', '--FILE']
+        if attribute not in attrs:
+            return False
+        else:
+            return True
+
+class Errors:
+
+    def unknown_attribute_error(cmd:list, attribute:str) -> None:
+        import colorama
+        from colorama import Fore
+        colorama.init()
+        print(f'{Fore.RED}Attributo {attribute} non esiste{Fore.RESET}')
+        return
+
+    def no_argument_error() -> None:
+        import colorama
+        from colorama import Fore
+        colorama.init()
+        print(f'{Fore.RED}Nessun argomento fornito{Fore.RESET}')
+        return
+    
+    def wrong_argument_error(cmd:list) -> None:
+        import colorama
+        from colorama import Fore
+        colorama.init()
+        print(f'{Fore.RED}Errore: argomento non valido{Fore.RESET}')
+        return
+
+class Help:
+    def help() -> None:
+        import colorama
+        from colorama import Fore
+        colorama.init()
         
-run( ['SPEECH', '--TEXT', '--FILE'] ,'Test',r'C:\Users\HP\Desktop\Cristal\Cristal\source\users\Test\settings.json')
+        print(f'{Fore.MAGENTA}Speech\n{Fore.RESET}')
+        print('Permette di convertire un testo in audio')
+        print('Se non viene fornito alcun attributo, il programma ti chiedera\' di fornirlo sul momento')
+        print(f'{Fore.WHITE}Sintassi: speech --AUDIO [OPZIONE]{Fore.RESET}')
+        print(f'{Fore.WHITE}OPZIONI:\n{Fore.RESET}')
+        print(f'{Fore.WHITE}\t--HELP:\t\tVisualizza questo messaggio{Fore.RESET}')
+        print(f'{Fore.WHITE}\t--FILE:\t\tPermette di convertire un intero file di testo in un file audio{Fore.RESET}')
+
+run( ['SPEECH', '--TEXT', '--FILE'],r'C:\Users\HP\Desktop\Cristal\Cristal\source\users\Test\settings.json')

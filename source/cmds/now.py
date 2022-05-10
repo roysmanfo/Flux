@@ -65,8 +65,7 @@ class Help():
 class TimeUtils:
     def countdown(n:int) -> None:
         import time
-        start = n + 1 #In questo modo stampa anche 0
-        for _ in range(start):
+        for _ in range(n):
             print(n)
             n -= 1
             time.sleep(1)

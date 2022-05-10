@@ -5,7 +5,7 @@ import json, colorama
 from json.decoder import JSONDecodeError
 import os, time
 from colorama import Fore, Style
-from .utils import utils
+from utils import utils
 colorama.init(autoreset=True)
 
 userRole = ''
@@ -36,7 +36,7 @@ def numberCheck() -> int:
         except JSONDecodeError:
             n = 0
     return n + 1
-def create_directories(settings = None):
+def create_directories(username):
     # Creazione delle directory di output
     default_dir = f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\output\\"
     settings = {
@@ -45,8 +45,8 @@ def create_directories(settings = None):
                         "file-lang":"it"
                     },
                     "file-name": {
-                        "audio": "CristalAudio_",
-                        "text": "CristalText_"
+                        "audio": f"CristalAudio_{username}_",
+                        "text": f"CristalText_{username}_",
                     },
                     "outputs":{
                         "output-dir": default_dir,
@@ -72,7 +72,6 @@ def create_directories(settings = None):
         print(f'{Fore.GREEN}La directory {new_dir} esiste già{Fore.RESET}')
         time.sleep(1)
         os.chdir(courent_dir)
-
 def register(dir):
             role = str(roleCheck())
             userNumber = numberCheck()
@@ -135,7 +134,10 @@ def register(dir):
             except FileExistsError:
                 # La directory esiste già, quindi non c'è bisogno di crearla, possiamo passare avanti
                 pass
+            # Creazione delle directory di output
+            create_directories(UserName)
 
+            # Creazione del file settings.json
             with open(r'.\\users\\'+UserName+r'\settings.json','w') as file:
                 # Scrittura delle informazioni di default
                 default_dir = f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\output\\"
@@ -159,7 +161,7 @@ def register(dir):
             commandFile = open(f'.\\cmds\\files\commands.json','r')
             with open(f'.\\cmds\\files\\commands_{UserName}.json','w') as file:
                 file.writelines(commandFile)
-
+            
             print(f'{Fore.GREEN}Registrazione completata con successo')
             
             time.sleep(2)
@@ -226,8 +228,6 @@ def logout(dir):
     os.chdir(Dir)
     return 1, None
 
-
 if __name__ == '__main__':
-    #print('Questo file non è eseguibile')
-    create_directories()
+    print('Questo file non è eseguibile')
     os.system('pause')
