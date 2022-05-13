@@ -3,7 +3,6 @@ import speech_recognition as sr
 import os
 
 # NOTE: https://docs.python.org/3/tutorial/modules.html#intra-package-references
-# NOTE: Questa funzione non è ancora stata implementata
 # NOTE: Le informazioni verranno richieste in modo separato e non tutto in una riga
 
 # Sintassi: speech --audio --file                Conversione file
@@ -14,27 +13,31 @@ import os
 
 def run(cmd:list, settings_file_path:str):
 
-    import utils
+    from utils.utils import Utils
     from colorama import Fore
     import colorama
     colorama.init()
     
+    # Controllo se non ci sono attributi sconosciuti
+    for i in cmd:
+        if '--' in i:
+            does_attr_exist = Check.unknown_attribute(i)
+            if does_attr_exist == False:
+                Errors.unknown_attribute_error(i)
+                return
+    
+    # Controllo se non ci sono argomenti
     if len(cmd) == 1:
         Errors.no_argument_error()
     
+    # Controllo se l'utente richiede assistenza
     elif '--HELP' in cmd and len(cmd) == 2:
         Help.help()
 
+    # Controllo se l'utente vuole convertire un da testo a audio
     elif '--AUDIO' in cmd and '--TEXT' not in cmd:
+        
         if '--FILE' in cmd:
-            # Controllo se non ci sono attributi sconosciuti
-            for i in cmd:
-                if '--' in i:
-                    does_attr_exist = Check.unknown_attribute(i)
-                    if does_attr_exist == False:
-                        Errors.unknown_attribute_error(i)
-                        return
-
             # Da file a file
             lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
             name = input(f'{Fore.WHITE}Nome file:{Fore.BLUE} ')
@@ -42,7 +45,7 @@ def run(cmd:list, settings_file_path:str):
 
             while not go_ahead:
                 file_path = input(f'{Fore.WHITE}Percorso file:{Fore.BLUE} ')
-                if utils.Utils.check_if_file_exists(file_path):
+                if Utils.check_if_file_exists(file_path):
                     go_ahead = True
                 else:
                     print(f'{Fore.RED}Il file {file_path} non esiste{Fore.RESET}')
@@ -50,7 +53,7 @@ def run(cmd:list, settings_file_path:str):
             text = open(file_path, 'r').read()
             fileDestination = input(f'{Fore.WHITE}Percorso destinazione:{Fore.BLUE} ')
 
-            TextToSpeech.convert_to_speech(text, lang, name, file_path ,fileDestination, settings_file_path)
+            TextToSpeech.convert_to_speech(text, lang, name, fileDestination, settings_file_path)
 
         elif '--FILE' not in cmd:
             # Da testo a file
@@ -58,20 +61,12 @@ def run(cmd:list, settings_file_path:str):
             name = input(f'{Fore.WHITE}Nome file:{Fore.BLUE} ')
             go_ahead = False
 
-            while not go_ahead:
-                file_path = input(f'{Fore.WHITE}Percorso file:{Fore.BLUE} ')
-                if utils.Utils.check_if_file_exists(file_path):
-                    go_ahead = True
-                else:
-                    print(f'{Fore.RED}Il file {file_path} non esiste{Fore.RESET}')
 
             text = input(f'{Fore.WHITE}Testo:{Fore.BLUE} ')
             fileDestination = input(f'{Fore.WHITE}Percorso destinazione:{Fore.BLUE} ')
 
-            TextToSpeech.convert_to_speech(text, lang, name, file_path ,fileDestination, settings_file_path)
+            TextToSpeech.convert_to_speech(text, lang, name, fileDestination, settings_file_path)
 
-        else:
-            Errors.no_argument_error()
     if '--TEXT' in cmd and '--AUDIO' not in cmd: 
         # NOTE: Questa parte non è ancora stata ne finita, ne implementata per problemi tecnici
 
@@ -88,7 +83,7 @@ def run(cmd:list, settings_file_path:str):
             pass
 
 class TextToSpeech:
-    def convert_to_speech(text:str, lang:str, name:str, file_path:str, destination:str, settings_file_path:str) -> None:
+    def convert_to_speech(text:str, lang:str, name:str, destination:str, settings_file_path:str) -> None:
         import json, colorama
         from colorama import Fore
         import utils
@@ -104,9 +99,6 @@ class TextToSpeech:
                 lang = settings['lang']['file-lang']
             if name == '':
                 name = 'CristalAudio_'
-
-            if file_path == '':
-                file_path = utils.Utils.get_path_dir('Documents')
             if destination == '':
                 destination = settings['outputs']['audio']
 
@@ -115,18 +107,18 @@ class TextToSpeech:
                 tts = gTTS(text=text, lang=lang)
                 n = 1
                 try:
-                    os.makedirs(destination)
+                    courent_dir = os.getcwd()
+                    #os.makedirs(destination)
                     os.chdir(destination)
                     for file in os.listdir(destination):
                         if file == f'{name}{n}.mp3':
                             n += 1
                     file_name = f'{name}{n}.mp3'
-                    if destination == settings['outputs']['audio']:
-                        print(f'{Fore.GREEN}File creato: {file_name} in {destination}')
-
+                   
                 except FileNotFoundError:
                     #Se la directory non esiste, verrà creata
-                    os.mkdir(destination)
+                    courent_dir = os.getcwd()
+                    os.makedirs(destination)
                     os.chdir(destination)
                     for file in os.listdir(destination):
                         if file == f'{name}{n}.mp3':
@@ -134,6 +126,11 @@ class TextToSpeech:
                     file_name = f'{name}{n}.mp3'
 
                 tts.save(file_name)
+                
+                if destination == settings['outputs']['audio']:
+                        print(f'{Fore.GREEN}File creato: {file_name} in {destination}')
+
+                os.chdir(courent_dir)
             except FileNotFoundError:
                 print(f'{Fore.RED}La directory {destination} non esiste{Fore.RESET}')
 
@@ -190,6 +187,9 @@ class TextToSpeech:
             print(f'{Fore.RED}Errore sconosciuto{Fore.RESET}')
 
 class Check:
+    """
+    Diverse funzioni che eseguono controlli 
+    """
     def unknown_attribute(attribute) -> bool:
         """
         Controlla se un attributo esiste
@@ -201,8 +201,10 @@ class Check:
             return True
 
 class Errors:
-
-    def unknown_attribute_error(cmd:list, attribute:str) -> None:
+    """
+    Tutti gli errori che possono verificarsi, verranno gestiti qua
+    """
+    def unknown_attribute_error(attribute:str) -> None:
         import colorama
         from colorama import Fore
         colorama.init()
@@ -224,7 +226,13 @@ class Errors:
         return
 
 class Help:
+    """
+    Assistenza utente
+    """
     def help() -> None:
+        """
+        Informazioni utili all'utente per usare il comando
+        """
         import colorama
         from colorama import Fore
         colorama.init()
@@ -237,4 +245,4 @@ class Help:
         print(f'{Fore.WHITE}\t--HELP:\t\tVisualizza questo messaggio{Fore.RESET}')
         print(f'{Fore.WHITE}\t--FILE:\t\tPermette di convertire un intero file di testo in un file audio{Fore.RESET}')
 
-run( ['SPEECH', '--TEXT', '--FILE'],r'C:\Users\HP\Desktop\Cristal\Cristal\source\users\Test\settings.json')
+#run( ['SPEECH', '--TEXT', '--FILE'],r'C:\Users\HP\Desktop\Cristal\Cristal\source\users\Test\settings.json')
