@@ -16,8 +16,12 @@ def run(cmd:list, settings_file_path:str):
 
     import utils
     from colorama import Fore
+    import colorama
+    colorama.init()
+    
     if len(cmd) == 1:
         Errors.no_argument_error()
+    
     elif '--HELP' in cmd and len(cmd) == 2:
         Help.help()
 
@@ -27,9 +31,9 @@ def run(cmd:list, settings_file_path:str):
             for i in cmd:
                 if '--' in i:
                     does_attr_exist = Check.unknown_attribute(i)
-                if does_attr_exist == False:
-                    Errors.unknown_attribute_error(i)
-                    return
+                    if does_attr_exist == False:
+                        Errors.unknown_attribute_error(i)
+                        return
 
             # Da file a file
             lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
@@ -48,7 +52,7 @@ def run(cmd:list, settings_file_path:str):
 
             TextToSpeech.convert_to_speech(text, lang, name, file_path ,fileDestination, settings_file_path)
 
-        elif '--FILE' not in cmd and '--TEXT' in cmd:
+        elif '--FILE' not in cmd:
             # Da testo a file
             lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
             name = input(f'{Fore.WHITE}Nome file:{Fore.BLUE} ')
