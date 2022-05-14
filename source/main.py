@@ -11,7 +11,7 @@ import os, json
 import colorama
 from colorama import Fore
 import Login, cmd_handler
-from .utils import utils
+from utils import utils
 
 colorama.init(autoreset=True)
 

@@ -8,7 +8,7 @@
 
 import json
 from colorama import Fore
-from .utils import update
+from utils import update
 
 def cmdNotFound(problem):
     print(problem)
@@ -52,10 +52,16 @@ def cmd(cmd,username):
                 return
 
             elif cmd[0] == command['HELP']:
-                import cmds.help
-                cmds.help.General.help()
+                from cmds import help
+                help.General.help()
                 return
             
+            elif cmd[0] == command['SPEECH']:
+                from cmds import speech
+                with open(f'users\\{username}\\settings.json','r') as file:
+                    speech.run(cmd, f'users\\{username}\\settings.json')
+                return
+
             elif cmd[0] == command['TIME']:
                 from cmds import now
                 now.run(cmd)
