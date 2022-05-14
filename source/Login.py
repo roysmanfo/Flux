@@ -12,7 +12,7 @@ userRole = ''
 tree = '\\Cristal\\Files\\Login'
 n = 0
 
-def roleCheck():#Serve a sapere che ruolo dare all'utente se non c'è un admin
+def roleCheck():
     global userRole
     i = open(f'{tree}\\Users.json','w')
     i.close()
@@ -38,15 +38,15 @@ def numberCheck() -> int:
     return n + 1
 def create_directories(username):
     # Creazione delle directory di output
-    default_dir = f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\output\\"
+    default_dir = f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\{username}\\output\\"
     settings = {
                     "lang":{
                         "general-lang":"it-IT",
                         "file-lang":"it"
                     },
                     "file-name": {
-                        "audio": f"CristalAudio_{username}_",
-                        "text": f"CristalText_{username}_",
+                        "audio": f"CristalAudio_",
+                        "text": f"CristalText_",
                     },
                     "outputs":{
                         "output-dir": default_dir,

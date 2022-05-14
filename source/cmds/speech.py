@@ -31,8 +31,10 @@ def run(cmd:list, settings_file_path:str):
         Errors.no_argument_error()
     
     # Controllo se l'utente richiede assistenza
-    elif '--HELP' in cmd and len(cmd) == 2:
+    elif '--HELP' in cmd or '--H' in cmd and len(cmd) == 2:
         Help.help()
+    elif '--MORE' in cmd and len(cmd) == 2:
+        Help.more_help()
 
     # Controllo se l'utente vuole convertire un da testo a audio
     elif '--AUDIO' in cmd and '--TEXT' not in cmd:
@@ -59,13 +61,10 @@ def run(cmd:list, settings_file_path:str):
             # Da testo a file
             lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
             name = input(f'{Fore.WHITE}Nome file:{Fore.BLUE} ')
-            go_ahead = False
-
 
             text = input(f'{Fore.WHITE}Testo:{Fore.BLUE} ')
-            fileDestination = input(f'{Fore.WHITE}Percorso destinazione:{Fore.BLUE} ')
-
-            TextToSpeech.convert_to_speech(text, lang, name, fileDestination, settings_file_path)
+            
+            TextToSpeech.convert_to_speech(text, lang, name, None, settings_file_path)
 
     if '--TEXT' in cmd and '--AUDIO' not in cmd: 
         # NOTE: Questa parte non è ancora stata ne finita, ne implementata per problemi tecnici
@@ -74,19 +73,24 @@ def run(cmd:list, settings_file_path:str):
             # Salva in un il file
             lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
             name = input(f'{Fore.WHITE}Nome file:{Fore.BLUE} ')
-            go_ahead = False
 
             fileDestination = input(f'{Fore.WHITE}Percorso destinazione:{Fore.BLUE} ')
-            TextToSpeech.convert_to_text(lang, name, fileDestination, settings_file_path)
+            save_as_file = True
+
+            TextToSpeech.convert_to_text(lang, name, fileDestination, settings_file_path, save_as_file)
         elif '--FILE' not in cmd:
             # Stamperà il testo a schermo
-            pass
+            
+            lang = input(f'{Fore.WHITE}Lingua:{Fore.BLUE} ')
+            name, fileDestination = '', ''
+            save_as_file = False
+
+            TextToSpeech.convert_to_text(lang, name, fileDestination, settings_file_path, save_as_file)
 
 class TextToSpeech:
     def convert_to_speech(text:str, lang:str, name:str, destination:str, settings_file_path:str) -> None:
         import json, colorama
         from colorama import Fore
-        import utils
         colorama.init()
         
 
@@ -134,13 +138,12 @@ class TextToSpeech:
             except FileNotFoundError:
                 print(f'{Fore.RED}La directory {destination} non esiste{Fore.RESET}')
 
-    def convert_to_text(lang:str, name:str, destination:str, settings_file_path:str) -> None:
+    def convert_to_text(lang:str, name:str, destination:str, settings_file_path:str, save_as_file:bool) -> None:
         """
         Visti i problemi con pyAudio, questa funzione non è ancora stata implementata
         """
         import json, colorama
         from colorama import Fore
-        import utils
         colorama.init()
 
         with open(settings_file_path, 'r') as file:
@@ -162,26 +165,30 @@ class TextToSpeech:
                 print('\nElaborazione in corso...')
             
             try:
-
                 text = recognizer_istance.recognize_google(audio, language=lang)
                 print(f'{Fore.GREEN}Registrazione riuscita{Fore.RESET}')
 
-                os.makedirs(destination)
-                os.chdir(destination)
+                if save_as_file:
+                    courent_dir = os.getcwd()
+                    os.makedirs(destination)
+                    os.chdir(destination)
 
-                n = 1
-                for file in os.listdir(destination):
-                    if file == f'{name}{n}.txt':
-                        n += 1
-                file_name = f'{name}{n}.txt'
+                    n = 1
+                    for file in os.listdir(destination):
+                        if file == f'{name}{n}.txt':
+                            n += 1
+                    file_name = f'{name}{n}.txt'
 
-                with open(file_name, 'w') as file:
-                    file.writelines(text)
-                    print(f'{Fore.GREEN}File creato: {name}.txt in {destination}')
+                    with open(file_name, 'w') as file:
+                        file.writelines(text)
+                        print(f'{Fore.GREEN}File creato: {name}.txt in {destination}')
+                    os.chdir(courent_dir)
+                else:
+                    print(f'{Fore.CYAN}Testo:\n\n{text}{Fore.RESET}')
                 
             except sr.UnknownValueError:
                 print(f'{Fore.RED}Errore nella registrazione{Fore.RESET}')
-        
+            
         except Exception as e:
             print(e)
             print(f'{Fore.RED}Errore sconosciuto{Fore.RESET}')
@@ -194,7 +201,7 @@ class Check:
         """
         Controlla se un attributo esiste
         """
-        attrs = ['--AUDIO', '--TEXT', '--FILE']
+        attrs = ['--AUDIO', '--TEXT', '--FILE', '--HELP','--H','--MORE']
         if attribute not in attrs:
             return False
         else:
@@ -240,9 +247,27 @@ class Help:
         print(f'{Fore.MAGENTA}Speech\n{Fore.RESET}')
         print('Permette di convertire un testo in audio')
         print('Se non viene fornito alcun attributo, il programma ti chiedera\' di fornirlo sul momento')
-        print(f'{Fore.WHITE}Sintassi: speech --AUDIO [OPZIONE]{Fore.RESET}')
+        print(f'{Fore.WHITE}Sintassi: speech --AUDIO [OPZIONE] | speech --TEXT [OPZIONE] | speech [OPZIONE]{Fore.RESET}')
         print(f'{Fore.WHITE}OPZIONI:\n{Fore.RESET}')
         print(f'{Fore.WHITE}\t--HELP:\t\tVisualizza questo messaggio{Fore.RESET}')
         print(f'{Fore.WHITE}\t--FILE:\t\tPermette di convertire un intero file di testo in un file audio{Fore.RESET}')
+        print(f'{Fore.WHITE}\t--MORE:\t\tPermette di ottenere più informazioni sul funzionamento di speech{Fore.RESET}')
 
+    def more_help() -> None:
+        """
+        Ulteriori informazioni sul funzionamento di speech
+        """
+        import colorama
+        from colorama import Fore
+        colorama.init()
+        
+        print(f'{Fore.MAGENTA}Speech - More Help\n{Fore.RESET}')
+        print(f'{Fore.WHITE}Speech è un comando che permette di convertire un testo in audio o viceversa.{Fore.RESET}')
+        print(f'{Fore.WHITE}\nIl comando è composto da due attributi: --AUDIO e --TEXT.{Fore.RESET}')
+        print(f'{Fore.WHITE}Il primo attributo permette di convertire un testo in audio, mentre il secondo permette di convertire un audio in testo.{Fore.RESET}')
+        print(f'{Fore.WHITE}Se oltre a uno degli attributi precedi, si inserisce l\'attributo --FILE, l\'output sarà memorizzato su un file{Fore.RESET}')
+        print(f'{Fore.WHITE}Se non viene fornito alcun attributo, il programma ti chiedera\' di fornirlo sul momento{Fore.RESET}')
+        print(f'{Fore.WHITE}\nQuando vengono chieste informazioni aggiuntive per l\'enecuzione della conversione, se fornite, verranno usati i valori di default{Fore.RESET}')
+        print(f'{Fore.CYAN}Esempio: speech --audio --file + non fornisco il nome del file finale => il nome del file sarà CristalAudio_*{Fore.RESET}')
+        print(f'{Fore.CYAN}Esempio: speech --text --file + non fornisco la destinazione => il file si troverà in */Documents/Cristal/[nome utente]/output/text/{Fore.RESET}')
 #run( ['SPEECH', '--TEXT', '--FILE'],r'C:\Users\HP\Desktop\Cristal\Cristal\source\users\Test\settings.json')
