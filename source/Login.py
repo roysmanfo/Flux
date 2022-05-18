@@ -52,6 +52,7 @@ def create_directories(username):
                         "output-dir": default_dir,
                         "audio": f"{default_dir}audio\\",
                         "text": f"{default_dir}text\\",
+                        "zip": f"{default_dir}zip\\",
                     }
                 }
     courent_dir = os.getcwd()

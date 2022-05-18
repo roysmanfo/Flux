@@ -70,6 +70,16 @@ class Utils:
         import os
         return os.path.isfile(r'{}'.format(target))
 
+    #Estrae il path della directory di un file
+    def get_dir_of_file(file_path:str) -> str:
+        import os
+        return os.path.dirname(file_path)
+    
+    #Estrae il nome del file dal suo path
+    def get_file_name(file_path:str) -> str:
+        import os
+        return os.path.basename(file_path)
+
 class Performance:
     """
     Funzioni riguardanti la performance dell'hardware
