@@ -18,18 +18,18 @@ colorama.init(autoreset=True)
 ReadyToStart = False
 dir = os.getcwd()+"\\Cristal"
 # "BIOS" - Serve a controllare che sia tutto a posto prima di avviare il programma
-isLogged, user, nick = Login.log(dir)
+isLogged, user_id, nick = Login.log(dir)
 
 while ReadyToStart == False:
     if isLogged == 0:
         ReadyToStart = True
         break
     if isLogged == 1:   
-        isLogged, user, nick = Login.log(dir)
+        isLogged, user_id, nick = Login.log(dir)
     if isLogged == 2:
         isLogged =  Login.reLog()
 
-user = f'User{user}'
+user_id = f'User{user_id}'
 NAME = nick
 #Inizio
 continue_execution = True
@@ -53,7 +53,9 @@ while continue_execution:
             import cmds.window
             cmd = [ i.upper() for i in cmd ]
             continue_execution = cmds.window.run(cmd)
-
+        elif cmd[0] == cmdNames['USER']:
+            import user
+            user.run(cmd, NAME, user_id)
         else:
             cmd = [ i.upper() for i in cmd ]
             cmd_handler.cmd(cmd, NAME)

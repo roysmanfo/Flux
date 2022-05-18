@@ -1,0 +1,9 @@
+{
+    "User1": {
+        "name": "Test",
+        "password": "5465737450617373776f7264",
+        "email": "None",
+        "role": "Admin",
+        "status": "Active"
+    }
+}
