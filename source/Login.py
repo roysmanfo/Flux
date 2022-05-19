@@ -9,7 +9,7 @@ from utils import utils
 colorama.init(autoreset=True)
 
 userRole = ''
-tree = '\\Cristal\\Files\\Login'
+tree = 'users' #'\\Cristal\\Files\\Login'
 n = 0
 
 def roleCheck():
@@ -59,7 +59,6 @@ def create_directories(username):
     try:
         new_dir = utils.Utils.get_path_dir("Documents\\Cristal\\")
         check_dir = os.chdir(new_dir)
-        print(check_dir)
         if check_dir == None:
             os.mkdir(f'{utils.Utils.get_path_dir(settings["outputs"]["output-dir"])}')
         
@@ -118,7 +117,7 @@ def register(dir):
                     "User" + str(userNumber): {
                         "name": f'{UserName}',
                         "password": f'{UserPassword}',
-                        "email": 'null,',
+                        "email": None,
                         "role": f'{role}',
                         "status": 'Active'# Andrà cambiato in Inactive se si vuole cambiare utente
                     }
@@ -181,7 +180,7 @@ def log(dir):
                 os.chdir(i)
                 l = json.load(f)
                 #Controlla se ci sono più utenti, se si, chiede quale utente vuole loggare
-                if len(l) > 1:
+                """if len(l) > 1:
                     print('Quale utente si vuole utilizzare?')
                     c = 0
                     for j in l:
@@ -190,20 +189,55 @@ def log(dir):
                     print()
                     user = input('User')
                 else:
-                    user = 1
+                    user = 1"""
+                
+                user = None
+                for user_id in l:
+                    if l[user_id]['status'] == 'Active':
+                        user = user_id
+                        break
+                
+                if user == None:
+                    authenticated = False
+                    os.system('cls')
+                    while authenticated != True:
+                        print(f'{Fore.WHITE}Eseguire l\'accesso:{Fore.RESET}')
+                        
+                        user_name = input('Nome:  ')
+                        password = input('Password:  ')
+
+                        is_user_valid = any(user_name == l[user]['name'] for user in l) 
+
+                        if  is_user_valid:
+                            #localizza il numero dell'utente di user_name
+                            for user_num in l:
+                                if l[user_id]['name'] == user_name:
+                                    user_id = "User"+str(user_num)
+                                    break
+
+                            if l[user_id][user_name]['password'] == utils.Security.cript(password):
+                                print(f'{Fore.GREEN}Accesso effettuato con successo')
+                                authenticated = True
+                                user = user_id
+                        else:
+                            print(f'{Fore.RED}Nome o password non corretti\n{Fore.RESET}')
+
+                    time.sleep(2)
+                    
                 os.system('cls')#Pulisce la console
-                username = l[f'User{str(user)}']['name']
+                username = l[user]['name']
                 wellcome = f'Benvenuto in Cristal, { str(username) }'
                 for i in wellcome:
                     print(i, end='')
                     time.sleep(0.025)
                 print()
-            
-            return 0, user, str(l[f'User{user}']['name']) # Tutto apposto, il file è presente e l'utente è loggato
+            return 0, user, str(l[user]['name']) # Tutto apposto, il file è presente e l'utente è loggato
+        
         except Exception:
             os.makedirs(f'{tree}\\')
             os.chdir(f'{tree}\\')
-            print(f'{Fore.RED}\nC\'e stato un problema con il file, si è verificato un errore')
+            print(f'{Fore.RED}\nC\'e stato un problema con il file, si è verificato un errore{Fore.RESET}')
+            time.sleep(2)
             return 2, None # Il file è presente, ma modificato o corrotto
 
     #Utente non registrato nell'app
@@ -218,7 +252,8 @@ def reLog():
     Dir = os.getcwd()
     os.remove(f"{tree}/Users.json")
     os.chdir(Dir)
-    print('Possibile soluzione al problema, si prega di rieffettuare il login')
+    print('Trovata possibile soluzione al problema, si prega di rieffettuare il login')
+    time.sleep(2)
     return 1, None
 def logout(dir):
     # NOTE: Questa funzione non è ancora stata implementata
