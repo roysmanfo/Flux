@@ -31,6 +31,7 @@ while ReadyToStart == False:
 
 NAME = nick
 #Inizio
+#os.chdir(utils.Utils.get_path_dir('Desktop'))
 continue_execution = True
 while continue_execution:
     #Input dell'utente

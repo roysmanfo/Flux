@@ -14,6 +14,8 @@ def run(cmd:list, user_name:str, user_id:str) -> None:
     
     if len(cmd) == 1:
         user_info(user_name, user_id)
+    elif '--HELP' in cmd or '--H' in cmd:
+        help()
     elif '--LIST' in cmd:
         user_list()
     elif '/LOGOUT' in cmd:
@@ -70,3 +72,16 @@ def user_logout(user_id) -> None:
     time.sleep(2)
     Login.log(None)
 
+def help() -> None:
+    from colorama import init, Fore
+    init(autoreset=True)
+
+    print(f'{Fore.MAGENTA}USER\n{Fore.RESET}')
+    print(f'Serve a gestire gli utenti')
+    print(f'{Fore.WHITE}SINTASSI: user | user [OPZIONE]\n{Fore.RESET}')
+    print(f'{Fore.WHITE}OPZIONI:{Fore.RESET}')
+    print(f'{Fore.WHITE}\t\LOGOUT:\tEffettua il logout dall\'utente in uso{Fore.RESET}')
+    print(f'{Fore.WHITE}\t\\NEW:\t\tPermette di creare un nuovo utente (max 10){Fore.RESET}\n')
+    print(f'{Fore.WHITE}\t--LIST:\t\tStampa tutti gli utenti registrati{Fore.RESET}')
+    print(f'{Fore.WHITE}\t--HELP:\t\tStampa questo messaggio{Fore.RESET}')
+#Permette di creare un nuovo utente (max 10)
