@@ -27,9 +27,8 @@ while ReadyToStart == False:
     if isLogged == 1:   
         isLogged, user_id, nick = Login.log(dir)
     if isLogged == 2:
-        isLogged =  Login.reLog()
+        isLogged, user_id, nick =  Login.reLog()
 
-user_id = f'User{user_id}'
 NAME = nick
 #Inizio
 continue_execution = True

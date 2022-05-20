@@ -72,7 +72,7 @@ def create_directories(username):
         print(f'{Fore.GREEN}La directory {new_dir} esiste già{Fore.RESET}')
         time.sleep(1)
         os.chdir(courent_dir)
-def register(dir):
+def register(dir) -> tuple:
             role = str(roleCheck())
             userNumber = numberCheck()
 
@@ -167,8 +167,32 @@ def register(dir):
             time.sleep(2)
 
             os.chdir(Dir)
-            return 1, None
-def log(dir):
+            return (1, None, None)
+def login(l:dict) -> tuple:
+    authenticated = False
+    os.system('cls')
+    while authenticated != True:
+        print(f'{Fore.WHITE}Eseguire l\'accesso:{Fore.RESET}')
+        
+        user_name = input('Nome:  ')
+        password = input('Password:  ')
+
+        is_user_valid = any(user_name == l[user]['name'] for user in l) 
+
+        if  is_user_valid:
+            #localizza il numero dell'utente di user_name
+            for user_id in l:
+                if l[user_id]['name'] == user_name:
+                    break
+
+            if l[user_id]['password'] == utils.Security.cript(password):
+                print(f'{Fore.GREEN}Accesso effettuato con successo')
+                authenticated = True
+                user = user_id
+            else:
+                print(f'{Fore.RED}Nome o password non corretti\n{Fore.RESET}')
+    return (user)
+def log(dir:str) -> tuple:
     
     #Utente registrato nell'app
     try:
@@ -191,39 +215,21 @@ def log(dir):
                 else:
                     user = 1"""
                 
+                #Viene selezionato l'utente con stato attivo
                 user = None
                 for user_id in l:
                     if l[user_id]['status'] == 'Active':
                         user = user_id
                         break
-                
+                #Se non c'è nessun utente attivo, viene effettuato il login in un utente con stato inattivo
                 if user == None:
-                    authenticated = False
-                    os.system('cls')
-                    while authenticated != True:
-                        print(f'{Fore.WHITE}Eseguire l\'accesso:{Fore.RESET}')
-                        
-                        user_name = input('Nome:  ')
-                        password = input('Password:  ')
-
-                        is_user_valid = any(user_name == l[user]['name'] for user in l) 
-
-                        if  is_user_valid:
-                            #localizza il numero dell'utente di user_name
-                            for user_num in l:
-                                if l[user_id]['name'] == user_name:
-                                    user_id = "User"+str(user_num)
-                                    break
-
-                            if l[user_id][user_name]['password'] == utils.Security.cript(password):
-                                print(f'{Fore.GREEN}Accesso effettuato con successo')
-                                authenticated = True
-                                user = user_id
-                        else:
-                            print(f'{Fore.RED}Nome o password non corretti\n{Fore.RESET}')
-
+                    user = login(l)
+                    #Lo stato dell'utente viene cambiato in attivo
+                    l[user]['status'] = 'Active'
+                    with open(f'{tree}\\Users.json','w') as f:
+                        json.dump(l, f, indent=4)
                     time.sleep(2)
-                    
+
                 os.system('cls')#Pulisce la console
                 username = l[user]['name']
                 wellcome = f'Benvenuto in Cristal, { str(username) }'
@@ -231,14 +237,14 @@ def log(dir):
                     print(i, end='')
                     time.sleep(0.025)
                 print()
-            return 0, user, str(l[user]['name']) # Tutto apposto, il file è presente e l'utente è loggato
+            return (0, user, str(l[user]['name'])) # Tutto apposto, il file è presente e l'utente è loggato
         
-        except Exception:
+        except FileNotFoundError:
             os.makedirs(f'{tree}\\')
             os.chdir(f'{tree}\\')
             print(f'{Fore.RED}\nC\'e stato un problema con il file, si è verificato un errore{Fore.RESET}')
             time.sleep(2)
-            return 2, None # Il file è presente, ma modificato o corrotto
+            return (2, None, None) # Il file è presente, ma modificato o corrotto
 
     #Utente non registrato nell'app
     except FileExistsError:
@@ -247,22 +253,22 @@ def log(dir):
         print('Crea un utente per poter usare Cristal\n')
 
         register(dir)
-        return 1, None, None # Va riavviata la funzione
-def reLog():
+        return (1, None, None) # Va riavviata la funzione
+def reLog() -> tuple:
     Dir = os.getcwd()
     os.remove(f"{tree}/Users.json")
     os.chdir(Dir)
     print('Trovata possibile soluzione al problema, si prega di rieffettuare il login')
     time.sleep(2)
-    return 1, None
-def logout(dir):
+    return (1, None, None)
+def logout(dir:str) -> tuple:
     # NOTE: Questa funzione non è ancora stata implementata
 
     Dir = os.getcwd()
     os.chdir(f'{tree}\\')
     os.remove(f'Users.json')
     os.chdir(Dir)
-    return 1, None
+    return (1, None, None)
 
 if __name__ == '__main__':
     print('Questo file non è eseguibile')
