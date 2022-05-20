@@ -54,6 +54,7 @@ while continue_execution:
             continue_execution = cmds.window.run(cmd)
         elif cmd[0] == cmdNames['USER']:
             import user
+            cmd = [ i.upper() for i in cmd ]
             user.run(cmd, NAME, user_id)
         else:
             cmd = [ i.upper() for i in cmd ]
