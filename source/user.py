@@ -18,12 +18,15 @@ def run(cmd:list, user_name:str, user_id:str) -> None:
         user_info(user_name, user_id)
     elif '--HELP' in cmd or '--H' in cmd:
         help()
-    elif '--LIST' in cmd:
-        user_list()
     elif '/LOGOUT' in cmd:
         user_logout(user_id)
+    elif '/NEW' in cmd:
+        user_new(user_id)
+    elif '--LIST' in cmd:
+        user_list()
+    
     else:
-        print(f'{Fore.RED}Comando non riconosciuto')
+        print(f'{Fore.RED}Comando non riconosciuto{Fore.RESET}')
         
 
 def user_info(user_name:str, user_id:str) -> None:
@@ -62,7 +65,7 @@ def user_list() -> None:
             print(f'{Fore.WHITE}Nome:\t\t{Fore.CYAN}{f[key]["name"]}{Fore.WHITE}')
             print(f'{Fore.WHITE}Ruolo:\t\t{Fore.CYAN}{f[key]["role"]}{Fore.WHITE}\n')
 
-def user_logout(user_id) -> None:
+def user_logout(user_id:str, create_user:bool = False) -> None:
     import json, time, Login
     from colorama import init, Fore
     init(autoreset=True)
@@ -74,8 +77,18 @@ def user_logout(user_id) -> None:
         json.dump(f, l, indent=4)
     print(f'{Fore.GREEN}Logout effettuato con successo')
     time.sleep(2)
-    Login.log(None)
+    
+    if create_user:
+        # Crea un nuovo utente
+        print(f'{Fore.CYAN}Inizio creazione del nuovo utente ...\n{Fore.RESET}')
+        Login.register(False)
+    else:
+        #Non è stato richiesto di creare un nuovo utente
+        Login.log(None)
 
+def user_new(user_id:str) -> None:
+    user_logout(user_id, True)
+    
 def help() -> None:
     from colorama import init, Fore
     init(autoreset=True)

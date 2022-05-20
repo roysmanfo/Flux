@@ -60,7 +60,7 @@ def create_directories(username):
         new_dir = utils.Utils.get_path_dir("Documents\\Cristal\\")
         check_dir = os.chdir(new_dir)
         if check_dir == None:
-            os.mkdir(f'{utils.Utils.get_path_dir(settings["outputs"]["output-dir"])}')
+            os.makedirs(f'{utils.Utils.get_path_dir(settings["outputs"]["output-dir"])}')
         
             for dir in settings['outputs']:
                 if dir == 'output-dir':
@@ -119,7 +119,7 @@ def register(dir) -> tuple:
                         "password": f'{UserPassword}',
                         "email": None,
                         "role": f'{role}',
-                        "status": 'Active'# Andrà cambiato in Inactive se si vuole cambiare utente
+                        "status": 'Active'
                     }
                 }
                 json.dump(User, fileCredenziali, indent=4)
@@ -239,7 +239,7 @@ def log(dir:str) -> tuple:
                 print()
             return (0, user, str(l[user]['name'])) # Tutto apposto, il file è presente e l'utente è loggato
         
-        except FileNotFoundError:
+        except JSONDecodeError:
             os.makedirs(f'{tree}\\')
             os.chdir(f'{tree}\\')
             print(f'{Fore.RED}\nC\'e stato un problema con il file, si è verificato un errore{Fore.RESET}')
