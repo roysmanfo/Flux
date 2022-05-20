@@ -182,7 +182,7 @@ def login(l:dict) -> tuple:
         if  is_user_valid:
             #localizza il numero dell'utente di user_name
             for user_id in l:
-                if l[user_id]['name'] == user_name:
+                if l[user_id]['name'].upper() == user_name.upper():
                     break
 
             if l[user_id]['password'] == utils.Security.cript(password):
