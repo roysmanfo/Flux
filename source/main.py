@@ -33,14 +33,14 @@ def bootstrap() -> tuple:
 
     name = nick
 
-    return (name, user_id) 
+    return (name, user_id, nick) 
 
 
 #Inizio
 #os.chdir(utils.Utils.get_path_dir('Desktop'))
 continue_execution = True
 same_user_active = True
-name, user_id = bootstrap()
+name, user_id, nick = bootstrap()
 while continue_execution and same_user_active:
     #Input dell'utente
     cmd = input(f'{Fore.WHITE}{str(nick)}{Fore.BLUE}>  ')
@@ -64,7 +64,7 @@ while continue_execution and same_user_active:
         elif cmd[0] == cmdNames['USER']:
             import user
             cmd = [ i.upper() for i in cmd ]
-            if cmd[1] == cmdNames['/NEW']:
+            if len(cmd)> 1 and cmd[1] == '/NEW':
                 same_user_active = user.user_new(user_id)
             else:
                 user.run(cmd, name, user_id)

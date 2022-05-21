@@ -72,7 +72,7 @@ def create_directories(username):
         print(f'{Fore.GREEN}La directory {new_dir} esiste già{Fore.RESET}')
         time.sleep(1)
         os.chdir(courent_dir)
-def register(dir) -> tuple:
+def register(is_first_user:bool = True) -> tuple:
             role = str(roleCheck())
             userNumber = numberCheck()
 
@@ -112,19 +112,29 @@ def register(dir) -> tuple:
                 os.makedirs(f'{tree}\\')
                 os.chdir(f'{tree}\\')
             # Scrittura sul file
-            with open('Users.json', 'w') as fileCredenziali:
-                User = {
-                    "User" + str(userNumber): {
-                        "name": f'{UserName}',
-                        "password": f'{UserPassword}',
-                        "email": None,
-                        "role": f'{role}',
-                        "status": 'Active'
+            User = {
+                        "User" + str(userNumber): {
+                            "name": f'{UserName}',
+                            "password": f'{UserPassword}',
+                            "email": None,
+                            "role": f'{role}',
+                            "status": 'Active'
+                        }
                     }
-                }
-                json.dump(User, fileCredenziali, indent=4)
-            
-            
+            if is_first_user:
+                with open('Users.json', 'w') as fileCredenziali:
+                    
+                    json.dump(User, fileCredenziali, indent=4)
+            else:
+                with open('Users.json', 'r') as fileCredenziali:
+                    new_file = json.load(fileCredenziali)
+
+                with open('Users.json', 'w') as fileCredenziali:
+                    #list(new_file)
+                    new_file.update(User)
+
+                    json.dump(new_file, fileCredenziali, indent=4)
+
             os.chdir(Dir)
             # Creazione della directory settings
 
