@@ -41,6 +41,7 @@ def bootstrap() -> tuple:
 continue_execution = True
 same_user_active = True
 name, user_id, nick = bootstrap()
+
 while continue_execution and same_user_active:
     #Input dell'utente
     cmd = input(f'{Fore.WHITE}{str(nick)}{Fore.BLUE}>  ')
@@ -65,7 +66,9 @@ while continue_execution and same_user_active:
             import user
             cmd = [ i.upper() for i in cmd ]
             if len(cmd)> 1 and cmd[1] == '/NEW':
-                same_user_active = user.user_new(user_id)
+                same_user_active = user.run(cmd, name, user_id)
+            elif len(cmd)> 1 and cmd[1] == '/LOGOUT':
+                same_user_active = user.run(cmd, name, user_id)
             else:
                 user.run(cmd, name, user_id)
         else:

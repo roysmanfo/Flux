@@ -10,7 +10,7 @@
         - --help
 """
 
-def run(cmd:list, user_name:str, user_id:str) -> None:
+def run(cmd:list, user_name:str, user_id:str) -> bool:
     from colorama import init, Fore
     init(autoreset=True)
 
@@ -20,8 +20,10 @@ def run(cmd:list, user_name:str, user_id:str) -> None:
         help()
     elif '/LOGOUT' in cmd:
         user_logout(user_id)
+        return False
     elif '/NEW' in cmd:
         user_new(user_id)
+        return False
     elif '--LIST' in cmd:
         user_list()
     
@@ -53,17 +55,19 @@ def user_list() -> None:
     from json.decoder import JSONDecodeError
     from colorama import init, Fore
     init(autoreset=True)
-    with(open(r'.\\users\\Users.json','r')) as l:
+    with open(r'.\\users\\Users.json','r') as l:
         try:
             f = json.load(l)
         except JSONDecodeError:
             f = {}
             print(f'{Fore.RED}Non ci sono utenti registrati')
             return
+        print(f'{Fore.WHITE}\nID\t\tNome\t\tRuolo\t\tStato\n{Fore.RESET}')
         for key in f:
-            print(f'{Fore.WHITE}\nID:\t\t{Fore.CYAN}{key}{Fore.WHITE}')
-            print(f'{Fore.WHITE}Nome:\t\t{Fore.CYAN}{f[key]["name"]}{Fore.WHITE}')
-            print(f'{Fore.WHITE}Ruolo:\t\t{Fore.CYAN}{f[key]["role"]}{Fore.WHITE}\n')
+            if f[key]["status"] == 'Active':
+                print(f'{Fore.CYAN}{key}\t\t{f[key]["name"]}\t\t{f[key]["role"]}\t\t{f[key]["status"]}{Fore.WHITE}')
+            else:
+                print(f'{Fore.WHITE}{key}\t\t{f[key]["name"]}\t\t{f[key]["role"]}\t\t{f[key]["status"]}{Fore.WHITE}')
 
 def user_logout(user_id:str, create_user:bool = False) -> None:
     import json, time, Login
@@ -82,9 +86,12 @@ def user_logout(user_id:str, create_user:bool = False) -> None:
         # Crea un nuovo utente
         print(f'{Fore.CYAN}Inizio creazione del nuovo utente ...\n{Fore.RESET}')
         Login.register(False)
+        
     else:
         #Non è stato richiesto di creare un nuovo utente
         Login.log(None)
+    print(f'{Fore.GREEN}Riavvia il programma per accedere all\'utente creato')
+    input()
 
 def user_new(user_id:str) -> None:
     user_logout(user_id, True)

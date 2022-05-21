@@ -1,0 +1,16 @@
+{
+    "lang": {
+        "general-lang": "it-IT",
+        "file-lang": "it"
+    },
+    "file-name": {
+        "audio": "CristalAudio_",
+        "text": "CristalText_"
+    },
+    "outputs": {
+        "output-dir": "C:\\Users\\HP\\Documents\\Cristal\\Roys\\output\\",
+        "audio": "C:\\Users\\HP\\Documents\\Cristal\\Roys\\output\\audio\\",
+        "text": "C:\\Users\\HP\\Documents\\Cristal\\Roys\\output\\text\\",
+        "zip": "C:\\Users\\HP\\Documents\\Cristal\\Roys\\output\\zip\\"
+    }
+}

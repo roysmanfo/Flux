@@ -23,3 +23,4 @@ with open('Users.json', 'w') as fileCredenziali:
     new_file.update(User)
 
     json.dump(new_file, fileCredenziali, indent=4)
+    print(new_file)

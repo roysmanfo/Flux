@@ -1,10 +1,16 @@
 {
     "lang": {
+        "general-lang": "it-IT",
         "file-lang": "it"
     },
+    "file-name": {
+        "audio": "CristalAudio_",
+        "text": "CristalText_"
+    },
     "outputs": {
-        "output-dir": "C:\\Users\\HP\\Documents\\Cristal\\output\\",
-        "audio": "C:\\Users\\HP\\Documents\\Cristal\\output\\audio\\",
-        "text": "C:\\Users\\HP\\Documents\\Cristal\\output\\text\\"
+        "output-dir": "C:\\Users\\HP\\Documents\\Cristal\\Test\\output\\",
+        "audio": "C:\\Users\\HP\\Documents\\Cristal\\Test\\output\\audio\\",
+        "text": "C:\\Users\\HP\\Documents\\Cristal\\Test\\output\\text\\",
+        "zip": "C:\\Users\\HP\\Documents\\Cristal\\Test\\output\\zip\\"
     }
 }

@@ -17,7 +17,6 @@ def run(cmd:list, settings_file_path:str):
     from colorama import Fore
     import colorama
     colorama.init()
-    
     # Controllo se non ci sono attributi sconosciuti
     for i in cmd:
         if '--' in i:
@@ -113,7 +112,7 @@ class TextToSpeech:
                 try:
                     courent_dir = os.getcwd()
                     #os.makedirs(destination)
-                    os.chdir(destination)
+                    os.chdir(str(destination))
                     for file in os.listdir(destination):
                         if file == f'{name}{n}.mp3':
                             n += 1
