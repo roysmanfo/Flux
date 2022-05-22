@@ -54,7 +54,7 @@ def run(cmd:list, settings_file_path:str):
             text = open(file_path, 'r').read()
             fileDestination = input(f'{Fore.WHITE}Percorso destinazione:{Fore.BLUE} ')
 
-            TextToSpeech.convert_to_speech(text, lang, name, fileDestination, settings_file_path)
+            Convert.to_speech(text, lang, name, fileDestination, settings_file_path)
 
         elif '--FILE' not in cmd:
             # Da testo a file
@@ -63,7 +63,7 @@ def run(cmd:list, settings_file_path:str):
 
             text = input(f'{Fore.WHITE}Testo:{Fore.BLUE} ')
             
-            TextToSpeech.convert_to_speech(text, lang, name, None, settings_file_path)
+            Convert.to_speech(text, lang, name, '', settings_file_path)
 
     if '--TEXT' in cmd and '--AUDIO' not in cmd: 
         # NOTE: Questa parte non è ancora stata ne finita, ne implementata per problemi tecnici
@@ -76,7 +76,7 @@ def run(cmd:list, settings_file_path:str):
             fileDestination = input(f'{Fore.WHITE}Percorso destinazione:{Fore.BLUE} ')
             save_as_file = True
 
-            TextToSpeech.convert_to_text(lang, name, fileDestination, settings_file_path, save_as_file)
+            Convert.co_text(lang, name, fileDestination, settings_file_path, save_as_file)
         elif '--FILE' not in cmd:
             # Stamperà il testo a schermo
             
@@ -84,10 +84,13 @@ def run(cmd:list, settings_file_path:str):
             name, fileDestination = '', ''
             save_as_file = False
 
-            TextToSpeech.convert_to_text(lang, name, fileDestination, settings_file_path, save_as_file)
+            Convert.to_text(lang, name, fileDestination, settings_file_path, save_as_file)
 
-class TextToSpeech:
-    def convert_to_speech(text:str, lang:str, name:str, destination:str, settings_file_path:str) -> None:
+class Convert:
+    def to_speech(text:str, lang:str, name:str, destination:str, settings_file_path:str) -> None:
+        """
+        Text to Speech
+        """
         import json, colorama
         from colorama import Fore
         colorama.init()
@@ -95,7 +98,6 @@ class TextToSpeech:
 
         with open(settings_file_path, 'r') as file:
             settings = json.load(file)
-
             if text == '':
                 text = 'Cristal'
             if lang == '':
@@ -137,9 +139,9 @@ class TextToSpeech:
             except FileNotFoundError:
                 print(f'{Fore.RED}La directory {destination} non esiste{Fore.RESET}')
 
-    def convert_to_text(lang:str, name:str, destination:str, settings_file_path:str, save_as_file:bool) -> None:
+    def to_text(lang:str, name:str, destination:str, settings_file_path:str, save_as_file:bool) -> None:
         """
-        Visti i problemi con pyAudio, questa funzione non è ancora stata implementata
+        Speech to Text
         """
         import json, colorama
         from colorama import Fore
