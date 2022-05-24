@@ -1,5 +1,7 @@
-# Cristal 2022
-# Sequenza di login/register
+'''
+### Cristal 2022\n
+Sequenza di login/register
+'''
 
 import json, colorama
 from json.decoder import JSONDecodeError
@@ -9,13 +11,18 @@ from utils import utils
 colorama.init(autoreset=True)
 
 userRole = ''
-tree = '\\Cristal\\Files\\Login'
+tree = 'users' #'\\Cristal\\Files\\Login'
 n = 0
 
-def roleCheck():
+def roleCheck() -> str:
     global userRole
-    i = open(f'{tree}\\Users.json','w')
-    i.close()
+    try:
+        i = open(f'{tree}\\Users.json','r')
+        i.close()
+    except FileNotFoundError:
+        i = open(f'{tree}\\Users.json','w')
+        i.close()
+
     with open(f'{tree}\\Users.json','r') as l:
         try:
             f = json.load(l)
@@ -36,9 +43,10 @@ def numberCheck() -> int:
         except JSONDecodeError:
             n = 0
     return n + 1
-def create_directories(username):
+def create_directories(username) -> None:
     # Creazione delle directory di output
-    default_dir = f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\{username}\\output\\"
+    default_dir = f"{utils.Utils.get_path_dir('Documents')}"
+    default_dir += f"\\Cristal\\{username}\\output\\"
     settings = {
                     "lang":{
                         "general-lang":"it-IT",
@@ -58,10 +66,10 @@ def create_directories(username):
     courent_dir = os.getcwd()
     try:
         new_dir = utils.Utils.get_path_dir("Documents\\Cristal\\")
-        check_dir = os.chdir(new_dir)
-        print(check_dir)
-        if check_dir == None:
-            os.mkdir(f'{utils.Utils.get_path_dir(settings["outputs"]["output-dir"])}')
+        try:
+            check_dir = os.chdir(new_dir)
+        except FileNotFoundError:
+            os.makedirs(f'{utils.Utils.get_path_dir(settings["outputs"]["output-dir"])}')
         
             for dir in settings['outputs']:
                 if dir == 'output-dir':
@@ -73,7 +81,7 @@ def create_directories(username):
         print(f'{Fore.GREEN}La directory {new_dir} esiste già{Fore.RESET}')
         time.sleep(1)
         os.chdir(courent_dir)
-def register(dir):
+def register(is_first_user:bool = True) -> tuple:
             role = str(roleCheck())
             userNumber = numberCheck()
 
@@ -92,8 +100,9 @@ def register(dir):
                             name = file[i]['name']
                             if UserName != name and UserName != '':
                                 UserNameApproved = True
-                        print(f'\nA quanto pare, esiste già un utente con {Style.BRIGHT}{UserName}{Style.RESET_ALL} come nome utente')
-                        print('Prova con un nuovo nome utente\n')
+                        if not UserNameApproved:
+                            print(f'\nA quanto pare, esiste già un utente con {Style.BRIGHT}{UserName}{Style.RESET_ALL} come nome utente')
+                            print('Prova con un nuovo nome utente\n')
                     except JSONDecodeError:
                         UserNameApproved = True
                         
@@ -113,19 +122,28 @@ def register(dir):
                 os.makedirs(f'{tree}\\')
                 os.chdir(f'{tree}\\')
             # Scrittura sul file
-            with open('Users.json', 'w') as fileCredenziali:
-                User = {
-                    "User" + str(userNumber): {
-                        "name": f'{UserName}',
-                        "password": f'{UserPassword}',
-                        "email": 'null,',
-                        "role": f'{role}',
-                        "status": 'Active'# Andrà cambiato in Inactive se si vuole cambiare utente
-                    }
+            User = {
+                "User" + str(userNumber): {
+                    "name": f'{UserName}',
+                    "password": f'{UserPassword}',
+                    "email": None,
+                    "role": f'{role}',
+                    "status": 'Active'
                 }
-                json.dump(User, fileCredenziali, indent=4)
-            
-            
+            }
+            if is_first_user:
+                with open('Users.json', 'w') as fileCredenziali:
+                    
+                    json.dump(User, fileCredenziali, indent=4)
+            else:
+                with open('Users.json', 'r') as fileCredenziali:
+                    new_file = json.load(fileCredenziali)
+
+                with open('Users.json', 'w') as fileCredenziali:
+                    #list(new_file)
+                    new_file.update(User)
+                    json.dump(new_file, fileCredenziali, indent=4)
+
             os.chdir(Dir)
             # Creazione della directory settings
 
@@ -141,15 +159,21 @@ def register(dir):
             # Creazione del file settings.json
             with open(r'.\\users\\'+UserName+r'\settings.json','w') as file:
                 # Scrittura delle informazioni di default
-                default_dir = f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\output\\"
+                default_dir = f"{utils.Utils.get_path_dir('Documents')}\\Cristal\\{UserName}\\output\\"
                 settings = {
                     "lang":{
+                        "general-lang":"it-IT",
                         "file-lang":"it"
+                    },
+                    "file-name": {
+                        "audio": f"CristalAudio_",
+                        "text": f"CristalText_",
                     },
                     "outputs":{
                         "output-dir": default_dir,
                         "audio": f"{default_dir}audio\\",
                         "text": f"{default_dir}text\\",
+                        "zip": f"{default_dir}zip\\",
                     }
                 }
 
@@ -168,8 +192,32 @@ def register(dir):
             time.sleep(2)
 
             os.chdir(Dir)
-            return 1, None
-def log(dir):
+            return (1, None, None)
+def login(l:dict) -> tuple:
+    authenticated = False
+    os.system('cls')
+    while authenticated != True:
+        print(f'{Fore.WHITE}Eseguire l\'accesso:{Fore.RESET}')
+        
+        user_name = input('Nome:  ')
+        password = input('Password:  ')
+
+        is_user_valid = any(user_name == l[user]['name'] for user in l) 
+
+        if  is_user_valid:
+            #localizza il numero dell'utente di user_name
+            for user_id in l:
+                if l[user_id]['name'].upper() == user_name.upper():
+                    break
+
+            if l[user_id]['password'] == utils.Security.cript(password):
+                print(f'{Fore.GREEN}Accesso effettuato con successo')
+                authenticated = True
+                user = user_id
+            else:
+                print(f'{Fore.RED}Nome o password non corretti\n{Fore.RESET}')
+    return (user)
+def log(dir:str) -> tuple:
     
     #Utente registrato nell'app
     try:
@@ -181,7 +229,7 @@ def log(dir):
                 os.chdir(i)
                 l = json.load(f)
                 #Controlla se ci sono più utenti, se si, chiede quale utente vuole loggare
-                if len(l) > 1:
+                """if len(l) > 1:
                     print('Quale utente si vuole utilizzare?')
                     c = 0
                     for j in l:
@@ -190,44 +238,72 @@ def log(dir):
                     print()
                     user = input('User')
                 else:
-                    user = 1
+                    user = 1"""
+                
+                #Viene selezionato l'utente con stato attivo
+                user = None
+                for user_id in l:
+                    if l[user_id]['status'] == 'Active':
+                        user = user_id
+                        break
+                #Se non c'è nessun utente attivo, viene effettuato il login in un utente con stato inattivo
+                if user == None:
+                    user = login(l)
+                    #Lo stato dell'utente viene cambiato in attivo
+                    l[user]['status'] = 'Active'
+                    with open(f'{tree}\\Users.json','w') as f:
+                        json.dump(l, f, indent=4)
+                    time.sleep(2)
+
                 os.system('cls')#Pulisce la console
-                username = l[f'User{str(user)}']['name']
+                username = l[user]['name']
                 wellcome = f'Benvenuto in Cristal, { str(username) }'
                 for i in wellcome:
                     print(i, end='')
                     time.sleep(0.025)
                 print()
-            
-            return 0, user, str(l[f'User{user}']['name']) # Tutto apposto, il file è presente e l'utente è loggato
-        except Exception:
+            return (0, user, str(l[user]['name'])) # Tutto apposto, il file è presente e l'utente è loggato
+        
+        except FileNotFoundError:
             os.makedirs(f'{tree}\\')
             os.chdir(f'{tree}\\')
-            print(f'{Fore.RED}\nC\'e stato un problema con il file, si è verificato un errore')
-            return 2, None # Il file è presente, ma modificato o corrotto
+            print(f'{Fore.RED}\nC\'e stato un problema con il file, si è verificato un errore{Fore.RESET}')
+            time.sleep(2)
+            return (2, None, None) # Il file è presente, ma modificato o corrotto
+
+        except JSONDecodeError:
+            os.makedirs(f'{tree}\\')
+            os.chdir(f'{tree}\\')
+            print(f'{Fore.RED}\nC\'e stato un problema con il file, si è verificato un errore{Fore.RESET}')
+            time.sleep(2)
+            return (2, None, None) # Il file è presente, ma modificato o corrotto
 
     #Utente non registrato nell'app
-    except FileExistsError:
+    except FileExistsError or FileNotFoundError:
 
         print('Pare che tu non sia registrato...')
         print('Crea un utente per poter usare Cristal\n')
 
         register(dir)
-        return 1, None, None # Va riavviata la funzione
-def reLog():
+        return (1, None, None) # Va riavviata la funzione
+def reLog() -> tuple:
     Dir = os.getcwd()
-    os.remove(f"{tree}/Users.json")
+    try:
+        os.remove(f"{tree}/Users.json")
+    except FileNotFoundError:
+        pass
     os.chdir(Dir)
-    print('Possibile soluzione al problema, si prega di rieffettuare il login')
-    return 1, None
-def logout(dir):
-    # NOTE: Questa funzione non è ancora stata implementata
+    print('Trovata possibile soluzione al problema, si prega di rieffettuare il login')
+    time.sleep(2)
+    return (1, None, None)
+def logout(dir:str) -> tuple:
+    '''NOTE: Questa funzione non è ancora stata implementata'''
 
     Dir = os.getcwd()
     os.chdir(f'{tree}\\')
     os.remove(f'Users.json')
     os.chdir(Dir)
-    return 1, None
+    return (1, None, None)
 
 if __name__ == '__main__':
     print('Questo file non è eseguibile')

@@ -97,14 +97,14 @@ class Security:
     Tutto quel che serve per assicurare che le credenziali di accesso siano sicure
     """
     
-    #Permette di cifrare la password
+    #Permette di cifrare una strinca
     def cript(string:str=None) -> str:
         if string is None:
             return None
         else:
             return string.encode('utf-8').hex()
     
-    #Permette di decifrare la password
+    #Permette di decifrare una stringa cifrata
     def decript(string:str=None) -> str:
         if string is None:
             return None

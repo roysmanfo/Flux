@@ -14,26 +14,35 @@ import Login, cmd_handler
 from utils import utils
 
 colorama.init(autoreset=True)
+def bootstrap() -> tuple:
+    
+    """Serve a controllare che sia tutto a posto prima di avviare il programma"""
+    ReadyToStart = False
+    dir = os.getcwd()+"\\Cristal"
+    
+    isLogged, user_id, nick = Login.log(dir)
 
-ReadyToStart = False
-dir = os.getcwd()+"\\Cristal"
-# "BIOS" - Serve a controllare che sia tutto a posto prima di avviare il programma
-isLogged, user, nick = Login.log(dir)
+    while ReadyToStart == False:
+        if isLogged == 0:
+            ReadyToStart = True
+            break
+        if isLogged == 1:   
+            isLogged, user_id, nick = Login.log(dir)
+        if isLogged == 2:
+            isLogged, user_id, nick =  Login.reLog()
 
-while ReadyToStart == False:
-    if isLogged == 0:
-        ReadyToStart = True
-        break
-    if isLogged == 1:   
-        isLogged, user, nick = Login.log(dir)
-    if isLogged == 2:
-        isLogged =  Login.reLog()
+    name = nick
 
-user = f'User{user}'
-NAME = nick
+    return (name, user_id, nick) 
+
+
 #Inizio
+#os.chdir(utils.Utils.get_path_dir('Desktop'))
 continue_execution = True
-while continue_execution:
+same_user_active = True
+name, user_id, nick = bootstrap()
+
+while continue_execution and same_user_active:
     #Input dell'utente
     cmd = input(f'{Fore.WHITE}{str(nick)}{Fore.BLUE}>  ')
     #Transformo il comando in una lista
@@ -42,7 +51,7 @@ while continue_execution:
     #In questo modo anche se l'utente mescola lettere maiuscole e minuscole,
     #il comando sarà sempre in maiuscolo
     cmd[0] = cmd[0].upper()
-    with open(f'{os.getcwd()}\cmds\\files\\commands_{NAME}.json','r') as file:
+    with open(f'{os.getcwd()}\cmds\\files\\commands_{name}.json','r') as file:
         cmdNames = json.load(file)
 
         if cmd[0] == cmdNames['NICKNAME']:
@@ -53,7 +62,15 @@ while continue_execution:
             import cmds.window
             cmd = [ i.upper() for i in cmd ]
             continue_execution = cmds.window.run(cmd)
-
+        elif cmd[0] == cmdNames['USER']:
+            import user
+            cmd = [ i.upper() for i in cmd ]
+            if len(cmd)> 1 and cmd[1] == '/NEW':
+                same_user_active = user.run(cmd, name, user_id)
+            elif len(cmd)> 1 and cmd[1] == '/LOGOUT':
+                same_user_active = user.run(cmd, name, user_id)
+            else:
+                user.run(cmd, name, user_id)
         else:
             cmd = [ i.upper() for i in cmd ]
-            cmd_handler.cmd(cmd, NAME)
+            cmd_handler.cmd(cmd, name)
