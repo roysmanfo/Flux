@@ -9,7 +9,7 @@ The new app will contain many more features, and will make start contributing mu
 
 ## Things to change
 *__More changes will be added...__*
- - [] Change the login system
- - [] Take the text output form a dedicated file in a fixed location
- - [] Change the usage of os.chdir() to have something more like how other terminals handle the current position on disk
+ - [ ] Change the login system
+ - [ ] Take the text output form a dedicated file in a fixed location
+ - [ ] Change the usage of os.chdir() to have something more like how other terminals handle the current position on disk
 
