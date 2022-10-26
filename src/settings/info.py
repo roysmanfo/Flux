@@ -31,6 +31,11 @@ class User():
         self.paths = Path
 
 class Path:
+    """
+    ### CLASS PATH
+    The class Path contains all different infornamtion about where to find many
+    different things, like where to put files, or where to look for them
+    """
     def __init__(self):
         self.terminal = self._set_default_terminal_path()
 
