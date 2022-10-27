@@ -3,7 +3,7 @@ import json, os, platform
 class User():
     """
     ### CLASS USER
-    The class User manages all user info and settings, plus this
+    The class User manages all user info and settings, plus this 
     approach makes working with user properties much easier than in
     the previus version of Cristal, where all settings where also stored
     in a single json file like in this version, but to access it it wes
@@ -20,7 +20,7 @@ class User():
     ```
     """
     def __init__(self):
-        with open("./settings.json") as f:
+        with open("./settings.json", "r") as f:
             sett = json.load(f)
         
         self.email = sett["email"]
@@ -29,6 +29,36 @@ class User():
         self.language_text = sett["language-text"]
         self.username = sett["username"]
         self.paths = Path
+
+    def reset_settings(self) -> None:
+        """
+        ### Reset Settings
+        This method resets the default settings, and also checks if the settings
+        file is already there, if there already is one, it gets overwritten, otherwise
+        a new one is created.
+        """
+        settings = {
+            "email": "",
+            "language": "en",
+            "language-audio": "en",
+            "language-text": "en",
+            "username": "",
+            "paths": {
+                "terminal": "C:/Users/"
+            }
+        }
+        
+        # Check if there already is a settings file, if there is, overwrite it, otherwise
+        # create a new one
+        try:
+            
+            with open("./settings.json", "r") as f:
+                with open("./settings.json", "w") as l:
+                    f.writelines()
+                    json.dump(settings, f, indent=4, sort_keys=True)
+        except IOError:
+            with open("./settings.json", "w") as f:
+                json.dump(settings, f, indent=4, sort_keys=True)
 
 class Path:
     """
