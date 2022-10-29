@@ -1,9 +1,12 @@
 import json, os, platform
 
+SETTINGS_FILE = "".join([os.path.dirname(os.path.realpath(__file__)), "\settings.json"])
+SETTINGS_FOLDER = "".join([os.path.dirname(os.path.realpath(__file__))])
+
 class User():
     """
     ### CLASS USER
-    The class User manages all user info and settings, plus this 
+    The class User manages all user info and settings, plus this
     approach makes working with user properties much easier than in
     the previus version of Cristal, where all settings where also stored
     in a single json file like in this version, but to access it it wes
@@ -20,15 +23,19 @@ class User():
     ```
     """
     def __init__(self):
-        with open("./settings.json", "r") as f:
-            sett = json.load(f)
-        
-        self.email = sett["email"]
-        self.language = sett["language"]
-        self.language_audio = sett["language-audio"]
-        self.language_text = sett["language-text"]
-        self.username = sett["username"]
-        self.paths = Path
+        paths = Path
+        try:
+            with open(SETTINGS_FILE, "r") as f:
+                sett = json.load(f)
+            
+            self.email = sett["email"]
+            self.language = sett["language"]
+            self.language_audio = sett["language-audio"]
+            self.language_text = sett["language-text"]
+            self.username = sett["username"]
+            self.paths = paths
+        except FileNotFoundError:
+            self.reset_settings()
 
     def reset_settings(self) -> None:
         """
@@ -37,27 +44,27 @@ class User():
         file is already there, if there already is one, it gets overwritten, otherwise
         a new one is created.
         """
+        path = Path
+
         settings = {
             "email": "",
             "language": "en",
             "language-audio": "en",
             "language-text": "en",
             "username": "",
-            "paths": {
-                "terminal": "C:/Users/"
-            }
+            "paths": path
         }
         
         # Check if there already is a settings file, if there is, overwrite it, otherwise
         # create a new one
         try:
             
-            with open("./settings.json", "r") as f:
-                with open("./settings.json", "w") as l:
+            with open(SETTINGS_FILE, "r") as f:
+                with open(SETTINGS_FILE, "w") as l:
                     f.writelines()
                     json.dump(settings, f, indent=4, sort_keys=True)
         except IOError:
-            with open("./settings.json", "w") as f:
+            with open(SETTINGS_FILE, "w") as f:
                 json.dump(settings, f, indent=4, sort_keys=True)
 
 class Path:
@@ -67,7 +74,27 @@ class Path:
     different things, like where to put files, or where to look for them
     """
     def __init__(self):
+        try:
+            with open(SETTINGS_FILE,"r") as f:
+                path = json.load(f)["paths"]
+
+                self.terminal = path["terminal"]
+        
+        # settings file missing
+        except IOError:
+            with open(SETTINGS_FILE, "w") as f:
+                self.reset()
+
+
+    def reset(self):
         self.terminal = self._set_default_terminal_path()
+
+    def all(self) -> dict:
+        paths = {
+            "terminal": self.terminal,
+        }
+        return paths
+        
 
     def _set_default_terminal_path(self) -> str:
         """
