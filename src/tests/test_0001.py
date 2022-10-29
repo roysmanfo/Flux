@@ -5,11 +5,11 @@ class Test_TestUser(unittest.TestCase):
         from src.settings.info import User
         USER = User()
         types = [
-            type(USER.email, str),
-            type(USER.language, str),
-            type(USER.language_audio, str),
-            type(USER.language_text, str),
-            type(USER.paths, dict),
+            type(USER.email) == str,
+            type(USER.language) == str,
+            type(USER.language_audio) == str,
+            type(USER.language_text) == str,
+            type(USER.paths) == dict,
         ]
         result = all(types)
         self.assertTrue(result)
