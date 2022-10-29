@@ -14,8 +14,5 @@ class Test_TestUser(unittest.TestCase):
         result = all(types)
         self.assertTrue(result)
 
-    def test_decrement(self):
-        pass
-
 if __name__ == '__main__':
     unittest.main()
