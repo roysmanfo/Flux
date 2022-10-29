@@ -1,4 +1,4 @@
-import unittest, sys
+import unittest
 
 class Test_TestUser(unittest.TestCase):
     def test_user_has_all_attributes(self):
