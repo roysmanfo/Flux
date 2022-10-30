@@ -39,8 +39,9 @@ class User():
             self.username: str = sett["username"]
             self.paths: dict = sett["paths"]
 
-        except (FileNotFoundError, KeyError):
+        except (FileNotFoundError, KeyError, json.JSONDecodeError):
             self.reset_settings()
+            self.__init__()
 
     def reset_settings(self) -> None:
         """
@@ -70,8 +71,7 @@ class User():
                     json.dump(settings, l, indent=4, sort_keys=True)
         except FileNotFoundError:
             with open(SETTINGS_FILE, "w") as f:
-                l = json.load(f)
-                json.dump(settings, l, indent=4, sort_keys=True)
+                json.dump(settings, f, indent=4, sort_keys=True)
 
 
 class Path:
