@@ -91,6 +91,7 @@ class Path:
                     self.documents: str = path["documents"]
             except KeyError:
                 user.reset_settings()
+                self.__init__(user=user, load_data=True)
 
     def reset(self) -> dict:
         """
