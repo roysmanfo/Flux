@@ -4,7 +4,8 @@
     "language-audio": "en",
     "language-text": "en",
     "paths": {
-        "terminal": "C:/Users/"
+        "documents": "C:/Users/user/Documents",
+        "terminal": "C:/Users/user"
     },
     "username": ""
 }
