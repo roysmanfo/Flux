@@ -97,7 +97,8 @@ class Path:
         Returns a dictionary containing all the default paths to look for
         """
         self.terminal = self._set_default_terminal_path()
-        self.documents = self._set_default_doocuments_path()
+        self.documents = self._set_default_documents_path()
+        self.images = self._set_default_images_path()
 
         all_paths = {
             "terminal": f"{self.terminal}",
@@ -127,7 +128,14 @@ class Path:
         else:
             return path
 
-    def _set_default_doocuments_path(self) -> str:
+    def _set_default_documents_path(self) -> str:
+        """
+        Returns the location of the documents folder
+        """
+        path = "/".join([self.terminal, 'Documents'])
+        return path
+
+    def _set_default_images_path(self) -> str:
         """
         Returns the location of the documents folder
         """
