@@ -14,7 +14,7 @@ class Test_TestUser(unittest.TestCase):
             type(USER.language) == str,
             type(USER.language_audio) == str,
             type(USER.language_text) == str,
-            isinstance(USER.paths, type(Path))
+            type(USER.paths) == dict
         ]
         result = all(types)
         self.assertTrue(result)
