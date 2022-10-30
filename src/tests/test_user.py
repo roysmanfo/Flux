@@ -17,7 +17,7 @@ class Test_TestUser(unittest.TestCase):
             type(USER.paths) == dict
         ]
         result = all(types)
-        self.assertTrue(result)
+        self.assertTrue(result, "1 or more attributes are identified with the wrong type")
 
 if __name__ == '__main__':
     unittest.main()
