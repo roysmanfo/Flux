@@ -22,8 +22,8 @@ def listen() -> list:
     the version and the location where Cristal is oparating on the disk.
     """
     print(f"{Fore.GREEN}{USER.username}{Fore.CYAN} Cristal [{VERSION}] {Fore.YELLOW}{PATH.terminal}{Fore.WHITE} ", end="")
-    command = input(f"$ ")
+    command = input(f"$ {Fore.MAGENTA}")
     return transform.string_to_list(command)
 
 # Actual start
-listen()
+print(listen())
