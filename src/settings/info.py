@@ -32,12 +32,12 @@ class User():
             with open(SETTINGS_FILE, "r") as f:
                 sett = json.load(f)
 
-            self.email = sett["email"]
-            self.language = sett["language"]
-            self.language_audio = sett["language-audio"]
-            self.language_text = sett["language-text"]
-            self.username = sett["username"]
-            self.paths = sett["paths"]
+            self.email: str = sett["email"]
+            self.language: str = sett["language"]
+            self.language_audio: str = sett["language-audio"]
+            self.language_text: str = sett["language-text"]
+            self.username: str = sett["username"]
+            self.paths: dict = sett["paths"]
 
         except (FileNotFoundError, KeyError):
             self.reset_settings()
@@ -87,7 +87,8 @@ class Path:
                 with open(SETTINGS_FILE, "r") as f:
                     path = json.load(f)["paths"]
 
-                    self.terminal = path["terminal"]
+                    self.terminal: str = path["terminal"]
+                    self.documents: str = path["documents"]
             except KeyError:
                 user.reset_settings()
 
