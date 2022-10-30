@@ -1,5 +1,4 @@
 def setup():
-    from settings.info import User, Path
     """
     ## Setup process
     
@@ -9,6 +8,8 @@ def setup():
     This process makes it easier to start Cristal as we just need to call this
     function in the main file and everything will be handled automaticly. 
     """
+    from settings.info import User, Path
+    
     USER = User()
     PATH = Path(USER, load_data=True)
 
