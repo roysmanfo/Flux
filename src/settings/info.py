@@ -23,7 +23,13 @@ class User():
     ```
     """
     def __init__(self):
-        paths = Path
+        try:
+            from info import Path 
+            paths = Path()
+            
+        except KeyError:
+            pass
+
         try:
             with open(SETTINGS_FILE, "r") as f:
                 sett = json.load(f)
@@ -52,7 +58,7 @@ class User():
             "language-audio": "en",
             "language-text": "en",
             "username": "",
-            "paths": path
+            "paths": path.reset()
         }
         
         # Check if there already is a settings file, if there is, overwrite it, otherwise
@@ -63,7 +69,7 @@ class User():
                 with open(SETTINGS_FILE, "w") as l:
                     f.writelines()
                     json.dump(settings, f, indent=4, sort_keys=True)
-        except IOError:
+        except FileNotFoundError:
             with open(SETTINGS_FILE, "w") as f:
                 json.dump(settings, f, indent=4, sort_keys=True)
 
@@ -74,20 +80,25 @@ class Path:
     different things, like where to put files, or where to look for them
     """
     def __init__(self):
-        try:
-            with open(SETTINGS_FILE,"r") as f:
-                path = json.load(f)["paths"]
+        with open(SETTINGS_FILE,"r") as f:
+            path = json.load(f)["paths"]
 
-                self.terminal = path["terminal"]
+            self.terminal = path["terminal"]
         
-        # settings file missing
-        except IOError:
-            with open(SETTINGS_FILE, "w") as f:
-                self.reset()
 
 
-    def reset(self):
+    def reset(self) -> dict:
+        """
+        Returns a dictionary containing all the default paths to look for
+        """
         self.terminal = self._set_default_terminal_path()
+        
+        
+        all_paths = {
+            "terminal": f"{self.terminal}"
+        }
+
+        return all_paths
 
     def all(self) -> dict:
         paths = {
