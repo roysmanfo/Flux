@@ -24,13 +24,6 @@ class User():
     """
     def __init__(self):
         try:
-            from info import Path 
-            paths = Path()
-            
-        except KeyError:
-            pass
-
-        try:
             with open(SETTINGS_FILE, "r") as f:
                 sett = json.load(f)
             
@@ -39,8 +32,9 @@ class User():
             self.language_audio = sett["language-audio"]
             self.language_text = sett["language-text"]
             self.username = sett["username"]
-            self.paths = paths
-        except FileNotFoundError:
+            self.paths = sett["paths"]
+        
+        except (FileNotFoundError, KeyError):
             self.reset_settings()
 
     def reset_settings(self) -> None:
@@ -50,7 +44,7 @@ class User():
         file is already there, if there already is one, it gets overwritten, otherwise
         a new one is created.
         """
-        path = Path
+        path = Path(self, False)
 
         settings = {
             "email": "",
@@ -67,11 +61,12 @@ class User():
             
             with open(SETTINGS_FILE, "r") as f:
                 with open(SETTINGS_FILE, "w") as l:
-                    f.writelines()
-                    json.dump(settings, f, indent=4, sort_keys=True)
+                    l.write("")
+                    json.dump(settings, l, indent=4, sort_keys=True)
         except FileNotFoundError:
             with open(SETTINGS_FILE, "w") as f:
-                json.dump(settings, f, indent=4, sort_keys=True)
+                l = json.load(f)
+                json.dump(settings, l, indent=4, sort_keys=True)
 
 class Path:
     """
@@ -79,12 +74,15 @@ class Path:
     The class Path contains all different infornamtion about where to find many
     different things, like where to put files, or where to look for them
     """
-    def __init__(self):
-        with open(SETTINGS_FILE,"r") as f:
-            path = json.load(f)["paths"]
+    def __init__(self, user:User, load_data:bool = True):
+        if load_data:
+            try:
+                with open(SETTINGS_FILE,"r") as f:
+                    path = json.load(f)["paths"]
 
-            self.terminal = path["terminal"]
-        
+                    self.terminal = path["terminal"]
+            except KeyError:
+                user.reset_settings()
 
 
     def reset(self) -> dict:
@@ -116,5 +114,7 @@ class Path:
 
         elif platform.system() in ["MacOS" ,"Linux"]:
             path = os.path.join(os.path.expanduser('~'))
-
-        return path
+        if "\\" in path:
+            return path.replace("\\", "/")
+        else:
+            return path
