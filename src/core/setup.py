@@ -11,8 +11,9 @@ def setup(user, path) -> tuple:
     @param user : The user class from the info file in settings
     @param path : The path class from the info file in settings
     """
-
+    from os import chdir
     USER = user()
     PATH = path(USER, load_data=True)
-
-    return (USER, PATH)
+    VERSION = "0.1.1alpha"
+    chdir(PATH.terminal)
+    return (USER, PATH, VERSION)
