@@ -4,9 +4,10 @@ from colorama import init, Fore
 init(autoreset=True)
 
 # Cristal modules
-from core import setup
-from settings.info import User, Path
+from core import setup, manager
+from settings.info import User, Path, SETTINGS_FILE, SETTINGS_FOLDER
 from utils import transform
+
 
 # Setup process
 setup_result = setup.setup(user=User, path=Path)
