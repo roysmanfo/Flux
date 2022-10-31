@@ -29,7 +29,7 @@ def listen() -> list:
     the version and the location where Cristal is oparating on the disk.
     """
     print(
-        f"{Fore.GREEN}{USER.username}{Fore.CYAN} Cristal [{VERSION}] {Fore.YELLOW}" + PATH.terminal.replace("\\", "/") + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
+        f"{Fore.GREEN}{USER.username}{Fore.CYAN} Cristal [{VERSION}] {Fore.YELLOW}" + PATH.terminal.replace("\\", "/").lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
     command = input()
     print(f"{Fore.WHITE}", end="")
 
