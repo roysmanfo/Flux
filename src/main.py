@@ -28,8 +28,8 @@ def listen() -> list:
     the version and the location where Cristal is oparating on the disk.
     """
     print(
-        f"{Fore.GREEN}{USER.username}{Fore.CYAN} Cristal [{VERSION}] {Fore.YELLOW}{PATH.terminal}{Fore.WHITE} ", end="")
-    command = input(f"$ {Fore.MAGENTA}")
+        f"{Fore.GREEN}{USER.username}{Fore.CYAN} Cristal [{VERSION}] {Fore.YELLOW}{PATH.terminal}{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
+    command = input()
     print(f"{Fore.WHITE}", end="")
 
     return transform.string_to_list(command)
@@ -37,6 +37,7 @@ def listen() -> list:
 
 def run():
     while True:
+        os.chdir(PATH.terminal)
         cmd = listen()
 
         # Check if we just want to leave, there's no need to check in  
