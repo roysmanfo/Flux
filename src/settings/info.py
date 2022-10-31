@@ -2,6 +2,10 @@ import json
 import os
 import platform
 
+
+with open("".join([os.path.dirname(os.path.realpath(__file__)), "\\version"])) as version:
+    VERSION = version.read()
+
 SETTINGS_FILE = "".join(
     [os.path.dirname(os.path.realpath(__file__)), "\settings.json"])
 SETTINGS_FOLDER = "".join([os.path.dirname(os.path.realpath(__file__))])

@@ -5,7 +5,7 @@ init(autoreset=True)
 
 # Cristal modules
 from core import setup, manager
-from settings.info import User, Path, SETTINGS_FILE, SETTINGS_FOLDER
+from settings.info import User, Path, SETTINGS_FILE, SETTINGS_FOLDER, VERSION
 from utils import transform
 
 
@@ -14,7 +14,6 @@ setup_result = setup.setup(user=User, path=Path)
 
 USER: User = setup_result[0]
 PATH: Path = setup_result[1]
-VERSION: str = setup_result[2]
 
 def listen() -> list:
     """

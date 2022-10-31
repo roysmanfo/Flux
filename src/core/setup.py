@@ -19,6 +19,5 @@ def setup(user, path) -> tuple:
     from os import chdir
     USER = user()
     PATH = path(USER, load_data=True)
-    VERSION = "0.1.1alpha"
     chdir(PATH.terminal)
-    return (USER, PATH, VERSION)
+    return (USER, PATH)
