@@ -38,6 +38,9 @@ def listen() -> list:
 def run():
     while True:
         cmd = listen()
+
+        # Check if we just want to leave, there's no need to check in  
+        # all of SYSTEM_CMDS if we just want to leave and do it quickly
         if cmd[0] == "exit":
             os._exit(0)
 
@@ -53,7 +56,10 @@ def run():
         elif cmd[0] == "cr":
             cmd.pop(0)
             manager.manage(cmd)
-
+        
+        # Command not found, a message will be displayed based on USER.language
+        else:
+            pass
 
 if __name__ == "__main__":
     run()
