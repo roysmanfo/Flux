@@ -11,7 +11,8 @@ class Test_TestCommandProcessing(unittest.TestCase):
         from src.core.manager import classify_arguments
         command = ["sortfiles", "/reverse"]
         result = classify_arguments(command)
-        expected = {"command": "sortfiles","flags": [], "options": ["/reverse"]}
+        expected = {"command": "sortfiles", "flags": [],
+                    "variables": [], "options": ["/reverse"]}
 
         self.assertEqual(result, expected, "Arguments classified incorrectly")
 
@@ -23,7 +24,8 @@ class Test_TestCommandProcessing(unittest.TestCase):
         from src.core.manager import classify_arguments
         command = ["sortfiles"]
         result = classify_arguments(command)
-        expected = {"command": "sortfiles", "flags": [], "options": []}
+        expected = {"command": "sortfiles",
+                    "flags": [], "variables": [], "options": []}
 
         self.assertEqual(result, expected, "Arguments classified incorrectly")
 
@@ -35,7 +37,8 @@ class Test_TestCommandProcessing(unittest.TestCase):
         from src.core.manager import classify_arguments
         command = ["sortfiles", "-f", "sort_rules.json"]
         result = classify_arguments(command)
-        expected = {"command": "sortfiles", "flags": ["-f","sort_rules.json"], "options": []}
+        expected = {"command": "sortfiles", "flags": [
+            "-f"], "variables": ["sort_rules.json"], "options": []}
 
         self.assertEqual(result, expected, "Arguments classified incorrectly")
 
