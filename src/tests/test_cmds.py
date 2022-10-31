@@ -34,9 +34,9 @@ class Test_TestCommandProcessing(unittest.TestCase):
         """
 
         from src.core.manager import classify_arguments
-        command = ["sortfiles", "/f", "sort_rules.json"]
+        command = ["sortfiles", "-f", "sort_rules.json"]
         result = classify_arguments(command)
-        expected = {"command": "sortfiles", "flags": [], "options": ["/f","sort_rules.json"]}
+        expected = {"command": "sortfiles", "flags": ["-f","sort_rules.json"], "options": []}
 
         self.assertEqual(result, expected, "Arguments classified incorrectly")
 
