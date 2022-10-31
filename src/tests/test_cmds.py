@@ -11,8 +11,7 @@ class Test_TestCommandProcessing(unittest.TestCase):
         from src.core.manager import classify_arguments
         command = ["sortfiles", "-reverse"]
         result = classify_arguments(command)
-        expected = {"command": "sortfiles",
-                    "flags": ["-reverse"], "options": []}
+        expected = {"command": "sortfiles","flags": [], "options": ["/reverse"]}
 
         self.assertEqual(result, expected, "Arguments classified incorrectly")
 
