@@ -20,5 +20,5 @@ def decode(string: str = None):
         if words[length-1] == '':
             words.pop(length-1)
         length -= 1
-    words = [i.upper() for i in words] 
+    words = [i.lower() for i in words] 
     return words
