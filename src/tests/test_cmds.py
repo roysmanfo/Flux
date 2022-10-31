@@ -9,7 +9,7 @@ class Test_TestCommandProcessing(unittest.TestCase):
         """
 
         from src.core.manager import classify_arguments
-        command = ["sortfiles", "-reverse"]
+        command = ["sortfiles", "/reverse"]
         result = classify_arguments(command)
         expected = {"command": "sortfiles","flags": [], "options": ["/reverse"]}
 
