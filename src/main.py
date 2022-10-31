@@ -51,7 +51,7 @@ def run():
                 os.chdir(cmd[1])
                 PATH.terminal = os.getcwd()
             else:
-                os.system(f"cd {PATH.terminal} && "+"".join(cmd))
+                os.system(f"cd {PATH.terminal} && "+" ".join(cmd))
 
         # Otherwise it might be a Cristal command
         elif cmd[0] == "cr":
