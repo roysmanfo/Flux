@@ -21,10 +21,10 @@ class User():
     user istance (USER) and accessing its settings like with any normal
     python object:
 
-    Example: 
-    ```py
-    send_email(sender=USER.email, context=..., ...)
-    ```
+    #### Example: 
+    >>> send_email = lambda sender: str, context: dict, ... : ... #some code to send a mail
+    >>> send_email(sender=USER.email, context=..., ...)
+    
     """
 
     def __init__(self):
@@ -57,7 +57,7 @@ class User():
             "language": "en",
             "language-audio": "en",
             "language-text": "en",
-            "username": "",
+            "username": "User",
             "paths": path.reset()
         }
 
