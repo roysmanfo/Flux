@@ -41,3 +41,7 @@ def classify_arguments(command: list) -> dict:
     classified["options"] = options
 
     return classified
+
+
+def manage(cmd: list):
+    command = classify_arguments(cmd)
