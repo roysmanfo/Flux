@@ -1,3 +1,8 @@
+"""
+Necessary procedures to prepare the program to work
+as intended.
+"""
+
 def setup(user, path) -> tuple:
     """
     ## Setup process
