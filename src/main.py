@@ -56,8 +56,12 @@ def run():
 
         # Otherwise it might be a Cristal command
         elif cmd[0] == "cr":
-            cmd.pop(0)
-            manager.manage(cmd)
+            if len(cmd) > 1:
+                cmd.pop(0)
+                manager.manage(cmd)
+            else:
+                # Informations about the programm
+                pass
 
         # Command not found, a message will be displayed based on USER.language
         else:
