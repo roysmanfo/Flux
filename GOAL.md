@@ -12,4 +12,5 @@ The new app will contain many more features, and will make start contributing mu
  - [x] Change the login system
  - [x] Take the text output form a dedicated file in a fixed location
  - [x] Change the usage of os.chdir() to have something more like how other terminals handle the current position on disk
+ - [ ] Create `help` command
 
