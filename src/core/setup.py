@@ -11,7 +11,7 @@ def setup(user, path) -> tuple:
     User setings, file locations on the disk, etc.
 
     This process makes it easier to start Cristal as we just need to call this
-    function in the main file and everything will be handled automaticly. 
+    function in the main file and everything will be handled automaticaly. 
 
     @param user : The user class from the info file in settings
     @param path : The path class from the info file in settings
