@@ -16,20 +16,20 @@ USER: User = setup_result[0]
 PATH: Path = setup_result[1]
 
 
-
 if platform.system() == "Windows":
-    SYSTEM_CMDS = builtincmds.WINDOWS # These commands will be executed from the default OS terminal (cmd.exe)
-    LANG_FILE: str = os.path.join(os.path.dirname(__file__)+"\\lang\\", USER.language + ".txt")
+    # These commands will be executed from the default OS terminal (cmd.exe)
+    SYSTEM_CMDS = builtincmds.WINDOWS
+    LANG_FILE: str = os.path.join(os.path.dirname(
+        __file__)+"\\lang\\", USER.language + ".txt")
 
 elif platform.system() in ["Linux", "Mac"]:
-    SYSTEM_CMDS = builtincmds.LINUX # These commands will be executed from the default OS terminal (linux terminal)
-    LANG_FILE: str = os.path.join(os.path.realpath(__file__)+"/lang/", USER.language + ".txt")
+    # These commands will be executed from the default OS terminal (linux terminal)
+    SYSTEM_CMDS = builtincmds.LINUX
+    LANG_FILE: str = os.path.join(os.path.realpath(
+        __file__)+"/lang/", USER.language + ".txt")
 
 
-
-
-
-def listen() -> list:
+def listen() -> list[str]:
     """
     This function is used to get the command typed by the user preceded by
     a string of text containing the username, the name of the program,
@@ -58,9 +58,9 @@ def run():
             if cmd[0] == "cd" and len(cmd) > 1:
                 os.chdir(cmd[1])
                 PATH.terminal = os.getcwd()
-                
+
                 if platform.system() == "Windows":
-                    PATH.terminal.replace("/","\\")
+                    PATH.terminal.replace("/", "\\")
             else:
                 os.system(f"cd {PATH.terminal} && "+" ".join(cmd))
 
