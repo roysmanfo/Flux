@@ -6,3 +6,6 @@ Lib
 Scripts
 Include
 pyvenv.cfg
+
+# Vscode stuff
+.vscode
