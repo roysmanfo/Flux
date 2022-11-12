@@ -5,7 +5,6 @@ This is the place where the input given gets analized and associated
 with the respective command (if existent).
 """
 
-
 def classify_arguments(command: list) -> dict:
     """
     Classifies the arguments of to the command in a dictionary,
@@ -43,5 +42,17 @@ def classify_arguments(command: list) -> dict:
     return classified
 
 
-def manage(cmd: list):
-    command = classify_arguments(cmd)
+def manage(cmd: list) -> None:
+    
+    # Classify command line arguments and send them to be analized
+    switch(classify_arguments(cmd))
+
+def switch(command: dict) -> None:
+    
+    # Match the command name to the corresponding file in cmd/
+    # for further processing and execution
+    
+    from . import cmd as cr
+
+    if command["command"] == "observer":
+        cr.observer

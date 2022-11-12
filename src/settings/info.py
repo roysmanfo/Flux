@@ -93,6 +93,9 @@ class Path:
 
                     self.terminal: str = path["terminal"]
                     self.documents: str = path["documents"]
+                    self.images: str = path["images"]
+                    self.bucket: str = path["bucket"]
+
             except KeyError:
                 user.reset_settings()
                 self.__init__(user=user, load_data=True)
@@ -104,10 +107,13 @@ class Path:
         self.terminal = self._set_default_terminal_path()
         self.documents = self._set_default_documents_path()
         self.images = self._set_default_images_path()
+        self.bucket = self._set_default_observer_bucket_path()
 
         all_paths = {
             "terminal": f"{self.terminal}",
             "documents": f"{self.documents}",
+            "images": f"{self.images}",
+            "bucket": f"{self.bucket}",
         }
 
         return all_paths
@@ -116,6 +122,8 @@ class Path:
         paths = {
             "terminal": self.terminal,
             "documents": self.documents,
+            "images": self.images,
+            "bucket": self.bucket
         }
         return sorted(paths)
 
@@ -146,3 +154,13 @@ class Path:
         """
         path = "/".join([self.terminal, 'Documents'])
         return path
+
+    def _set_default_observer_bucket_path(self) -> str:
+        """
+        Returns the location of the observer's bucket folder
+        """
+        path = "/".join([os.path.expanduser('~'), "Desktop"])
+        if "\\" in path:
+            return path.replace("\\", "/")
+        else:
+            return path
