@@ -68,7 +68,7 @@ def run():
         elif cmd[0] == "cr":
             if len(cmd) > 1:
                 cmd.pop(0)
-                manager.manage(cmd)
+                manager.manage(cmd, (USER, PATH, LANG_FILE))
             else:
                 cr.run(USER, LANG_FILE)
 
