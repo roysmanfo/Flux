@@ -31,11 +31,13 @@ SOFTWARE.
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import os, shutil
+import os
+import shutil
 from datetime import date
 from pathlib import Path
 from .helpers.extensions import extension_paths
 from time import sleep
+
 
 def run(info: list):
     print("Observer running")
@@ -43,22 +45,24 @@ def run(info: list):
     sort_files(info)
     print("Observer stopped")
 
+
 def sort_files(info: list):
     watch_path = Path(info[1].bucket)
     destination_root = Path(info[1].bucket_destination)
-    
+
     try:
-        os.makedirs(watch_path) 
+        os.makedirs(watch_path)
     except FileExistsError:
         pass
-    
+
     try:
-        os.makedirs(destination_root) 
+        os.makedirs(destination_root)
     except FileExistsError:
         pass
-    
+
     try:
-        event_handler = EventHandler(watch_path=watch_path, destination_root=destination_root)
+        event_handler = EventHandler(
+            watch_path=watch_path, destination_root=destination_root)
 
         observer = Observer()
         observer.schedule(event_handler, f'{watch_path}', recursive=True)
@@ -71,10 +75,11 @@ def sort_files(info: list):
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
-        
+
     except FileNotFoundError:
         # We deleted one or both directories
         sort_files(info)
+
 
 def create_destination_path(path: Path):
     """
@@ -84,6 +89,7 @@ def create_destination_path(path: Path):
     """
     path.mkdir(parents=True, exist_ok=True)
     return path
+
 
 def rename_file(source: Path, destination_path: Path):
     """
@@ -98,7 +104,8 @@ def rename_file(source: Path, destination_path: Path):
 
         while True:
             increment += 1
-            new_name = destination_path / f'{source.stem}_{increment}{source.suffix}'
+            new_name = destination_path / \
+                f'{source.stem}_{increment}{source.suffix}'
 
             if not new_name.exists():
                 return new_name
@@ -113,16 +120,22 @@ class EventHandler(FileSystemEventHandler):
 
     def on_modified(self, event):
         for child in self.watch_path.iterdir():
-            
+
             # skips directories and non-specified extensions
             if child.is_file() and child.suffix.lower() in extension_paths:
-                destination_path = self.destination_root / extension_paths[child.suffix.lower()]
-                destination_path = create_destination_path(path=destination_path)
-                destination_path = rename_file(source=child, destination_path=destination_path)
+                destination_path = self.destination_root / \
+                    extension_paths[child.suffix.lower()]
+                destination_path = create_destination_path(
+                    path=destination_path)
+                destination_path = rename_file(
+                    source=child, destination_path=destination_path)
                 shutil.move(src=child, dst=destination_path)
-            
+
             elif child.is_file() and child.suffix.lower() not in extension_paths:
-                destination_path = self.destination_root / extension_paths["noname"]
-                destination_path = create_destination_path(path=destination_path)
-                destination_path = rename_file(source=child, destination_path=destination_path)
+                destination_path = self.destination_root / \
+                    extension_paths["noname"]
+                destination_path = create_destination_path(
+                    path=destination_path)
+                destination_path = rename_file(
+                    source=child, destination_path=destination_path)
                 shutil.move(src=child, dst=destination_path)
