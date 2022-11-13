@@ -95,6 +95,7 @@ class Path:
                     self.documents: str = path["documents"]
                     self.images: str = path["images"]
                     self.bucket: str = path["bucket"]
+                    self.bucket_destination: str = path["bucket-destination"]
 
             except KeyError:
                 user.reset_settings()
@@ -108,12 +109,14 @@ class Path:
         self.documents = self._set_default_documents_path()
         self.images = self._set_default_images_path()
         self.bucket = self._set_default_observer_bucket_path()
+        self.bucket_destination = self._set_default_observer_bucket_destination_path()
 
         all_paths = {
             "terminal": f"{self.terminal}",
             "documents": f"{self.documents}",
             "images": f"{self.images}",
             "bucket": f"{self.bucket}",
+            "bucket-destination": f"{self.bucket_destination}",
         }
 
         return all_paths
@@ -123,7 +126,8 @@ class Path:
             "terminal": self.terminal,
             "documents": self.documents,
             "images": self.images,
-            "bucket": self.bucket
+            "bucket": self.bucket,
+            "bucket-destination": self.bucket_destination
         }
         return sorted(paths)
 
@@ -159,7 +163,17 @@ class Path:
         """
         Returns the location of the observer's bucket folder
         """
-        path = "/".join([os.path.expanduser('~'), "Desktop"])
+        path = "/".join([os.path.expanduser('~'), "Desktop", "Bucket"])
+        if "\\" in path:
+            return path.replace("\\", "/")
+        else:
+            return path
+
+    def _set_default_observer_bucket_destination_path(self) -> str:
+        """
+        Returns the location of the observer's bucket destination folder
+        """
+        path = "/".join([os.path.expanduser('~'), "Desktop", "Bucket", "Files"])
         if "\\" in path:
             return path.replace("\\", "/")
         else:

@@ -43,13 +43,13 @@ def classify_arguments(command: list) -> dict:
     return classified
 
 
-def manage(cmd: list, info: tuple) -> None:
+def manage(cmd: list, info: list) -> None:
 
     # Classify command line arguments and send them to be analized
     switch(classify_arguments(cmd), info)
 
 
-def switch(command: dict, info: tuple) -> None:
+def switch(command: dict, info: list) -> None:
 
     # Match the command name to the corresponding file in cmd/
     # for further processing and execution
