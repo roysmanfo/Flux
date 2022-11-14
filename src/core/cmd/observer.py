@@ -39,6 +39,7 @@ from .helpers.extensions import extension_paths
 from time import sleep
 import asyncio
 
+
 async def run(info: list, from_command_line: bool = False) -> None:
     if from_command_line:
         print("Observer running")
@@ -85,7 +86,7 @@ async def sort_files(info: list) -> None:
         await sort_files(info)
 
 
-def create_destination_path(path: Path)-> Path:
+def create_destination_path(path: Path) -> Path:
     """
     Helper function that adds current year/month to destination path. If the path
     doesn't already exist, it is created.
@@ -121,7 +122,8 @@ class EventHandler(FileSystemEventHandler):
     """    
     When a file is moved in the bucket, the event handler detects it and
     moves it in the appropiate folder
-    """ 
+    """
+
     def __init__(self, watch_path: Path, destination_root: Path) -> None:
         self.watch_path = watch_path.resolve()
         self.destination_root = destination_root.resolve()
@@ -129,11 +131,10 @@ class EventHandler(FileSystemEventHandler):
     def restore_dirs(self) -> None:
         """    
         Will restore the bucket if it has been deleted after opening the app
-        """        
+        """
         os.makedirs(self.watch_path)
 
         os.makedirs(self.destination_root)
-
 
     def on_modified(self, event) -> None:
         self.restore_dirs()

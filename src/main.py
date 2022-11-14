@@ -81,7 +81,8 @@ async def run():
 loop = asyncio.new_event_loop()
 
 tasks = [
-    loop.create_task(observer.run([USER, PATH, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])),
+    loop.create_task(observer.run(
+        [USER, PATH, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])),
     loop.create_task(run()),
 ]
 
