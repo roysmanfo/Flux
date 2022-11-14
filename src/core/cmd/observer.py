@@ -37,16 +37,16 @@ from datetime import date
 from pathlib import Path
 from .helpers.extensions import extension_paths
 from time import sleep
+import asyncio
 
-
-def run(info: list):
+async def run(info: list):
     print("Observer running")
     print("Press Ctrl+C to stop")
-    sort_files(info)
+    await sort_files(info)
     print("Observer stopped")
 
 
-def sort_files(info: list):
+async def sort_files(info: list):
     watch_path = Path(info[1].bucket)
     destination_root = Path(info[1].bucket_destination)
 
@@ -70,7 +70,7 @@ def sort_files(info: list):
 
         try:
             while True:
-                # sleep(.1)
+                asyncio.sleep(.1)
                 continue
         except KeyboardInterrupt:
             observer.stop()
@@ -78,7 +78,7 @@ def sort_files(info: list):
 
     except FileNotFoundError:
         # We deleted one or both directories
-        sort_files(info)
+        await sort_files(info)
 
 
 def create_destination_path(path: Path):

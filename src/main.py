@@ -1,8 +1,9 @@
 # Dependencies
+import asyncio
 from utils import transform, builtincmds
 from settings.info import User, Path, SETTINGS_FILE, SETTINGS_FOLDER, VERSION
 from core import setup, manager
-from core.cmd import cr
+from core.cmd import cr, observer
 import os
 import platform
 from colorama import init, Fore
@@ -43,7 +44,7 @@ def listen() -> list[str]:
     return transform.string_to_list(command)
 
 
-def run():
+async def run():
     while True:
         os.chdir(PATH.terminal)
         cmd = listen()
@@ -68,7 +69,7 @@ def run():
         elif cmd[0] == "cr":
             if len(cmd) > 1:
                 cmd.pop(0)
-                manager.manage(cmd, [USER, PATH, LANG_FILE])
+                manager.manage(cmd, [USER, PATH, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])
             else:
                 cr.run(USER, LANG_FILE)
 
@@ -77,5 +78,12 @@ def run():
             pass
 
 
-if __name__ == "__main__":
-    run()
+loop = asyncio.new_event_loop()
+
+tasks = [
+    loop.create_task(run()),
+    loop.create_task(observer.run([USER, PATH, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])),
+]
+
+loop.run_until_complete(tasks)
+loop.close()
