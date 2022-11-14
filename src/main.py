@@ -69,7 +69,7 @@ async def run():
         elif cmd[0] == "cr":
             if len(cmd) > 1:
                 cmd.pop(0)
-                manager.manage(cmd, [USER, PATH, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])
+                await manager.manage(cmd, [USER, PATH, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])
             else:
                 cr.run(USER, LANG_FILE)
 
@@ -81,9 +81,9 @@ async def run():
 loop = asyncio.new_event_loop()
 
 tasks = [
-    loop.create_task(run()),
     loop.create_task(observer.run([USER, PATH, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])),
+    loop.create_task(run()),
 ]
 
-loop.run_until_complete(tasks)
+loop.run_until_complete(asyncio.wait(tasks))
 loop.close()

@@ -43,13 +43,13 @@ def classify_arguments(command: list) -> dict:
     return classified
 
 
-def manage(cmd: list, info: list) -> None:
+async def manage(cmd: list, info: list) -> None:
 
     # Classify command line arguments and send them to be analized
-    switch(classify_arguments(cmd), info)
+    await switch(classify_arguments(cmd), info)
 
 
-def switch(command: dict, info: list) -> None:
+async def switch(command: dict, info: list) -> None:
 
     # Match the command name to the corresponding file in cmd/
     # for further processing and execution
@@ -58,4 +58,4 @@ def switch(command: dict, info: list) -> None:
     from .cmd import observer
 
     if command["command"] == "observer":
-        observer.run(info)
+        await observer.run(info, from_command_line=True)
