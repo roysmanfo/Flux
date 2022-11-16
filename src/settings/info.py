@@ -184,7 +184,7 @@ class Path:
 
 
 class BgTasks():
-    def __init__(self, user: User):
+    def __init__(self):
         try:
             with open(SETTINGS_FILE, "r") as f:
                 tasks = json.load(f)["background'tasks"]
