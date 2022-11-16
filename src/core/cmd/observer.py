@@ -69,6 +69,7 @@ async def sort_files(info: list) -> None:
         observer = Observer()
         observer.schedule(event_handler, f'{watch_path}', recursive=True)
         observer.start()
+        event_handler.on_modified()
 
         try:
             while True:
@@ -130,9 +131,15 @@ class EventHandler(FileSystemEventHandler):
         """    
         Will restore the bucket if it has been deleted after opening the app
         """
-        os.makedirs(self.watch_path)
+        try:
+            os.makedirs(self.watch_path)
+        except:
+            pass
 
-        os.makedirs(self.destination_root)
+        try:
+            os.makedirs(self.destination_root)
+        except:
+            pass
 
     def on_modified(self, event) -> None:
         self.restore_dirs()
