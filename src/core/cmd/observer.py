@@ -33,10 +33,8 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import os
 import shutil
-from datetime import date
 from pathlib import Path
 from .helpers.extensions import extension_paths
-from time import sleep
 import asyncio
 
 
