@@ -51,7 +51,7 @@ async def manage(cmd: list, info: list) -> None:
 
 async def switch(command: dict, info: list) -> None:
 
-    # Match the command name to the corresponding file in cmd/
+    # Match the command name to the corresponding file in ./cmd/
     # for further processing and execution
 
     from . import cmd as cr
