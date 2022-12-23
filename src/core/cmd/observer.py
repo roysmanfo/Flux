@@ -49,8 +49,8 @@ async def run(info: list, from_command_line: bool = False) -> None:
 
 
 async def sort_files(info: list) -> None:
-    watch_path = Path(info[1].bucket)
-    destination_root = Path(info[1].bucket_destination)
+    watch_path = Path(info[0].paths.bucket)
+    destination_root = Path(info[0].paths.bucket_destination)
 
     try:
         os.makedirs(watch_path)
