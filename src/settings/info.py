@@ -41,7 +41,7 @@ class User():
             self.language_audio: str = sett["language-audio"]
             self.language_text: str = sett["language-text"]
             self.username: str = sett["username"]
-            self.paths: dict = sett["paths"]
+            self.paths: Path = Path()
             self.background_tasks: dict = sett["background-tasks"]
 
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
@@ -88,7 +88,7 @@ class Path:
     different things, like where to put files, or where to look for them
     """
 
-    def __init__(self, user: User, load_data: bool = True):
+    def __init__(self, load_data: bool = True):
         if load_data:
             try:
                 with open(SETTINGS_FILE, "r") as f:
