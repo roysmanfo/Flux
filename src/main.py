@@ -12,7 +12,8 @@ init(autoreset=True)
 
 
 # Setup process
-USER: User = setup.setup(User)
+USER, SYSTEM_CMDS, LANG_FILE = setup.setup(User)
+
 
 
 if platform.system() == "Windows":
