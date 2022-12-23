@@ -14,7 +14,7 @@ class Test_TestUser(unittest.TestCase):
             type(USER.language) == str,
             type(USER.language_audio) == str,
             type(USER.language_text) == str,
-            type(USER.paths) == dict
+            type(USER.paths) == Path
         ]
         result = all(types)
         self.assertTrue(result, "1 or more attributes are identified with the wrong type")

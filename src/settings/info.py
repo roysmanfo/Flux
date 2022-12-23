@@ -42,7 +42,7 @@ class User():
             self.language_text: str = sett["language-text"]
             self.username: str = sett["username"]
             self.paths: Path = Path()
-            self.background_tasks: dict = sett["background-tasks"]
+            self.background_tasks: BgTasks = BgTasks()
 
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             self.reset_settings()
@@ -188,9 +188,9 @@ class BgTasks():
         try:
             with open(SETTINGS_FILE, "r") as f:
                 tasks = json.load(f)["background'tasks"]
-                self.tasks: dict = tasks
+                self.tasks: list = tasks
         except KeyError:
             self.reset()
 
-    def reset(self) -> dict:
-        return {}
+    def reset(self) -> list:
+        return []
