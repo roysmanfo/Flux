@@ -1,32 +1,20 @@
 # Dependencies
 import asyncio
-from utils import transform, builtincmds
+from utils import transform
 from settings.info import User, SETTINGS_FILE, SETTINGS_FOLDER, VERSION
 from core import setup, manager
 from core.cmd import cr, observer
 import os
 import platform
 from colorama import init, Fore
+from pathlib import Path
 init(autoreset=True)
 # Cristal modules
 
 
 # Setup process
-USER, SYSTEM_CMDS, LANG_FILE = setup.setup(User)
-
-
-
-if platform.system() == "Windows":
-    # These commands will be executed from the default OS terminal (cmd.exe)
-    SYSTEM_CMDS = builtincmds.WINDOWS
-    LANG_FILE: str = os.path.join(os.path.dirname(
-        __file__)+"\\lang\\", USER.language + ".txt")
-
-elif platform.system() in ["Linux", "Mac"]:
-    # These commands will be executed from the default OS terminal (linux terminal)
-    SYSTEM_CMDS = builtincmds.LINUX
-    LANG_FILE: str = os.path.join(os.path.realpath(
-        __file__)+"/lang/", USER.language + ".txt")
+USER, SYSTEM_CMDS, LANG_FILE, cmds = setup.setup(
+    User, SETTINGS_FILE, SETTINGS_FOLDER)
 
 
 def listen() -> list[str]:
