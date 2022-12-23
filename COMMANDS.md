@@ -5,4 +5,5 @@ Commands with a `!` in front are commands still in development
 
 Command | Description
 --- | ---
-`!` observer [options] | Scans the bucket folder and sorts files another one
+`!` **cr** [options] | Gives information about the programm
+`!` **observer** [options] | Scans the bucket folder and sorts files another one

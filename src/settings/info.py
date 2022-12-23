@@ -28,7 +28,7 @@ class User():
     #### Example: 
     >>> send_email = lambda sender: str, context: dict, ... : ... #some code to send a mail
     >>> send_email(sender=USER.email, context=..., ...)
-    
+
     """
 
     def __init__(self):
@@ -41,7 +41,8 @@ class User():
             self.language_audio: str = sett["language-audio"]
             self.language_text: str = sett["language-text"]
             self.username: str = sett["username"]
-            self.paths: dict = sett["paths"]
+            self.paths: Path = Path()
+            self.background_tasks: dict = sett["background-tasks"]
 
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             self.reset_settings()
@@ -55,6 +56,7 @@ class User():
         a new one is created.
         """
         path = Path(self, False)
+        bg_tasks = BgTasks(self)
 
         settings = {
             "email": "",
@@ -62,7 +64,8 @@ class User():
             "language-audio": "en",
             "language-text": "en",
             "username": "User",
-            "paths": path.reset()
+            "paths": path.reset(),
+            "background-tasks": bg_tasks.reset(),
         }
 
         # Check if there already is a settings file, if there is, overwrite it, otherwise
@@ -85,7 +88,7 @@ class Path:
     different things, like where to put files, or where to look for them
     """
 
-    def __init__(self, user: User, load_data: bool = True):
+    def __init__(self, load_data: bool = True):
         if load_data:
             try:
                 with open(SETTINGS_FILE, "r") as f:
@@ -98,8 +101,7 @@ class Path:
                     self.bucket_destination: str = path["bucket-destination"]
 
             except KeyError:
-                user.reset_settings()
-                self.__init__(user=user, load_data=True)
+                self.reset()
 
     def reset(self) -> dict:
         """
@@ -173,8 +175,22 @@ class Path:
         """
         Returns the location of the observer's bucket destination folder
         """
-        path = "/".join([os.path.expanduser('~'), "Desktop", "Bucket", "Files"])
+        path = "/".join([os.path.expanduser('~'),
+                        "Desktop", "Bucket", "Files"])
         if "\\" in path:
             return path.replace("\\", "/")
         else:
             return path
+
+
+class BgTasks():
+    def __init__(self):
+        try:
+            with open(SETTINGS_FILE, "r") as f:
+                tasks = json.load(f)["background'tasks"]
+                self.tasks: dict = tasks
+        except KeyError:
+            self.reset()
+
+    def reset(self) -> dict:
+        return {}

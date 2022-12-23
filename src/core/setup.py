@@ -3,7 +3,8 @@ Necessary procedures to prepare the program to work
 as intended.
 """
 
-def setup(user, path) -> tuple:
+
+def setup(user: object) -> tuple:
     """
     ## Setup process
 
@@ -14,10 +15,8 @@ def setup(user, path) -> tuple:
     function in the main file and everything will be handled automaticaly. 
 
     @param user : The user class from the info file in settings
-    @param path : The path class from the info file in settings
     """
     from os import chdir
     USER = user()
-    PATH = path(USER, load_data=True)
-    chdir(PATH.terminal)
-    return (USER, PATH)
+    chdir(USER.paths.terminal)
+    return USER

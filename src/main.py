@@ -1,8 +1,9 @@
 # Dependencies
+import asyncio
 from utils import transform, builtincmds
-from settings.info import User, Path, SETTINGS_FILE, SETTINGS_FOLDER, VERSION
+from settings.info import User, SETTINGS_FILE, SETTINGS_FOLDER, VERSION
 from core import setup, manager
-from core.cmd import cr
+from core.cmd import cr, observer
 import os
 import platform
 from colorama import init, Fore
@@ -11,9 +12,7 @@ init(autoreset=True)
 
 
 # Setup process
-setup_result = setup.setup(user=User, path=Path)
-USER: User = setup_result[0]
-PATH: Path = setup_result[1]
+USER: User = setup.setup(User)
 
 
 if platform.system() == "Windows":
@@ -36,16 +35,16 @@ def listen() -> list[str]:
     the version and the location where Cristal is oparating on the disk.
     """
     print(
-        f"{Fore.GREEN}{USER.username}{Fore.CYAN} Cristal [{VERSION}] {Fore.YELLOW}" + PATH.terminal.lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
+        f"{Fore.GREEN}{USER.username}{Fore.CYAN} Cristal [{VERSION}] {Fore.YELLOW}" + USER.paths.terminal.lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
     command = input()
     print(f"{Fore.WHITE}", end="")
 
     return transform.string_to_list(command)
 
 
-def run():
+async def run():
     while True:
-        os.chdir(PATH.terminal)
+        os.chdir(USER.paths.terminal)
         cmd = listen()
 
         # Check if we just want to leave, there's no need to check in
@@ -57,18 +56,18 @@ def run():
         elif cmd[0] in SYSTEM_CMDS:
             if cmd[0] == "cd" and len(cmd) > 1:
                 os.chdir(cmd[1])
-                PATH.terminal = os.getcwd()
+                USER.paths.terminal = os.getcwd()
 
                 if platform.system() == "Windows":
-                    PATH.terminal.replace("/", "\\")
+                    USER.paths.terminal.replace("/", "\\")
             else:
-                os.system(f"cd {PATH.terminal} && "+" ".join(cmd))
+                os.system(f"cd {USER.paths.terminal} && "+" ".join(cmd))
 
         # Otherwise it might be a Cristal command
         elif cmd[0] == "cr":
             if len(cmd) > 1:
                 cmd.pop(0)
-                manager.manage(cmd, [USER, PATH, LANG_FILE])
+                await manager.manage(cmd, [USER, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])
             else:
                 cr.run(USER, LANG_FILE)
 
@@ -77,5 +76,13 @@ def run():
             pass
 
 
-if __name__ == "__main__":
-    run()
+loop = asyncio.new_event_loop()
+
+tasks = [
+    loop.create_task(observer.run(
+        [USER, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])),
+    loop.create_task(run()),
+]
+
+loop.run_until_complete(asyncio.wait(tasks))
+loop.close()

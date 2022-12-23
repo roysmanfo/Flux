@@ -31,52 +31,61 @@ SOFTWARE.
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import os, shutil
-from datetime import date
+import os
+import shutil
 from pathlib import Path
 from .helpers.extensions import extension_paths
-from time import sleep
+import asyncio
 
-def run(info: list):
-    print("Observer running")
-    print("Press Ctrl+C to stop")
-    sort_files(info)
-    print("Observer stopped")
 
-def sort_files(info: list):
-    watch_path = Path(info[1].bucket)
-    destination_root = Path(info[1].bucket_destination)
-    
+async def run(info: list, from_command_line: bool = False) -> None:
+    if from_command_line:
+        print("Observer running")
+        print("Press Ctrl+C to stop")
+        await sort_files(info)
+        print("Observer stopped")
+    else:
+        await sort_files(info)
+
+
+async def sort_files(info: list) -> None:
+    watch_path = Path(info[0].paths.bucket)
+    destination_root = Path(info[0].paths.bucket_destination)
+
     try:
-        os.makedirs(watch_path) 
+        os.makedirs(watch_path)
     except FileExistsError:
         pass
-    
+
     try:
-        os.makedirs(destination_root) 
+        os.makedirs(destination_root)
     except FileExistsError:
         pass
-    
+
     try:
-        event_handler = EventHandler(watch_path=watch_path, destination_root=destination_root)
+        event_handler = EventHandler(
+            watch_path=watch_path, destination_root=destination_root)
 
         observer = Observer()
         observer.schedule(event_handler, f'{watch_path}', recursive=True)
         observer.start()
+        event_handler.on_modified()
 
         try:
             while True:
-                # sleep(.1)
+                await asyncio.sleep(.1)
                 continue
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
-        
+        return
+
     except FileNotFoundError:
         # We deleted one or both directories
-        sort_files(info)
+        await sort_files(info)
 
-def create_destination_path(path: Path):
+
+def create_destination_path(path: Path) -> Path:
     """
     Helper function that adds current year/month to destination path. If the path
     doesn't already exist, it is created.
@@ -85,7 +94,8 @@ def create_destination_path(path: Path):
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-def rename_file(source: Path, destination_path: Path):
+
+def rename_file(source: Path, destination_path: Path) -> Path:
     """
     Helper function that renames file to reflect new path. If a file of the same
     name already exists in the destination folder, the file name is numbered and
@@ -98,7 +108,8 @@ def rename_file(source: Path, destination_path: Path):
 
         while True:
             increment += 1
-            new_name = destination_path / f'{source.stem}_{increment}{source.suffix}'
+            new_name = destination_path / \
+                f'{source.stem}_{increment}{source.suffix}'
 
             if not new_name.exists():
                 return new_name
@@ -107,22 +118,49 @@ def rename_file(source: Path, destination_path: Path):
 
 
 class EventHandler(FileSystemEventHandler):
-    def __init__(self, watch_path: Path, destination_root: Path):
+    """    
+    When a file is moved in the bucket, the event handler detects it and
+    moves it in the appropiate folder
+    """
+
+    def __init__(self, watch_path: Path, destination_root: Path) -> None:
         self.watch_path = watch_path.resolve()
         self.destination_root = destination_root.resolve()
 
-    def on_modified(self, event):
+    def restore_dirs(self) -> None:
+        """    
+        Will restore the bucket if it has been deleted after opening the app
+        """
+        try:
+            os.makedirs(self.watch_path)
+        except:
+            pass
+
+        try:
+            os.makedirs(self.destination_root)
+        except:
+            pass
+
+    def on_modified(self, event) -> None:
+        self.restore_dirs()
+
         for child in self.watch_path.iterdir():
-            
+
             # skips directories and non-specified extensions
             if child.is_file() and child.suffix.lower() in extension_paths:
-                destination_path = self.destination_root / extension_paths[child.suffix.lower()]
-                destination_path = create_destination_path(path=destination_path)
-                destination_path = rename_file(source=child, destination_path=destination_path)
+                destination_path = self.destination_root / \
+                    extension_paths[child.suffix.lower()]
+                destination_path = create_destination_path(
+                    path=destination_path)
+                destination_path = rename_file(
+                    source=child, destination_path=destination_path)
                 shutil.move(src=child, dst=destination_path)
-            
+
             elif child.is_file() and child.suffix.lower() not in extension_paths:
-                destination_path = self.destination_root / extension_paths["noname"]
-                destination_path = create_destination_path(path=destination_path)
-                destination_path = rename_file(source=child, destination_path=destination_path)
+                destination_path = self.destination_root / \
+                    extension_paths["noname"]
+                destination_path = create_destination_path(
+                    path=destination_path)
+                destination_path = rename_file(
+                    source=child, destination_path=destination_path)
                 shutil.move(src=child, dst=destination_path)
