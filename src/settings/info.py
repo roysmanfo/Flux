@@ -42,7 +42,7 @@ class User():
             self.language_text: str = sett["language-text"]
             self.username: str = sett["username"]
             self.paths: Path = Path()
-            self.background_tasks: BgTasks = BgTasks()
+            self.background_tasks: list = BgTasks().tasks
 
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             self.reset_settings()
@@ -193,4 +193,4 @@ class BgTasks():
             self.reset()
 
     def reset(self) -> list:
-        return []
+        self.tasks = []
