@@ -53,7 +53,7 @@ async def run():
                 os.system(f"cd {USER.paths.terminal} && "+" ".join(cmd))
 
         # Otherwise it might be a Cristal command
-        elif cmd[   0] == "cr":
+        elif cmd[0] == "cr":
             if len(cmd) > 1:
                 cmd.pop(0)
                 await manager.manage(cmd, [USER, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])
