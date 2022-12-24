@@ -58,7 +58,7 @@ def get_bgtasks(info: list) -> list:
     # For each command check if the user decided to execute it on start
     if 'observer' in bg:
         ignore.append('observer')
-        loop.create_task(cr.observer.run(info))
+        loop.create_task(cr.observer.run(info), name="Observer")
 
     return [tasks, ignore]
 
