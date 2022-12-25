@@ -38,7 +38,16 @@ from .helpers.extensions import extension_paths
 import asyncio
 
 
-async def run(info: list, from_command_line: bool = False) -> None:
+OPTIONS: list = ['/path']
+FLAGS: list = []
+
+async def run(command: dict, info: list, from_command_line: bool = False) -> None:
+
+    if command["options"] and options_exist(command["options"]):
+        keep_execution = handle_options(command, info[0])
+        if not keep_execution:
+            return
+
     if from_command_line:
         await sort_files(info)
 
@@ -176,3 +185,26 @@ class EventHandler(FileSystemEventHandler):
                 destination_path = rename_file(
                     source=child, destination_path=destination_path)
                 shutil.move(src=child, dst=destination_path)
+
+def handle_options(command: dict, USER) -> bool:
+    """
+    Modifies the behavior of the command based on the options\n
+    Just 1 in this case
+
+    @param USER: an instance of a User() from ../../../settings/info.py
+
+    @returns: a boolean value indicating if the command should continue execution or be terminated
+    """
+    if command["options"][0] == OPTIONS[0]:
+        print(USER.paths.bucket)
+
+
+
+def options_exist(options: list) -> bool:
+    """
+    Iterates over all options and checks if they exist in the current command
+    """
+    for i, _ in enumerate(options):
+        if options[i] not in OPTIONS:
+            return False
+    return True
