@@ -30,25 +30,24 @@ SOFTWARE.
 """
 
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import FileSystemEventHandler, DirModifiedEvent
 import os
 import shutil
 from pathlib import Path
 from .helpers.extensions import extension_paths
 import asyncio
-
+import colorama
+from colorama import Fore
 
 async def run(info: list, from_command_line: bool = False) -> None:
     if from_command_line:
-        print("Observer running")
-        print("Press Ctrl+C to stop")
         await sort_files(info)
-        print("Observer stopped")
+
     else:
-        await sort_files(info)
+        await sort_files(info, forever=True)
 
 
-async def sort_files(info: list) -> None:
+async def sort_files(info: list, forever: bool = False) -> None:
     watch_path = Path(info[0].paths.bucket)
     destination_root = Path(info[0].paths.bucket_destination)
 
@@ -68,15 +67,29 @@ async def sort_files(info: list) -> None:
 
         observer = Observer()
         observer.schedule(event_handler, f'{watch_path}', recursive=True)
-        observer.start()
-        event_handler.on_modified()
 
-        try:
-            while True:
-                await asyncio.sleep(.1)
-                continue
-        except KeyboardInterrupt:
+        print(f"Observer running")
+        
+        observer.start()
+        event_handler.on_modified(DirModifiedEvent)
+
+        # Check if we decided to run the process as a background task
+        if forever:
+            print("Press Ctrl+C to stop")
+            
+            try:
+                while True:
+                    await asyncio.sleep(.1)
+                    continue
+            except KeyboardInterrupt:
+                observer.stop()
+        else:
+            await asyncio.sleep(1)
             observer.stop()
+        
+        print("Observer stopped")
+
+        # End the process
         observer.join()
         return
 

@@ -55,7 +55,6 @@ async def switch(command: dict, info: list) -> None:
     # for further processing and execution
 
     from . import cmd as cr
-    from .cmd import observer
 
     if command["command"] == "observer":
-        await observer.run(info, from_command_line=True)
+        await cr.observer.run(info, from_command_line=True)
