@@ -36,8 +36,7 @@ import shutil
 from pathlib import Path
 from .helpers.extensions import extension_paths
 import asyncio
-import colorama
-from colorama import Fore
+
 
 async def run(info: list, from_command_line: bool = False) -> None:
     if from_command_line:
