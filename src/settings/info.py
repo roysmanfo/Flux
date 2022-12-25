@@ -1,14 +1,14 @@
 import json
 import os
 import platform
-
+from pathlib import Path
 
 with open("".join([os.path.dirname(os.path.realpath(__file__)), "\\version"])) as version:
     VERSION = version.read()
 
-SETTINGS_FILE = "".join(
-    [os.path.dirname(os.path.realpath(__file__)), "\settings.json"])
-SETTINGS_FOLDER = "".join([os.path.dirname(os.path.realpath(__file__))])
+SETTINGS_FILE = Path(
+    "".join([os.path.dirname(os.path.realpath(__file__)), "\settings.json"]))
+SETTINGS_FOLDER = Path("".join([os.path.dirname(os.path.realpath(__file__))]))
 
 
 class User():
@@ -28,7 +28,7 @@ class User():
     #### Example: 
     >>> send_email = lambda sender: str, context: dict, ... : ... #some code to send a mail
     >>> send_email(sender=USER.email, context=..., ...)
-    
+
     """
 
     def __init__(self):
@@ -41,7 +41,8 @@ class User():
             self.language_audio: str = sett["language-audio"]
             self.language_text: str = sett["language-text"]
             self.username: str = sett["username"]
-            self.paths: dict = sett["paths"]
+            self.paths: Path = Path()
+            self.background_tasks: list = BgTasks().tasks
 
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             self.reset_settings()
@@ -55,6 +56,7 @@ class User():
         a new one is created.
         """
         path = Path(self, False)
+        bg_tasks = BgTasks(self)
 
         settings = {
             "email": "",
@@ -62,7 +64,8 @@ class User():
             "language-audio": "en",
             "language-text": "en",
             "username": "User",
-            "paths": path.reset()
+            "paths": path.reset(),
+            "background-tasks": bg_tasks.reset(),
         }
 
         # Check if there already is a settings file, if there is, overwrite it, otherwise
@@ -85,7 +88,7 @@ class Path:
     different things, like where to put files, or where to look for them
     """
 
-    def __init__(self, user: User, load_data: bool = True):
+    def __init__(self, load_data: bool = True):
         if load_data:
             try:
                 with open(SETTINGS_FILE, "r") as f:
@@ -93,9 +96,12 @@ class Path:
 
                     self.terminal: str = path["terminal"]
                     self.documents: str = path["documents"]
+                    self.images: str = path["images"]
+                    self.bucket: str = path["bucket"]
+                    self.bucket_destination: str = path["bucket-destination"]
+
             except KeyError:
-                user.reset_settings()
-                self.__init__(user=user, load_data=True)
+                self.reset()
 
     def reset(self) -> dict:
         """
@@ -104,10 +110,15 @@ class Path:
         self.terminal = self._set_default_terminal_path()
         self.documents = self._set_default_documents_path()
         self.images = self._set_default_images_path()
+        self.bucket = self._set_default_observer_bucket_path()
+        self.bucket_destination = self._set_default_observer_bucket_destination_path()
 
         all_paths = {
             "terminal": f"{self.terminal}",
             "documents": f"{self.documents}",
+            "images": f"{self.images}",
+            "bucket": f"{self.bucket}",
+            "bucket-destination": f"{self.bucket_destination}",
         }
 
         return all_paths
@@ -116,6 +127,9 @@ class Path:
         paths = {
             "terminal": self.terminal,
             "documents": self.documents,
+            "images": self.images,
+            "bucket": self.bucket,
+            "bucket-destination": self.bucket_destination
         }
         return sorted(paths)
 
@@ -146,3 +160,37 @@ class Path:
         """
         path = "/".join([self.terminal, 'Documents'])
         return path
+
+    def _set_default_observer_bucket_path(self) -> str:
+        """
+        Returns the location of the observer's bucket folder
+        """
+        path = "/".join([os.path.expanduser('~'), "Desktop", "Bucket"])
+        if "\\" in path:
+            return path.replace("\\", "/")
+        else:
+            return path
+
+    def _set_default_observer_bucket_destination_path(self) -> str:
+        """
+        Returns the location of the observer's bucket destination folder
+        """
+        path = "/".join([os.path.expanduser('~'),
+                        "Desktop", "Bucket", "Files"])
+        if "\\" in path:
+            return path.replace("\\", "/")
+        else:
+            return path
+
+
+class BgTasks():
+    def __init__(self):
+        try:
+            with open(SETTINGS_FILE, "r") as f:
+                tasks = json.load(f)["background'tasks"]
+                self.tasks: list = tasks
+        except KeyError:
+            self.reset()
+
+    def reset(self) -> list:
+        self.tasks = []

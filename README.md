@@ -1,13 +1,15 @@
 # Cristal
-Prompt dei comandi per massimizzare la produttività.
+Command prompt built for maximazing productivity.
 
-### NOTE: _Cristal e attualmente in fase di redesign nella branch_ `redesign`
+### NOTE: _Cristal is currently in redesign phase in branch_ `redesign`
 <!-- ![Cristal logo](img/Cristal_logo.png) -->
 
-## Introduzione
-Cristal dispone di molti comandi per aiutare l'utente a gestire i propri progetti con uno strumento intuitivo.  
+## Introduction
+Cristal has many different commands built tu help the user to manage many tasks in an automated way.
 
-## Contribuisci
-Per contribuire, serve avere una buona conoscenza di Python e non avere problemi au usarlo.  
-Inoltre bisogna sapere come lavorare con i __package__ e saper gestire file __JSON__, visto che buona parte del programma si fonda su questi due.  
-Per saperne di più leggi [CONTRIBUTING.md](CONTRIBUTING.md)
+## Contributing
+
+If you want to start contributing, you'll need a good knowledge of the python language, 
+and feel confortable when using it.  
+You'll also need do have some experience with __packages__ and __json__ files in python.  
+Fore more information check [CONTRIBUTING.md](CONTRIBUTING.md)

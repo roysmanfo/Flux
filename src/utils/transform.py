@@ -2,13 +2,12 @@
 def string_to_list(string: str):
     string.strip()
     if string == None or string == '':
-        string = ['']
-        return string
+        return ['']
     else:
         return decode(string)
 
 
-def decode(string: str = None):
+def decode(string: str = "") -> list[str]:
     words = []
     for i in string:
         if i == ' ':
@@ -20,5 +19,5 @@ def decode(string: str = None):
         if words[length-1] == '':
             words.pop(length-1)
         length -= 1
-    words = [i.lower() for i in words] 
+    words = [i.lower() for i in words]
     return words

@@ -7,14 +7,15 @@ class Test_TestUser(unittest.TestCase):
         Check if all attributes heve the desired type
         """
 
-        from src.settings.info import User, Path
+        from src.settings.info import User, Path, BgTasks
         USER = User()
         types = [
             type(USER.email) == str,
             type(USER.language) == str,
             type(USER.language_audio) == str,
             type(USER.language_text) == str,
-            type(USER.paths) == dict
+            type(USER.paths) == Path,
+            type(USER.background_tasks) == list,
         ]
         result = all(types)
         self.assertTrue(result, "1 or more attributes are identified with the wrong type")
