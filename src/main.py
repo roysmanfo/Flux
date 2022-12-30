@@ -3,11 +3,10 @@ import asyncio
 from utils import transform
 from settings.info import User, SETTINGS_FILE, SETTINGS_FOLDER, VERSION
 from core import setup, manager
-from core.cmd import cr, observer
+from core.cmd import cr
 import os
 import platform
 from colorama import init, Fore
-from pathlib import Path
 init(autoreset=True)
 # Cristal modules
 
