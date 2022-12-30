@@ -1,14 +1,14 @@
 import json
 import os
 import platform
-from pathlib import Path
+import pathlib
 
 with open("".join([os.path.dirname(os.path.realpath(__file__)), "\\version"])) as version:
     VERSION = version.read()
 
-SETTINGS_FILE = Path(
+SETTINGS_FILE = pathlib.Path(
     "".join([os.path.dirname(os.path.realpath(__file__)), "\settings.json"]))
-SETTINGS_FOLDER = Path("".join([os.path.dirname(os.path.realpath(__file__))]))
+SETTINGS_FOLDER = pathlib.Path("".join([os.path.dirname(os.path.realpath(__file__))]))
 
 
 class User():
@@ -94,11 +94,11 @@ class Path:
                 with open(SETTINGS_FILE, "r") as f:
                     path = json.load(f)["paths"]
 
-                    self.terminal: str = path["terminal"]
-                    self.documents: str = path["documents"]
-                    self.images: str = path["images"]
-                    self.bucket: str = path["bucket"]
-                    self.bucket_destination: str = path["bucket-destination"]
+                    self.terminal: pathlib.Path = pathlib.Path(path["terminal"]).resolve()
+                    self.documents: pathlib.Path = pathlib.Path(path["documents"]).resolve()
+                    self.images: pathlib.Path = pathlib.Path(path["images"]).resolve()
+                    self.bucket: pathlib.Path = pathlib.Path(path["bucket"]).resolve()
+                    self.bucket_destination: pathlib.Path = pathlib.Path(path["bucket-destination"]).resolve()
 
             except KeyError:
                 self.reset()

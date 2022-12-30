@@ -25,7 +25,7 @@ def listen() -> list[str]:
     the version and the location where Cristal is oparating on the disk.
     """
     print(
-        f"{Fore.GREEN}{USER.username}{Fore.CYAN} Cristal [{VERSION}] {Fore.YELLOW}" + USER.paths.terminal.lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
+        f"{Fore.GREEN}{USER.username}{Fore.CYAN} Cristal [{VERSION}] {Fore.YELLOW}" + str(USER.paths.terminal).lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
     command = input()
     print(f"{Fore.WHITE}", end="")
 
@@ -47,9 +47,7 @@ async def run():
             if cmd[0] == "cd" and len(cmd) > 1:
                 os.chdir(cmd[1])
                 USER.paths.terminal = os.getcwd()
-
-                if platform.system() == "Windows":
-                    USER.paths.terminal.replace("/", "\\")
+                USER.paths.terminal.replace("\\", "/")
             else:
                 os.system(f"cd {USER.paths.terminal} && "+" ".join(cmd))
 
