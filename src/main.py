@@ -18,6 +18,9 @@ USER, SYSTEM_CMDS, LANG_FILE, cmds = setup.setup(
 # Define the type in an absolue way
 USER: User
 
+with open(LANG_FILE, 'r') as file:
+    LANG: list = file.readlines()
+
 def listen() -> list[str]:
     """
     This function is used to get the command typed by the user preceded by
@@ -45,7 +48,12 @@ async def run():
         # Check if it's a command the default terminal can handle
         elif cmd[0] in SYSTEM_CMDS:
             if cmd[0] == "cd" and len(cmd) > 1:
-                os.chdir(cmd[1])
+                try:
+                    os.chdir(cmd[1])
+                except FileNotFoundError:
+                    # Disply an error message if path specified is iniexistent
+                    print(LANG[1])
+                    pass
                 USER.paths.terminal = os.getcwd()
                 USER.paths.terminal.replace("\\", "/")
             else:
