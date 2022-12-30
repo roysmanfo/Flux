@@ -16,6 +16,8 @@ init(autoreset=True)
 USER, SYSTEM_CMDS, LANG_FILE, cmds = setup.setup(
     User, SETTINGS_FILE, SETTINGS_FOLDER)
 
+# Define the type in an absolue way
+USER: User
 
 def listen() -> list[str]:
     """
