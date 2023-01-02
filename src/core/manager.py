@@ -58,3 +58,6 @@ async def switch(command: dict, info: list) -> None:
 
     if command["command"] == "observer":
         await cr.observer.run(command = command, info = info, from_command_line=True)
+
+    if command["command"] == "set":
+        cr.set.run(command = command, info = info)
