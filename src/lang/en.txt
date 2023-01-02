@@ -1,2 +1,3 @@
 Wellcome in Cristal
 Cannot find specified path because it does not exist
+Command not found
