@@ -1,9 +1,11 @@
 # List of all available `cr` commands
 This is a list of all available cr commands.  
-*In each command the cr part has been omitted.*  
+*In each command the cr part before the command name has been omitted, except for the `cr` command, which doesn't need it.* 
+ 
 Commands with a `!` in front are commands still in development
 
 Command | Description
 --- | ---
 `!` **cr** [options] | Gives information about the programm
-`!` **observer** [options] | Scans the bucket folder and sorts files another one
+**observer** [options] | Scans the bucket folder and sorts files in a `Files` folder
+`!` **set** [options] | Allows to modify the settings
