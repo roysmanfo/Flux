@@ -80,6 +80,16 @@ class User():
             with open(SETTINGS_FILE, "w") as f:
                 json.dump(settings, f, indent=4, sort_keys=True)
 
+    def set_username(self, new_username: str) -> None:
+        self.username = new_username
+        with open(SETTINGS_FILE, "r") as f:
+            settings = json.load(f)
+            settings['username'] = new_username
+            with open(SETTINGS_FILE, "w") as l:
+                    l.write("")
+                    json.dump(settings, l, indent=4, sort_keys=True)
+
+
 
 class Path:
     """
