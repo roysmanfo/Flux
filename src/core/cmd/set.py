@@ -6,17 +6,17 @@ Allows the user to change different settings, such as the username or USER.path 
 OPTIONS = []
 FLAGS = []
 
-def run(command: dict, info: list):
+def run(command: dict, info: dict):
     """
     Handles which setting to change 
     """
     switch(command, info)
 
-def switch(command: dict, info: list):
+def switch(command: dict, info: dict):
     """
     Assigns the input to the right function 
     """
-    USER = info[0]
+    USER = info["USER"]
     
     if command["variables"][0] == "username":
         USER.set_username(command["variables"][1].capitalize())

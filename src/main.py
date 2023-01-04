@@ -63,7 +63,15 @@ async def run():
         elif cmd[0] == "cr":
             if len(cmd) > 1:
                 cmd.pop(0)
-                await manager.manage(cmd, [USER, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])
+                INFO = {
+                    "USER": USER,
+                    "SYSTEM_CMDS": SYSTEM_CMDS,
+                    "LANG_FILE": LANG_FILE,
+                    "SETTINGS_FILE": SETTINGS_FILE,
+                    "SETTINGS_FOLDER": SETTINGS_FOLDER,
+                    "VERSION": VERSION,
+                }
+                await manager.manage(cmd, INFO)
             else:
                 cr.run(USER, LANG_FILE)
 
