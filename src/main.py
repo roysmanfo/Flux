@@ -73,7 +73,7 @@ async def run():
                 }
                 await manager.manage(cmd, INFO)
             else:
-                cr.run(USER, LANG_FILE)
+                cr.description(USER, LANG_FILE)
 
         # Command not found, a message will be displayed based on USER.language
         else:
