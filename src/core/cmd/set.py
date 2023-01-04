@@ -18,11 +18,14 @@ def switch(command: dict, info: dict):
     """
     USER = info["USER"]
     
-    if command["variables"][0] == "username":
-        USER.set_username(command["variables"][1].capitalize())
+    if command["variables"]:
+        
+        if command["variables"][0] == "username":
+            USER.set_username(command["variables"][1])
     
-    else:
-        with open(info[1], 'r') as f:
-            print(f.readlines()[2])
+        else:
+            with open(info["LANG_FILE"], 'r') as f:
+                print(f.readlines()[2])
+    
     
     
