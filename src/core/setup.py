@@ -8,7 +8,7 @@ from pathlib import Path
 from os import chdir
 
 
-def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path) -> tuple[object, list[str], Path, list]:
+def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path) -> tuple[object, object]:
     """
     ## Setup process
 
