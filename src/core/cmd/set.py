@@ -6,7 +6,7 @@ Allows the user to change different settings, such as the username or USER.path 
 OPTIONS = []
 FLAGS = []
 
-def run(command: dict, info: dict):
+def run(command: dict, info: object):
     """
     Handles which setting to change 
     """
@@ -16,7 +16,7 @@ def switch(command: dict, info: dict):
     """
     Assigns the input to the right function 
     """
-    USER = info["USER"]
+    USER = info.user
     
     if command["variables"]:
         
@@ -24,7 +24,7 @@ def switch(command: dict, info: dict):
             USER.set_username(command["variables"][1])
     
         else:
-            with open(info["LANG_FILE"], 'r') as f:
+            with open(info.lang_file, 'r') as f:
                 print(f.readlines()[2])
     
     

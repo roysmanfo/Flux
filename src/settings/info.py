@@ -8,7 +8,27 @@ with open("".join([os.path.dirname(os.path.realpath(__file__)), "\\version"])) a
 
 SETTINGS_FILE = pathlib.Path(
     "".join([os.path.dirname(os.path.realpath(__file__)), "\settings.json"]))
-SETTINGS_FOLDER = pathlib.Path("".join([os.path.dirname(os.path.realpath(__file__))]))
+SETTINGS_FOLDER = pathlib.Path(
+    "".join([os.path.dirname(os.path.realpath(__file__))]))
+
+
+class Info:
+    """
+    ### CLASS INFO
+
+    This class contains every information a command may need.\n
+    It's like a dictionary mapping information like the user instance or the version
+    """
+
+    def __init__(self, user, system_cmds, lang_file, settings_file, settings_folder, version, bg_tasks):
+
+        self.user = user
+        self.system_cmds = system_cmds
+        self.lang_file = lang_file
+        self.settings_file = settings_file
+        self.settings_folder = settings_folder
+        self.version = version
+        self.bg_tasks = bg_tasks
 
 
 class User():
@@ -86,9 +106,8 @@ class User():
             settings = json.load(f)
             settings['username'] = new_username
             with open(SETTINGS_FILE, "w") as l:
-                    l.write("")
-                    json.dump(settings, l, indent=4, sort_keys=True)
-
+                l.write("")
+                json.dump(settings, l, indent=4, sort_keys=True)
 
 
 class Path:
@@ -104,11 +123,16 @@ class Path:
                 with open(SETTINGS_FILE, "r") as f:
                     path = json.load(f)["paths"]
 
-                    self.terminal: pathlib.Path = pathlib.Path(path["terminal"]).resolve()
-                    self.documents: pathlib.Path = pathlib.Path(path["documents"]).resolve()
-                    self.images: pathlib.Path = pathlib.Path(path["images"]).resolve()
-                    self.bucket: pathlib.Path = pathlib.Path(path["bucket"]).resolve()
-                    self.bucket_destination: pathlib.Path = pathlib.Path(path["bucket-destination"]).resolve()
+                    self.terminal: pathlib.Path = pathlib.Path(
+                        path["terminal"]).resolve()
+                    self.documents: pathlib.Path = pathlib.Path(
+                        path["documents"]).resolve()
+                    self.images: pathlib.Path = pathlib.Path(
+                        path["images"]).resolve()
+                    self.bucket: pathlib.Path = pathlib.Path(
+                        path["bucket"]).resolve()
+                    self.bucket_destination: pathlib.Path = pathlib.Path(
+                        path["bucket-destination"]).resolve()
 
             except KeyError:
                 self.reset()

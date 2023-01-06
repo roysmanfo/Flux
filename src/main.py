@@ -1,25 +1,25 @@
 # Dependencies
 import asyncio
 from utils import transform
-from settings.info import User, SETTINGS_FILE, SETTINGS_FOLDER, VERSION
+from settings.info import User, Info, SETTINGS_FILE, SETTINGS_FOLDER, VERSION
 from core import setup, manager
 from core.cmd import cr
 import os
-import platform
 from colorama import init, Fore
 init(autoreset=True)
 # Cristal modules
 
 
 # Setup process
-USER, SYSTEM_CMDS, LANG_FILE, cmds = setup.setup(
-    User, SETTINGS_FILE, SETTINGS_FOLDER)
+USER, INFO = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
 
 # Define the type in an absolue way
 USER: User
+INFO: Info
 
-with open(LANG_FILE, 'r') as file:
+with open(INFO.lang_file, 'r') as file:
     LANG: list = file.readlines()
+
 
 def listen() -> list[str]:
     """
@@ -46,7 +46,7 @@ async def run():
             os._exit(0)
 
         # Check if it's a command the default terminal can handle
-        elif cmd[0] in SYSTEM_CMDS:
+        elif cmd[0] in INFO.system_cmds:
             if cmd[0] == "cd" and len(cmd) > 1:
                 try:
                     os.chdir(cmd[1])
@@ -63,17 +63,9 @@ async def run():
         elif cmd[0] == "cr":
             if len(cmd) > 1:
                 cmd.pop(0)
-                INFO = {
-                    "USER": USER,
-                    "SYSTEM_CMDS": SYSTEM_CMDS,
-                    "LANG_FILE": LANG_FILE,
-                    "SETTINGS_FILE": SETTINGS_FILE,
-                    "SETTINGS_FOLDER": SETTINGS_FOLDER,
-                    "VERSION": VERSION,
-                }
                 await manager.manage(cmd, INFO)
             else:
-                cr.description(USER, LANG_FILE)
+                cr.description(USER, INFO.lang_file)
 
         # Command not found, a message will be displayed based on USER.language
         else:
@@ -82,7 +74,7 @@ async def run():
 
 loop = asyncio.new_event_loop()
 
-tasks = [i for i in cmds]
+tasks = [i for i in INFO.bg_tasks[0]]
 tasks.append(loop.create_task(run(), name="Main Thread"))
 
 loop.run_until_complete(asyncio.wait(tasks))

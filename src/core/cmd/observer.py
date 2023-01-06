@@ -41,10 +41,10 @@ import asyncio
 OPTIONS: list = ['/path']
 FLAGS: list = []
 
-async def run(command: dict, info: dict, from_command_line: bool = False) -> None:
+async def run(command: dict, info: object, from_command_line: bool = False) -> None:
 
     if command["options"] and options_exist(command["options"]):
-        keep_execution = handle_options(command, info["USER"])
+        keep_execution = handle_options(command, info.user)
         if not keep_execution:
             return
 
@@ -56,8 +56,8 @@ async def run(command: dict, info: dict, from_command_line: bool = False) -> Non
 
 
 async def sort_files(info: list, forever: bool = False) -> None:
-    watch_path = Path(info["USER"].paths.bucket)
-    destination_root = Path(info["USER"].paths.bucket_destination)
+    watch_path = Path(info.user.paths.bucket)
+    destination_root = Path(info.user.paths.bucket_destination)
 
     try:
         os.makedirs(watch_path)
