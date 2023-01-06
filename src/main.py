@@ -82,9 +82,8 @@ async def run():
 
 loop = asyncio.new_event_loop()
 
-tasks = [
-    loop.create_task(run(), name="Main Thread"),
-]
+tasks = [i for i in cmds]
+tasks.append(loop.create_task(run(), name="Main Thread"))
 
 loop.run_until_complete(asyncio.wait(tasks))
 loop.close()
