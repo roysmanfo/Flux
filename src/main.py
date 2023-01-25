@@ -71,11 +71,11 @@ async def run():
         else:
             pass
 
+if __name__ == "__main__":
+    loop = asyncio.new_event_loop()
 
-loop = asyncio.new_event_loop()
+    tasks = [i for i in INFO.bg_tasks[0]]
+    tasks.append(loop.create_task(run(), name="Main Thread"))
 
-tasks = [i for i in INFO.bg_tasks[0]]
-tasks.append(loop.create_task(run(), name="Main Thread"))
-
-loop.run_until_complete(asyncio.wait(tasks))
-loop.close()
+    loop.run_until_complete(asyncio.wait(tasks))
+    loop.close()
