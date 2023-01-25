@@ -6,6 +6,7 @@ from core import setup, manager
 from core.cmd import cr
 import os
 from colorama import init, Fore
+import subprocess
 init(autoreset=True)
 # Cristal modules
 
@@ -57,7 +58,10 @@ async def run():
                 USER.paths.terminal = os.getcwd()
                 USER.paths.terminal.replace("\\", "/")
             else:
-                os.system(f"cd {USER.paths.terminal} && "+" ".join(cmd))
+                # os.system(f"cd {USER.paths.terminal} && "+" ".join(cmd))
+                out = default_terminal_output(" ".join(cmd))
+                if out != 1:
+                    print(out)
 
         # Otherwise it might be a Cristal command
         elif cmd[0] == "cr":
@@ -70,6 +74,34 @@ async def run():
         # Command not found, a message will be displayed based on USER.language
         else:
             pass
+
+def default_terminal_output(command: str) -> str | int:
+    """
+    Tries to execute the given command using the default OS terminal.
+
+    Parameters
+    ----------
+    @param command      A string containing the text command to execute
+
+
+    Returns
+    -------
+    
+    - If the command executes successfully, it returns the terminal output 
+    - If the command fails it returns a 1 indicating that an error accoured
+    """
+    pipe = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    while True:
+        # Errors have higher priority
+        # This is to prevent the program from searching for an output
+        # that doesn't exist
+
+        if pipe.stderr:   
+            return 1
+        else:
+            return pipe.stdout
+
 
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()
