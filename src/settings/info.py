@@ -12,25 +12,6 @@ SETTINGS_FOLDER = pathlib.Path(
     "".join([os.path.dirname(os.path.realpath(__file__))]))
 
 
-class Info:
-    """
-    ### CLASS INFO
-
-    This class contains every information a command may need.\n
-    It's like a dictionary mapping information like the user instance or the version
-    """
-
-    def __init__(self, user, system_cmds, lang_file, settings_file, settings_folder, version, bg_tasks):
-
-        self.user = user
-        self.system_cmds = system_cmds
-        self.lang_file = lang_file
-        self.settings_file = settings_file
-        self.settings_folder = settings_folder
-        self.version = version
-        self.bg_tasks = bg_tasks
-
-
 class User():
     """
     ### CLASS USER
@@ -228,3 +209,29 @@ class BgTasks():
 
     def reset(self) -> list:
         self.tasks = []
+
+
+class Info:
+    """
+    ### CLASS INFO
+
+    This class contains every information a command may need.\n
+    It's like a dictionary mapping information like the user instance or the version
+    """
+
+    def __init__(self,
+                 user: User,
+                 system_cmds: list,
+                 lang_file: pathlib.Path,
+                 bg_tasks: list,
+                 bg_tasks_aviable: list
+                 ):
+
+        self.user = user
+        self.system_cmds = system_cmds
+        self.lang_file = lang_file
+        self.settings_file = SETTINGS_FILE
+        self.settings_folder = SETTINGS_FOLDER
+        self.version = VERSION
+        self.bg_tasks = bg_tasks
+        self.bg_tasks_aviable = bg_tasks_aviable

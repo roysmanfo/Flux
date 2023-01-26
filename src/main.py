@@ -1,7 +1,7 @@
 # Dependencies
 import asyncio
 from utils import transform
-from settings.info import User, Info, SETTINGS_FILE, SETTINGS_FOLDER, VERSION
+from settings.info import User, Info, SETTINGS_FILE, SETTINGS_FOLDER
 from core import setup, manager
 from core.cmd import cr
 import os
@@ -12,11 +12,7 @@ init(autoreset=True)
 
 
 # Setup process
-USER, INFO = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
-
-# Define the type in an absolue way
-USER: User
-INFO: Info
+INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
 
 with open(INFO.lang_file, 'r') as file:
     LANG: list = file.readlines()
@@ -29,7 +25,7 @@ def listen() -> list[str]:
     the version and the location where Cristal is oparating on the disk.
     """
     print(
-        f"{Fore.GREEN}{USER.username}{Fore.CYAN} Cristal [{VERSION}] {Fore.YELLOW}" + str(USER.paths.terminal).lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
+        f"{Fore.GREEN}{INFO.user.username}{Fore.CYAN} Cristal [{INFO.version}] {Fore.YELLOW}" + str(INFO.user.paths.terminal).lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
     command = input()
     print(f"{Fore.WHITE}", end="")
 
@@ -38,7 +34,7 @@ def listen() -> list[str]:
 
 async def run():
     while True:
-        os.chdir(USER.paths.terminal)
+        os.chdir(INFO.user.paths.terminal)
         cmd = listen()
 
         # Check if we just want to leave, there's no need to check in
@@ -55,8 +51,8 @@ async def run():
                     # Disply an error message if path specified is iniexistent
                     print(LANG[1])
                     pass
-                USER.paths.terminal = os.getcwd()
-                USER.paths.terminal.replace("\\", "/")
+                INFO.user.paths.terminal = os.getcwd()
+                INFO.user.paths.terminal.replace("\\", "/")
             else:
                 # os.system(f"cd {USER.paths.terminal} && "+" ".join(cmd))
                 out = default_terminal_output(" ".join(cmd))
@@ -69,11 +65,12 @@ async def run():
                 cmd.pop(0)
                 await manager.manage(cmd, INFO)
             else:
-                cr.description(USER, INFO.lang_file)
+                cr.description(INFO.user, INFO.lang_file)
 
         # Command not found, a message will be displayed based on USER.language
         else:
             pass
+
 
 def default_terminal_output(command: str) -> str | int:
     """
@@ -86,18 +83,19 @@ def default_terminal_output(command: str) -> str | int:
 
     Returns
     -------
-    
+
     - If the command executes successfully, it returns the terminal output 
     - If the command fails it returns a 1 indicating that an error accoured
     """
-    pipe = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    pipe = subprocess.run(
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     while True:
         # Errors have higher priority
         # This is to prevent the program from searching for an output
         # that doesn't exist
 
-        if pipe.stderr:   
+        if pipe.stderr:
             return 1
         else:
             return pipe.stdout

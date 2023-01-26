@@ -8,7 +8,7 @@ from pathlib import Path
 from os import chdir
 
 
-def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path) -> tuple[object, object]:
+def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path) -> object:
     """
     ## Setup process
 
@@ -27,7 +27,6 @@ def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path
 
     Returns
     -------
-    @returns : an object of type User
     @returns : an object of type Info
     """
 
@@ -37,11 +36,10 @@ def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path
     SYSTEM_CMDS, LANG_FILE = get_setup_settings(USER)
 
     cmds = get_bgtasks([USER, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])
+    tasks = bgtasks.BG_TASKS
+    INFO = info(USER, SYSTEM_CMDS, LANG_FILE, cmds, tasks)
 
-    INFO = info(USER, SYSTEM_CMDS, LANG_FILE,
-                SETTINGS_FILE, SETTINGS_FOLDER, "", cmds)
-
-    return (USER, INFO)
+    return INFO
 
 
 def get_bgtasks(info: list) -> list:
