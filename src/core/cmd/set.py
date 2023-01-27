@@ -20,12 +20,18 @@ def switch(command: dict, info: dict):
     
     if command["variables"]:
         
+        # Change username
         if command["variables"][0] == "username":
             USER.set_username(command["variables"][1])
-    
+
+        # Set 1 or more new bg-task/s
+        elif command["variables"][0] == "bg-task":
+            USER.set_bg_task(info, list(command["variables"][1:-1]))
+
         else:
             with open(info.lang_file, 'r') as f:
                 print(f.readlines()[2])
+        
     
     
     
