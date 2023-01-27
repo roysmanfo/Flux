@@ -26,7 +26,8 @@ def switch(command: dict, info: dict):
 
         # Set 1 or more new bg-task/s
         elif command["variables"][0] == "bg-task":
-            USER.set_bg_task(info, list(command["variables"][1:-1]))
+            command["variables"].pop(0)
+            USER.set_bg_task(info, list(command["variables"]))
 
         else:
             with open(info.lang_file, 'r') as f:

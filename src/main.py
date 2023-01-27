@@ -7,6 +7,8 @@ from core.cmd import cr
 import os
 from colorama import init, Fore
 import subprocess
+import platform
+import sys
 init(autoreset=True)
 # Cristal modules
 
@@ -56,7 +58,7 @@ async def run():
             else:
                 # os.system(f"cd {USER.paths.terminal} && "+" ".join(cmd))
                 out = default_terminal_output(" ".join(cmd))
-                if out != 1:
+                if out != 1 and out != "\r":
                     print(out)
 
         # Otherwise it might be a Cristal command
@@ -86,7 +88,18 @@ def default_terminal_output(command: str) -> str | int:
 
     - If the command executes successfully, it returns the terminal output 
     - If the command fails it returns a 1 indicating that an error accoured
+    - If the command doesn't have a particular output, returns None
     """
+    
+    if command == 'cls' and platform.system() == 'Windows':
+        os.system(command)
+        return "\r"
+    
+    elif command == 'clear' and platform.system() in ['Linux', 'Mac OS']:
+        os.system(command)
+        return "\r"
+
+
     pipe = subprocess.run(
         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 

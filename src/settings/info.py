@@ -3,6 +3,7 @@ import os
 import platform
 import pathlib
 
+
 with open("".join([os.path.dirname(os.path.realpath(__file__)), "\\version"])) as version:
     VERSION = version.read()
 
@@ -11,6 +12,7 @@ SETTINGS_FILE = pathlib.Path(
 SETTINGS_FOLDER = pathlib.Path(
     "".join([os.path.dirname(os.path.realpath(__file__))]))
 
+class Info: ...
 
 class User():
     """
@@ -89,6 +91,32 @@ class User():
             with open(SETTINGS_FILE, "w") as l:
                 l.write("")
                 json.dump(settings, l, indent=4, sort_keys=True)
+
+
+    def set_bg_task(self, info: Info, tasks: list):
+        s = 0
+        new_tasks = BgTasks()
+
+        for task in tasks:
+            if task in info.bg_tasks_available:
+                if task not in info.user.background_tasks:
+                    info.user.background_tasks.append(task)
+                    new_tasks.add_task(task)
+                    s = 1
+                else:
+                    with open(info.lang_file, 'r') as lang:
+                        print(lang.readlines()[3].rstrip("\n") + ": " + task)
+            else:
+                with open(info.lang_file, 'r') as lang:
+                    print(lang.readlines()[4].rstrip("\n") + ": " + task)
+
+        if s != 0:
+            with open(info.lang_file, 'r') as lang:
+                print(lang.readlines()[5])
+
+                
+            info.user.background_tasks = BgTasks().tasks
+        
 
 
 class Path:
@@ -202,13 +230,21 @@ class BgTasks():
     def __init__(self):
         try:
             with open(SETTINGS_FILE, "r") as f:
-                tasks = json.load(f)["background'tasks"]
+                tasks = json.load(f)["background-tasks"]
                 self.tasks: list = tasks
         except KeyError:
             self.reset()
 
     def reset(self) -> list:
         self.tasks = []
+
+    def add_task(self, task: str):
+        with open(SETTINGS_FILE, "r") as f:
+            tasks: list = json.load(f)
+            tasks["background-tasks"].append(task)
+            with open(SETTINGS_FILE, "w") as l:
+                # print(tasks)
+                json.dump(tasks, l, indent=4, sort_keys=True)
 
 
 class Info:
@@ -224,7 +260,7 @@ class Info:
                  system_cmds: list,
                  lang_file: pathlib.Path,
                  bg_tasks: list,
-                 bg_tasks_aviable: list
+                 bg_tasks_available: list
                  ):
 
         self.user = user
@@ -234,4 +270,4 @@ class Info:
         self.settings_folder = SETTINGS_FOLDER
         self.version = VERSION
         self.bg_tasks = bg_tasks
-        self.bg_tasks_aviable = bg_tasks_aviable
+        self.bg_tasks_available = bg_tasks_available
