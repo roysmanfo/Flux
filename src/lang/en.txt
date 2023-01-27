@@ -1,3 +1,6 @@
 Wellcome in Cristal
 Cannot find specified path because it does not exist
 Command not found
+This command is already a background task
+This command is can't be converted to a background task
+Changes will have effect on next startup
