@@ -64,8 +64,8 @@ def get_bgtasks(info: list) -> list:
         ignore.append('observer')
         command = {"command": "observer", "flags": [],
                    "variables": [], "options": []}
-        loop.create_task(cr.observer.run(
-            command=command, info=info, from_command_line=False), name="Observer")
+        tasks.append(loop.create_task(cr.observer.run(
+            command=command, info=info, from_command_line=False), name="Observer"))
 
     return [tasks, ignore]
 
