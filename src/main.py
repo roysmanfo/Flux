@@ -95,11 +95,11 @@ def default_terminal_output(command: str) -> str | int:
     - If the command fails it returns a 1 indicating that an error accoured
     - If the command doesn't have a particular output, returns "\\r"
     """
-    
-    if command.rstrip('\n') in ['cls', 'clear']:
-        os.system('cls') if platform.system() == 'Windows' else os.system('clear')
-        return "\r"
 
+    if command.rstrip('\n') in ['cls', 'clear']:
+        os.system('cls') if platform.system(
+        ) == 'Windows' else os.system('clear')
+        return "\r"
 
     pipe = subprocess.run(
         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     tasks = [i for i in INFO.bg_tasks[0]]
     tasks.append(loop.create_task(run(), name="Main Thread"))
-    
+
     try:
         loop.run_until_complete(asyncio.wait(tasks))
         loop.close()

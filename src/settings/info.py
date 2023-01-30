@@ -12,7 +12,10 @@ SETTINGS_FILE = pathlib.Path(
 SETTINGS_FOLDER = pathlib.Path(
     "".join([os.path.dirname(os.path.realpath(__file__))]))
 
-class Info: ...
+
+class Info:
+    ...
+
 
 class User():
     """
@@ -92,7 +95,6 @@ class User():
                 l.write("")
                 json.dump(settings, l, indent=4, sort_keys=True)
 
-
     def set_bg_task(self, info: Info, tasks: list):
         s = 0
         new_tasks = BgTasks()
@@ -114,9 +116,7 @@ class User():
             with open(info.lang_file, 'r') as lang:
                 print(lang.readlines()[5])
 
-                
             info.user.background_tasks = BgTasks().tasks
-        
 
 
 class Path:
@@ -176,39 +176,41 @@ class Path:
         }
         return sorted(paths)
 
-    def _set_default_terminal_path(self) -> str:
+    def _set_default_terminal_path(self) -> pathlib.Path:
         """
         Returns the default terminal path depending on the operating system
         """
-        path = os.path.join(os.path.expanduser('~'))
+        path = pathlib.Path(os.path.join(os.path.expanduser('~')))
         return path
 
-    def _set_default_documents_path(self) -> str:
+    def _set_default_documents_path(self) -> pathlib.Path:
         """
         Returns the location of the documents folder
         """
-        path = os.path.join(os.path.expanduser('~'), 'Documents')
+        path = pathlib.Path(os.path.join(os.path.expanduser('~'), 'Documents'))
         return path
 
-    def _set_default_images_path(self) -> str:
+    def _set_default_images_path(self) -> pathlib.Path:
         """
         Returns the location of the documents folder
         """
-        path = os.path.join(os.path.expanduser('~'), "Pictures")
+        path = pathlib.Path(os.path.join(os.path.expanduser('~'), "Pictures"))
         return path
 
-    def _set_default_observer_bucket_path(self) -> str:
+    def _set_default_observer_bucket_path(self) -> pathlib.Path:
         """
         Returns the location of the observer's bucket folder
         """
-        path = os.path.join(os.path.expanduser('~'), "Desktop", "Bucket")
+        path = pathlib.Path(os.path.join(
+            os.path.expanduser('~'), "Desktop", "Bucket"))
         return path
 
-    def _set_default_observer_bucket_destination_path(self) -> str:
+    def _set_default_observer_bucket_destination_path(self) -> pathlib.Path:
         """
         Returns the location of the observer's bucket destination folder
         """
-        path = os.path.join(os.path.expanduser('~'), "Desktop", "Bucket", "Files")
+        path = pathlib.Path(os.path.join(
+            os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
         return path
 
 
