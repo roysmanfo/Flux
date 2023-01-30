@@ -115,6 +115,7 @@ if __name__ == "__main__":
 
     tasks = [i for i in INFO.bg_tasks[0]]
     tasks.append(loop.create_task(run(), name="Main Thread"))
-    print(tasks)
     loop.run_until_complete(asyncio.wait(tasks))
     loop.close()
+
+    sys.exit(0)
