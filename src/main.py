@@ -37,7 +37,12 @@ def listen() -> list[str]:
 async def run():
     while True:
         os.chdir(INFO.user.paths.terminal)
-        cmd = listen()
+        try:
+            cmd = listen()
+
+        except KeyboardInterrupt:
+            print()
+            continue
 
         # Check if we just want to leave, there's no need to check in
         # all of SYSTEM_CMDS if we just want to leave and do it quickly
@@ -119,11 +124,11 @@ if __name__ == "__main__":
     try:
         loop.run_until_complete(asyncio.wait(tasks))
         loop.close()
-    
-    except Exception:
+
+    except KeyboardInterrupt:
         # Catch all the exceptions related to the whole program.
         # Exeptions in single commands will get handled by the command itself.
-        
+
         print(f"{Fore.RED}Cristal failed to execute{Fore.RESET}")
         sys.exit(1)
 
