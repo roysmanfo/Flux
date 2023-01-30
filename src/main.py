@@ -45,7 +45,7 @@ async def run():
             os._exit(0)
 
         # Check if it's a command the default terminal can handle
-        elif cmd[0] in INFO.system_cmds:
+        elif cmd[0] in INFO.system_cmds or cmd[0] == "clear":
             if cmd[0] == "cd" and len(cmd) > 1:
                 try:
                     os.chdir(cmd[1])
@@ -88,15 +88,11 @@ def default_terminal_output(command: str) -> str | int:
 
     - If the command executes successfully, it returns the terminal output 
     - If the command fails it returns a 1 indicating that an error accoured
-    - If the command doesn't have a particular output, returns None
+    - If the command doesn't have a particular output, returns "\\r"
     """
     
-    if command == 'cls' and platform.system() == 'Windows':
-        os.system(command)
-        return "\r"
-    
-    elif command == 'clear' and platform.system() in ['Linux', 'Mac OS']:
-        os.system(command)
+    if command.rstrip('\n') in ['cls', 'clear']:
+        os.system('cls') if platform.system() == 'Windows' else os.system('clear')
         return "\r"
 
 
@@ -119,5 +115,6 @@ if __name__ == "__main__":
 
     tasks = [i for i in INFO.bg_tasks[0]]
     tasks.append(loop.create_task(run(), name="Main Thread"))
+    print(tasks)
     loop.run_until_complete(asyncio.wait(tasks))
     loop.close()
