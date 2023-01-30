@@ -115,7 +115,16 @@ if __name__ == "__main__":
 
     tasks = [i for i in INFO.bg_tasks[0]]
     tasks.append(loop.create_task(run(), name="Main Thread"))
-    loop.run_until_complete(asyncio.wait(tasks))
-    loop.close()
+    
+    try:
+        loop.run_until_complete(asyncio.wait(tasks))
+        loop.close()
+    
+    except Exception:
+        # Catch all the exceptions related to the whole program.
+        # Exeptions in single commands will get handled by the command itself.
+        
+        print(f"{Fore.RED}Cristal failed to execute{Fore.RESET}")
+        sys.exit(1)
 
     sys.exit(0)
