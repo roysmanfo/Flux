@@ -180,50 +180,36 @@ class Path:
         """
         Returns the default terminal path depending on the operating system
         """
-        if platform.system() == "Windows":
-            path = os.path.join(os.environ['USERPROFILE'])
-
-        elif platform.system() in ["MacOS", "Linux"]:
-            path = os.path.join(os.path.expanduser('~'))
-        if "\\" in path:
-            return path.replace("\\", "/")
-        else:
-            return path
+        path = os.path.join(os.path.expanduser('~'))
+        return path
 
     def _set_default_documents_path(self) -> str:
         """
         Returns the location of the documents folder
         """
-        path = "/".join([self.terminal, 'Documents'])
+        path = os.path.join(os.path.expanduser('~'), 'Documents')
         return path
 
     def _set_default_images_path(self) -> str:
         """
         Returns the location of the documents folder
         """
-        path = "/".join([self.terminal, 'Documents'])
+        path = os.path.join(os.path.expanduser('~'), "Pictures")
         return path
 
     def _set_default_observer_bucket_path(self) -> str:
         """
         Returns the location of the observer's bucket folder
         """
-        path = "/".join([os.path.expanduser('~'), "Desktop", "Bucket"])
-        if "\\" in path:
-            return path.replace("\\", "/")
-        else:
-            return path
+        path = os.path.join(os.path.expanduser('~'), "Desktop", "Bucket")
+        return path
 
     def _set_default_observer_bucket_destination_path(self) -> str:
         """
         Returns the location of the observer's bucket destination folder
         """
-        path = "/".join([os.path.expanduser('~'),
-                        "Desktop", "Bucket", "Files"])
-        if "\\" in path:
-            return path.replace("\\", "/")
-        else:
-            return path
+        path = os.path.join(os.path.expanduser('~'), "Desktop", "Bucket", "Files")
+        return path
 
 
 class BgTasks():
