@@ -19,5 +19,12 @@ def decode(string: str = "") -> list[str]:
         if words[length-1] == '':
             words.pop(length-1)
         length -= 1
-    words = [i.lower() for i in words]
+    words = [i for i in words]
+    words[0].upper()
+    
+    try:
+        words[1].upper()
+    except IndexError:
+        pass
+
     return words

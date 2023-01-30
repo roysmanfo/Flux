@@ -41,10 +41,10 @@ import asyncio
 OPTIONS: list = ['/path']
 FLAGS: list = []
 
-async def run(command: dict, info: list, from_command_line: bool = False) -> None:
+async def run(command: dict, info: object, from_command_line: bool = False) -> None:
 
     if command["options"] and options_exist(command["options"]):
-        keep_execution = handle_options(command, info[0])
+        keep_execution = handle_options(command, info.user)
         if not keep_execution:
             return
 
@@ -56,8 +56,8 @@ async def run(command: dict, info: list, from_command_line: bool = False) -> Non
 
 
 async def sort_files(info: list, forever: bool = False) -> None:
-    watch_path = Path(info[0].paths.bucket)
-    destination_root = Path(info[0].paths.bucket_destination)
+    watch_path = Path(info.user.paths.bucket)
+    destination_root = Path(info.user.paths.bucket_destination)
 
     try:
         os.makedirs(watch_path)
@@ -75,15 +75,12 @@ async def sort_files(info: list, forever: bool = False) -> None:
 
         observer = Observer()
         observer.schedule(event_handler, f'{watch_path}', recursive=True)
-
-        print(f"Observer running")
         
         observer.start()
         event_handler.on_modified(DirModifiedEvent)
 
         # Check if we decided to run the process as a background task
         if forever:
-            print("Press Ctrl+C to stop")
             
             try:
                 while True:
@@ -94,8 +91,6 @@ async def sort_files(info: list, forever: bool = False) -> None:
         else:
             await asyncio.sleep(1)
             observer.stop()
-        
-        print("Observer stopped")
 
         # End the process
         observer.join()
@@ -103,7 +98,7 @@ async def sort_files(info: list, forever: bool = False) -> None:
 
     except FileNotFoundError:
         # We deleted one or both directories
-        await sort_files(info)
+        await sort_files(info, forever)
 
 
 def create_destination_path(path: Path) -> Path:

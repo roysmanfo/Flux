@@ -1,1 +1,6 @@
 Benvenuto in Cristal
+Impossibile trovare il percorso specificato perche' inessistenete
+Comando non trovato
+Questo comando e' gia' una background tasks
+Questo comando non puo' essere converitito in una background task
+I cambiamenti avranno effetto al prossimo avvio

@@ -1,14 +1,20 @@
 import json
 import os
 import platform
-from pathlib import Path
+import pathlib
+
 
 with open("".join([os.path.dirname(os.path.realpath(__file__)), "\\version"])) as version:
     VERSION = version.read()
 
-SETTINGS_FILE = Path(
+SETTINGS_FILE = pathlib.Path(
     "".join([os.path.dirname(os.path.realpath(__file__)), "\settings.json"]))
-SETTINGS_FOLDER = Path("".join([os.path.dirname(os.path.realpath(__file__))]))
+SETTINGS_FOLDER = pathlib.Path(
+    "".join([os.path.dirname(os.path.realpath(__file__))]))
+
+
+class Info:
+    ...
 
 
 class User():
@@ -80,6 +86,38 @@ class User():
             with open(SETTINGS_FILE, "w") as f:
                 json.dump(settings, f, indent=4, sort_keys=True)
 
+    def set_username(self, new_username: str) -> None:
+        self.username = new_username
+        with open(SETTINGS_FILE, "r") as f:
+            settings = json.load(f)
+            settings['username'] = new_username
+            with open(SETTINGS_FILE, "w") as l:
+                l.write("")
+                json.dump(settings, l, indent=4, sort_keys=True)
+
+    def set_bg_task(self, info: Info, tasks: list):
+        s = 0
+        new_tasks = BgTasks()
+
+        for task in tasks:
+            if task in info.bg_tasks_available:
+                if task not in info.user.background_tasks:
+                    info.user.background_tasks.append(task)
+                    new_tasks.add_task(task)
+                    s = 1
+                else:
+                    with open(info.lang_file, 'r') as lang:
+                        print(lang.readlines()[3].rstrip("\n") + ": " + task)
+            else:
+                with open(info.lang_file, 'r') as lang:
+                    print(lang.readlines()[4].rstrip("\n") + ": " + task)
+
+        if s != 0:
+            with open(info.lang_file, 'r') as lang:
+                print(lang.readlines()[5])
+
+            info.user.background_tasks = BgTasks().tasks
+
 
 class Path:
     """
@@ -94,11 +132,16 @@ class Path:
                 with open(SETTINGS_FILE, "r") as f:
                     path = json.load(f)["paths"]
 
-                    self.terminal: str = path["terminal"]
-                    self.documents: str = path["documents"]
-                    self.images: str = path["images"]
-                    self.bucket: str = path["bucket"]
-                    self.bucket_destination: str = path["bucket-destination"]
+                    self.terminal: pathlib.Path = pathlib.Path(
+                        path["terminal"]).resolve()
+                    self.documents: pathlib.Path = pathlib.Path(
+                        path["documents"]).resolve()
+                    self.images: pathlib.Path = pathlib.Path(
+                        path["images"]).resolve()
+                    self.bucket: pathlib.Path = pathlib.Path(
+                        path["bucket"]).resolve()
+                    self.bucket_destination: pathlib.Path = pathlib.Path(
+                        path["bucket-destination"]).resolve()
 
             except KeyError:
                 self.reset()
@@ -133,64 +176,86 @@ class Path:
         }
         return sorted(paths)
 
-    def _set_default_terminal_path(self) -> str:
+    def _set_default_terminal_path(self) -> pathlib.Path:
         """
         Returns the default terminal path depending on the operating system
         """
-        if platform.system() == "Windows":
-            path = os.path.join(os.environ['USERPROFILE'])
+        path = pathlib.Path(os.path.join(os.path.expanduser('~')))
+        return path
 
-        elif platform.system() in ["MacOS", "Linux"]:
-            path = os.path.join(os.path.expanduser('~'))
-        if "\\" in path:
-            return path.replace("\\", "/")
-        else:
-            return path
-
-    def _set_default_documents_path(self) -> str:
+    def _set_default_documents_path(self) -> pathlib.Path:
         """
         Returns the location of the documents folder
         """
-        path = "/".join([self.terminal, 'Documents'])
+        path = pathlib.Path(os.path.join(os.path.expanduser('~'), 'Documents'))
         return path
 
-    def _set_default_images_path(self) -> str:
+    def _set_default_images_path(self) -> pathlib.Path:
         """
         Returns the location of the documents folder
         """
-        path = "/".join([self.terminal, 'Documents'])
+        path = pathlib.Path(os.path.join(os.path.expanduser('~'), "Pictures"))
         return path
 
-    def _set_default_observer_bucket_path(self) -> str:
+    def _set_default_observer_bucket_path(self) -> pathlib.Path:
         """
         Returns the location of the observer's bucket folder
         """
-        path = "/".join([os.path.expanduser('~'), "Desktop", "Bucket"])
-        if "\\" in path:
-            return path.replace("\\", "/")
-        else:
-            return path
+        path = pathlib.Path(os.path.join(
+            os.path.expanduser('~'), "Desktop", "Bucket"))
+        return path
 
-    def _set_default_observer_bucket_destination_path(self) -> str:
+    def _set_default_observer_bucket_destination_path(self) -> pathlib.Path:
         """
         Returns the location of the observer's bucket destination folder
         """
-        path = "/".join([os.path.expanduser('~'),
-                        "Desktop", "Bucket", "Files"])
-        if "\\" in path:
-            return path.replace("\\", "/")
-        else:
-            return path
+        path = pathlib.Path(os.path.join(
+            os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
+        return path
 
 
 class BgTasks():
     def __init__(self):
         try:
             with open(SETTINGS_FILE, "r") as f:
-                tasks = json.load(f)["background'tasks"]
+                tasks = json.load(f)["background-tasks"]
                 self.tasks: list = tasks
         except KeyError:
             self.reset()
 
     def reset(self) -> list:
         self.tasks = []
+
+    def add_task(self, task: str):
+        with open(SETTINGS_FILE, "r") as f:
+            tasks: list = json.load(f)
+            tasks["background-tasks"].append(task)
+            with open(SETTINGS_FILE, "w") as l:
+                # print(tasks)
+                json.dump(tasks, l, indent=4, sort_keys=True)
+
+
+class Info:
+    """
+    ### CLASS INFO
+
+    This class contains every information a command may need.\n
+    It's like a dictionary mapping information like the user instance or the version
+    """
+
+    def __init__(self,
+                 user: User,
+                 system_cmds: list,
+                 lang_file: pathlib.Path,
+                 bg_tasks: list,
+                 bg_tasks_available: list
+                 ):
+
+        self.user = user
+        self.system_cmds = system_cmds
+        self.lang_file = lang_file
+        self.settings_file = SETTINGS_FILE
+        self.settings_folder = SETTINGS_FOLDER
+        self.version = VERSION
+        self.bg_tasks = bg_tasks
+        self.bg_tasks_available = bg_tasks_available

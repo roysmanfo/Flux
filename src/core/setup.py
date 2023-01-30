@@ -5,9 +5,10 @@ as intended.
 from . import bgtasks
 import asyncio
 from pathlib import Path
+from os import chdir
 
 
-def setup(user: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path) -> tuple[object, list[str], Path, list]:
+def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path) -> object:
     """
     ## Setup process
 
@@ -17,16 +18,17 @@ def setup(user: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path) -> tuple[obj
     This process makes it easier to start Cristal as we just need to call this
     function in the main file and everything will be handled automaticaly. 
 
-    @param user : The user class from the info file in settings
+    Parameters
+    ----------
+    @param user : The user class from the info file in settings/
+    @param info : The info class from the info file in settings/
+    @param SETTINGS_FILE : The SETTINGS_FILE costant from the info file in settings
+    @param SETTINGS_FOLDER : The SETTINGS_FOLDER costant from the info file in settings
 
-    @returns : tuple[object, list, Path, list[AbstractEventLoop, list[str]]]
-
-    - object:                                   The user instance from the info file in settings
-    - list[str]:                                SYSTEM_CMDS, list off all commands of the os built-in terminal
-    - Path:                                     LANG_FILE, Path to the file containing all the sentences in the prefered language
-    - list[AbstractEventLoop], list[str]]:      All tasks to be executed on start, plus all commands to be ignored because of this
+    Returns
+    -------
+    @returns : an object of type Info
     """
-    from os import chdir
 
     # Load user
     USER = user()
@@ -34,8 +36,10 @@ def setup(user: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path) -> tuple[obj
     SYSTEM_CMDS, LANG_FILE = get_setup_settings(USER)
 
     cmds = get_bgtasks([USER, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])
+    tasks = bgtasks.BG_TASKS
+    INFO = info(USER, SYSTEM_CMDS, LANG_FILE, cmds, tasks)
 
-    return (USER, SYSTEM_CMDS, LANG_FILE, cmds)
+    return INFO
 
 
 def get_bgtasks(info: list) -> list:
@@ -58,7 +62,10 @@ def get_bgtasks(info: list) -> list:
     # For each command check if the user decided to execute it on start
     if 'observer' in bg:
         ignore.append('observer')
-        loop.create_task(cr.observer.run(info), name="Observer")
+        command = {"command": "observer", "flags": [],
+                   "variables": [], "options": []}
+        tasks.append(loop.create_task(cr.observer.run(
+            command=command, info=info, from_command_line=False), name="Observer"))
 
     return [tasks, ignore]
 
