@@ -35,13 +35,13 @@ import os
 import shutil
 from pathlib import Path
 from .helpers.extensions import extension_paths
-import asyncio
+import time
 
 
 OPTIONS: list = ['/path']
 FLAGS: list = []
 
-async def run(command: dict, info: object, from_command_line: bool = False) -> None:
+def run(command: dict, info: object, from_command_line: bool = False) -> None:
 
     if command["options"] and options_exist(command["options"]):
         keep_execution = handle_options(command, info.user)
@@ -49,13 +49,13 @@ async def run(command: dict, info: object, from_command_line: bool = False) -> N
             return
 
     if from_command_line:
-        await sort_files(info)
+        sort_files(info)
 
     else:
-        await sort_files(info, forever=True)
+        sort_files(info, forever=True)
 
 
-async def sort_files(info: list, forever: bool = False) -> None:
+def sort_files(info: object, forever: bool = False) -> None:
     watch_path = Path(info.user.paths.bucket)
     destination_root = Path(info.user.paths.bucket_destination)
 
@@ -84,12 +84,12 @@ async def sort_files(info: list, forever: bool = False) -> None:
             
             try:
                 while True:
-                    await asyncio.sleep(.1)
+                    time.sleep(.1)
                     continue
             except KeyboardInterrupt:
                 observer.stop()
         else:
-            await asyncio.sleep(1)
+            time.sleep(1)
             observer.stop()
 
         # End the process
@@ -98,7 +98,7 @@ async def sort_files(info: list, forever: bool = False) -> None:
 
     except FileNotFoundError:
         # We deleted one or both directories
-        await sort_files(info, forever)
+        sort_files(info, forever)
 
 
 def create_destination_path(path: Path) -> Path:

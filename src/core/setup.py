@@ -3,7 +3,7 @@ Necessary procedures to prepare the program to work
 as intended.
 """
 from . import bgtasks
-import asyncio
+from threading import Thread
 from pathlib import Path
 from os import chdir
 
@@ -37,25 +37,23 @@ def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path
 
     cmds = get_bgtasks([USER, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])
     tasks = bgtasks.BG_TASKS
-    INFO = info(USER, SYSTEM_CMDS, LANG_FILE, cmds, tasks)
-
+    INFO = info(USER, SYSTEM_CMDS, LANG_FILE, cmds[0], cmds[1], tasks)
+    INFO.bg_tasks = get_bgtasks(INFO, False)[0]
     return INFO
 
 
-def get_bgtasks(info: list) -> list:
+def get_bgtasks(info: list, info_is_list = True) -> list:
     """
     Returns a list of all tasks the user decided to execute on starup and 
     a list of commands to ignore when called
     """
-
-    user = info[0]
+   
+    user = info[0] if info_is_list else info.user
 
     from . import cmd as cr
 
-    tasks = []
-    ignore = []
-
-    loop = asyncio.new_event_loop()
+    tasks: list[Thread] = []
+    ignore: list[str] = []
 
     bg = user.background_tasks
 
@@ -64,9 +62,9 @@ def get_bgtasks(info: list) -> list:
         ignore.append('observer')
         command = {"command": "observer", "flags": [],
                    "variables": [], "options": []}
-        tasks.append(loop.create_task(cr.observer.run(
-            command=command, info=info, from_command_line=False), name="Observer"))
-
+        tasks.append(Thread(target=cr.observer.run, args=(
+            command, info, False), name="Observer"))
+        
     return [tasks, ignore]
 
 

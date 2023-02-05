@@ -241,6 +241,16 @@ class Info:
 
     This class contains every information a command may need.\n
     It's like a dictionary mapping information like the user instance or the version
+
+    - user:                 The user instance
+    - system_cmds:          A list off all commands that are built in the OS terminal
+    - lang_file:            The lang_file path
+    - settings_file:        The settings file path
+    - settings_folder:      the settings folder path
+    - version:              The software version number
+    - bg_tasks:             A list of tasks which will be executes as background Threads
+    - ignored_commands:     A list of commands which are ignored when called
+    - bg_tasks_available:   All commands that are available to be "tasked"
     """
 
     def __init__(self,
@@ -248,6 +258,7 @@ class Info:
                  system_cmds: list,
                  lang_file: pathlib.Path,
                  bg_tasks: list,
+                 ignored_commands: list,
                  bg_tasks_available: list
                  ):
 
@@ -258,4 +269,5 @@ class Info:
         self.settings_folder = SETTINGS_FOLDER
         self.version = VERSION
         self.bg_tasks = bg_tasks
+        self.ignored_commands = ignored_commands
         self.bg_tasks_available = bg_tasks_available
