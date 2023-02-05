@@ -35,7 +35,7 @@ def classify_arguments(command: list) -> dict:
         else:
             variables.append(i)
 
-    classified["command"] = command[0]
+    classified["command"] = command[0].lower()
     classified["flags"] = flags
     classified["variables"] = variables
     classified["options"] = options

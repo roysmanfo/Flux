@@ -43,9 +43,6 @@ class User():
                 sett = json.load(f)
 
             self.email: str = sett["email"]
-            self.language: str = sett["language"]
-            self.language_audio: str = sett["language-audio"]
-            self.language_text: str = sett["language-text"]
             self.username: str = sett["username"]
             self.paths: Path = Path()
             self.background_tasks: list = BgTasks().tasks
@@ -66,9 +63,6 @@ class User():
 
         settings = {
             "email": "",
-            "language": "en",
-            "language-audio": "en",
-            "language-text": "en",
             "username": "User",
             "paths": path.reset(),
             "background-tasks": bg_tasks.reset(),
@@ -106,15 +100,12 @@ class User():
                     new_tasks.add_task(task)
                     s = 1
                 else:
-                    with open(info.lang_file, 'r') as lang:
-                        print(lang.readlines()[3].rstrip("\n") + ": " + task)
+                    print("This command is already a background task: " + task)
             else:
-                with open(info.lang_file, 'r') as lang:
-                    print(lang.readlines()[4].rstrip("\n") + ": " + task)
+                print("This command is can't be converted to a background task: " + task)
 
         if s != 0:
-            with open(info.lang_file, 'r') as lang:
-                print(lang.readlines()[5])
+            print('Changes will have effect on next startup')
 
             info.user.background_tasks = BgTasks().tasks
 
@@ -256,7 +247,6 @@ class Info:
     def __init__(self,
                  user: User,
                  system_cmds: list,
-                 lang_file: pathlib.Path,
                  bg_tasks: list,
                  ignored_commands: list,
                  bg_tasks_available: list
@@ -264,7 +254,6 @@ class Info:
 
         self.user = user
         self.system_cmds = system_cmds
-        self.lang_file = lang_file
         self.settings_file = SETTINGS_FILE
         self.settings_folder = SETTINGS_FOLDER
         self.version = VERSION

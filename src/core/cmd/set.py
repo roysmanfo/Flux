@@ -30,8 +30,7 @@ def switch(command: dict, info: dict):
             USER.set_bg_task(info, list(command["variables"]))
 
         else:
-            with open(info.lang_file, 'r') as f:
-                print(f.readlines()[2])
+            print('Command not found')
         
     
     

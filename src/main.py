@@ -16,10 +16,6 @@ init(autoreset=True)
 # Setup process
 INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
 
-with open(INFO.lang_file, 'r') as file:
-    LANG: list = file.readlines()
-
-
 def listen() -> list[str]:
     """
     This function is used to get the command typed by the user preceded by
@@ -56,7 +52,7 @@ def run():
                     os.chdir(cmd[1])
                 except FileNotFoundError:
                     # Disply an error message if path specified is iniexistent
-                    print(LANG[1])
+                    print("Cannot find specified path because it does not exist")
                     pass
                 INFO.user.paths.terminal = os.getcwd()
                 INFO.user.paths.terminal.replace("\\", "/")
@@ -72,7 +68,7 @@ def run():
                 cmd.pop(0)
                 manager.manage(cmd, INFO)
             else:
-                cr.description(INFO.user, INFO.lang_file)
+                cr.description(INFO.user)
 
         # Command not found, a message will be displayed based on USER.language
         else:
