@@ -85,7 +85,7 @@ def get_setup_settings(user: object) -> list:
     elif platform.system() in ["Linux", "Mac"]:
         # These commands will be executed from the default OS terminal (linux terminal)
         SYSTEM_CMDS = os.getenv('LINUX').split(", ")
-        LANG_FILE: Path = Path(os.path.join(os.path.realpath(
-            __file__)+"/lang/", user.language + ".txt"))
+        LANG_FILE: Path = Path(os.path.join(os.path.dirname(
+            __file__).replace("\core", "")+"/lang/", user.language + ".txt"))
 
     return [SYSTEM_CMDS, LANG_FILE]
