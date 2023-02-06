@@ -66,12 +66,13 @@ class User():
 
         path = Path(False)
         bg_tasks = BgTasks()
+        bg_tasks.reset()
 
         settings = {
             "email": "",
             "username": "User",
             "paths": path.reset(),
-            "background-tasks": bg_tasks.reset(),
+            "background-tasks": bg_tasks.tasks,
         }
 
         # Check if there already is a settings file, if there is, overwrite it, otherwise
@@ -119,7 +120,7 @@ class User():
 class Path:
     """
     ### CLASS PATH
-
+    
     The class Path contains all different infornamtion about where to find many
     different things, like where to put files, or where to look for them
 
@@ -224,7 +225,7 @@ class BgTasks():
         except KeyError:
             self.reset()
 
-    def reset(self) -> list:
+    def reset(self) -> None:
         self.tasks = []
 
     def add_task(self, task: str):
