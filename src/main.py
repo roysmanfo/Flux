@@ -49,7 +49,8 @@ def run():
         elif cmd[0] in INFO.system_cmds or cmd[0] == "clear":
             if cmd[0] == "cd" and len(cmd) > 1:
                 try:
-                    os.chdir(cmd[1])
+                    new_dir = "" + cmd[1].strip("\"").strip("'")
+                    os.chdir(f"{new_dir}")
                 except FileNotFoundError:
                     # Disply an error message if path specified is iniexistent
                     print("Cannot find specified path because it does not exist")
