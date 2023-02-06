@@ -58,8 +58,14 @@ class User():
         file is already there, if there already is one, it gets overwritten, otherwise
         a new one is created.
         """
-        path = Path(self, False)
-        bg_tasks = BgTasks(self)
+
+        # Create the settings file
+        with open(SETTINGS_FILE, "w") as file:
+            file.write("{}")
+
+
+        path = Path(False)
+        bg_tasks = BgTasks()
 
         settings = {
             "email": "",
@@ -113,8 +119,11 @@ class User():
 class Path:
     """
     ### CLASS PATH
+
     The class Path contains all different infornamtion about where to find many
     different things, like where to put files, or where to look for them
+
+    @param load_data : If set to False, the object will not have any path loaded
     """
 
     def __init__(self, load_data: bool = True):
@@ -210,7 +219,8 @@ class BgTasks():
         try:
             with open(SETTINGS_FILE, "r") as f:
                 tasks = json.load(f)["background-tasks"]
-                self.tasks: list = tasks
+                self.tasks: list = tasks if tasks else []
+                
         except KeyError:
             self.reset()
 
