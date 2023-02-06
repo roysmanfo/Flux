@@ -11,9 +11,6 @@ class Test_TestUser(unittest.TestCase):
         USER = User()
         types = [
             type(USER.email) == str,
-            type(USER.language) == str,
-            type(USER.language_audio) == str,
-            type(USER.language_text) == str,
             type(USER.paths) == Path,
             type(USER.background_tasks) == list,
         ]
