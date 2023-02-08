@@ -29,6 +29,12 @@ def switch(command: dict, info: dict):
             command["variables"].pop(0)
             USER.set_bg_task(info, list(command["variables"]))
 
+        # Set/ change an email
+        # if muliple emails given, set as email the first valid one
+        elif command["variables"][0] == "email":
+            command["variables"].pop(0)
+            USER.set_email(info, list(command["variables"]))
+
         else:
             print('Command not found')
         

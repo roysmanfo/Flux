@@ -63,7 +63,6 @@ class User():
         with open(SETTINGS_FILE, "w") as file:
             file.write("{}")
 
-
         path = Path(False)
         bg_tasks = BgTasks()
         bg_tasks.reset()
@@ -116,11 +115,41 @@ class User():
 
             info.user.background_tasks = BgTasks().tasks
 
+    def set_email(self, info: Info, emails: list[str]):
+        for email in emails:
+            isValidEmail = True
+
+            email.strip()
+
+            if email.count("@") != 1:
+                isValidEmail = False
+
+            elif email.count(" ") != 0:
+                isValidEmail = False
+
+            elif len(email.split(".")[-1]) < 2:
+                isValidEmail = False
+
+            if isValidEmail:
+
+                # Update the email
+                info.user.email = email
+                with open(SETTINGS_FILE, "r") as f:
+                    sett: list = json.load(f)
+                    sett["email"] = email
+                    with open(SETTINGS_FILE, "w") as l:
+                        json.dump(sett, l, indent=4, sort_keys=True)
+
+                print("Email changed to: ", email)
+                return
+            else:
+                print("This email is not a valid one: ", email)
+
 
 class Path:
     """
     ### CLASS PATH
-    
+
     The class Path contains all different infornamtion about where to find many
     different things, like where to put files, or where to look for them
 
@@ -221,7 +250,7 @@ class BgTasks():
             with open(SETTINGS_FILE, "r") as f:
                 tasks = json.load(f)["background-tasks"]
                 self.tasks: list = tasks if tasks else []
-                
+
         except KeyError:
             self.reset()
 
