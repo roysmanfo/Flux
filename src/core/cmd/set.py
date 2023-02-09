@@ -2,7 +2,9 @@
 # `cr set`
 Allows the user to change different settings, such as the username or USER.path informations
 """
+from pathlib import Path
 
+    
 OPTIONS = []
 FLAGS = []
 
@@ -34,6 +36,11 @@ def switch(command: dict, info: dict):
         elif command["variables"][0] == "email":
             command["variables"].pop(0)
             USER.set_email(info, list(command["variables"]))
+
+        # change a Path
+        elif command["variables"][0].startswith("path.") and len(command["variables"][0].split(".")) == 2:
+            target = command["variables"][0].split(".")[1]
+            USER.paths.set_path(target, Path(command["variables"][1]))
 
         else:
             print('Command not found')

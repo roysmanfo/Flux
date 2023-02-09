@@ -242,7 +242,39 @@ class Path:
         path = pathlib.Path(os.path.join(
             os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
         return path
+    
+    def set_path(self, target: str, new_path: pathlib.Path) -> None:
+        """
+        Changes the location of the observer's bucket folder
+        """
+        all_good = True
+        new_path.resolve()
+        
+        if target == "bucket":
+            self.bucket = new_path
+        elif target == "bucket-destination":
+            self.bucket_destination = new_path
+        elif target == "documents":
+            self.documents = new_path
+        elif target == "images":
+            self.images = new_path
+        elif target == "terminal":
+            self.terminal = new_path
+        else:
+            all_good = False
 
+        if all_good:
+            with open(SETTINGS_FILE, "r") as f:
+                tasks: dict = json.load(f)
+                tasks["paths"][target] = str(new_path)
+                with open(SETTINGS_FILE, "w") as l:
+                    json.dump(tasks, l, indent=4, sort_keys=True)
+            if not new_path.exists():
+                os.makedirs(new_path, exist_ok=True)
+
+            print(f"Successfully changed {target} to {new_path}")
+
+        # C:\\Users\\manfo\\Desktop\\Bucket
 
 class BgTasks():
     def __init__(self):
