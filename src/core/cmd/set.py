@@ -14,7 +14,7 @@ def run(command: dict, info: object):
     """
     switch(command, info)
 
-def switch(command: dict, info: dict):
+def switch(command: dict, info: object):
     """
     Assigns the input to the right function 
     """
