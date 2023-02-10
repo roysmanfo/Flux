@@ -6,7 +6,7 @@ from pathlib import Path
 
     
 OPTIONS = []
-FLAGS = ['--reset']
+FLAGS = ['--reset', '--all']
 
 def run(command: dict, info: object):
     """
@@ -41,9 +41,11 @@ def switch(command: dict, info: object):
         elif command["variables"][0].startswith("path.") and len(command["variables"][0].split(".")) == 2:
             target = command["variables"][0].split(".")[1]
             USER.paths.set_path(target, Path(command["variables"][1]))
-
+    
+    elif command["flags"]:
+        
         # Reset all user vareables
-        elif "--reset" in command["flags"] and "--all" in command["flags"]:
+        if "--reset" in command["flags"] and "--all" in command["flags"]:
             USER.reset_settings()
             print('Restart the shell to apply changes')
 
