@@ -4,9 +4,10 @@ Allows the user to change different settings, such as the username or USER.path 
 """
 from pathlib import Path
 
-    
+
 OPTIONS = []
 FLAGS = ['--reset', '--all']
+
 
 def run(command: dict, info: object):
     """
@@ -14,14 +15,15 @@ def run(command: dict, info: object):
     """
     switch(command, info)
 
+
 def switch(command: dict, info: object):
     """
     Assigns the input to the right function 
     """
     USER = info.user
-    
+
     if command["variables"]:
-        
+
         # Change username
         if command["variables"][0] == "username":
             USER.set_username(command["variables"][1])
@@ -41,9 +43,9 @@ def switch(command: dict, info: object):
         elif command["variables"][0].startswith("path.") and len(command["variables"][0].split(".")) == 2:
             target = command["variables"][0].split(".")[1]
             USER.paths.set_path(target, Path(command["variables"][1]))
-    
+
     elif command["flags"]:
-        
+
         # Reset all user vareables
         if "--reset" in command["flags"] and "--all" in command["flags"]:
             USER.reset_settings()
@@ -51,7 +53,3 @@ def switch(command: dict, info: object):
 
         else:
             print('Command not found')
-        
-    
-    
-    

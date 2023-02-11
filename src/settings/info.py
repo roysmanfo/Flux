@@ -242,14 +242,14 @@ class Path:
         path = pathlib.Path(os.path.join(
             os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
         return path
-    
+
     def set_path(self, target: str, new_path: pathlib.Path) -> None:
         """
         Changes the location of the observer's bucket folder
         """
         all_good = True
         new_path.resolve()
-        
+
         if target == "bucket":
             self.bucket = new_path
         elif target == "bucket-destination":
@@ -275,6 +275,7 @@ class Path:
             print(f"Successfully changed {target} to {new_path}")
 
         # C:\\Users\\manfo\\Desktop\\Bucket
+
 
 class BgTasks():
     def __init__(self):
