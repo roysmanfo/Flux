@@ -3,7 +3,7 @@ Necessary procedures to prepare the program to work
 as intended.
 """
 from . import bgtasks
-import asyncio
+from threading import Thread
 from pathlib import Path
 from os import chdir
 
@@ -33,29 +33,27 @@ def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path
     # Load user
     USER = user()
     chdir(USER.paths.terminal)
-    SYSTEM_CMDS, LANG_FILE = get_setup_settings(USER)
+    SYSTEM_CMDS = get_setup_settings(USER)
 
-    cmds = get_bgtasks([USER, LANG_FILE, SETTINGS_FILE, SETTINGS_FOLDER])
+    cmds = get_bgtasks([USER, SETTINGS_FILE, SETTINGS_FOLDER])
     tasks = bgtasks.BG_TASKS
-    INFO = info(USER, SYSTEM_CMDS, LANG_FILE, cmds, tasks)
-
+    INFO = info(USER, SYSTEM_CMDS, cmds[0], cmds[1], tasks)
+    INFO.bg_tasks = get_bgtasks(INFO, False)[0]
     return INFO
 
 
-def get_bgtasks(info: list) -> list:
+def get_bgtasks(info: list, info_is_list = True) -> list:
     """
     Returns a list of all tasks the user decided to execute on starup and 
     a list of commands to ignore when called
     """
-
-    user = info[0]
+   
+    user = info[0] if info_is_list else info.user
 
     from . import cmd as cr
 
-    tasks = []
-    ignore = []
-
-    loop = asyncio.new_event_loop()
+    tasks: list[Thread] = []
+    ignore: list[str] = []
 
     bg = user.background_tasks
 
@@ -64,13 +62,13 @@ def get_bgtasks(info: list) -> list:
         ignore.append('observer')
         command = {"command": "observer", "flags": [],
                    "variables": [], "options": []}
-        tasks.append(loop.create_task(cr.observer.run(
-            command=command, info=info, from_command_line=False), name="Observer"))
-
+        tasks.append(Thread(target=cr.observer.run, args=(
+            command, info, False), name="Observer"))
+        
     return [tasks, ignore]
 
 
-def get_setup_settings(user: object) -> list:
+def get_setup_settings(user: object) -> list[str]:
     import platform
     import os
     from dotenv import load_dotenv
@@ -81,13 +79,9 @@ def get_setup_settings(user: object) -> list:
     if platform.system() == "Windows":
         # These commands will be executed from the default OS terminal (cmd.exe)
         SYSTEM_CMDS = os.getenv('WINDOWS').split(", ")
-        LANG_FILE: Path = Path(os.path.join(os.path.dirname(
-            __file__).replace("\\core", "")+"\\lang\\", user.language + ".txt"))
 
     elif platform.system() in ["Linux", "Mac"]:
         # These commands will be executed from the default OS terminal (linux terminal)
         SYSTEM_CMDS = os.getenv('LINUX').split(", ")
-        LANG_FILE: Path = Path(os.path.join(os.path.realpath(
-            __file__)+"/lang/", user.language + ".txt"))
 
-    return [SYSTEM_CMDS, LANG_FILE]
+    return SYSTEM_CMDS

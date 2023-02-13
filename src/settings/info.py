@@ -43,9 +43,6 @@ class User():
                 sett = json.load(f)
 
             self.email: str = sett["email"]
-            self.language: str = sett["language"]
-            self.language_audio: str = sett["language-audio"]
-            self.language_text: str = sett["language-text"]
             self.username: str = sett["username"]
             self.paths: Path = Path()
             self.background_tasks: list = BgTasks().tasks
@@ -61,17 +58,20 @@ class User():
         file is already there, if there already is one, it gets overwritten, otherwise
         a new one is created.
         """
-        path = Path(self, False)
-        bg_tasks = BgTasks(self)
+
+        # Create the settings file
+        with open(SETTINGS_FILE, "w") as file:
+            file.write("{}")
+
+        path = Path(False)
+        bg_tasks = BgTasks()
+        bg_tasks.reset()
 
         settings = {
             "email": "",
-            "language": "en",
-            "language-audio": "en",
-            "language-text": "en",
             "username": "User",
             "paths": path.reset(),
-            "background-tasks": bg_tasks.reset(),
+            "background-tasks": bg_tasks.tasks,
         }
 
         # Check if there already is a settings file, if there is, overwrite it, otherwise
@@ -106,24 +106,54 @@ class User():
                     new_tasks.add_task(task)
                     s = 1
                 else:
-                    with open(info.lang_file, 'r') as lang:
-                        print(lang.readlines()[3].rstrip("\n") + ": " + task)
+                    print("This command is already a background task: " + task)
             else:
-                with open(info.lang_file, 'r') as lang:
-                    print(lang.readlines()[4].rstrip("\n") + ": " + task)
+                print("This command is can't be converted to a background task: " + task)
 
         if s != 0:
-            with open(info.lang_file, 'r') as lang:
-                print(lang.readlines()[5])
+            print('Changes will have effect on next startup')
 
             info.user.background_tasks = BgTasks().tasks
+
+    def set_email(self, info: Info, emails: list[str]):
+        for email in emails:
+            isValidEmail = True
+
+            email.strip()
+
+            if email.count("@") != 1:
+                isValidEmail = False
+
+            elif email.count(" ") != 0:
+                isValidEmail = False
+
+            elif len(email.split(".")[-1]) < 2:
+                isValidEmail = False
+
+            if isValidEmail:
+
+                # Update the email
+                info.user.email = email
+                with open(SETTINGS_FILE, "r") as f:
+                    sett: list = json.load(f)
+                    sett["email"] = email
+                    with open(SETTINGS_FILE, "w") as l:
+                        json.dump(sett, l, indent=4, sort_keys=True)
+
+                print("Email changed to: ", email)
+                return
+            else:
+                print("This email is not a valid one: ", email)
 
 
 class Path:
     """
     ### CLASS PATH
+
     The class Path contains all different infornamtion about where to find many
     different things, like where to put files, or where to look for them
+
+    @param load_data : If set to False, the object will not have any path loaded
     """
 
     def __init__(self, load_data: bool = True):
@@ -213,17 +243,51 @@ class Path:
             os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
         return path
 
+    def set_path(self, target: str, new_path: pathlib.Path) -> None:
+        """
+        Changes the location of the observer's bucket folder
+        """
+        all_good = True
+        new_path.resolve()
+
+        if target == "bucket":
+            self.bucket = new_path
+        elif target == "bucket-destination":
+            self.bucket_destination = new_path
+        elif target == "documents":
+            self.documents = new_path
+        elif target == "images":
+            self.images = new_path
+        elif target == "terminal":
+            self.terminal = new_path
+        else:
+            all_good = False
+
+        if all_good:
+            with open(SETTINGS_FILE, "r") as f:
+                tasks: dict = json.load(f)
+                tasks["paths"][target] = str(new_path)
+                with open(SETTINGS_FILE, "w") as l:
+                    json.dump(tasks, l, indent=4, sort_keys=True)
+            if not new_path.exists():
+                os.makedirs(new_path, exist_ok=True)
+
+            print(f"Successfully changed {target} to {new_path}")
+
+        # C:\\Users\\manfo\\Desktop\\Bucket
+
 
 class BgTasks():
     def __init__(self):
         try:
             with open(SETTINGS_FILE, "r") as f:
                 tasks = json.load(f)["background-tasks"]
-                self.tasks: list = tasks
+                self.tasks: list = tasks if tasks else []
+
         except KeyError:
             self.reset()
 
-    def reset(self) -> list:
+    def reset(self) -> None:
         self.tasks = []
 
     def add_task(self, task: str):
@@ -241,21 +305,31 @@ class Info:
 
     This class contains every information a command may need.\n
     It's like a dictionary mapping information like the user instance or the version
+
+    - user:                 The user instance
+    - system_cmds:          A list off all commands that are built in the OS terminal
+    - lang_file:            The lang_file path
+    - settings_file:        The settings file path
+    - settings_folder:      the settings folder path
+    - version:              The software version number
+    - bg_tasks:             A list of tasks which will be executes as background Threads
+    - ignored_commands:     A list of commands which are ignored when called
+    - bg_tasks_available:   All commands that are available to be "tasked"
     """
 
     def __init__(self,
                  user: User,
                  system_cmds: list,
-                 lang_file: pathlib.Path,
                  bg_tasks: list,
+                 ignored_commands: list,
                  bg_tasks_available: list
                  ):
 
         self.user = user
         self.system_cmds = system_cmds
-        self.lang_file = lang_file
         self.settings_file = SETTINGS_FILE
         self.settings_folder = SETTINGS_FOLDER
         self.version = VERSION
         self.bg_tasks = bg_tasks
+        self.ignored_commands = ignored_commands
         self.bg_tasks_available = bg_tasks_available

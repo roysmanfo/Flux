@@ -35,7 +35,7 @@ def classify_arguments(command: list) -> dict:
         else:
             variables.append(i)
 
-    classified["command"] = command[0]
+    classified["command"] = command[0].lower()
     classified["flags"] = flags
     classified["variables"] = variables
     classified["options"] = options
@@ -43,13 +43,13 @@ def classify_arguments(command: list) -> dict:
     return classified
 
 
-async def manage(cmd: list, info: object) -> None:
+def manage(cmd: list, info: object) -> None:
 
     # Classify command line arguments and send them to be analized
-    await switch(classify_arguments(cmd), info)
+    switch(classify_arguments(cmd), info)
 
 
-async def switch(command: dict, info: object) -> None:
+def switch(command: dict, info: object) -> None:
 
     # Match the command name to the corresponding file in ./cmd/
     # for further processing and execution
@@ -57,7 +57,7 @@ async def switch(command: dict, info: object) -> None:
     from . import cmd as cr
 
     if command["command"] == "observer":
-        await cr.observer.run(command = command, info = info, from_command_line=True)
+        cr.observer.run(command = command, info = info, from_command_line=True)
 
     if command["command"] == "set":
         cr.set.run(command = command, info = info)

@@ -1,5 +1,5 @@
 # Dependencies
-import asyncio
+from threading import Thread
 from utils import transform
 from settings.info import User, Info, SETTINGS_FILE, SETTINGS_FOLDER
 from core import setup, manager
@@ -16,10 +16,6 @@ init(autoreset=True)
 # Setup process
 INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
 
-with open(INFO.lang_file, 'r') as file:
-    LANG: list = file.readlines()
-
-
 def listen() -> list[str]:
     """
     This function is used to get the command typed by the user preceded by
@@ -34,7 +30,7 @@ def listen() -> list[str]:
     return transform.string_to_list(command)
 
 
-async def run():
+def run():
     while True:
         os.chdir(INFO.user.paths.terminal)
         try:
@@ -53,10 +49,11 @@ async def run():
         elif cmd[0] in INFO.system_cmds or cmd[0] == "clear":
             if cmd[0] == "cd" and len(cmd) > 1:
                 try:
-                    os.chdir(cmd[1])
+                    new_dir = "" + cmd[1].strip("\"").strip("'")
+                    os.chdir(f"{new_dir}")
                 except FileNotFoundError:
                     # Disply an error message if path specified is iniexistent
-                    print(LANG[1])
+                    print("Cannot find specified path because it does not exist")
                     pass
                 INFO.user.paths.terminal = os.getcwd()
                 INFO.user.paths.terminal.replace("\\", "/")
@@ -70,9 +67,9 @@ async def run():
         elif cmd[0] == "cr":
             if len(cmd) > 1:
                 cmd.pop(0)
-                await manager.manage(cmd, INFO)
+                manager.manage(cmd, INFO)
             else:
-                cr.description(INFO.user, INFO.lang_file)
+                cr.description(INFO.user)
 
         # Command not found, a message will be displayed based on USER.language
         else:
@@ -116,14 +113,16 @@ def default_terminal_output(command: str) -> str | int:
 
 
 if __name__ == "__main__":
-    loop = asyncio.new_event_loop()
 
-    tasks = [i for i in INFO.bg_tasks[0]]
-    tasks.append(loop.create_task(run(), name="Main Thread"))
+    tasks_list: list[Thread] = [i for i in INFO.bg_tasks]
+    tasks_list.append(Thread(target=run, args=(), name="Main Thread"))
 
     try:
-        loop.run_until_complete(asyncio.wait(tasks))
-        loop.close()
+        for task in tasks_list:
+            task.start()
+
+        for task in tasks_list:
+            task.join()
 
     except KeyboardInterrupt:
         # Catch all the exceptions related to the whole program.

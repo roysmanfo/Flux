@@ -8,4 +8,4 @@ Command | Description
 --- | ---
 `!` **cr** [options] | Gives information about the programm
 **observer** [options] | Scans the bucket folder and sorts files in a `Files` folder
-`!` **set** [options] | Allows to modify the settings
+**set** [options] | Allows to modify the settings

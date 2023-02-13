@@ -1,30 +1,31 @@
 
-def string_to_list(string: str):
-    string.strip()
-    if string == None or string == '':
-        return ['']
-    else:
-        return decode(string)
+def string_to_list(string: str) -> list[str]:
+    words = string.strip().split(" ")
+    return format(words)
 
 
-def decode(string: str = "") -> list[str]:
-    words = []
-    for i in string:
-        if i == ' ':
-            words.append(string[:string.index(i)])
-            string = string[string.index(i)+1:]
-    words.append(string)
-    length = len(words)
-    while length > 0:
-        if words[length-1] == '':
-            words.pop(length-1)
-        length -= 1
-    words = [i for i in words]
-    words[0].upper()
-    
-    try:
-        words[1].upper()
-    except IndexError:
-        pass
+def format(words: list[str]) -> list[str]:
 
+    # Items containing a single quote (") each, should be joined as a single item.
+    while sigle_quoted_word_exists(words):
+        words = join_first_single_quoted_words(words)
+    words = [i for i in words if i != '']
+    words[0] = words[0].lower()
     return words
+
+
+def join_first_single_quoted_words(words: list[str]) -> list[str]:
+    for word in words:
+
+        if word.count("'") == 1 or word.count("\"") == 1:
+            indx = words.index(word)
+            words[indx] = " ".join([words[indx], words[indx + 1]])
+            words.pop(indx + 1)
+            return words
+
+
+def sigle_quoted_word_exists(words: list[str]) -> bool:
+    for word in words:
+        if word.count("'") == 1 or word.count("\"") == 1:
+            return True
+    return False
