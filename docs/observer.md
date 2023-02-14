@@ -1,4 +1,4 @@
-`observer`
+`cr observer`
 ====
 Scans the bucket folder and sorts files in a `Files` folder.
 
