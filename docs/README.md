@@ -2,9 +2,10 @@ Docs
 ===============================
 This section contains, documentation for every single `cr` command.
 
-Table of contents:  
+Table of commands:
+----
 Command | Description 
 --------|--------
-`cr` | [Gives information about the programm](./cr.md)
-`observer` | [Scans the bucket folder and sorts files in a `Files` folder](./observer.md)
-`set` | [Allows to modify the settings](./set.md)
+`cr` | [Gives information about the program](./cr.md)
+`cr observer` | [Scans the bucket folder and sorts files in a `Files` folder](./observer.md)
+`cr set` | [Allows to modify USER settings](./set.md)

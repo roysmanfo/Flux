@@ -1,10 +1,13 @@
 `set`
 ====
-Gives information about the programm
+Allows to modify USER settings.  
+Settings like `paths` must be provided in this special syntax `cr set path.<path_to_change> <new_path>` 
 
-Sintax:
+
+Syntax
+----
 ```
-cr set [SETTING][--reset [--all]]
+cr set [SETTING][--reset [--all]] <NEW_PATH>
 ```
 
 
