@@ -68,7 +68,7 @@ def set_user_variable(command: dict, info: object) -> bool:
     
     #### Create/update a variable
     ```
-    $ cr set var_name=value
+    $ cr set $var_name value
     ```
 
     #### Access a variable
@@ -83,12 +83,12 @@ def set_user_variable(command: dict, info: object) -> bool:
 
     # Create a temporary variable if it doesn't already exist
     # else update it
-
-    if len(command["variables"]) == 1 and "=" in command["variables"][0]:
-        key = command["variables"][0].split("=")[0]
-        value = str(command["variables"][0].split("=")[1])
+    if len(command["variables"]) > 1 and command["variables"][0].startswith("$"):
+        key = command["variables"][0].removeprefix("$")
+        value = str(command["variables"][1])
         
         info.variables[key] = value.removeprefix("\"").removesuffix("\"")
+        print(f"${key} = {value}")
         return True
     
     
