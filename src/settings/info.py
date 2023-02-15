@@ -243,12 +243,16 @@ class Path:
             os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
         return path
 
-    def set_path(self, target: str, new_path: pathlib.Path) -> None:
+    def set_path(self, target: str, new_path: pathlib.Path, info: Info) -> None:
         """
         Changes the location of the observer's bucket folder
         """
         all_good = True
-        new_path.resolve()
+        
+        
+        new_path = info.variables.get(str(new_path).removeprefix("$")) if str(new_path).startswith("$") else new_path
+
+        new_path = pathlib.Path(new_path).resolve(strict=True)
 
         if target == "bucket":
             self.bucket = new_path

@@ -48,7 +48,7 @@ def switch(command: dict, info: object):
         # change a Path
         elif command["variables"][0].startswith("path.") and len(command["variables"][0].split(".")) == 2:
             target = command["variables"][0].split(".")[1]
-            USER.paths.set_path(target, Path(command["variables"][1]))
+            USER.paths.set_path(target, Path(command["variables"][1]), info)
 
     elif command["flags"]:
 
