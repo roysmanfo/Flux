@@ -32,7 +32,7 @@ def switch(command: dict, info: object):
 
         # Change username
         if command["variables"][0] == "username":
-            USER.set_username(command["variables"][1])
+            USER.set_username(command["variables"][1], info)
 
         # Set 1 or more new bg-task/s
         elif command["variables"][0] == "bg-task":
