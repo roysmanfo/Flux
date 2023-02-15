@@ -333,3 +333,4 @@ class Info:
         self.bg_tasks = bg_tasks
         self.ignored_commands = ignored_commands
         self.bg_tasks_available = bg_tasks_available
+        self.variables = {}

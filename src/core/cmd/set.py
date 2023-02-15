@@ -23,6 +23,12 @@ def switch(command: dict, info: object):
     USER = info.user
 
     if command["variables"]:
+        
+        # Try to set a variable
+        set_a_variable = set_user_variable(command, info)
+        
+        if set_a_variable:
+            return
 
         # Change username
         if command["variables"][0] == "username":
@@ -51,5 +57,39 @@ def switch(command: dict, info: object):
             USER.reset_settings()
             print('Restart the shell to apply changes')
 
-        else:
-            print('Command not found')
+    else:
+        
+        print('Command not found')
+
+
+def set_user_variable(command: dict, info: object) -> bool:
+    """
+    Allows the user to create temporary variables for later use.
+    
+    #### Create/update a variable
+    ```
+    $ cr set var_name=value
+    ```
+
+    #### Access a variable
+    ```
+    $ cr $var_name
+    ```
+
+    #### Returns
+
+    True if the variable has been set, False otherwise
+    """
+
+    # Create a temporary variable if it doesn't already exist
+    # else update it
+
+    if len(command["variables"]) == 1 and "=" in command["variables"][0]:
+        key = command["variables"][0].split("=")[0]
+        value = str(command["variables"][0].split("=")[1])
+        
+        info.variables[key] = value.removeprefix("\"").removesuffix("\"")
+        return True
+    
+    
+    return False
