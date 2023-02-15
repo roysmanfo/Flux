@@ -118,10 +118,17 @@ class User():
     def set_email(self, info: Info, emails: list[str]):
         for email in emails:
             isValidEmail = True
-
             email.strip()
 
-            if email.count("@") != 1:
+            if email.startswith('$'):
+                var = email
+                email = info.variables.get(email.removeprefix('$'), None).strip()
+                
+                if email is None:
+                    print(f"No variable ${var} found")
+                    isValidEmail = False
+
+            elif email.count("@") != 1:
                 isValidEmail = False
 
             elif email.count(" ") != 0:
