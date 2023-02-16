@@ -83,7 +83,7 @@ def set_user_variable(command: dict, info: object) -> bool:
 
     # Create a temporary variable if it doesn't already exist
     # else update it
-    if len(command["variables"]) > 1 and command["variables"][0].startswith("$"):
+    if len(command["variables"]) > 1 and command["variables"][0].startswith("$") and len(command["variables"][0]) > 1:
         key = command["variables"][0].removeprefix("$")
         value = str(command["variables"][1])
         
