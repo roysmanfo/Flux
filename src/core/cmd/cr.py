@@ -42,4 +42,4 @@ def get_variables(INFO: object, variable: str) -> None:
                     print(f'${v} = {INFO.variables.get(v)}')
 
             else:
-                print('No variables creates yet')
+                print('No variables created yet')
