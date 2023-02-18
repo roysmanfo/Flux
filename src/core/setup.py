@@ -42,12 +42,12 @@ def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path
     return INFO
 
 
-def get_bgtasks(info: list, info_is_list = True) -> list:
+def get_bgtasks(info: list, info_is_list=True) -> list:
     """
     Returns a list of all tasks the user decided to execute on starup and 
     a list of commands to ignore when called
     """
-   
+
     user = info[0] if info_is_list else info.user
 
     from . import cmd as cr
@@ -64,7 +64,7 @@ def get_bgtasks(info: list, info_is_list = True) -> list:
                    "variables": [], "options": []}
         tasks.append(Thread(target=cr.observer.run, args=(
             command, info, False), name="Observer"))
-        
+
     return [tasks, ignore]
 
 

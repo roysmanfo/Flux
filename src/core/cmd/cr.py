@@ -3,8 +3,10 @@ from colorama import Fore
 
 colorama.init(autoreset=True)
 
+
 def run(USER):
     pass
+
 
 def description(USER):
     title = f"""{Fore.LIGHTBLACK_EX}
