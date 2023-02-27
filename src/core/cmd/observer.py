@@ -41,6 +41,7 @@ import time
 OPTIONS: list = ['/path']
 FLAGS: list = []
 
+
 def run(command: dict, info: object, from_command_line: bool = False) -> None:
 
     if command["options"] and options_exist(command["options"]):
@@ -75,13 +76,13 @@ def sort_files(info: object, forever: bool = False) -> None:
 
         observer = Observer()
         observer.schedule(event_handler, f'{watch_path}', recursive=True)
-        
+
         observer.start()
         event_handler.on_modified(DirModifiedEvent)
 
         # Check if we decided to run the process as a background task
         if forever:
-            
+
             try:
                 while True:
                     time.sleep(.1)
@@ -181,6 +182,7 @@ class EventHandler(FileSystemEventHandler):
                     source=child, destination_path=destination_path)
                 shutil.move(src=child, dst=destination_path)
 
+
 def handle_options(command: dict, USER) -> bool:
     """
     Modifies the behavior of the command based on the options\n
@@ -192,7 +194,6 @@ def handle_options(command: dict, USER) -> bool:
     """
     if command["options"][0] == OPTIONS[0]:
         print(USER.paths.bucket)
-
 
 
 def options_exist(options: list) -> bool:

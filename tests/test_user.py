@@ -1,5 +1,6 @@
 import unittest
 
+
 class Test_TestUser(unittest.TestCase):
 
     def test_user_has_correct_attributes(self):
@@ -15,7 +16,9 @@ class Test_TestUser(unittest.TestCase):
             type(USER.background_tasks) == list,
         ]
         result = all(types)
-        self.assertTrue(result, "1 or more attributes are identified with the wrong type")
+        self.assertTrue(
+            result, "1 or more attributes are identified with the wrong type")
+
 
 if __name__ == '__main__':
     unittest.main()

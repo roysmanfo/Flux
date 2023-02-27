@@ -86,8 +86,17 @@ class User():
             with open(SETTINGS_FILE, "w") as f:
                 json.dump(settings, f, indent=4, sort_keys=True)
 
-    def set_username(self, new_username: str) -> None:
-        self.username = new_username
+    def set_username(self, new_username: str, info: Info) -> None:
+        if new_username.startswith('$'):
+            new_username = info.variables.get(
+                new_username.removeprefix('$'), None).strip()
+            if new_username is None:
+                info.no_var_found()
+
+            self.username = new_username
+        else:
+            self.username = new_username
+
         with open(SETTINGS_FILE, "r") as f:
             settings = json.load(f)
             settings['username'] = new_username
@@ -118,10 +127,19 @@ class User():
     def set_email(self, info: Info, emails: list[str]):
         for email in emails:
             isValidEmail = True
-
             email.strip()
 
-            if email.count("@") != 1:
+            if email.startswith('$'):
+                var = email
+                email = info.variables.get(
+                    email.removeprefix('$'), None).strip()
+
+                if email is None:
+
+                    info.no_var_found(var)
+                    isValidEmail = False
+
+            elif email.count("@") != 1:
                 isValidEmail = False
 
             elif email.count(" ") != 0:
@@ -243,12 +261,16 @@ class Path:
             os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
         return path
 
-    def set_path(self, target: str, new_path: pathlib.Path) -> None:
+    def set_path(self, target: str, new_path: pathlib.Path, info: Info) -> None:
         """
         Changes the location of the observer's bucket folder
         """
         all_good = True
-        new_path.resolve()
+
+        new_path = info.variables.get(str(new_path).removeprefix(
+            "$")) if str(new_path).startswith("$") else new_path
+
+        new_path = pathlib.Path(new_path).resolve(strict=True)
 
         if target == "bucket":
             self.bucket = new_path
@@ -333,3 +355,7 @@ class Info:
         self.bg_tasks = bg_tasks
         self.ignored_commands = ignored_commands
         self.bg_tasks_available = bg_tasks_available
+        self.variables = {}
+
+    def no_var_found(self, var):
+        print(f"No variable ${var} found")

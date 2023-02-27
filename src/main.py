@@ -16,6 +16,7 @@ init(autoreset=True)
 # Setup process
 INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
 
+
 def listen() -> list[str]:
     """
     This function is used to get the command typed by the user preceded by
@@ -66,8 +67,11 @@ def run():
         # Otherwise it might be a Cristal command
         elif cmd[0] == "cr":
             if len(cmd) > 1:
-                cmd.pop(0)
-                manager.manage(cmd, INFO)
+                if cmd[1].startswith("$"):
+                    cr.get_variables(INFO, cmd[1])
+                else:
+                    cmd.pop(0)
+                    manager.manage(cmd, INFO)
             else:
                 cr.description(INFO.user)
 

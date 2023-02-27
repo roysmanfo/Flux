@@ -57,7 +57,7 @@ def switch(command: dict, info: object) -> None:
     from . import cmd as cr
 
     if command["command"] == "observer":
-        cr.observer.run(command = command, info = info, from_command_line=True)
+        cr.observer.run(command=command, info=info, from_command_line=True)
 
     if command["command"] == "set":
-        cr.set.run(command = command, info = info)
+        cr.set.run(command=command, info=info)
