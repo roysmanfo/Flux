@@ -67,8 +67,10 @@ def run():
         # Otherwise it might be a Cristal command
         elif cmd[0] == "cr":
             if len(cmd) > 1:
-                if cmd[1].startswith("$"):
-                    cr.get_variables(INFO, cmd[1])
+
+                for i in cmd:
+                    if i.startswith("$"):
+                        cr.run(INFO, cmd)
                 else:
                     cmd.pop(0)
                     manager.manage(cmd, INFO)
