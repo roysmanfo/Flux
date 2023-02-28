@@ -62,7 +62,10 @@ def delete_variables(INFO: object, variable):
     variable = variable.removeprefix('$')
     
     if variable not in RESERVED_VARS:
-        INFO.variables.pop(variable)
-    
+        if INFO.variables.get(variable) is not None:
+            INFO.variables.pop(variable)
+        else:
+            print(f"No variable ${variable} found")
+
     else:
         print(f'Variable ${variable} can\'t be deleted because it\'s a reserved variable')

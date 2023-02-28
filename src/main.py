@@ -69,7 +69,7 @@ def run():
             if len(cmd) > 1:
 
                 for i in cmd:
-                    if i.startswith("$"):
+                    if i.startswith("$") and "set" not in cmd:
                         cr.run(INFO, cmd)
                 else:
                     cmd.pop(0)
