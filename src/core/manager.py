@@ -55,9 +55,13 @@ def switch(command: dict, info: object) -> None:
     # for further processing and execution
 
     from . import cmd as cr
+    
+    if command["command"] in info.ignored_commands:
+        if command["command"] in info.user.background_tasks:
+            print(f"Command {command['command']} is already in execution in background")
 
-    if command["command"] == "observer":
+    elif command["command"] == "observer":
         cr.observer.run(command=command, info=info, from_command_line=True)
 
-    if command["command"] == "set":
+    elif command["command"] == "set":
         cr.set.run(command=command, info=info)
