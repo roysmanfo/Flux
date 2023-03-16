@@ -9,9 +9,9 @@ Commands with a `!` in front are commands still in development
 Command | Description
 --- | ---
 `!` **cr** [options] | Gives information about the programm
+`!` **file** | Gets information on a specific file.
 **observer** [options] | Scans the bucket folder and sorts files in a `Files` folder
 **set** [options] | Allows to modify the settings
-
 ____
 
 ## Future Features Ideas
@@ -19,7 +19,6 @@ Commands that might eventully be taken into consideration
 
 Name | Goal | Description
 --- | --- | ---
-**file** | **File manipulation** | Create commands that allow developers to manipulate files and directories, such as creating, renaming, moving, or deleting files and directories.
 **noname** | **Code compilation** | Build a command that compiles code files in different programming languages, and provides output and error messages.
 **noname** | **Version control** | Integrate version control functionality into the app, allowing developers to commit, revert, and view code changes.
 **noname** | **Package management** | Create a command that helps developers to manage and install packages from different package managers, such as pip or npm.
