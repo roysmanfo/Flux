@@ -1,9 +1,6 @@
 import json
 import os
 import pathlib
-import platform
-
-version_file = '\\version' if platform.platform().lower() == 'windows' else '/version'
 
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
