@@ -1,16 +1,13 @@
 import json
 import os
-import platform
 import pathlib
 
-
-with open("".join([os.path.dirname(os.path.realpath(__file__)), "\\version"])) as version:
+with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
 
 SETTINGS_FILE = pathlib.Path(
-    "".join([os.path.dirname(os.path.realpath(__file__)), "\settings.json"]))
-SETTINGS_FOLDER = pathlib.Path(
-    "".join([os.path.dirname(os.path.realpath(__file__))]))
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings.json"))
+SETTINGS_FOLDER = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 
 
 class Info:
@@ -39,7 +36,7 @@ class User():
 
     def __init__(self):
         try:
-            with open(SETTINGS_FILE, "r") as f:
+            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
                 sett = json.load(f)
 
             self.email: str = sett["email"]
@@ -60,7 +57,7 @@ class User():
         """
 
         # Create the settings file
-        with open(SETTINGS_FILE, "w") as file:
+        with open(SETTINGS_FILE, "w", encoding='utf-8') as file:
             file.write("{}")
 
         path = Path(False)
@@ -78,15 +75,18 @@ class User():
         # create a new one
         try:
 
-            with open(SETTINGS_FILE, "r") as f:
-                with open(SETTINGS_FILE, "w") as l:
+            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+                with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                     l.write("")
                     json.dump(settings, l, indent=4, sort_keys=True)
         except FileNotFoundError:
-            with open(SETTINGS_FILE, "w") as f:
+            with open(SETTINGS_FILE, "w", encoding='utf-8') as f:
                 json.dump(settings, f, indent=4, sort_keys=True)
 
     def set_username(self, new_username: str, info: Info) -> None:
+        """
+        Sets the username to new_username
+        """
         if new_username.startswith('$'):
             new_username = info.variables.get(
                 new_username.removeprefix('$'), None).strip()
@@ -97,15 +97,16 @@ class User():
         else:
             self.username = new_username
 
-        with open(SETTINGS_FILE, "r") as f:
+        with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
             settings = json.load(f)
             settings['username'] = new_username
-            with open(SETTINGS_FILE, "w") as l:
+            with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                 l.write("")
                 json.dump(settings, l, indent=4, sort_keys=True)
 
     def set_bg_task(self, info: Info, tasks: list):
-        s = 0
+
+        changes = 0
         new_tasks = BgTasks()
 
         for task in tasks:
@@ -113,20 +114,23 @@ class User():
                 if task not in info.user.background_tasks:
                     info.user.background_tasks.append(task)
                     new_tasks.add_task(task)
-                    s = 1
+                    changes = 1
                 else:
                     print("This command is already a background task: " + task)
             else:
                 print("This command is can't be converted to a background task: " + task)
 
-        if s != 0:
+        if changes != 0:
             print('Changes will have effect on next startup')
 
             info.user.background_tasks = BgTasks().tasks
 
     def set_email(self, info: Info, emails: list[str]):
+        """
+        Change the user email to the first valid email address in @param emails
+        """
         for email in emails:
-            isValidEmail = True
+            is_valid_email = True
             email.strip()
 
             if email.startswith('$'):
@@ -137,25 +141,25 @@ class User():
                 if email is None:
 
                     info.no_var_found(var)
-                    isValidEmail = False
+                    is_valid_email = False
 
             elif email.count("@") != 1:
-                isValidEmail = False
+                is_valid_email = False
 
             elif email.count(" ") != 0:
-                isValidEmail = False
+                is_valid_email = False
 
             elif len(email.split(".")[-1]) < 2:
-                isValidEmail = False
+                is_valid_email = False
 
-            if isValidEmail:
+            if is_valid_email:
 
                 # Update the email
                 info.user.email = email
-                with open(SETTINGS_FILE, "r") as f:
+                with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
                     sett: list = json.load(f)
                     sett["email"] = email
-                    with open(SETTINGS_FILE, "w") as l:
+                    with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                         json.dump(sett, l, indent=4, sort_keys=True)
 
                 print("Email changed to: ", email)
@@ -177,7 +181,7 @@ class Path:
     def __init__(self, load_data: bool = True):
         if load_data:
             try:
-                with open(SETTINGS_FILE, "r") as f:
+                with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
                     path = json.load(f)["paths"]
 
                     self.terminal: pathlib.Path = pathlib.Path(
@@ -215,6 +219,9 @@ class Path:
         return all_paths
 
     def all(self) -> dict:
+        """
+        Returns a dictionary of all Paths in the settings file
+        """
         paths = {
             "terminal": self.terminal,
             "documents": self.documents,
@@ -286,10 +293,10 @@ class Path:
             all_good = False
 
         if all_good:
-            with open(SETTINGS_FILE, "r") as f:
+            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
                 tasks: dict = json.load(f)
                 tasks["paths"][target] = str(new_path)
-                with open(SETTINGS_FILE, "w") as l:
+                with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                     json.dump(tasks, l, indent=4, sort_keys=True)
             if not new_path.exists():
                 os.makedirs(new_path, exist_ok=True)
@@ -300,9 +307,13 @@ class Path:
 
 
 class BgTasks():
+    """
+    Manages all background tasks
+    """
+
     def __init__(self):
         try:
-            with open(SETTINGS_FILE, "r") as f:
+            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
                 tasks = json.load(f)["background-tasks"]
                 self.tasks: list = tasks if tasks else []
 
@@ -313,10 +324,10 @@ class BgTasks():
         self.tasks = []
 
     def add_task(self, task: str):
-        with open(SETTINGS_FILE, "r") as f:
+        with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
             tasks: list = json.load(f)
             tasks["background-tasks"].append(task)
-            with open(SETTINGS_FILE, "w") as l:
+            with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                 # print(tasks)
                 json.dump(tasks, l, indent=4, sort_keys=True)
 
@@ -358,4 +369,7 @@ class Info:
         self.variables = {}
 
     def no_var_found(self, var):
+        """
+        Should be called when a variable with specified name is found
+        """
         print(f"No variable ${var} found")

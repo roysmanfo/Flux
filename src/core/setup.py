@@ -33,7 +33,7 @@ def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path
     # Load user
     USER = user()
     chdir(USER.paths.terminal)
-    SYSTEM_CMDS = get_setup_settings(USER)
+    SYSTEM_CMDS = get_setup_settings()
 
     cmds = get_bgtasks([USER, SETTINGS_FILE, SETTINGS_FOLDER])
     tasks = bgtasks.BG_TASKS
@@ -68,7 +68,7 @@ def get_bgtasks(info: list, info_is_list=True) -> list:
     return [tasks, ignore]
 
 
-def get_setup_settings(user: object) -> list[str]:
+def get_setup_settings() -> list[str]:
     import platform
     import os
     from dotenv import load_dotenv
