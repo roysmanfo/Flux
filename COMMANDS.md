@@ -9,7 +9,7 @@ Commands with a `!` in front are commands still in development
 Command | Description
 --- | ---
 `!` **cr** [options] | Gives information about the programm
-`!` **file** | Gets information on a specific file.
+`!` **file** [options] | Gets information on a specific file.
 **observer** [options] | Scans the bucket folder and sorts files in a `Files` folder
 **set** [options] | Allows to modify the settings
 ____
