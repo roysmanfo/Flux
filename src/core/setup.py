@@ -38,7 +38,7 @@ def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path
     cmds = get_bgtasks([USER, SETTINGS_FILE, SETTINGS_FOLDER])
     tasks = bgtasks.BG_TASKS
     INFO = info(USER, SYSTEM_CMDS, cmds[0], cmds[1], tasks)
-    INFO.bg_tasks = get_bgtasks(INFO, False)[0]
+    INFO.bg_tasks, INFO.ignored_commands = get_bgtasks(INFO, False)
     return INFO
 
 

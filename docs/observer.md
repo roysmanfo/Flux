@@ -9,9 +9,10 @@ in position `~/Desktop/Bucket` whit the `Files` folder as it's unique sub folder
 Syntax
 ----
 ```
-cr observer [/path]
+cr observer [--bg][/path]
 ```
 
 Options | Description
 --------|------------
+`--bg`  | Execute the observer in background just for this session 
 `/path` | Reveal the observer path 

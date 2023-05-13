@@ -36,18 +36,22 @@ import shutil
 from pathlib import Path
 from .helpers.extensions import extension_paths
 import time
-
+from threading import Thread
 
 OPTIONS: list = ['/path']
-FLAGS: list = []
+FLAGS: list = ['--bg']
 
 
 def run(command: dict, info: object, from_command_line: bool = False) -> None:
+    
+    if len(command['flags']) > 0 and flags_exist(command["flags"]):
+        handle_flags(command, info)
 
-    if command["options"] and options_exist(command["options"]):
-        keep_execution = handle_options(command, info.user)
+    if len(command['options']) > 0 and options_exist(command["options"]):
+        keep_execution = handle_options(command, info)
         if not keep_execution:
             return
+        
 
     if from_command_line:
         sort_files(info)
@@ -183,24 +187,43 @@ class EventHandler(FileSystemEventHandler):
                 shutil.move(src=child, dst=destination_path)
 
 
-def handle_options(command: dict, USER) -> bool:
+def handle_options(command: dict, info: object) -> bool:
     """
     Modifies the behavior of the command based on the options\n
-    Just 1 in this case
 
     @param USER: an instance of a User() from ../../../settings/info.py
 
     @returns: a boolean value indicating if the command should continue execution or be terminated
     """
     if command["options"][0] == OPTIONS[0]:
-        print(USER.paths.bucket)
+        print(info.user.paths.bucket)
+        return False
+
+def handle_flags(command: dict, info: object) -> bool:
+    if len(command['flags']) > 0 and command["flags"][0] == FLAGS[0]:
+        command = {"command": "observer", "flags": [],
+                    "variables": [], "options": []}
+        info.bg_tasks.append(Thread(target=run, args=(
+            command, info, False), name="Observer"))
+        info.bg_tasks[-1].start()
+        print("Started as background task")
 
 
 def options_exist(options: list) -> bool:
     """
     Iterates over all options and checks if they exist in the current command
     """
-    for i, _ in enumerate(options):
-        if options[i] not in OPTIONS:
+    for i in options:
+        if i.lower() not in OPTIONS:
+            return False
+    return True
+
+
+def flags_exist(options: list) -> bool:
+    """
+    Iterates over all flags and checks if they exist in the current command
+    """
+    for i in options:
+        if i.lower() not in FLAGS:
             return False
     return True

@@ -32,7 +32,8 @@ def switch(command: dict, info: object):
 
         # Change username
         if command["variables"][0] == "username":
-            USER.set_username(command["variables"][1], info)
+            if len(command["variables"]) > 1:
+                USER.set_username(command["variables"][1], info)
 
         # Set 1 or more new bg-task/s
         elif command["variables"][0] == "bg-task":
@@ -49,6 +50,10 @@ def switch(command: dict, info: object):
         elif command["variables"][0].startswith("path.") and len(command["variables"][0].split(".")) == 2:
             target = command["variables"][0].split(".")[1]
             USER.paths.set_path(target, Path(command["variables"][1]), info)
+
+        # Command does not exist
+        else:
+            print('Command not found')
 
     elif command["flags"]:
 
