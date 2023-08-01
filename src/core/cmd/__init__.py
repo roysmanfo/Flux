@@ -13,9 +13,10 @@ Example:
 ```
 """
 
-__all__ = ['observer', 'cr', 'set']
+__all__ = ['observer', 'cr', 'set', 'joke']
 
 from . import cr
 from . import observer
 from . import set
+from . import joke
 

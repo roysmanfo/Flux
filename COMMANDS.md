@@ -10,6 +10,7 @@ Command | Description
 --- | ---
 `!` **cr** [options] | Gives information about the programm
 `!` **file** [options] | Gets information on a specific file.
+**joke**  | Tells a random programming joke.
 **observer** [options] | Scans the bucket folder and sorts files in a `Files` folder
 **set** [options] | Allows to modify the settings
 ____

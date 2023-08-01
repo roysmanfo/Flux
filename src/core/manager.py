@@ -65,3 +65,6 @@ def switch(command: dict, info: object) -> None:
 
     elif command["command"] == "set":
         cr.set.run(command=command, info=info)
+    
+    elif command["command"] == "joke":
+        cr.joke.run(command=command, info=info)
