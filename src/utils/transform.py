@@ -10,7 +10,11 @@ def format(words: list[str]) -> list[str]:
     while sigle_quoted_word_exists(words):
         words = join_first_single_quoted_words(words)
     words = [i for i in words if i != '']
-    words[0] = words[0].lower() if len(words) > 0 else ""
+
+    if len(words) > 0:
+        words[0] = words[0].lower()
+    else:
+        words.append("")
     return words
 
 

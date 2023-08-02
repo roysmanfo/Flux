@@ -74,7 +74,6 @@ def get_setup_settings() -> list[str]:
     from dotenv import load_dotenv
 
     load_dotenv(verbose=False)
-    os.system("cls")
 
     if platform.system() == "Windows":
         # These commands will be executed from the default OS terminal (cmd.exe)

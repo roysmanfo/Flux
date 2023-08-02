@@ -73,15 +73,10 @@ class User():
 
         # Check if there already is a settings file, if there is, overwrite it, otherwise
         # create a new one
-        try:
 
-            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
-                with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
-                    l.write("")
-                    json.dump(settings, l, indent=4, sort_keys=True)
-        except FileNotFoundError:
-            with open(SETTINGS_FILE, "w", encoding='utf-8') as f:
-                json.dump(settings, f, indent=4, sort_keys=True)
+        with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+            l.write("")
+            json.dump(settings, l, indent=4, sort_keys=True)
 
     def set_username(self, new_username: str, info: Info) -> None:
         """
@@ -179,24 +174,26 @@ class Path:
     """
 
     def __init__(self, load_data: bool = True):
-        if load_data:
-            try:
-                with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
-                    path = json.load(f)["paths"]
+        if not load_data:
+            return
 
-                    self.terminal: pathlib.Path = pathlib.Path(
-                        path["terminal"]).resolve()
-                    self.documents: pathlib.Path = pathlib.Path(
-                        path["documents"]).resolve()
-                    self.images: pathlib.Path = pathlib.Path(
-                        path["images"]).resolve()
-                    self.bucket: pathlib.Path = pathlib.Path(
-                        path["bucket"]).resolve()
-                    self.bucket_destination: pathlib.Path = pathlib.Path(
-                        path["bucket-destination"]).resolve()
+        try:
+            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+                path = json.load(f)["paths"]
 
-            except KeyError:
-                self.reset()
+                self.terminal: pathlib.Path = pathlib.Path(
+                    path["terminal"]).resolve()
+                self.documents: pathlib.Path = pathlib.Path(
+                    path["documents"]).resolve()
+                self.images: pathlib.Path = pathlib.Path(
+                    path["images"]).resolve()
+                self.bucket: pathlib.Path = pathlib.Path(
+                    path["bucket"]).resolve()
+                self.bucket_destination: pathlib.Path = pathlib.Path(
+                    path["bucket-destination"]).resolve()
+
+        except KeyError:
+            self.reset()
 
     def reset(self) -> dict:
         """
@@ -270,7 +267,7 @@ class Path:
 
     def set_path(self, target: str, new_path: pathlib.Path, info: Info) -> None:
         """
-        Changes the location of the observer's bucket folder
+        Changes the specified path
         """
         all_good = True
 

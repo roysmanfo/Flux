@@ -7,7 +7,6 @@ from utils import transform
 # External Dependencies
 import sys
 import os
-import subprocess
 from threading import Thread
 from colorama import init, Fore
 init(autoreset=True)
@@ -15,7 +14,7 @@ init(autoreset=True)
 
 # Setup process
 INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
-
+HOME_PATH = INFO.user.paths.terminal
 
 def listen() -> list[str]:
     """
@@ -23,13 +22,21 @@ def listen() -> list[str]:
     a string of text containing the username, the name of the program,
     the version and the location where Cristal is oparating on the disk.
     """
-    print(
-        f"{Fore.GREEN}{INFO.user.username}{Fore.CYAN} Cristal [{INFO.version}] {Fore.YELLOW}" + str(INFO.user.paths.terminal).lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
-    command = input()
-    print(f"{Fore.WHITE}", end="")
+    try:
+        print(
+            f"{Fore.GREEN}{INFO.user.username}{Fore.CYAN} Cristal [{INFO.version}] {Fore.YELLOW}" + str(INFO.user.paths.terminal).lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
+        command = input()
+        print(f"{Fore.WHITE}", end="")
 
-    return transform.string_to_list(command)
+        return transform.string_to_list(command)
+    
+    except KeyboardInterrupt:
+        print(f"{Fore.RESET}^C")
+        return transform.string_to_list("")
 
+    except EOFError:
+        print(f"{Fore.RESET}^C")
+        return transform.string_to_list("")
 
 def run():
     while True:
@@ -44,11 +51,14 @@ def run():
         # Check if we just want to leave, there's no need to check in
         # all of SYSTEM_CMDS if we just want to leave and do it quickly
         if cmd[0] == "exit":
-            os._exit(0)
+            sys.exit(0)
 
         # Check if it's a command the default terminal can handle
-        elif cmd[0] in INFO.system_cmds or cmd[0] == "clear":
-            if cmd[0] == "cd" and len(cmd) > 1:
+        if cmd[0] == "clear":
+            os.system("cls || clear")
+        
+        elif cmd[0] == "cd":
+            if len(cmd) > 1:
                 try:
                     new_dir = "" + cmd[1].strip("\"").strip("'")
                     os.chdir(f"{new_dir}")
@@ -58,11 +68,9 @@ def run():
                     pass
                 INFO.user.paths.terminal = os.getcwd()
                 INFO.user.paths.terminal.replace("\\", "/")
+            
             else:
-                # os.system(f"cd {USER.paths.terminal} && "+" ".join(cmd))
-                out = default_terminal_output(" ".join(cmd))
-                if out != 1 and out != "\r":
-                    print(out)
+                os.chdir(HOME_PATH)
 
         # Otherwise it might be a Cristal command
         elif cmd[0] == "flux":
@@ -81,42 +89,6 @@ def run():
         else:
             pass
 
-
-def default_terminal_output(command: str) -> str | int:
-    """
-    Tries to execute the given command using the default OS terminal.
-
-    Parameters
-    ----------
-    @param command      A string containing the text command to execute
-
-
-    Returns
-    -------
-
-    - If the command executes successfully, it returns the terminal output 
-    - If the command fails it returns a 1 indicating that an error accoured
-    - If the command doesn't have a particular output, returns "\\r"
-    """
-
-    if command.rstrip('\n') in ['cls', 'clear']:
-        os.system('cls || clear')
-        return "\r"
-
-    pipe = subprocess.run(
-        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-    while True:
-        # Errors have higher priority
-        # This is to prevent the program from searching for an output
-        # that doesn't exist
-
-        if pipe.stderr:
-            return 1
-        else:
-            return pipe.stdout
-
-
 if __name__ == "__main__":
 
     tasks_list: list[Thread] = [i for i in INFO.bg_tasks]
@@ -133,7 +105,7 @@ if __name__ == "__main__":
         # Catch all the exceptions related to the whole program.
         # Exeptions in single commands will get handled by the command itself.
 
-        print(f"{Fore.RED}Cristal failed to execute{Fore.RESET}")
+        # print(f"{Fore.RED}Flux failed to execute{Fore.RESET}")
         sys.exit(1)
 
     sys.exit(0)
