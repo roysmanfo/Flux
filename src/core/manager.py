@@ -54,14 +54,17 @@ def switch(command: dict, info: object) -> None:
     # Match the command name to the corresponding file in ./cmd/
     # for further processing and execution
 
-    from . import cmd as cr
+    from . import cmd as fluxcmd
     
     if command["command"] in info.ignored_commands:
         if command["command"] in info.user.background_tasks:
             print(f"Command {command['command']} is already in execution in background")
 
     elif command["command"] == "observer":
-        cr.observer.run(command=command, info=info, from_command_line=True)
+        fluxcmd.observer.run(command=command, info=info, from_command_line=True)
 
     elif command["command"] == "set":
-        cr.set.run(command=command, info=info)
+        fluxcmd.set.run(command=command, info=info)
+    
+    elif command["command"] == "joke":
+        fluxcmd.joke.run(command=command, info=info)

@@ -1,16 +1,16 @@
-# Dependencies
-from threading import Thread
-from utils import transform
-from settings.info import User, Info, SETTINGS_FILE, SETTINGS_FOLDER
-from core import setup, manager
-from core.cmd import cr
-import os
-from colorama import init, Fore
-import subprocess
-import platform
-import sys
-init(autoreset=True)
 # Cristal modules
+from core.cmd import flux
+from core import setup, manager
+from settings.info import User, Info, SETTINGS_FILE, SETTINGS_FOLDER
+from utils import transform
+
+# External Dependencies
+import sys
+import os
+import subprocess
+from threading import Thread
+from colorama import init, Fore
+init(autoreset=True)
 
 
 # Setup process
@@ -65,17 +65,17 @@ def run():
                     print(out)
 
         # Otherwise it might be a Cristal command
-        elif cmd[0] == "cr":
+        elif cmd[0] == "flux":
             if len(cmd) > 1:
 
                 for i in cmd:
                     if i.startswith("$") and "set" not in cmd:
-                        cr.run(INFO, cmd)
+                        flux.run(INFO, cmd)
                 else:
                     cmd.pop(0)
                     manager.manage(cmd, INFO)
             else:
-                cr.description(INFO.user)
+                flux.description(INFO.user)
 
         # Command not found, a message will be displayed based on USER.language
         else:
@@ -100,8 +100,7 @@ def default_terminal_output(command: str) -> str | int:
     """
 
     if command.rstrip('\n') in ['cls', 'clear']:
-        os.system('cls') if platform.system(
-        ) == 'Windows' else os.system('clear')
+        os.system('cls || clear')
         return "\r"
 
     pipe = subprocess.run(
