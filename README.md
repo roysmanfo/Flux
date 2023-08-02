@@ -1,11 +1,11 @@
-# Cristal
+# FLUX
 Command prompt built for maximazing productivity.
 
-### NOTE: _Cristal is currently in redesign phase in branch_ `redesign`
-<!-- ![Cristal logo](img/Cristal_logo.png) -->
+### NOTE: _Flux is currently in redesign phase in branch_ `redesign`
+<!-- ![Flux logo](img/Flux_logo.png) -->
 
 ## Introduction
-Cristal has many different commands built tu help the user to manage many tasks in an automated way.
+Flux has many different commands built tu help the user to manage many tasks in an automated way.
 
 ## Contributing
 
