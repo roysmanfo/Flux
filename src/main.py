@@ -1,5 +1,5 @@
 # Cristal modules
-from core.cmd import cr
+from core.cmd import flux
 from core import setup, manager
 from settings.info import User, Info, SETTINGS_FILE, SETTINGS_FOLDER
 from utils import transform
@@ -65,17 +65,17 @@ def run():
                     print(out)
 
         # Otherwise it might be a Cristal command
-        elif cmd[0] == "cr":
+        elif cmd[0] == "flux":
             if len(cmd) > 1:
 
                 for i in cmd:
                     if i.startswith("$") and "set" not in cmd:
-                        cr.run(INFO, cmd)
+                        flux.run(INFO, cmd)
                 else:
                     cmd.pop(0)
                     manager.manage(cmd, INFO)
             else:
-                cr.description(INFO.user)
+                flux.description(INFO.user)
 
         # Command not found, a message will be displayed based on USER.language
         else:

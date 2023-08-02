@@ -1,13 +1,13 @@
-`cr set`
+`flux set`
 ====
 Allows to modify USER settings.  
-Settings like `paths` must be provided in this special syntax `cr set path.<path_to_change> <new_path>`
+Settings like `paths` must be provided in this special syntax `flux set path.<path_to_change> <new_path>`
 
 
 Syntax
 ----
 ```
-cr set [SETTING][--reset [--all]] <NEW_VALUE>
+flux set [SETTING][--reset [--all]] <NEW_VALUE>
 ```
 
 
