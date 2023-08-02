@@ -2,7 +2,7 @@
 
 If you are reading this file, it means you're intrested in the project
 and want to know how to contribute.  
-In this file you'll find some instructions and tips to start woirking on **Cristal**.
+In this file you'll find some instructions and tips to start woirking on **Flux**.
 
 ## Setup
 
