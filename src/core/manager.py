@@ -50,7 +50,7 @@ def manage(cmd: list[str], info: object) -> None:
     switch(cmd, info)
 
 
-def switch(command: dict, info: object) -> None:
+def switch(command: list[str], info: object) -> None:
 
     # Match the command name to the corresponding file in ./cmd/
     # for further processing and execution

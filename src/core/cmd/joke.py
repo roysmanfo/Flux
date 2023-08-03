@@ -8,7 +8,7 @@ from .helpers import jokes
 import random
 
 
-def run(command: dict, info: object):
+def run(command: list[str], info: object):
     """
     This command tells a random programming joke
     """
