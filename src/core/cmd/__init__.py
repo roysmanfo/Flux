@@ -7,16 +7,17 @@ python built-in `cmd` module.
 Example:
 ```py
 >>>  from . import cmd as fluxcmd    # correct
->>>  from . import cmd          # not correct
->>>  from . import cmd as cm    # not correct
+>>>  from . import cmd               # not correct
+>>>  from . import cmd as cm         # not correct
 
 ```
 """
 
-__all__ = ['observer', 'cr', 'set', 'joke']
+__all__ = ['observer', 'flux', 'set', 'joke', 'export']
 
 from . import flux
 from . import observer
 from . import set
 from . import joke
+from . import export
 

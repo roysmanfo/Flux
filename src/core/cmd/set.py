@@ -1,5 +1,5 @@
 """
-# `cr set`
+# `set`
 Allows the user to change different settings, such as the username or USER.path informations
 """
 from pathlib import Path
@@ -24,11 +24,11 @@ def switch(command: dict, info: object):
 
     if command["variables"]:
 
-        # Try to set a variable
-        set_a_variable = set_user_variable(command, info)
+        # # Try to set a variable
+        # set_a_variable = set_user_variable(command, info)
 
-        if set_a_variable:
-            return
+        # if set_a_variable:
+        #     return
 
         # Change username
         if command["variables"][0] == "username":
@@ -66,34 +66,3 @@ def switch(command: dict, info: object):
 
         print('Command not found')
 
-
-def set_user_variable(command: dict, info: object) -> bool:
-    """
-    Allows the user to create temporary variables for later use.
-
-    #### Create/update a variable
-    ```
-    $ cr set $var_name value
-    ```
-
-    #### Access a variable
-    ```
-    $ cr $var_name
-    ```
-
-    #### Returns
-
-    True if the variable has been set, False otherwise
-    """
-
-    # Create a temporary variable if it doesn't already exist
-    # else update it
-    if len(command["variables"]) > 1 and command["variables"][0].startswith("$") and len(command["variables"][0]) > 1:
-        key = command["variables"][0].removeprefix("$")
-        value = str(command["variables"][1])
-
-        info.variables[key] = value.removeprefix("\"").removesuffix("\"")
-        print(f"${key} = {value}")
-        return True
-
-    return False

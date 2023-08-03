@@ -1,4 +1,4 @@
-# Cristal modules
+# Flux modules
 from core.cmd import flux
 from core import setup, manager
 from settings.info import User, Info, SETTINGS_FILE, SETTINGS_FOLDER
@@ -20,11 +20,11 @@ def listen() -> list[str]:
     """
     This function is used to get the command typed by the user preceded by
     a string of text containing the username, the name of the program,
-    the version and the location where Cristal is oparating on the disk.
+    the version and the location where Flux is oparating on the disk.
     """
     try:
         print(
-            f"{Fore.GREEN}{INFO.user.username}{Fore.CYAN} Cristal [{INFO.version}] {Fore.YELLOW}" + str(INFO.user.paths.terminal).lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
+            f"{Fore.GREEN}{INFO.user.username}{Fore.CYAN} Flux [{INFO.version}] {Fore.YELLOW}" + str(INFO.user.paths.terminal).lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
         command = input()
         print(f"{Fore.WHITE}", end="")
 
@@ -72,22 +72,16 @@ def run():
             else:
                 os.chdir(HOME_PATH)
 
-        # Otherwise it might be a Cristal command
+        # Otherwise it might be a Flux command
         elif cmd[0] == "flux":
             if len(cmd) > 1:
-
-                for i in cmd:
-                    if i.startswith("$") and "set" not in cmd:
-                        flux.run(INFO, cmd)
-                else:
-                    cmd.pop(0)
-                    manager.manage(cmd, INFO)
+                flux.run(INFO, cmd)
             else:
                 flux.description(INFO.user)
 
-        # Command not found, a message will be displayed based on USER.language
+        # Pass the command to the manager
         else:
-            pass
+            manager.manage(cmd, INFO)
 
 if __name__ == "__main__":
 

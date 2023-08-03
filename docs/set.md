@@ -1,13 +1,13 @@
-`flux set`
+`set`
 ====
 Allows to modify USER settings.  
-Settings like `paths` must be provided in this special syntax `flux set path.<path_to_change> <new_path>`
+Settings like `paths` must be provided in this special syntax `set path.<path_to_change> <new_path>`
 
 
 Syntax
 ----
 ```
-flux set [SETTING][--reset [--all]] <NEW_VALUE>
+set [SETTING][--reset [--all]] <NEW_VALUE>
 ```
 
 

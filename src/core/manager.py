@@ -43,10 +43,11 @@ def classify_arguments(command: list) -> dict:
     return classified
 
 
-def manage(cmd: list, info: object) -> None:
+def manage(cmd: list[str], info: object) -> None:
 
     # Classify command line arguments and send them to be analized
-    switch(classify_arguments(cmd), info)
+    # switch(classify_arguments(cmd), info)
+    switch(cmd, info)
 
 
 def switch(command: dict, info: object) -> None:
@@ -56,15 +57,18 @@ def switch(command: dict, info: object) -> None:
 
     from . import cmd as fluxcmd
     
-    if command["command"] in info.ignored_commands:
-        if command["command"] in info.user.background_tasks:
-            print(f"Command {command['command']} is already in execution in background")
+    if command[0] == "export":
+        fluxcmd.export.run(command=command, info=info)
 
-    elif command["command"] == "observer":
-        fluxcmd.observer.run(command=command, info=info, from_command_line=True)
+    elif command[0] in info.ignored_commands:
+        if command[0] in info.user.background_tasks:
+            print(f"Command {command[0]} is already in execution in background")
 
-    elif command["command"] == "set":
-        fluxcmd.set.run(command=command, info=info)
+    elif command[0] == "observer":
+        fluxcmd.observer.run(command=classify_arguments(command), info=info, from_command_line=True)
+
+    elif command[0] == "set":
+        fluxcmd.set.run(command=classify_arguments(command), info=info)
     
-    elif command["command"] == "joke":
+    elif command[0] == "joke":
         fluxcmd.joke.run(command=command, info=info)

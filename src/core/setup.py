@@ -12,10 +12,10 @@ def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path
     """
     ## Setup process
 
-    This process retrives all data necessary to start using Cristal, like
+    This process retrives all data necessary to start using Flux, like
     User setings, file locations on the disk, etc.
 
-    This process makes it easier to start Cristal as we just need to call this
+    This process makes it easier to start Flux as we just need to call this
     function in the main file and everything will be handled automaticaly. 
 
     Parameters
@@ -50,7 +50,7 @@ def get_bgtasks(info: list, info_is_list=True) -> list:
 
     user = info[0] if info_is_list else info.user
 
-    from . import cmd as cr
+    from . import cmd as fluxcmd
 
     tasks: list[Thread] = []
     ignore: list[str] = []
@@ -62,7 +62,7 @@ def get_bgtasks(info: list, info_is_list=True) -> list:
         ignore.append('observer')
         command = {"command": "observer", "flags": [],
                    "variables": [], "options": []}
-        tasks.append(Thread(target=cr.observer.run, args=(
+        tasks.append(Thread(target=fluxcmd.observer.run, args=(
             command, info, False), name="Observer"))
 
     return [tasks, ignore]

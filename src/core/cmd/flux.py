@@ -53,7 +53,7 @@ def get_variables(INFO: object, variable: str) -> None:
             else:
                 print('No variables created yet')
 
-def delete_variables(INFO: object, variable):
+def delete_variables(INFO: object, variable: str):
     import os
     from dotenv import load_dotenv
 

@@ -1,4 +1,4 @@
-`flux observer`
+`observer`
 ====
 Scans the bucket folder and sorts files in a `Files` folder.
 
@@ -9,7 +9,7 @@ in position `~/Desktop/Bucket` whit the `Files` folder as it's unique sub folder
 Syntax
 ----
 ```
-flux observer [--bg][/path]
+observer [--bg][/path]
 ```
 
 Options | Description

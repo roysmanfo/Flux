@@ -19,7 +19,7 @@ class User():
     ### CLASS USER
     The class User manages all user info and settings, plus this
     approach makes working with user properties much easier than in
-    the previus version of Cristal, where all settings where also stored
+    the previus version of Flux, where all settings where also stored
     in a single json file like in this version, but to access it it wes
     neccessary to pass multiple parameters to a function, which will pass
     them to anoather function and make refactoring much harder.

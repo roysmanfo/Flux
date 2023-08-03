@@ -1,5 +1,5 @@
 """
-# `cr observer`
+# `flux observer`
 
 ### Copyright notice
 

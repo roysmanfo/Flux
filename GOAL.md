@@ -2,7 +2,7 @@
 This brach will be used to rebuild completely the whole application, make it easier to mantain and  
 allow faster implementation of new features and a complete change of the language from italian to english.
 
-In addition, all hard coded outputs directlty from the Cristal (like login messages) will be handled by a dedicated
+In addition, all hard coded outputs directlty from the Flux (like login messages) will be handled by a dedicated
 file, to make language translations much easier
 
 The new app will contain many more features, and will make start contributing much easier.
