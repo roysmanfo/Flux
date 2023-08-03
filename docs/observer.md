@@ -14,5 +14,5 @@ observer [--bg][/path]
 
 Options | Description
 --------|------------
-`--bg`  | Execute the observer in background just for this session 
-`/path` | Reveal the observer path 
+`-bg`  | Execute the observer in background just for this session 
+`--path` | Reveal the observer path 

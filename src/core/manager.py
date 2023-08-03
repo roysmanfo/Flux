@@ -56,7 +56,9 @@ def switch(command: list[str], info: object) -> None:
     # for further processing and execution
 
     from . import cmd as fluxcmd
-    
+
+    exec_command: object
+
     if command[0] == "export":
         fluxcmd.export.run(command=command, info=info)
 
@@ -65,10 +67,14 @@ def switch(command: list[str], info: object) -> None:
             print(f"Command {command[0]} is already in execution in background")
 
     elif command[0] == "observer":
-        fluxcmd.observer.run(command=classify_arguments(command), info=info, from_command_line=True)
+        exec_command = fluxcmd.observer.Command()
 
     elif command[0] == "set":
         fluxcmd.set.run(command=classify_arguments(command), info=info)
     
     elif command[0] == "joke":
         fluxcmd.joke.run(command=command, info=info)
+
+
+    exec_command.init()
+    exec_command.run(command, info)

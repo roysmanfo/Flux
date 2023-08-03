@@ -1,65 +1,47 @@
-
-class Namespace:
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+from argparse import HelpFormatter, ArgumentParser
+import sys as _sys
 
 
-class ParserInterface():
+class Parser(ArgumentParser):
     """
-    Interface for argument parsing.
+    `argparse.ArgumentParser` adaptation for program based parsing.
 
     Works kinda like argparse but excluding its default behaviours
     like exiting the program on the firs parsing error.
     """
 
-    def __init__(self, description=''):
-        self._description = description
-        self._arguments = []
-
-    def add_argument(self, name, **kwargs):
-        self._arguments.append((name, kwargs))
-
-    def parse_args(self, args=None):
-        # Split the arguments manually if args is not provided
-        if args is None:
-            import sys
-            args = sys.argv[1:]
-
-        parsed_args = {}
-        i = 0
-        while i < len(args):
-            arg = args[i]
-            if arg.startswith('-'):
-                try:
-                    name, value = arg, None
-                    if '=' in arg:
-                        name, value = arg.split('=', 1)
-                        value = value.strip()
-                    elif i + 1 < len(args) and not args[i + 1].startswith('-'):
-                        value = args[i + 1]
-                        i += 1
-                    for arg_name, arg_kwargs in self._arguments:
-                        if name == arg_name or arg_name in arg_kwargs.get('aliases', []):
-                            if 'action' in arg_kwargs and arg_kwargs['action'] == 'store_true':
-                                parsed_args[arg_name] = True
-                            else:
-                                parsed_args[arg_name] = value
-                            break
-                    else:
-                        raise ValueError(f"Unrecognized argument: {arg}")
-                except Exception as e:
-                    raise ValueError(f"Error parsing argument: {arg}\n{e}")
-            else:
-                raise ValueError(f"Unexpected value: {arg}")
-
-            i += 1
-
-        # Additional validation or default values can be added here
-        return Namespace(**parsed_args)
+    def __init__(self,
+                 prog=None,
+                 usage=None,
+                 description=None,
+                 epilog=None,
+                 parents=[],
+                 formatter_class=HelpFormatter,
+                 prefix_chars='-',
+                 fromfile_prefix_chars=None,
+                 argument_default=None,
+                 conflict_handler='error',
+                 add_help=False,
+                 allow_abbrev=True,
+                 exit_on_error=True) -> None:
+        super().__init__(prog, usage, description, epilog, parents, formatter_class, prefix_chars, fromfile_prefix_chars,
+                         argument_default, conflict_handler, add_help, allow_abbrev, exit_on_error)
+        
+        self.parsing_error = False
+        self.help_message = ""
+        if not add_help:
+            self.add_argument("-h", "--help", action="store_true", help="Show this help message")
 
 
-    def help() -> None:
-        """
-        Display the help message
-        """
-        ...
+    def exit(self, status: int | None = None, message: str | None = None):
+        if message:
+            self._print_message(message, _sys.stderr)
+            print()
+            self.parsing_error = True
+
+    def add_help_message(self, message: str):
+        self.help_message = message.strip()
+
+    def help(self, message: str | None = None):
+        print(message) if message else print(self.help_message)
+        print()
