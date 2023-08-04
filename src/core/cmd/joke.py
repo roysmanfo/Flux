@@ -1,5 +1,5 @@
 """
-# `flux joke`
+# `joke`
 
 This command tells a random programming joke
 """

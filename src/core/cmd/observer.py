@@ -1,5 +1,5 @@
 """
-# `flux observer`
+# `observer`
 
 ### Copyright notice
 
