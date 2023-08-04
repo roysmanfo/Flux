@@ -57,10 +57,10 @@ def switch(command: list[str], info: object) -> None:
 
     from . import cmd as fluxcmd
 
-    exec_command: object
+    exec_command: fluxcmd.helpers.commands.CommandInterface
 
     if command[0] == "export":
-        fluxcmd.export.run(command=command, info=info)
+        exec_command = fluxcmd.export.Command()
 
     elif command[0] in info.ignored_commands:
         if command[0] in info.user.background_tasks:

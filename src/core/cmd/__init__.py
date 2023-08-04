@@ -13,8 +13,9 @@ Example:
 ```
 """
 
-__all__ = ['observer', 'flux', 'set', 'joke', 'export']
+__all__ = ['helpers', 'observer', 'flux', 'set', 'joke', 'export']
 
+from . import helpers
 from . import flux
 from . import observer
 from . import set
