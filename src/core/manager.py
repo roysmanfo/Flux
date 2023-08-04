@@ -62,19 +62,18 @@ def switch(command: list[str], info: object) -> None:
     if command[0] == "export":
         exec_command = fluxcmd.export.Command()
 
-    elif command[0] in info.ignored_commands:
-        if command[0] in info.user.background_tasks:
-            print(f"Command {command[0]} is already in execution in background")
-
+    elif command[0] == "joke":
+        exec_command = fluxcmd.joke.Command()
+    
     elif command[0] == "observer":
         exec_command = fluxcmd.observer.Command()
-
+    
     elif command[0] == "set":
         fluxcmd.set.run(command=classify_arguments(command), info=info)
     
-    elif command[0] == "joke":
-        exec_command = fluxcmd.joke.Command()
-
+    elif command[0] in info.ignored_commands:
+        if command[0] in info.user.background_tasks:
+            print(f"Command {command[0]} is already in execution in background")
 
     exec_command.init()
     exec_command.run(command, info)
