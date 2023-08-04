@@ -265,42 +265,48 @@ class Path:
             os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
         return path
 
-    def set_path(self, target: str, new_path: pathlib.Path, info: Info) -> None:
+    def set_path(self, target: str, new_path: pathlib.Path, info: Info, reset: bool = False) -> None:
         """
         Changes the specified path
         """
-        all_good = True
-
         new_path = info.variables.get(str(new_path).removeprefix(
             "$")) if str(new_path).startswith("$") else new_path
 
         new_path = pathlib.Path(new_path).resolve(strict=True)
 
         if target == "bucket":
-            self.bucket = new_path
+            self.bucket = new_path if not reset else self._set_default_observer_bucket_path()
+            new_path = new_path if not reset else self._set_default_observer_bucket_path()
         elif target == "bucket-destination":
-            self.bucket_destination = new_path
+            self.bucket_destination = new_path if not reset else self._set_default_observer_bucket_destination_path()
+            new_path = new_path if not reset else self._set_default_observer_bucket_destination_path()
         elif target == "documents":
-            self.documents = new_path
+            self.documents = new_path if not reset else self._set_default_documents_path()
+            new_path = new_path if not reset else self._set_default_documents_path()
         elif target == "images":
-            self.images = new_path
+            self.images = new_path if not reset else self._set_default_images_path()
+            new_path = new_path if not reset else self._set_default_images_path()
         elif target == "terminal":
-            self.terminal = new_path
+            self.terminal = new_path if not reset else self._set_default_terminal_path()
+            new_path = new_path if not reset else self._set_default_terminal_path()
         else:
-            all_good = False
-
-        if all_good:
-            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
-                tasks: dict = json.load(f)
-                tasks["paths"][target] = str(new_path)
-                with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
-                    json.dump(tasks, l, indent=4, sort_keys=True)
-            if not new_path.exists():
+            print("Invalid setting specified")
+            return
+        
+        if not new_path.exists():
+            try:    
                 os.makedirs(new_path, exist_ok=True)
-
-            print(f"Successfully changed {target} to {new_path}")
-
-        # C:\\Users\\manfo\\Desktop\\Bucket
+            except PermissionError:
+                print(f"Permission denied to create {new_path}")
+                return
+            
+        with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+            tasks: dict = json.load(f)
+            tasks["paths"][target] = str(new_path)
+            with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+                json.dump(tasks, l, indent=4, sort_keys=True)
+        print(f"Successfully changed path.{target} to {new_path}\n")
+        
 
 
 class BgTasks():

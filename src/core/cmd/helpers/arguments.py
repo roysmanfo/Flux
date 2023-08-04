@@ -26,18 +26,17 @@ class Parser(ArgumentParser):
                  exit_on_error=True) -> None:
         super().__init__(prog, usage, description, epilog, parents, formatter_class, prefix_chars, fromfile_prefix_chars,
                          argument_default, conflict_handler, add_help, allow_abbrev, exit_on_error)
-        
-        self.parsing_error = False
+
+        self.exit_execution = False
         self.help_message = ""
         if not add_help:
-            self.add_argument("-h", "--help", action="store_true", help="Show this help message")
-
+            self.add_argument("-h", "--help", action="store_true")
 
     def exit(self, status: int | None = None, message: str | None = None):
         if message:
             self._print_message(message, _sys.stderr)
+            self.exit_execution = True
             print()
-            self.parsing_error = True
 
     def add_help_message(self, message: str):
         self.help_message = message.strip()

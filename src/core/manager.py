@@ -59,7 +59,12 @@ def switch(command: list[str], info: object) -> None:
 
     exec_command: fluxcmd.helpers.commands.CommandInterface
 
-    if command[0] == "export":
+    if command[0] in info.ignored_commands:
+        if command[0] in info.user.background_tasks:
+            print(f"Command {command[0]} is already in execution in background")
+            return
+
+    elif command[0] == "export":
         exec_command = fluxcmd.export.Command()
 
     elif command[0] == "joke":
@@ -69,11 +74,10 @@ def switch(command: list[str], info: object) -> None:
         exec_command = fluxcmd.observer.Command()
     
     elif command[0] == "set":
-        fluxcmd.set.run(command=classify_arguments(command), info=info)
+        exec_command = fluxcmd.set.Commmand()
     
-    elif command[0] in info.ignored_commands:
-        if command[0] in info.user.background_tasks:
-            print(f"Command {command[0]} is already in execution in background")
-
-    exec_command.init()
-    exec_command.run(command, info)
+    if exec_command:
+        exec_command.init()
+        exec_command.run(command, info) 
+    else:
+        print(f"Command \"{command[0]}\" not found")

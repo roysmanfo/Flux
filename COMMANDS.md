@@ -10,7 +10,7 @@ Command | Description
 `!` **file** [options] | Gets information on a specific file.
 `!` **export** [options] | Allows to modify env variables.
 **joke**  | Tells a random programming joke.
-**observer** [options] | Scans the bucket folder and sorts files in a `Files` folder
+**observer** [options] | Scans the bucket folder and sorts files in the destination folder
 **set** [options] | Allows to modify the settings
 ____
 
