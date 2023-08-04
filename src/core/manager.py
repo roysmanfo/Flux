@@ -73,7 +73,7 @@ def switch(command: list[str], info: object) -> None:
         fluxcmd.set.run(command=classify_arguments(command), info=info)
     
     elif command[0] == "joke":
-        fluxcmd.joke.run(command=command, info=info)
+        exec_command = fluxcmd.joke.Command()
 
 
     exec_command.init()
