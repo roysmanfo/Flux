@@ -16,17 +16,17 @@ class Commmand(CommandInterface):
                              description="Allows the user to change different settings, such as the username or info.user.path informations")
         self.parser.add_argument("-s", dest="setting")
         self.parser.add_argument("-v", dest="value", nargs="+")
-        self.parser.add_argument("--reset", dest="reset", action="store_true")
+        self.parser.add_argument("-r","--reset", dest="reset", action="store_true")
         self.parser.add_argument("--reset-all", dest="reset_all", action="store_true")
         self.parser.add_help_message("""Allows the user to change different settings, such as the username or info.user.path informations
                                      
-usage: set [-h] [--reset-all] -s SETTING [--reset]
+usage: set [-h] [--reset-all] -s SETTING [--reset][-v VALUE]
 
 options:
   -h, --help        Show this help message
   -s SETTING        The setting to change
   -v VALUE          The new value of the setting to change
-  --reset           Reset the selected setting to it's default value (commbined with -s)
+  -r, --reset       Reset the selected setting to it's default value (commbined with -s)
   --reset-all       Reset all settings
 """)
 
