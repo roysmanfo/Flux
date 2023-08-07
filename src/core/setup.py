@@ -60,9 +60,10 @@ def get_bgtasks(info: list, info_is_list=True) -> list:
     # For each command check if the user decided to execute it on start
     if 'observer' in bg:
         ignore.append('observer')
-        command = {"command": "observer", "flags": [],
-                   "variables": [], "options": []}
-        tasks.append(Thread(target=fluxcmd.observer.run, args=(
+        command = ["observer"]
+        exe = fluxcmd.observer.Command()
+        exe.init()
+        tasks.append(Thread(target=exe.run, args=(
             command, info, False), name="Observer"))
 
     return [tasks, ignore]

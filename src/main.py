@@ -51,6 +51,7 @@ def run():
         # Check if we just want to leave, there's no need to check in
         # all of SYSTEM_CMDS if we just want to leave and do it quickly
         if cmd[0] == "exit":
+            INFO.exit = True
             sys.exit(0)
 
         # Check if it's a command the default terminal can handle
@@ -91,9 +92,6 @@ if __name__ == "__main__":
     try:
         for task in tasks_list:
             task.start()
-
-        for task in tasks_list:
-            task.join()
 
     except KeyboardInterrupt:
         # Catch all the exceptions related to the whole program.

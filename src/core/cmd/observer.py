@@ -86,8 +86,8 @@ options:
             self.sort_files(info, forever=True)
 
     def show_path(self, info: object) -> bool:
-        print("Bucket:",info.user.paths.bucket)
-        print("Destination:",info.user.paths.bucket_destination, "\n")
+        print("Bucket:", info.user.paths.bucket)
+        print("Destination:", info.user.paths.bucket_destination, "\n")
         return False
 
     def background_task(self, info: object):
@@ -125,9 +125,10 @@ options:
             if forever:
 
                 try:
-                    while True:
+                    while not info.exit:
                         time.sleep(.1)
                         continue
+                    observer.stop()
                 except KeyboardInterrupt:
                     observer.stop()
             else:
@@ -152,6 +153,7 @@ options:
             self.watch_path = watch_path.resolve()
             self.destination_root = destination_root.resolve()
 
+        @staticmethod
         def create_destination_path(path: Path) -> Path:
             """
             Helper function that adds current year/month to destination path. If the path
@@ -161,6 +163,7 @@ options:
             path.mkdir(parents=True, exist_ok=True)
             return path
 
+        @staticmethod
         def rename_file(source: Path, destination_path: Path) -> Path:
             """
             Helper function that renames file to reflect new path. If a file of the same
@@ -206,16 +209,16 @@ options:
                     destination_path = self.destination_root / \
                         extension_paths[child.suffix.lower()]
                     destination_path = self.create_destination_path(
-                        path=destination_path)
+                        destination_path)
                     destination_path = self.rename_file(
-                        source=child, destination_path=destination_path)
+                        child, destination_path)
                     shutil.move(src=child, dst=destination_path)
 
                 elif child.is_file() and child.suffix.lower() not in extension_paths:
                     destination_path = self.destination_root / \
                         extension_paths["noname"]
                     destination_path = self.create_destination_path(
-                        path=destination_path)
+                        destination_path)
                     destination_path = self.rename_file(
-                        source=child, destination_path=destination_path)
+                        child, destination_path)
                     shutil.move(src=child, dst=destination_path)
