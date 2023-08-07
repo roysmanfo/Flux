@@ -80,4 +80,5 @@ def switch(command: list[str], info: object) -> None:
         exec_command.init()
         exec_command.run(command, info)
     except UnboundLocalError:
-        print(f"-flux: {command[0]}: command not found\n")
+        if command[0] != "":
+            print(f"-flux: {command[0]}: command not found\n")

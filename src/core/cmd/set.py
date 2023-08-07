@@ -94,4 +94,4 @@ options:
 
         # Command does not exist
         else:
-            print('Command not found')
+            print('Setting not found\n')
