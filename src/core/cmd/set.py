@@ -73,19 +73,19 @@ options:
 
         # Change username
         if self.args.setting == "username":
-            if len(self.args.value[0]) > 1:
-                info.user.set_username(self.args.value[0], info)
+            if len(self.args.value) > 0 and len(self.args.value[0].strip()) > 1:
+                info.user.set_username("" if self.args.reset else " ".join(self.args.value), info, self.args.reset)
             else:
                 print("The username provided is too short")
 
         # Set 1 or more new bg-task/s
         elif self.args.setting == "bg-task":
-            info.user.set_bg_task(info, self.args.value)
+            info.user.set_bg_task(info, self.args.value, self.args.reset)
 
         # Set/ change an email
         # if muliple emails given, set as email the first valid one
         elif self.args.setting == "email":
-            info.user.set_email(info, self.args.value)
+            info.user.set_email(info, self.args.value, self.args.reset)
 
         # change a Path
         elif self.args.setting.startswith("path.") and len(self.args.setting.split(".")) == 2:

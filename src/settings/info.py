@@ -66,7 +66,7 @@ class User():
 
         settings = {
             "email": "",
-            "username": "User",
+            "username": os.path.basename(os.path.expanduser('~')),
             "paths": path.reset(),
             "background-tasks": bg_tasks.tasks,
         }
@@ -78,20 +78,14 @@ class User():
             l.write("")
             json.dump(settings, l, indent=4, sort_keys=True)
 
-    def set_username(self, new_username: str, info: Info) -> None:
+    def set_username(self, new_username: str, info: Info, reset: bool = False) -> None:
         """
         Sets the username to new_username
         """
-        if new_username.startswith('$'):
-            new_username = info.variables.get(
-                new_username.removeprefix('$'), None).strip()
-            if new_username is None:
-                info.no_var_found()
+        if reset:
+            new_username = os.path.basename(os.path.expanduser('~'))
 
-            self.username = new_username
-        else:
-            self.username = new_username
-
+        info.user.username = new_username
         with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
             settings = json.load(f)
             settings['username'] = new_username
@@ -99,11 +93,24 @@ class User():
                 l.write("")
                 json.dump(settings, l, indent=4, sort_keys=True)
 
-    def set_bg_task(self, info: Info, tasks: list):
+    def set_bg_task(self, info: Info, tasks: list, reset: bool):
+
 
         changes = 0
         new_tasks = BgTasks()
 
+        
+        if reset:
+            for task in info.user.background_tasks:
+                new_tasks.remove_task(task)
+                changes = 1 
+
+            if changes != 0:
+                print('Changes will have effect on next startup')
+                info.user.background_tasks = BgTasks().tasks
+            print()
+            return   
+            
         for task in tasks:
             if task in info.bg_tasks_available:
                 if task not in info.user.background_tasks:
@@ -119,11 +126,21 @@ class User():
             print('Changes will have effect on next startup')
 
             info.user.background_tasks = BgTasks().tasks
+        print()
 
-    def set_email(self, info: Info, emails: list[str]):
+    def set_email(self, info: Info, emails: list[str], reset: bool = False):
         """
         Change the user email to the first valid email address in @param emails
         """
+        if reset:
+            info.user.email = email
+            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+                sett: list = json.load(f)
+                sett["email"] = email
+                with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+                    json.dump(sett, l, indent=4, sort_keys=True)
+            return
+
         for email in emails:
             is_valid_email = True
             email.strip()
@@ -333,6 +350,14 @@ class BgTasks():
             with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                 # print(tasks)
                 json.dump(tasks, l, indent=4, sort_keys=True)
+    
+    def remove_task(self, task: str):
+        with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+            tasks: list = json.load(f)
+            tasks["background-tasks"].remove(task)
+            with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+                # print(tasks)
+                json.dump(tasks, l, indent=4, sort_keys=True)
 
 class Variable:
     def __init__(self, name: str, value: str, is_reserved: bool) -> None:
@@ -440,4 +465,5 @@ class Info:
         self.ignored_commands = ignored_commands
         self.bg_tasks_available = bg_tasks_available
         self.variables: Variables = Variables()
+        self.exit: bool = False
 
