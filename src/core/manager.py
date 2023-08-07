@@ -76,8 +76,8 @@ def switch(command: list[str], info: object) -> None:
     elif command[0] == "set":
         exec_command = fluxcmd.set.Commmand()
     
-    if exec_command:
+    try:
         exec_command.init()
-        exec_command.run(command, info) 
-    else:
-        print(f"Command \"{command[0]}\" not found")
+        exec_command.run(command, info)
+    except UnboundLocalError:
+        print(f"-flux: {command[0]}: command not found\n")
