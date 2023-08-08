@@ -365,6 +365,9 @@ class Variable:
         self.value = value
         self.is_reserved = is_reserved
 
+    def __str__(self) -> str:
+        return f"Variable(name={self.name}, is_reserved={self.is_reserved}, value={self.value})"
+
 class Variables:
 
     def __init__(self) -> None:
@@ -466,4 +469,11 @@ class Info:
         self.bg_tasks_available = bg_tasks_available
         self.variables: Variables = Variables()
         self.exit: bool = False
+
+        self.init_reserved_variables()
+
+    def init_reserved_variables(self) -> None:
+        self.variables.add("$ALL", "$ALL:$HOME:$PATH", True)
+        self.variables.add("$HOME", self.user.paths.terminal, True)
+        self.variables.add("$PATH", "", True)
 
