@@ -12,7 +12,7 @@ def format(words: list[str]) -> list[str]:
     words = [i for i in words if i != '']
 
     if len(words) > 0:
-        words[0] = words[0].lower()
+        words[0] = words[0].lower() if not words[0].startswith("$") else words[0]
     else:
         words.append("")
     return words

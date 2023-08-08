@@ -29,11 +29,11 @@ def listen() -> list[str]:
         return transform.string_to_list(command)
     
     except KeyboardInterrupt:
-        print(f"{Fore.RESET}^C")
+        print(f"{Fore.RED}^C{Fore.RESET}")
         return transform.string_to_list("")
 
     except EOFError:
-        print(f"{Fore.RESET}^C")
+        print(f"{Fore.RED}^C{Fore.RESET}")
         return transform.string_to_list("")
 
 def run():
