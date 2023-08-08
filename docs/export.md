@@ -12,6 +12,5 @@ export [VARIABLE [NEW_VALUE]]
 
 Options | Description
 --------|------------
-`VARIABLE` | The variable to manage
-`NEW_VALUE` | The new value of the variable
-`--reset --all` | Reset all settings 
+`VARIABLE` | The variable to manage (must have $ before: $HOME)
+`NEW_VALUE` | The new value of the variable. Lists are rappresented as colon separated values (*val1*:*val2*:*val3*)

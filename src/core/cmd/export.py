@@ -30,16 +30,12 @@ class Command(CommandInterface):
 
     @staticmethod
     def set_variable(command: list, info: object) -> None:
-        name: str = command[1].removeprefix("$")
-        if name.startswith("$"):
-            print("Invalid variable syntax")
-            return
-        
+        name: str = command[1]        
         value = str(command[2])
         if info.variables.exists(name):
             info.variables.set(name, value.removeprefix("\"").removesuffix("\""))
         else:
             info.variables.add(name, value.removeprefix("\"").removesuffix("\""))
         
-        print(f"${name}={value}")
+        print(f"{name}={value}")
 
