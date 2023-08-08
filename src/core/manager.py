@@ -66,6 +66,9 @@ def switch(command: list[str], info: object) -> None:
 
     elif command[0] == "export":
         exec_command = fluxcmd.export.Command()
+   
+    elif command[0] == "flux":
+        exec_command = fluxcmd.flux.Command()
 
     elif command[0] == "joke":
         exec_command = fluxcmd.joke.Command()

@@ -73,13 +73,6 @@ def run():
             else:
                 os.chdir(HOME_PATH)
 
-        # Otherwise it might be a Flux command
-        elif cmd[0] == "flux":
-            if len(cmd) > 1:
-                flux.run(INFO, cmd)
-            else:
-                flux.description(INFO.user)
-
         # Pass the command to the manager
         else:
             manager.manage(cmd, INFO)

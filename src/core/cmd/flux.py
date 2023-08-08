@@ -1,23 +1,36 @@
 import colorama
 from colorama import Fore
-
+import random
+from .helpers.commands import CommandInterface
+from .helpers.arguments import Parser
 colorama.init(autoreset=True)
 
 
-def run(INFO, command):
-    pass
+class Command(CommandInterface):
+
+    def init(self):
+        self.parser = Parser("flux")
 
 
-def description(USER):
-    title = f"""{Fore.LIGHTBLACK_EX}
-   __________       _________         _____       ___________      _______________       ___________       _____        
-  /_________/|     /________/\       /___ /|    /__________ /|    /_____________ /|     /_________ /|     /___ /|       
- |         | |    |         \ \     |    | |    |          | |    |             | |    |          | |    |    | |       
- |     ____|/     |          | |    |    | |    |    ______|/|    |____     ____|/     |     _    | |    |    | |       
- |    | |____     |         / /     |    | |    |          | |         |    |          |    |_|   | |    |    | |_____  
- |    |/___ /|    |         \ \     |    | |    |______    | |         |    |          |          | |    |    |/____ /| 
- |         | |    |    |\    \ \    |    | |    |          | |         |    |          |     |    | |    |          | | 
- |_________|/     |____|/\____\/    |____|/     |__________|/          |____|          |_____|____|/     |__________|/  
-{Fore.RESET}
-"""
-    print(title)
+    def run(self, command: list[str], info: object):
+        self.args = self.parser.parse_args(command[1:])
+
+
+        if len(command) == 1 or self.args.help:
+            self.description(random.choice([0, 1]))
+
+
+    def description(self, flip: bool = False):
+        emotes = ["(╯°□°)╯︵ ┻━┻", "(ノಠ益ಠ)ノ彡┻━┻", "┬─┬ノ( º _ ºノ)", "¯\_(ツ)_/¯"]
+        emote = random.choice(emotes) if flip else ""
+        title = Fore.LIGHTBLACK_EX + """
+    {:^27}
+     _____ __    __ __  __  __ 
+    |   __|  |  |  |  |\  \/  /
+    |   _]|  |__|  |  | |    | 
+    |__|  |_____\_____//__/\__\ 
+            
+          By @RoysManfo 
+    
+    """.format(emote)
+        print(title + Fore.RESET)
