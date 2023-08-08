@@ -15,8 +15,8 @@ class Test_Variables(unittest.TestCase):
         INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
         cmnd = export.Command()
         cmnd.run(['export', 'foo', 'bar'], INFO)
-        result = INFO.variables.get("foo", None)
-        self.assertTrue(result == None, "The variable has been created, but it wasn't supposed to")
+        result = INFO.variables.get("foo")
+        self.assertTrue(result is None, "The variable has been created, but it wasn't supposed to")
 
     def test_variables_02(self):
         """
@@ -30,8 +30,8 @@ class Test_Variables(unittest.TestCase):
         INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
         cmnd = export.Command()
         cmnd.run(['export', '$foo'], INFO)
-        result = INFO.variables.get("foo", None)
-        self.assertTrue(result == None, "The variable has been created, but it wasn't supposed to")
+        result = INFO.variables.get("foo")
+        self.assertTrue(result is None, "The variable has been created, but it wasn't supposed to")
 
     def test_variables_03(self):
         """
@@ -45,8 +45,8 @@ class Test_Variables(unittest.TestCase):
         INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
         cmnd = export.Command()
         cmnd.run(['export', '$$', 'bar'], INFO)
-        result = INFO.variables.get("$", None)
-        self.assertTrue(result == None, "The variable has been created, but it wasn't supposed to")
+        result = INFO.variables.get("$")
+        self.assertTrue(result is None, "The variable has been created, but it wasn't supposed to")
 
 
 if __name__ == '__main__':
