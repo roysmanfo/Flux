@@ -30,7 +30,7 @@ class Command(CommandInterface):
     |   _]|  |__|  |  | |    | 
     |__|  |_____\_____//__/\__\ 
             
-          By @RoysManfo 
+    {:^27}
     
-    """.format(emote)
+    """.format(emote, "By @RoysManfo")
         print(title + Fore.RESET)
