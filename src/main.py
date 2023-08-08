@@ -1,5 +1,4 @@
 # Flux modules
-from core.cmd import flux
 from core import setup, manager
 from settings.info import User, Info, SETTINGS_FILE, SETTINGS_FOLDER
 from utils import transform
@@ -14,7 +13,6 @@ init(autoreset=True)
 
 # Setup process
 INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
-HOME_PATH = INFO.user.paths.terminal
 
 def listen() -> list[str]:
     """
@@ -71,7 +69,8 @@ def run():
                 INFO.user.paths.terminal.replace("\\", "/")
             
             else:
-                os.chdir(HOME_PATH)
+                os.chdir(INFO.variables.get("$HOME").value)
+                INFO.user.paths.terminal = INFO.variables.get("$HOME").value
 
         # Pass the command to the manager
         else:
