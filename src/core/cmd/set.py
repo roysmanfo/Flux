@@ -72,8 +72,8 @@ options:
 
         # Change username
         if self.args.setting == "username":
-            if len(self.args.value) > 0 and len(self.args.value[0].strip()) > 1:
-                self.info.user.set_username("" if self.args.reset else " ".join(self.args.value), self.info, self.args.reset)
+            if self.args.value and len(self.args.value[0].strip()) > 1 or self.args.reset:
+                self.info.user.set_username("default" if self.args.reset else " ".join(self.args.value), self.info, self.args.reset)
             else:
                 print("The username provided is too short")
 
