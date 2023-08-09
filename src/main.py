@@ -63,7 +63,7 @@ def run():
                     os.chdir(f"{new_dir}")
                 except FileNotFoundError:
                     # Disply an error message if path specified is iniexistent
-                    print("Cannot find specified path because it does not exist")
+                    print("-flux: cd: No such file or directory\n")
                     pass
                 INFO.user.paths.terminal = os.getcwd()
                 INFO.user.paths.terminal.replace("\\", "/")
