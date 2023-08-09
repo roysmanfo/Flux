@@ -1,6 +1,7 @@
 import json
 import os
 import pathlib
+from threading import Thread
 
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
@@ -455,10 +456,10 @@ class Info:
 
     def __init__(self,
                  user: User,
-                 system_cmds: list,
-                 bg_tasks: list,
-                 ignored_commands: list,
-                 bg_tasks_available: list
+                 system_cmds: list[str],
+                 bg_tasks: list[Thread],
+                 ignored_commands: list[str],
+                 bg_tasks_available: list[str]
                  ):
 
         self.user = user
