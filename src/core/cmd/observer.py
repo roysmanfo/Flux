@@ -122,7 +122,7 @@ options:
             event_handler.on_modified(DirModifiedEvent)
 
             # Check if we decided to run the process as a background task
-            if forever:
+            if forever or self.IS_THREAD:
 
                 try:
                     while not info.exit:
