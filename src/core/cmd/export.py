@@ -6,7 +6,7 @@ Allows the user to create temporary variables for later use
 from .helpers.commands import CommandInterface
 
 class Command(CommandInterface):
-    def run(self, command: list, info: object) -> None:
+    def run(self, command: list) -> None:
         """
         #### Create/update a variable
         ```
@@ -26,16 +26,15 @@ class Command(CommandInterface):
         # Create a temporary variable if it doesn't already exist
         # else update it
         if len(command) > 2 and command[1].startswith("$") and len(command[1]) > 0:
-            self.set_variable(command, info)
+            self.set_variable(command)
 
-    @staticmethod
-    def set_variable(command: list, info: object) -> None:
+    def set_variable(self, command: list) -> None:
         name: str = command[1]        
         value = str(command[2])
-        if info.variables.exists(name):
-            info.variables.set(name, value.removeprefix("\"").removesuffix("\""))
+        if self.info.variables.exists(name):
+            self.info.variables.set(name, value.removeprefix("\"").removesuffix("\""))
         else:
-            info.variables.add(name, value.removeprefix("\"").removesuffix("\""))
+            self.info.variables.add(name, value.removeprefix("\"").removesuffix("\""))
         
         print(f"{name}={value}")
 

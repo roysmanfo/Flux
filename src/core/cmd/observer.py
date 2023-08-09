@@ -62,7 +62,7 @@ options:
 -bg         Execute the observer in background just for this session
 """)
 
-    def run(self, command: list[str], info: object, from_command_line: bool = True) -> None:
+    def run(self, command: list[str], from_command_line: bool = True) -> None:
         args = self.parser.parse_args(command[1:])
 
         if self.parser.exit_execution:
@@ -73,17 +73,17 @@ options:
             return
 
         if args.background:
-            self.background_task(info)
+            self.background_task(self.info)
 
         if args.path:
-            self.show_path(info)
+            self.show_path(self.info)
             return
 
         if from_command_line:
-            self.sort_files(info)
+            self.sort_files(self.info)
 
         else:
-            self.sort_files(info, forever=True)
+            self.sort_files(self.info, forever=True)
 
     def show_path(self, info: object) -> bool:
         print("Bucket:", info.user.paths.bucket)

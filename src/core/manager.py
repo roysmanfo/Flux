@@ -58,6 +58,7 @@ def switch(command: list[str], info: object) -> None:
     from . import cmd as fluxcmd
 
     exec_command: fluxcmd.helpers.commands.CommandInterface
+    exec_command_class = fluxcmd.helpers.commands.CommandInterface
 
     if command[0] in info.ignored_commands:
         if command[0] in info.user.background_tasks:
@@ -65,23 +66,27 @@ def switch(command: list[str], info: object) -> None:
             return
 
     elif command[0] == "export":
-        exec_command = fluxcmd.export.Command()
+        exec_command_class = fluxcmd.export.Command
    
     elif command[0] == "flux":
-        exec_command = fluxcmd.flux.Command()
+        exec_command_class = fluxcmd.flux.Command
 
     elif command[0] == "joke":
-        exec_command = fluxcmd.joke.Command()
+        exec_command_class = fluxcmd.joke.Command
     
     elif command[0] == "observer":
-        exec_command = fluxcmd.observer.Command()
+        exec_command_class = fluxcmd.observer.Command
     
     elif command[0] == "set":
-        exec_command = fluxcmd.set.Commmand()
+        exec_command_class = fluxcmd.set.Commmand
     
     try:
+        is_thread = command[-1].count("&") > 0
+        exec_command = exec_command_class(info, is_thread)
+        
         exec_command.init()
-        exec_command.run(command, info)
+        exec_command.run(command)
+
     except UnboundLocalError:
         if command[0] != "":
             print(f"-flux: {command[0]}: command not found\n")

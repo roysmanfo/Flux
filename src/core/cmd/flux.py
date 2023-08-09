@@ -12,7 +12,7 @@ class Command(CommandInterface):
         self.parser = Parser("flux")
 
 
-    def run(self, command: list[str], info: object):
+    def run(self, command: list[str]):
         self.args = self.parser.parse_args(command[1:])
 
 

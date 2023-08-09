@@ -133,12 +133,14 @@ class User():
         Change the user email to the first valid email address in @param emails
         """
         if reset:
-            info.user.email = email
+            info.user.email = ""
             with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
                 sett: list = json.load(f)
-                sett["email"] = email
+                sett["email"] = info.user.email
                 with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                     json.dump(sett, l, indent=4, sort_keys=True)
+            
+            print("Email changed to: ''")
             return
 
         for email in emails:
