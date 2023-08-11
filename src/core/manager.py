@@ -4,7 +4,7 @@
 This is the place where the input given gets analized and associated
 with the respective command (if existent).
 """
-
+from src.settings.info import Info
 
 def classify_arguments(command: list) -> dict:
     """
@@ -43,28 +43,63 @@ def classify_arguments(command: list) -> dict:
     return classified
 
 
-def manage(cmd: list, info: object) -> None:
+def manage(cmd: list[str], info: object) -> None:
 
     # Classify command line arguments and send them to be analized
-    switch(classify_arguments(cmd), info)
+    # switch(classify_arguments(cmd), info)
+    switch(cmd, info)
 
 
-def switch(command: dict, info: object) -> None:
+def switch(command: list[str], info: Info) -> None:
 
     # Match the command name to the corresponding file in ./cmd/
     # for further processing and execution
 
     from . import cmd as fluxcmd
-    
-    if command["command"] in info.ignored_commands:
-        if command["command"] in info.user.background_tasks:
-            print(f"Command {command['command']} is already in execution in background")
 
-    elif command["command"] == "observer":
-        fluxcmd.observer.run(command=command, info=info, from_command_line=True)
+    def execute_command(callable: fluxcmd.helpers.commands.CommandInterface, command) -> None:
+        callable.init()
+        callable.run(command)
+        callable.close()
+        callable.exit()
 
-    elif command["command"] == "set":
-        fluxcmd.set.run(command=command, info=info)
+    exec_command: fluxcmd.helpers.commands.CommandInterface
+    exec_command_class = fluxcmd.helpers.commands.CommandInterface
+
+    if command[0] in info.ignored_commands:
+        if command[0] in info.user.background_tasks:
+            print(f"Command {command[0]} is already in execution in background")
+            return
+
+    elif command[0] == "export":
+        exec_command_class = fluxcmd.export.Command
+   
+    elif command[0] == "flux":
+        exec_command_class = fluxcmd.flux.Command
+
+    elif command[0] == "joke":
+        exec_command_class = fluxcmd.joke.Command
     
-    elif command["command"] == "joke":
-        fluxcmd.joke.run(command=command, info=info)
+    elif command[0] == "observer":
+        exec_command_class = fluxcmd.observer.Command
+    
+    elif command[0] == "set":
+        exec_command_class = fluxcmd.set.Commmand
+    
+    try:
+        is_thread = command[-1] == "&"
+        exec_command = exec_command_class(info, is_thread)
+        
+        if is_thread:
+            from threading import Thread
+            command.pop(-1)
+            info.bg_tasks.append(Thread(target=execute_command, args=(exec_command, command), name="Observer"))
+            info.bg_tasks[-1].start()
+        else:
+            execute_command(exec_command, command)
+
+    except UnboundLocalError as e:
+        if command[0] != "":
+            print(f"-flux: {command[0]}: command not found\n{e}\n")
+
+

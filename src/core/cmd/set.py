@@ -1,99 +1,96 @@
 """
-# `cr set`
-Allows the user to change different settings, such as the username or USER.path informations
+# `set`
+Allows the user to change different settings, such as the username or info.user.path informations
 """
 from pathlib import Path
-
+from .helpers.arguments import Parser
+from .helpers.commands import CommandInterface
 
 OPTIONS = []
 FLAGS = ['--reset', '--all']
 
 
-def run(command: dict, info: object):
-    """
-    Handles which setting to change 
-    """
-    switch(command, info)
+class Commmand(CommandInterface):
+    def init(self):
+        self.parser = Parser(prog="set",
+                             description="Allows the user to change different settings, such as the username or info.user.path informations")
+        self.parser.add_argument("-s", dest="setting")
+        self.parser.add_argument("-v", dest="value", nargs="+")
+        self.parser.add_argument("-r","--reset", dest="reset", action="store_true")
+        self.parser.add_argument("--reset-all", dest="reset_all", action="store_true")
+        self.parser.add_help_message("""Allows the user to change different settings, such as the username or info.user.path informations
+                                     
+usage: set [-h] [--reset-all] -s SETTING [--reset][-v VALUE]
+
+options:
+  -h, --help        Show this help message
+  -s SETTING        The setting to change
+  -v VALUE          The new value of the setting to change (used with -s)
+  -r, --reset       Reset the selected setting to it's default value (used with -s)
+  --reset-all       Reset all settings
+""")
+
+    def run(self, command: list):
+        """
+        Handles which setting to change
+        """
+        self.args = self.parser.parse_args(command[1:])
+
+        if self.parser.exit_execution:
+            return
+
+        if self.args.help:
+            self.parser.help()
+            return
+
+        if not self.args.reset_all:
+            
+            if not self.args.setting:
+                if not self.args.value or not self.args.reset:
+                    self.parser.help()
+                    self.parser.exit(2, "error: the following arguments are required: -s\n")
+                    return
 
 
-def switch(command: dict, info: object):
-    """
-    Assigns the input to the right function 
-    """
-    USER = info.user
+            if not self.args.value:
+                if not self.args.reset:
+                    self.parser.exit(2, "error: one of the following arguments is required: -v, -r\n")
+                    return
 
-    if command["variables"]:
+        self.switch()
 
-        # Try to set a variable
-        set_a_variable = set_user_variable(command, info)
+    def switch(self):
+        """
+        Assigns the input to the right function
+        """
 
-        if set_a_variable:
+        # Reset all user vareables
+        if self.args.reset_all:
+            self.info.user.reset_settings()
+            print('Restart the shell to apply changes')
             return
 
         # Change username
-        if command["variables"][0] == "username":
-            if len(command["variables"]) > 1:
-                USER.set_username(command["variables"][1], info)
+        if self.args.setting == "username":
+            if self.args.value and len(self.args.value[0].strip()) > 1 or self.args.reset:
+                self.info.user.set_username("default" if self.args.reset else " ".join(self.args.value), self.info, self.args.reset)
+            else:
+                print("The username provided is too short")
 
         # Set 1 or more new bg-task/s
-        elif command["variables"][0] == "bg-task":
-            command["variables"].pop(0)
-            USER.set_bg_task(info, list(command["variables"]))
+        elif self.args.setting == "bg-task":
+            self.info.user.set_bg_task(self.info, self.args.value, self.args.reset)
 
         # Set/ change an email
         # if muliple emails given, set as email the first valid one
-        elif command["variables"][0] == "email":
-            command["variables"].pop(0)
-            USER.set_email(info, list(command["variables"]))
+        elif self.args.setting == "email":
+            self.info.user.set_email(self.info, self.args.value, self.args.reset)
 
         # change a Path
-        elif command["variables"][0].startswith("path.") and len(command["variables"][0].split(".")) == 2:
-            target = command["variables"][0].split(".")[1]
-            USER.paths.set_path(target, Path(command["variables"][1]), info)
+        elif self.args.setting.startswith("path.") and len(self.args.setting.split(".")) == 2:
+            target = self.args.setting.split(".")[1]
+            self.info.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.info, self.args.reset)
 
         # Command does not exist
         else:
-            print('Command not found')
-
-    elif command["flags"]:
-
-        # Reset all user vareables
-        if "--reset" in command["flags"] and "--all" in command["flags"]:
-            USER.reset_settings()
-            print('Restart the shell to apply changes')
-
-    else:
-
-        print('Command not found')
-
-
-def set_user_variable(command: dict, info: object) -> bool:
-    """
-    Allows the user to create temporary variables for later use.
-
-    #### Create/update a variable
-    ```
-    $ cr set $var_name value
-    ```
-
-    #### Access a variable
-    ```
-    $ cr $var_name
-    ```
-
-    #### Returns
-
-    True if the variable has been set, False otherwise
-    """
-
-    # Create a temporary variable if it doesn't already exist
-    # else update it
-    if len(command["variables"]) > 1 and command["variables"][0].startswith("$") and len(command["variables"][0]) > 1:
-        key = command["variables"][0].removeprefix("$")
-        value = str(command["variables"][1])
-
-        info.variables[key] = value.removeprefix("\"").removesuffix("\"")
-        print(f"${key} = {value}")
-        return True
-
-    return False
+            print('Setting not found\n')

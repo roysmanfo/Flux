@@ -1,16 +1,20 @@
 """
-# `cr joke`
+# `joke`
 
 This command tells a random programming joke
 """
 
 from .helpers import jokes
+from .helpers.commands import CommandInterface
 import random
 
 
-def run(command: dict, info: object):
-    """
-    This command tells a random programming joke
-    """
-    print(random.choice(jokes.jokes))
-    print()
+class Command(CommandInterface):
+    
+    @staticmethod
+    def run(command: list[str]):
+        """
+        This command tells a random programming joke
+        """
+        print(random.choice(jokes.jokes))
+        print()

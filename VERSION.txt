@@ -30,13 +30,13 @@ VSVersionInfo(
       [
       StringTable(
         u'040904B0',
-        [StringStruct(u'CompanyName', u'Cristal'),
-        StringStruct(u'FileDescription', u'Cristal'),
+        [StringStruct(u'CompanyName', u'Flux'),
+        StringStruct(u'FileDescription', u'Flux'),
         StringStruct(u'FileVersion', u'1.1.1.0'),
-        StringStruct(u'InternalName', u'Cristal'),
+        StringStruct(u'InternalName', u'Flux'),
         StringStruct(u'LegalCopyright', u'GNU General Public License v3.0'),
-        StringStruct(u'OriginalFilename', u'Cristal.exe'),
-        StringStruct(u'ProductName', u'Cristal'),
+        StringStruct(u'OriginalFilename', u'Flux.exe'),
+        StringStruct(u'ProductName', u'Flux'),
         StringStruct(u'ProductVersion', u'1.1.1.0')])
       ]), 
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])

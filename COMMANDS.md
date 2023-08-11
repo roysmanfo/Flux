@@ -1,7 +1,5 @@
 # List of all available `flux` commands
-This is a list of all available cr commands.  
-*In each command the cr part before the command name has been omitted, except for the `flux` command, which doesn't need it.* 
-
+This is a list of all available flux commands.  
 You can also check the [docs](./docs/README.md) for more detailed information
 
 Commands with a `!` in front are commands still in development
@@ -10,13 +8,14 @@ Command | Description
 --- | ---
 `!` **flux** [options] | Gives information about the programm
 `!` **file** [options] | Gets information on a specific file.
+`!` **export** [options] | Allows to modify env variables.
 **joke**  | Tells a random programming joke.
-**observer** [options] | Scans the bucket folder and sorts files in a `Files` folder
+**observer** [options] | Scans the bucket folder and sorts files in the destination folder
 **set** [options] | Allows to modify the settings
 ____
 
 ## Future Features Ideas
-Commands that might eventully be taken into consideration
+Commands that might eventually be taken into consideration
 
 Name | Goal | Description
 --- | --- | ---

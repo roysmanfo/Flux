@@ -1,6 +1,7 @@
 import json
 import os
 import pathlib
+from threading import Thread
 
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
@@ -19,7 +20,7 @@ class User():
     ### CLASS USER
     The class User manages all user info and settings, plus this
     approach makes working with user properties much easier than in
-    the previus version of Cristal, where all settings where also stored
+    the previus version of Flux, where all settings where also stored
     in a single json file like in this version, but to access it it wes
     neccessary to pass multiple parameters to a function, which will pass
     them to anoather function and make refactoring much harder.
@@ -66,37 +67,26 @@ class User():
 
         settings = {
             "email": "",
-            "username": "User",
+            "username": os.path.basename(os.path.expanduser('~')),
             "paths": path.reset(),
             "background-tasks": bg_tasks.tasks,
         }
 
         # Check if there already is a settings file, if there is, overwrite it, otherwise
         # create a new one
-        try:
 
-            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
-                with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
-                    l.write("")
-                    json.dump(settings, l, indent=4, sort_keys=True)
-        except FileNotFoundError:
-            with open(SETTINGS_FILE, "w", encoding='utf-8') as f:
-                json.dump(settings, f, indent=4, sort_keys=True)
+        with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+            l.write("")
+            json.dump(settings, l, indent=4, sort_keys=True)
 
-    def set_username(self, new_username: str, info: Info) -> None:
+    def set_username(self, new_username: str, info: Info, reset: bool = False) -> None:
         """
         Sets the username to new_username
         """
-        if new_username.startswith('$'):
-            new_username = info.variables.get(
-                new_username.removeprefix('$'), None).strip()
-            if new_username is None:
-                info.no_var_found()
+        if reset:
+            new_username = os.path.basename(os.path.expanduser('~'))
 
-            self.username = new_username
-        else:
-            self.username = new_username
-
+        info.user.username = new_username
         with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
             settings = json.load(f)
             settings['username'] = new_username
@@ -104,11 +94,24 @@ class User():
                 l.write("")
                 json.dump(settings, l, indent=4, sort_keys=True)
 
-    def set_bg_task(self, info: Info, tasks: list):
+    def set_bg_task(self, info: Info, tasks: list, reset: bool):
+
 
         changes = 0
         new_tasks = BgTasks()
 
+        
+        if reset:
+            for task in info.user.background_tasks:
+                new_tasks.remove_task(task)
+                changes = 1 
+
+            if changes != 0:
+                print('Changes will have effect on next startup')
+                info.user.background_tasks = BgTasks().tasks
+            print()
+            return   
+            
         for task in tasks:
             if task in info.bg_tasks_available:
                 if task not in info.user.background_tasks:
@@ -124,11 +127,23 @@ class User():
             print('Changes will have effect on next startup')
 
             info.user.background_tasks = BgTasks().tasks
+        print()
 
-    def set_email(self, info: Info, emails: list[str]):
+    def set_email(self, info: Info, emails: list[str], reset: bool = False):
         """
         Change the user email to the first valid email address in @param emails
         """
+        if reset:
+            info.user.email = ""
+            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+                sett: list = json.load(f)
+                sett["email"] = info.user.email
+                with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+                    json.dump(sett, l, indent=4, sort_keys=True)
+            
+            print("Email changed to: ''")
+            return
+
         for email in emails:
             is_valid_email = True
             email.strip()
@@ -179,24 +194,26 @@ class Path:
     """
 
     def __init__(self, load_data: bool = True):
-        if load_data:
-            try:
-                with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
-                    path = json.load(f)["paths"]
+        if not load_data:
+            return
 
-                    self.terminal: pathlib.Path = pathlib.Path(
-                        path["terminal"]).resolve()
-                    self.documents: pathlib.Path = pathlib.Path(
-                        path["documents"]).resolve()
-                    self.images: pathlib.Path = pathlib.Path(
-                        path["images"]).resolve()
-                    self.bucket: pathlib.Path = pathlib.Path(
-                        path["bucket"]).resolve()
-                    self.bucket_destination: pathlib.Path = pathlib.Path(
-                        path["bucket-destination"]).resolve()
+        try:
+            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+                path = json.load(f)["paths"]
 
-            except KeyError:
-                self.reset()
+                self.terminal: pathlib.Path = pathlib.Path(
+                    path["terminal"]).resolve()
+                self.documents: pathlib.Path = pathlib.Path(
+                    path["documents"]).resolve()
+                self.images: pathlib.Path = pathlib.Path(
+                    path["images"]).resolve()
+                self.bucket: pathlib.Path = pathlib.Path(
+                    path["bucket"]).resolve()
+                self.bucket_destination: pathlib.Path = pathlib.Path(
+                    path["bucket-destination"]).resolve()
+
+        except KeyError:
+            self.reset()
 
     def reset(self) -> dict:
         """
@@ -268,42 +285,48 @@ class Path:
             os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
         return path
 
-    def set_path(self, target: str, new_path: pathlib.Path, info: Info) -> None:
+    def set_path(self, target: str, new_path: pathlib.Path, info: Info, reset: bool = False) -> None:
         """
-        Changes the location of the observer's bucket folder
+        Changes the specified path
         """
-        all_good = True
-
         new_path = info.variables.get(str(new_path).removeprefix(
             "$")) if str(new_path).startswith("$") else new_path
 
         new_path = pathlib.Path(new_path).resolve(strict=True)
 
         if target == "bucket":
-            self.bucket = new_path
+            self.bucket = new_path if not reset else self._set_default_observer_bucket_path()
+            new_path = new_path if not reset else self._set_default_observer_bucket_path()
         elif target == "bucket-destination":
-            self.bucket_destination = new_path
+            self.bucket_destination = new_path if not reset else self._set_default_observer_bucket_destination_path()
+            new_path = new_path if not reset else self._set_default_observer_bucket_destination_path()
         elif target == "documents":
-            self.documents = new_path
+            self.documents = new_path if not reset else self._set_default_documents_path()
+            new_path = new_path if not reset else self._set_default_documents_path()
         elif target == "images":
-            self.images = new_path
+            self.images = new_path if not reset else self._set_default_images_path()
+            new_path = new_path if not reset else self._set_default_images_path()
         elif target == "terminal":
-            self.terminal = new_path
+            self.terminal = new_path if not reset else self._set_default_terminal_path()
+            new_path = new_path if not reset else self._set_default_terminal_path()
         else:
-            all_good = False
-
-        if all_good:
-            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
-                tasks: dict = json.load(f)
-                tasks["paths"][target] = str(new_path)
-                with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
-                    json.dump(tasks, l, indent=4, sort_keys=True)
-            if not new_path.exists():
+            print("Invalid setting specified")
+            return
+        
+        if not new_path.exists():
+            try:    
                 os.makedirs(new_path, exist_ok=True)
-
-            print(f"Successfully changed {target} to {new_path}")
-
-        # C:\\Users\\manfo\\Desktop\\Bucket
+            except PermissionError:
+                print(f"Permission denied to create {new_path}")
+                return
+            
+        with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+            tasks: dict = json.load(f)
+            tasks["paths"][target] = str(new_path)
+            with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+                json.dump(tasks, l, indent=4, sort_keys=True)
+        print(f"Successfully changed path.{target} to {new_path}\n")
+        
 
 
 class BgTasks():
@@ -330,7 +353,88 @@ class BgTasks():
             with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                 # print(tasks)
                 json.dump(tasks, l, indent=4, sort_keys=True)
+    
+    def remove_task(self, task: str):
+        with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+            tasks: list = json.load(f)
+            tasks["background-tasks"].remove(task)
+            with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+                # print(tasks)
+                json.dump(tasks, l, indent=4, sort_keys=True)
 
+class Variable:
+    def __init__(self, name: str, value: str, is_reserved: bool) -> None:
+        self.name = name
+        self.value = value
+        self.is_reserved = is_reserved
+
+    def __str__(self) -> str:
+        return f"Variable(name={self.name}, is_reserved={self.is_reserved}, value={self.value})"
+
+class Variables:
+
+    def __init__(self) -> None:
+        self.variables: list[Variable] = []
+
+    def add(self, name: str, value: str, is_reserved: bool = False) -> None:
+        """
+        Creates a new variable
+        """
+        self.variables.append(Variable(name, value, is_reserved))
+
+    def remove(self, name: str) -> bool:
+        """
+        Deletes a variable
+
+        Returns True if the variable has been removed, False otherwise (variable not found)
+        """
+        for var in self.variables:
+            if var.name == name:
+                if var.is_reserved:
+                    print(f"Variable ${var.name} can't be deleted because it is a reserved variable")
+
+                self.variables.remove(var)
+                return True
+            
+        return False
+    
+
+    def exists(self, name: str) -> bool:
+        """
+        Checks if a variable exists
+        """
+        for var in self.variables:
+            if var.name == name:
+                return True
+            
+        return False
+    
+    def get(self, name: str) -> Variable | None:
+        """
+        Gets the value of a variable
+
+        Returns it's value if the variable has been remove found, None otherwise
+        """
+        for var in self.variables:
+            if var.name == name:
+                return var
+            
+        return None
+    
+    def set(self, name: str, value: str) -> None:
+        """
+        Update the value of a variable
+        """
+        for var in self.variables:
+            if var.name == name:
+                var.value = str(value)
+                return
+
+    def no_var_found(self, var):
+        """
+        Should be called when a variable with specified name is found
+        """
+        print(f"No variable ${var} found")
 
 class Info:
     """
@@ -352,10 +456,10 @@ class Info:
 
     def __init__(self,
                  user: User,
-                 system_cmds: list,
-                 bg_tasks: list,
-                 ignored_commands: list,
-                 bg_tasks_available: list
+                 system_cmds: list[str],
+                 bg_tasks: list[Thread],
+                 ignored_commands: list[str],
+                 bg_tasks_available: list[str]
                  ):
 
         self.user = user
@@ -366,10 +470,13 @@ class Info:
         self.bg_tasks = bg_tasks
         self.ignored_commands = ignored_commands
         self.bg_tasks_available = bg_tasks_available
-        self.variables = {}
+        self.variables: Variables = Variables()
+        self.exit: bool = False
 
-    def no_var_found(self, var):
-        """
-        Should be called when a variable with specified name is found
-        """
-        print(f"No variable ${var} found")
+        self.init_reserved_variables()
+
+    def init_reserved_variables(self) -> None:
+        self.variables.add("$ALL", "$ALL:$HOME:$PATH", True)
+        self.variables.add("$HOME", self.user.paths.terminal, True)
+        self.variables.add("$PATH", "", True)
+
