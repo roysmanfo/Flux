@@ -8,6 +8,8 @@ from src.settings.info import Info
 
 def classify_arguments(command: list) -> dict:
     """
+    DEPRECATED
+
     Classifies the arguments of to the command in a dictionary,
     divideing each argument in 3 sections:
      - command :    a string containing the actual command given
@@ -66,12 +68,9 @@ def switch(command: list[str], info: Info) -> None:
     exec_command: fluxcmd.helpers.commands.CommandInterface
     exec_command_class = fluxcmd.helpers.commands.CommandInterface
 
-    if command[0] in info.ignored_commands:
-        if command[0] in info.user.background_tasks:
-            print(f"Command {command[0]} is already in execution in background")
-            return
+    info.processes.clean()
 
-    elif command[0] == "export":
+    if command[0] == "export":
         exec_command_class = fluxcmd.export.Command
    
     elif command[0] == "flux":
@@ -93,8 +92,8 @@ def switch(command: list[str], info: Info) -> None:
         if is_thread:
             from threading import Thread
             command.pop(-1)
-            info.bg_tasks.append(Thread(target=execute_command, args=(exec_command, command), name="Observer"))
-            info.bg_tasks[-1].start()
+            thread = Thread(target=execute_command, args=(exec_command, command), name=command[0])
+            info.processes.add(info, thread)
         else:
             execute_command(exec_command, command)
 

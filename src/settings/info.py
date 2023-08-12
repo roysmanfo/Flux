@@ -1,6 +1,7 @@
 import json
 import os
 import pathlib
+import time
 from threading import Thread
 
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
@@ -96,22 +97,20 @@ class User():
 
     def set_bg_task(self, info: Info, tasks: list, reset: bool):
 
-
         changes = 0
         new_tasks = BgTasks()
 
-        
         if reset:
             for task in info.user.background_tasks:
                 new_tasks.remove_task(task)
-                changes = 1 
+                changes = 1
 
             if changes != 0:
                 print('Changes will have effect on next startup')
                 info.user.background_tasks = BgTasks().tasks
             print()
-            return   
-            
+            return
+
         for task in tasks:
             if task in info.bg_tasks_available:
                 if task not in info.user.background_tasks:
@@ -140,7 +139,7 @@ class User():
                 sett["email"] = info.user.email
                 with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                     json.dump(sett, l, indent=4, sort_keys=True)
-            
+
             print("Email changed to: ''")
             return
 
@@ -312,21 +311,20 @@ class Path:
         else:
             print("Invalid setting specified")
             return
-        
+
         if not new_path.exists():
-            try:    
+            try:
                 os.makedirs(new_path, exist_ok=True)
             except PermissionError:
                 print(f"Permission denied to create {new_path}")
                 return
-            
+
         with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
             tasks: dict = json.load(f)
             tasks["paths"][target] = str(new_path)
             with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                 json.dump(tasks, l, indent=4, sort_keys=True)
         print(f"Successfully changed path.{target} to {new_path}\n")
-        
 
 
 class BgTasks():
@@ -353,7 +351,7 @@ class BgTasks():
             with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                 # print(tasks)
                 json.dump(tasks, l, indent=4, sort_keys=True)
-    
+
     def remove_task(self, task: str):
         with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
             tasks: list = json.load(f)
@@ -361,6 +359,7 @@ class BgTasks():
             with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                 # print(tasks)
                 json.dump(tasks, l, indent=4, sort_keys=True)
+
 
 class Variable:
     def __init__(self, name: str, value: str, is_reserved: bool) -> None:
@@ -370,6 +369,7 @@ class Variable:
 
     def __str__(self) -> str:
         return f"Variable(name={self.name}, is_reserved={self.is_reserved}, value={self.value})"
+
 
 class Variables:
 
@@ -391,13 +391,13 @@ class Variables:
         for var in self.variables:
             if var.name == name:
                 if var.is_reserved:
-                    print(f"Variable ${var.name} can't be deleted because it is a reserved variable")
+                    print(
+                        f"Variable ${var.name} can't be deleted because it is a reserved variable")
 
                 self.variables.remove(var)
                 return True
-            
+
         return False
-    
 
     def exists(self, name: str) -> bool:
         """
@@ -406,9 +406,9 @@ class Variables:
         for var in self.variables:
             if var.name == name:
                 return True
-            
+
         return False
-    
+
     def get(self, name: str) -> Variable | None:
         """
         Gets the value of a variable
@@ -418,9 +418,9 @@ class Variables:
         for var in self.variables:
             if var.name == name:
                 return var
-            
+
         return None
-    
+
     def set(self, name: str, value: str) -> None:
         """
         Update the value of a variable
@@ -436,6 +436,72 @@ class Variables:
         """
         print(f"No variable ${var} found")
 
+
+class Process:
+    def __init__(self, id: int, owner: str, thread: Thread) -> None:
+        self.id = id
+        self.owner = owner
+        self.thread = thread
+        self.started = time.time()
+
+    def _calculate_time(self, seconds: float) -> str:
+        minutes = int(seconds / 60)
+        hours = int(minutes / 60)
+        seconds = int(seconds % 60)
+
+        if hours > 0:
+            return f"{hours}h {minutes}m {seconds}s"
+
+        if minutes > 0:
+            return f"{minutes}m {seconds}s"
+
+        return f"{seconds}s"
+
+    def __str__(self) -> str:
+        return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self._calculate_time(self.started - time.time())}"
+
+    def all_info(self) -> str:
+        return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self._calculate_time(self.started - time.time())}"
+
+
+class Processes:
+    def __init__(self):
+        self.processes: list[Process] = []
+
+    def list(self, show_all: bool = False):
+        """
+        If all is true, all process info is shown 
+        """
+        for p in self.processes:
+            if p.thread.native_id is not None and not show_all:
+                print(p)
+            else:
+                print(p.all_info())
+
+    def add(self, info: Info, thread: Thread):
+        self.processes.append(
+            Process(id=thread.native_id, owner=info.user.username, thread=thread))
+        self.processes[-1].thread.start()
+
+    def remove(self, id) -> Process:
+        for p in self.processes:
+            if p.id == id:
+                self.processes.remove(p)
+                return p
+        return None
+
+    def clean(self) -> None:
+        """
+        Removes all stoped processes.
+
+        This function is automaticaly called each time the manager handles a command
+        """
+
+        for p in self.processes:
+            if not p.thread.is_alive():
+                self.processes.remove(p)
+
+
 class Info:
     """
     ### CLASS INFO
@@ -444,33 +510,24 @@ class Info:
     It's like a dictionary mapping information like the user instance or the version
 
     - user:                 The user instance
-    - system_cmds:          A list off all commands that are built in the OS terminal
-    - lang_file:            The lang_file path
     - settings_file:        The settings file path
     - settings_folder:      the settings folder path
     - version:              The software version number
-    - bg_tasks:             A list of tasks which will be executes as background Threads
-    - ignored_commands:     A list of commands which are ignored when called
-    - bg_tasks_available:   All commands that are available to be "tasked"
+    - variables:            All env variables are stored here
+    - processes:            A list of every single process running in the app
+    - exit:                 If true, the program and every single process gets shut down
     """
 
     def __init__(self,
                  user: User,
-                 system_cmds: list[str],
-                 bg_tasks: list[Thread],
-                 ignored_commands: list[str],
-                 bg_tasks_available: list[str]
                  ):
 
         self.user = user
-        self.system_cmds = system_cmds
         self.settings_file = SETTINGS_FILE
         self.settings_folder = SETTINGS_FOLDER
         self.version = VERSION
-        self.bg_tasks = bg_tasks
-        self.ignored_commands = ignored_commands
-        self.bg_tasks_available = bg_tasks_available
         self.variables: Variables = Variables()
+        self.processes: Processes = Processes()
         self.exit: bool = False
 
         self.init_reserved_variables()
@@ -479,4 +536,3 @@ class Info:
         self.variables.add("$ALL", "$ALL:$HOME:$PATH", True)
         self.variables.add("$HOME", self.user.paths.terminal, True)
         self.variables.add("$PATH", "", True)
-

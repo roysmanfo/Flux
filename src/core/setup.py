@@ -33,40 +33,10 @@ def setup(user: object, info: object, SETTINGS_FILE: Path, SETTINGS_FOLDER: Path
     # Load user
     USER = user()
     chdir(USER.paths.terminal)
-    SYSTEM_CMDS = get_setup_settings()
 
-    cmds = get_bgtasks([USER, SETTINGS_FILE, SETTINGS_FOLDER])
-    tasks = bgtasks.BG_TASKS
-    INFO = info(USER, SYSTEM_CMDS, cmds[0], cmds[1], tasks)
-    INFO.bg_tasks, INFO.ignored_commands = get_bgtasks(INFO, False)
+    INFO = info(USER)
     return INFO
 
-
-def get_bgtasks(info: list, info_is_list=True) -> list:
-    """
-    Returns a list of all tasks the user decided to execute on starup and 
-    a list of commands to ignore when called
-    """
-
-    user = info[0] if info_is_list else info.user
-
-    from . import cmd as fluxcmd
-
-    tasks: list[Thread] = []
-    ignore: list[str] = []
-
-    bg = user.background_tasks
-
-    # For each command check if the user decided to execute it on start
-    if 'observer' in bg:
-        ignore.append('observer')
-        command = ["observer"]
-        exe = fluxcmd.observer.Command()
-        exe.init()
-        tasks.append(Thread(target=exe.run, args=(
-            command, info, False), name="Observer"))
-
-    return [tasks, ignore]
 
 
 def get_setup_settings() -> list[str]:
