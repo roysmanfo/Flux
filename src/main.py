@@ -14,6 +14,7 @@ init(autoreset=True)
 # Setup process
 INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
 
+
 def listen() -> list[str]:
     """
     This function is used to get the command typed by the user preceded by
@@ -27,7 +28,7 @@ def listen() -> list[str]:
         print(f"{Fore.WHITE}", end="")
 
         return transform.string_to_list(command)
-    
+
     except KeyboardInterrupt:
         print(f"{Fore.RED}^C{Fore.RESET}")
         return transform.string_to_list("")
@@ -35,6 +36,7 @@ def listen() -> list[str]:
     except EOFError:
         print(f"{Fore.RED}^C{Fore.RESET}")
         return transform.string_to_list("")
+
 
 def run():
     while True:
@@ -55,7 +57,7 @@ def run():
         # Check if it's a command the default terminal can handle
         if cmd[0] == "clear":
             os.system("cls || clear")
-        
+
         elif cmd[0] == "cd":
             if len(cmd) > 1:
                 try:
@@ -67,7 +69,7 @@ def run():
                     pass
                 INFO.user.paths.terminal = os.getcwd()
                 INFO.user.paths.terminal.replace("\\", "/")
-            
+
             else:
                 os.chdir(INFO.variables.get("$HOME").value)
                 INFO.user.paths.terminal = INFO.variables.get("$HOME").value
@@ -76,14 +78,13 @@ def run():
         else:
             manager.manage(cmd, INFO)
 
+
 if __name__ == "__main__":
 
-    tasks_list: list[Thread] = [i for i in INFO.bg_tasks]
-    tasks_list.append(Thread(target=run, args=(), name="Main Thread"))
+    main = Thread(target=run, args=(), name="Main Thread")
 
     try:
-        for task in tasks_list:
-            task.start()
+        main.start()
 
     except KeyboardInterrupt:
         # Catch all the exceptions related to the whole program.

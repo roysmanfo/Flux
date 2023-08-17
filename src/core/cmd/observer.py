@@ -48,18 +48,15 @@ class Command(CommandInterface):
         self.parser = Parser(prog="observer",
                              description="Scans the bucket folder and sorts files in a `Files` folder")
         self.parser.add_argument("--path", action="store_true")
-        self.parser.add_argument("-bg", dest="background", action="store_true")
-
         self.parser.add_help_message("""Scans the bucket folder and sorts files in the destination folder
                
-usage: observer [-h] [--path] [-bg]
+usage: observer [-h] [--path]
                                     
 options:
 -h, --help  Show this help message and exit
 --path      Reveal the bucket's paths:
                 - Bucket: Where this command will look for new files
                 - Destination: Where the files will be sorted
--bg         Execute the observer in background just for this session
 """)
 
     def run(self, command: list[str], from_command_line: bool = True) -> None:
@@ -72,12 +69,12 @@ options:
             self.parser.help()
             return
 
-        if args.background:
-            self.background_task(self.info)
-
         if args.path:
             self.show_path(self.info)
             return
+
+        if self.IS_THREAD:
+            print("Running observer in background...")
 
         if from_command_line:
             self.sort_files(self.info)
@@ -89,13 +86,6 @@ options:
         print("Bucket:", info.user.paths.bucket)
         print("Destination:", info.user.paths.bucket_destination, "\n")
         return False
-
-    def background_task(self, info: object):
-        info.bg_tasks.append(
-            Thread(target=self.run, args=([], info, False), name="Observer"))
-        info.bg_tasks[-1].start()
-        info.ignored_commands.append("observer")
-        print("Started as background task\n")
 
     def sort_files(self, info: object, forever: bool = False) -> None:
         watch_path = Path(info.user.paths.bucket)
