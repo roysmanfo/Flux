@@ -1,4 +1,10 @@
 from src.settings.info import Info
+import sys
+from typing import TextIO
+
+STATUS_OK = 0
+STATUS_ERR = 1
+
 
 class CommandInterface:
     """
@@ -12,6 +18,9 @@ class CommandInterface:
 
     - `IS_THREAD (const, bool)`     Whether or not the command is being runned as a thread 
     - `info (variable, Info)`       A reference to the instance of the Info class, containing process information 
+    - `stdout (variable, TextIO)`   The stdout of the command
+    - `stderr (variable, TextIO)`   The stderr of the command
+    - `stdin (variable, TextIO)`    The stdin of the command
 
     ### AUTOMATIC FUNCTIONS
     Functions that get called regardless by the terminal
@@ -24,9 +33,20 @@ class CommandInterface:
     """
 
 
-    def __init__(self, info: Info, is_thread: bool) -> None:
-        self.IS_THREAD = is_thread
-        self.info = info
+    def __init__(self,
+                 info: Info,
+                 is_thread: bool,
+                 stdout: TextIO = sys.stdout, 
+                 stderr: TextIO = sys.stdout, 
+                 stdin: TextIO = sys.stdout
+                ) -> None:
+        
+        self.IS_THREAD: bool = is_thread
+        self.info: Info = info
+        self.status: int | None = None
+        self.stdout = stdout
+        self.stderr = stderr
+        self.stdin = stdin
 
     """
     AUTOMATIC CALLS
@@ -59,15 +79,16 @@ class CommandInterface:
         This is the last function that gets called.\n
         This function should be used to definetly close execution.
         """
-        ...
+        return self.status if self.status else STATUS_OK
 
     """
     HELPER FUNCTIONS
     """
 
-    def error(self):
+    def error(self, status: int | None = None, msg: str | None = None):
         """
         This function should be called once an error accoures errors.\n
         This function should be called to handle errors.
         """
-        ...
+        self.stderr.write(f"{self.parser.prog}: {msg}\n\n")
+        self.status = status
