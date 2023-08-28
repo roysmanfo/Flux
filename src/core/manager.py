@@ -26,27 +26,31 @@ def manage(command: list[str], info: Info) -> None:
 
     if command[0] == "export":
         exec_command_class = fluxcmd.export.Command
-   
+
     elif command[0] == "flux":
         exec_command_class = fluxcmd.flux.Command
 
     elif command[0] == "joke":
         exec_command_class = fluxcmd.joke.Command
     
+    elif command[0] == "ls":
+        exec_command_class = fluxcmd.ls.Command
+    
     elif command[0] == "observer":
         exec_command_class = fluxcmd.observer.Command
-    
+
     elif command[0] == "set":
         exec_command_class = fluxcmd.set.Commmand
-    
+
     try:
         is_thread = command[-1] == "&"
         exec_command = exec_command_class(info, is_thread)
-        
+
         if is_thread:
             from threading import Thread
             command.pop(-1)
-            thread = Thread(target=execute_command, args=(exec_command, command), name=command[0])
+            thread = Thread(target=execute_command, args=(
+                exec_command, command), name=command[0])
             info.processes.add(info, thread)
         else:
             execute_command(exec_command, command)
