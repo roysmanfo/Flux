@@ -1,8 +1,10 @@
+import shlex
+
 
 def string_to_list(string: str) -> list[str]:
-    words = string.strip().split(" ")
-    return format(words)
-
+    # words = string.strip().split(" ")
+    # return format(words)
+    return shlex.split(string)
 
 def format(words: list[str]) -> list[str]:
 
