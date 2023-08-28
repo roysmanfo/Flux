@@ -1,8 +1,9 @@
 import json
 import os
 import pathlib
-import time
-from threading import Thread
+
+from src.core.system.variables import Variables
+from src.core.system.processes import Processes
 
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
@@ -359,148 +360,6 @@ class BgTasks():
             with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
                 # print(tasks)
                 json.dump(tasks, l, indent=4, sort_keys=True)
-
-
-class Variable:
-    def __init__(self, name: str, value: str, is_reserved: bool) -> None:
-        self.name = name
-        self.value = value
-        self.is_reserved = is_reserved
-
-    def __str__(self) -> str:
-        return f"Variable(name={self.name}, is_reserved={self.is_reserved}, value={self.value})"
-
-
-class Variables:
-
-    def __init__(self) -> None:
-        self.variables: list[Variable] = []
-
-    def add(self, name: str, value: str, is_reserved: bool = False) -> None:
-        """
-        Creates a new variable
-        """
-        self.variables.append(Variable(name, value, is_reserved))
-
-    def remove(self, name: str) -> bool:
-        """
-        Deletes a variable
-
-        Returns True if the variable has been removed, False otherwise (variable not found)
-        """
-        for var in self.variables:
-            if var.name == name:
-                if var.is_reserved:
-                    print(
-                        f"Variable ${var.name} can't be deleted because it is a reserved variable")
-
-                self.variables.remove(var)
-                return True
-
-        return False
-
-    def exists(self, name: str) -> bool:
-        """
-        Checks if a variable exists
-        """
-        for var in self.variables:
-            if var.name == name:
-                return True
-
-        return False
-
-    def get(self, name: str) -> Variable | None:
-        """
-        Gets the value of a variable
-
-        Returns it's value if the variable has been remove found, None otherwise
-        """
-        for var in self.variables:
-            if var.name == name:
-                return var
-
-        return None
-
-    def set(self, name: str, value: str) -> None:
-        """
-        Update the value of a variable
-        """
-        for var in self.variables:
-            if var.name == name:
-                var.value = str(value)
-                return
-
-    def no_var_found(self, var):
-        """
-        Should be called when a variable with specified name is found
-        """
-        print(f"No variable ${var} found")
-
-
-class Process:
-    def __init__(self, id: int, owner: str, thread: Thread) -> None:
-        self.id = id
-        self.owner = owner
-        self.thread = thread
-        self.started = time.time()
-
-    def _calculate_time(self, seconds: float) -> str:
-        minutes = int(seconds / 60)
-        hours = int(minutes / 60)
-        seconds = int(seconds % 60)
-
-        if hours > 0:
-            return f"{hours}h {minutes}m {seconds}s"
-
-        if minutes > 0:
-            return f"{minutes}m {seconds}s"
-
-        return f"{seconds}s"
-
-    def __str__(self) -> str:
-        return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self._calculate_time(self.started - time.time())}"
-
-    def all_info(self) -> str:
-        return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self._calculate_time(self.started - time.time())}"
-
-
-class Processes:
-    def __init__(self):
-        self.processes: list[Process] = []
-
-    def list(self, show_all: bool = False):
-        """
-        If all is true, all process info is shown 
-        """
-        for p in self.processes:
-            if p.thread.native_id is not None and not show_all:
-                print(p)
-            else:
-                print(p.all_info())
-
-    def add(self, info: Info, thread: Thread):
-        self.processes.append(
-            Process(id=thread.native_id, owner=info.user.username, thread=thread))
-        self.processes[-1].thread.start()
-
-    def remove(self, id) -> Process:
-        for p in self.processes:
-            if p.id == id:
-                self.processes.remove(p)
-                return p
-        return None
-
-    def clean(self) -> None:
-        """
-        Removes all stoped processes.
-
-        This function is automaticaly called each time the manager handles a command
-        """
-
-        for p in self.processes:
-            if not p.thread.is_alive():
-                self.processes.remove(p)
-
 
 class Info:
     """

@@ -1,9 +1,7 @@
 from src.settings.info import Info
 import sys
 from typing import TextIO
-
-STATUS_OK = 0
-STATUS_ERR = 1
+from src.core.system.processes import *
 
 
 class CommandInterface:
