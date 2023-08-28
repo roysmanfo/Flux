@@ -29,10 +29,21 @@ class Parser(ArgumentParser):
 
         self.exit_execution = False
         self.help_message = ""
+        self.ignored = []
         if not add_help:
             self.add_argument("-h", "--help", action="store_true")
 
+    def error(self, message):
+        if message and message not in self.ignored:
+            self._print_message(message, _sys.stderr)
+            self.exit_execution = True
+            print()
+
     def exit(self, status: int | None = None, message: str | None = None):
+        # Chack if the help message was displayed
+        if not message and not status:
+            self.exit_execution = True
+            return
         if message:
             self._print_message(message, _sys.stderr)
             self.exit_execution = True
