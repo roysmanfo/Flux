@@ -13,8 +13,8 @@ class Test_Variables(unittest.TestCase):
         from src.core.cmd import export
 
         INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
-        cmnd = export.Command()
-        cmnd.run(['export', 'foo', 'bar'], INFO)
+        cmnd = export.Command(INFO, False)
+        cmnd.run(['export', 'foo', 'bar'])
         result = INFO.variables.get("foo")
         self.assertTrue(result is None, "The variable has been created, but it wasn't supposed to")
 
@@ -28,8 +28,8 @@ class Test_Variables(unittest.TestCase):
         from src.core.cmd import export
 
         INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
-        cmnd = export.Command()
-        cmnd.run(['export', '$foo'], INFO)
+        cmnd = export.Command(INFO, False)
+        cmnd.run(['export', '$foo'])
         result = INFO.variables.get("foo")
         self.assertTrue(result is None, "The variable has been created, but it wasn't supposed to")
 
@@ -43,8 +43,8 @@ class Test_Variables(unittest.TestCase):
         from src.core.cmd import export
 
         INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
-        cmnd = export.Command()
-        cmnd.run(['export', '$$', 'bar'], INFO)
+        cmnd = export.Command(INFO, False)
+        cmnd.run(['export', '$$', 'bar'])
         result = INFO.variables.get("$")
         self.assertTrue(result is None, "The variable has been created, but it wasn't supposed to")
 
