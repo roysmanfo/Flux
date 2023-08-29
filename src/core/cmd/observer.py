@@ -74,7 +74,7 @@ options:
             return
 
         if self.IS_THREAD:
-            print("Running observer in background...")
+            self.stdout.write("Running observer in background...\n")
 
         if from_command_line:
             self.sort_files(self.info)
@@ -83,8 +83,8 @@ options:
             self.sort_files(self.info, forever=True)
 
     def show_path(self, info: object) -> bool:
-        print("Bucket:", info.user.paths.bucket)
-        print("Destination:", info.user.paths.bucket_destination, "\n")
+        self.stdout.write("Bucket:", info.user.paths.bucket)
+        self.stdout.write("Destination:", info.user.paths.bucket_destination, "\n")
         return False
 
     def sort_files(self, info: object, forever: bool = False) -> None:
