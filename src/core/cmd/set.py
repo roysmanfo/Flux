@@ -6,10 +6,6 @@ from pathlib import Path
 from .helpers.arguments import Parser
 from .helpers.commands import CommandInterface
 
-OPTIONS = []
-FLAGS = ['--reset', '--all']
-
-
 class Commmand(CommandInterface):
     def init(self):
         self.parser = Parser(prog="set",
@@ -67,7 +63,7 @@ options:
         # Reset all user vareables
         if self.args.reset_all:
             self.info.user.reset_settings()
-            print('Restart the shell to apply changes')
+            self.stdout.write('Restart the shell to apply changes\n')
             return
 
         # Change username
@@ -75,7 +71,7 @@ options:
             if self.args.value and len(self.args.value[0].strip()) > 1 or self.args.reset:
                 self.info.user.set_username("default" if self.args.reset else " ".join(self.args.value), self.info, self.args.reset)
             else:
-                print("The username provided is too short")
+                self.stderr.write("The username provided is too short\n")
 
         # Set 1 or more new bg-task/s
         elif self.args.setting == "bg-task":
@@ -93,4 +89,4 @@ options:
 
         # Command does not exist
         else:
-            print('Setting not found\n')
+            self.stderr.write('Setting not found\n')

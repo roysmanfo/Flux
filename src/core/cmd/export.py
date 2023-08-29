@@ -36,5 +36,5 @@ class Command(CommandInterface):
         else:
             self.info.variables.add(name, value.removeprefix("\"").removesuffix("\""))
         
-        print(f"{name}={value}")
+        self.stdout.write(f"{name}={value}\n")
 
