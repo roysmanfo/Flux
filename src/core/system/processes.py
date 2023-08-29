@@ -1,6 +1,5 @@
 from threading import Thread
 import time
-from src.settings.info import Info
 
 
 # Process status codes
@@ -49,7 +48,7 @@ class Processes:
             else:
                 print(p.all_info())
 
-    def add(self, info: Info, thread: Thread):
+    def add(self, info: object, thread: Thread):
         self.processes.append(
             Process(id=thread.native_id, owner=info.user.username, thread=thread))
         self.processes[-1].thread.start()
