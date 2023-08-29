@@ -27,6 +27,9 @@ def manage(command: list[str], info: Info) -> None:
     if command[0] == "export":
         exec_command_class = fluxcmd.export.Command
 
+    if command[0] == "file":
+        exec_command_class = fluxcmd.file.Command
+
     elif command[0] == "flux":
         exec_command_class = fluxcmd.flux.Command
 
