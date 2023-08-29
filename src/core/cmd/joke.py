@@ -11,10 +11,10 @@ import random
 
 class Command(CommandInterface):
     
-    @staticmethod
-    def run(command: list[str]):
+    
+    def run(self, command: list[str]):
         """
         This command tells a random programming joke
         """
-        print(random.choice(jokes.jokes))
-        print()
+        self.stdout.write(random.choice(jokes.jokes))
+        self.stdout.write("\n\n")
