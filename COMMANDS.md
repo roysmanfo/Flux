@@ -6,10 +6,14 @@ Commands with a `!` in front are commands still in development
 
 Command | Description
 --- | ---
-`!` **flux** [options] | Gives information about the programm
-`!` **file** [options] | Gets information on a specific file.
+**cd** | Allows you to move on the file system
+**clear** | Clears the screen
+**exit** | Closes the terminal
 `!` **export** [options] | Allows to modify env variables.
+`!` **file** [options] | Gets information on a specific file.
+`!` **flux** [options] | Gives information about the programm
 **joke**  | Tells a random programming joke.
+**ls** [options] | List information about the FILEs
 **observer** [options] | Scans the bucket folder and sorts files in the destination folder
 **set** [options] | Allows to modify the settings
 ____
