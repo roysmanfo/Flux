@@ -48,13 +48,24 @@ class Command(CommandInterface):
             self.stdout.write("\n\n")
             return
         
+        output = []
         for content in dir_contents:
             complete_path = os.path.join(self.args.PATH, content)
             content = f"'{content}'" if len(str(content).split()) > 1 else content
             if os.path.isdir(complete_path):
-                self.stdout.write(f"{Fore.LIGHTBLUE_EX}{content}  ")
+                output.append(f"{Fore.LIGHTBLUE_EX}{content}")
             else:
-                self.stdout.write(f"{Fore.LIGHTGREEN_EX}{content}  ")
+                output.append(f"{Fore.LIGHTGREEN_EX}{content}")
+
+        max_line_length = os.get_terminal_size().columns // 4 * 3
+        linelenght = 0
+        for content in output:
+            if linelenght + len(content) + 2 < (max_line_length):
+                self.stdout.write(f"{content}  ")
+                linelenght += len(content) + 2
+            else:
+                linelenght = len(content) + 2
+                self.stdout.write(f"\n{content}  ")
 
         self.stdout.write("\n\n")
     
