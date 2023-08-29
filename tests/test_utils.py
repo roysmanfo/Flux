@@ -22,7 +22,6 @@ class Test_TestUtils(unittest.TestCase):
 
         test = "   Hello   World!   "
         formatted = transform.string_to_list(test)
-        print(formatted)
         ERROR_MSG = "command.string_to_list() should return a list with distributed elements and heading and trailing spaces removed"
         self.assertTrue(formatted == ["hello", "World!"], ERROR_MSG)
 
