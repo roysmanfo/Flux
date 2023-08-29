@@ -47,11 +47,8 @@ def manage(command: list[str], info: Info) -> None:
         exec_command = exec_command_class(info, is_thread)
 
         if is_thread:
-            from threading import Thread
             command.pop(-1)
-            thread = Thread(target=execute_command, args=(
-                exec_command, command), name=command[0])
-            info.processes.add(info, thread)
+            info.processes.add(info, command, exec_command)
         else:
             execute_command(exec_command, command)
 
