@@ -24,13 +24,19 @@ class Command(CommandInterface):
         if not os.path.exists(self.args.PATH):
             self.error(STATUS_ERR, f"cannot access '{self.args.PATH}': No such file or directory")
             return
+        
+        dir_contents: list[str]
 
-        dir_contents = os.listdir(self.args.PATH)
+        if os.path.isdir(self.args.PATH) or os.path.ismount(self.args.PATH):
+            self.args.PATH = os.path.abspath(self.args.PATH)
+            dir_contents = os.listdir(self.args.PATH)
+
+        elif os.path.isfile(self.args.PATH) or os.path.islink(self.args.PATH):
+            dir_contents = [self.args.PATH]
 
         #List all files
         if not self.args.all:
             dir_contents = [i for i in dir_contents if not i.startswith(".")]
-
         
         #Long listing format
         if self.args.l:
@@ -41,15 +47,16 @@ class Command(CommandInterface):
                 self.stdout.write(file + "\n")
             self.stdout.write("\n\n")
             return
-
-        output = ""
+        
         for content in dir_contents:
-            if os.path.isdir(content):
-                output += f"{Fore.LIGHTBLUE_EX}{content}  "
-            elif os.path.isfile(content):
-                output += f"{Fore.CYAN}{content}  "
+            complete_path = os.path.join(self.args.PATH, content)
+            content = f"'{content}'" if len(str(content).split()) > 1 else content
+            if os.path.isdir(complete_path):
+                self.stdout.write(f"{Fore.LIGHTBLUE_EX}{content}  ")
+            else:
+                self.stdout.write(f"{Fore.LIGHTGREEN_EX}{content}  ")
 
-        self.stdout.write(output + "\n\n")
+        self.stdout.write("\n\n")
     
     
     @staticmethod
@@ -68,22 +75,18 @@ class Command(CommandInterface):
         def format_file_info(file_info: os.stat_result):
             mode = file_info.st_mode
             permissions = get_permissions_string(mode)
-            user = file_info.st_uid
-            group = file_info.st_gid
             size = file_info.st_size
             modified_time = time.strftime("%b %d %H:%M", time.localtime(file_info.st_mtime))
-            return f"{permissions} {user} {group} {size:8} {modified_time}"
-        
+            return f"{permissions} {size:8} {modified_time}"
+
         file_info: os.stat_result = os.stat(file_path)
 
         formatted_info = format_file_info(file_info)
-        
+
         if os.path.isdir(file_path):
             formatted_info += f" {Fore.LIGHTBLUE_EX}{os.path.basename(file_path)}"
         else:
             formatted_info += f" {Fore.LIGHTGREEN_EX}{os.path.basename(file_path)}"
 
-
         return formatted_info
-
 
