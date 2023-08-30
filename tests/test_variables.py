@@ -9,10 +9,10 @@ class Test_Variables(unittest.TestCase):
         """
 
         from src.core import setup
-        from src.settings.info import Info, User, SETTINGS_FILE, SETTINGS_FOLDER
+        from src.settings.info import Info
         from src.core.cmd import export
 
-        INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
+        INFO: Info = setup.setup()
         cmnd = export.Command(INFO, False)
         cmnd.run(['export', 'foo', 'bar'])
         result = INFO.variables.get("foo")
@@ -24,10 +24,10 @@ class Test_Variables(unittest.TestCase):
         """
 
         from src.core import setup
-        from src.settings.info import Info, User, SETTINGS_FILE, SETTINGS_FOLDER
+        from src.settings.info import Info
         from src.core.cmd import export
 
-        INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
+        INFO: Info = setup.setup()
         cmnd = export.Command(INFO, False)
         cmnd.run(['export', '$foo'])
         result = INFO.variables.get("foo")
@@ -39,10 +39,10 @@ class Test_Variables(unittest.TestCase):
         """
 
         from src.core import setup
-        from src.settings.info import Info, User, SETTINGS_FILE, SETTINGS_FOLDER
+        from src.settings.info import Info
         from src.core.cmd import export
 
-        INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
+        INFO: Info = setup.setup()
         cmnd = export.Command(INFO, False)
         cmnd.run(['export', '$$', 'bar'])
         result = INFO.variables.get("$")
