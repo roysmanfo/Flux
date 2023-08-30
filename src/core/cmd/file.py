@@ -16,7 +16,6 @@ Opions:
 """
 from .helpers.commands import *
 from .helpers.arguments import Parser
-import sys
 import os
 from pathlib import Path
 import chardet
@@ -50,6 +49,10 @@ class Command(CommandInterface):
             info = self.get_metadata(self.args.PATH, self.args.keys)
         else:
             info = self.file_info(self.args.PATH)
+
+        if info is None:
+            self.parser.exit_execution = True
+            return
 
         self.stdout.write(info + "\n\n")
 
@@ -86,11 +89,11 @@ class Command(CommandInterface):
         return f"{filepath}: {file_type}, {oct(file_stats.st_mode)[-3:]}, {file_stats.st_size} bytes{encoding.upper()}"
 
 
-    def get_metadata(self, path, keys: list = []) -> str:
+    def get_metadata(self, path, keys: list = []) -> str | None:
         """
         Retreive metadata from an image file
 
-        ###Supported Types
+        ### Supported Types
         - JPEG (.jpg, .jpeg)
         - TIFF (.tif, .tiff)
         - PNG (.png)
@@ -103,13 +106,12 @@ class Command(CommandInterface):
 
         accepted = ['jpg', 'jpeg', 'tif', 'tif', 'png', 'gif',
                     'bmp', 'webp', 'pdf', 'docx', 'xlsx', 'pptx']
-        acc = "".join([f'{i}, ' for i in accepted])
+        acc = ", ".join([i for i in accepted])
         acc.removesuffix(', ')
 
         if str(path).rsplit('.', maxsplit=1)[-1].lower() not in accepted:
-            self.stderr.write("Operation not supported for this type of file")
-            self.stderr.write(f'Types suppoted: {acc}')
-            sys.exit(1)
+            self.error(STATUS_ERR, f"Operation not supported for this type of file\nTypes suppoted: {acc}")
+            return None
 
         image = Image.open(path)
         metadata = image.info
