@@ -1,6 +1,6 @@
 # Flux modules
 from core import setup, manager
-from settings.info import User, Info, SETTINGS_FILE, SETTINGS_FOLDER
+from settings.info import Info
 from utils import transform
 
 # External Dependencies
@@ -12,7 +12,7 @@ init(autoreset=True)
 
 
 # Setup process
-INFO: Info = setup.setup(User, Info, SETTINGS_FILE, SETTINGS_FOLDER)
+INFO: Info = setup.setup()
 
 
 def listen() -> list[str]:
