@@ -51,10 +51,10 @@ class Process:
         self.status = self.command_instance.exit()
 
     def __str__(self) -> str:
-        return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self._calculate_time(self.started - time.time())}"
+        return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self._calculate_time(time.time() - self.started)}"
 
     def all_info(self) -> str:
-        return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self.thread.native_id}\t{self._calculate_time(self.started - time.time())}"
+        return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self.thread.native_id}\t{self._calculate_time(time.time() - self.started)}"
 
 
 class Processes:
