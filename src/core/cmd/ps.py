@@ -14,18 +14,22 @@ class Command(CommandInterface):
     def run(self, command: list[str]):
         self.args = self.parser.parse_args(command[1:])
         mapped_modes = {
-            's': 'simple',  'simple': 'simple',
-            'l': 'list',    'list': 'list',
-            'o': 'output',  'output': 'output',
-            't': 'threads', 'threads': 'threads',
-            'm': 'misc',    'misc': 'misc',
-            'a': 'all',     'all': 'all',
+            's': 'simple',  'simple':   'simple',
+            'l': 'list',    'list':     'list',
+            'o': 'output',  'output':   'output',
+            't': 'threads', 'threads':  'threads',
+            'm': 'misc',    'misc':     'misc',
+            'a': 'all',     'all':      'all',
         }
         
         self.args.mode = mapped_modes[self.args.mode.lower()]
 
 
         procceses = self.info.processes.list()
+
+        if self.parser.exit_execution:
+            print()
+            return
 
 
         if self.args.mode == "all":
