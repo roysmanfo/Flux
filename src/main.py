@@ -81,11 +81,8 @@ def run():
 
 if __name__ == "__main__":
 
-    main = Thread(target=run, args=(), name="Main Thread")
-
     try:
-        main.start()
-
+        INFO.processes._add_main_process(INFO, ['flux'], run)
     except KeyboardInterrupt:
         # Catch all the exceptions related to the whole program.
         # Exeptions in single commands will get handled by the command itself.

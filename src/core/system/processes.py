@@ -34,11 +34,17 @@ class Process:
 
         return f"{seconds}s"
 
-    def run(self):
-        self.thread = Thread(target=self._run, name=self.line_args[0])
-        self.thread.daemon = True
+    def run(self, is_main_thread = False):
+        if is_main_thread:
+            self.thread = Thread(target=self.command_instance, name=self.line_args[0])
+            self.thread.start()
+            return
+        
+        self.thread = Thread(target=self._run, name=self.line_args[0], daemon=True)
         self.thread.start()
 
+    def _run_main(self):
+        self.command_instance()
 
     def _run(self):
         self.command_instance.init()
@@ -68,6 +74,9 @@ class Processes:
         current_time = int(time.time())
         return int(math.ceil(math.sqrt(process_id * 10 + current_time) * 10) * random.random())
 
+    def _add_main_process(self, info: object, prog_name: str, callable: Callable):
+        self.processes.append(Process(id=self._generate_pid(),owner=info.user.username, command_instance=callable, line_args=prog_name))
+        self.processes[-1].run(is_main_thread=True)
 
     def add(self, info: object, line_args: List[str], callable: Callable):
         self.processes.append(Process(id=self._generate_pid(),owner=info.user.username, command_instance=callable, line_args=line_args))
