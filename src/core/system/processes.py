@@ -2,8 +2,6 @@ from threading import Thread
 import time
 from typing import List, Callable
 import os
-import math
-import random
 
 # Process status codes
 STATUS_OK = 0
@@ -62,17 +60,16 @@ class Process:
 class Processes:
     def __init__(self):
         self.processes: list[Process] = []
+        self.process_counter: int = os.getpid()
 
     def list(self) -> list[Process]:
         # Avoid returning the system managed list of processes
         # Instead return a copy
         return self.processes.copy()
     
-    @staticmethod
-    def _generate_pid() -> int:
-        process_id = os.getpid()
-        current_time = int(time.time())
-        return int(math.ceil(math.sqrt(process_id * 10 + current_time) * 10) * random.random())
+    def _generate_pid(self) -> int:
+        self.process_counter += 1
+        return self.process_counter
 
     def _add_main_process(self, info: object, prog_name: str, callable: Callable):
         self.processes.append(Process(id=self._generate_pid(),owner=info.user.username, command_instance=callable, line_args=prog_name))
