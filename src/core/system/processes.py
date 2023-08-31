@@ -11,8 +11,8 @@ STATUS_ERR = 1
 
 
 class Process:
-    def __init__(self, owner: str, command_instance: Callable, line_args: list[str]) -> None:
-        self.id: int = None
+    def __init__(self, id: int, owner: str, command_instance: Callable, line_args: list[str]) -> None:
+        self.id: int = id
         self.name: str = line_args[0]
         self.owner: str = owner
         self.command_instance: Callable = command_instance
@@ -35,10 +35,9 @@ class Process:
         return f"{seconds}s"
 
     def run(self):
-        self.thread = Thread(target=self._run)
+        self.thread = Thread(target=self._run, name=self.line_args[0])
         self.thread.daemon = True
         self.thread.start()
-        self.id = self.thread.native_id
 
 
     def _run(self):
@@ -51,14 +50,14 @@ class Process:
         return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self._calculate_time(self.started - time.time())}"
 
     def all_info(self) -> str:
-        return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self._calculate_time(self.started - time.time())}"
+        return f"{self.id}\t{self.owner}\t{self.thread.name}\t{self.thread.native_id}\t{self._calculate_time(self.started - time.time())}"
 
 
 class Processes:
     def __init__(self):
         self.processes: list[Process] = []
 
-    def list(self) -> list:
+    def list(self) -> list[Process]:
         # Avoid returning the system managed list of processes
         # Instead return a copy
         return self.processes.copy()
@@ -71,8 +70,7 @@ class Processes:
 
 
     def add(self, info: object, line_args: List[str], callable: Callable):
-        self.processes.append(Process(owner=info.user.username, command_instance=callable, line_args=line_args))
-        self.processes[-1].id = self._generate_pid()
+        self.processes.append(Process(id=self._generate_pid(),owner=info.user.username, command_instance=callable, line_args=line_args))
         print(f"[{self.processes[-1].id}] {line_args[0]}")
         self.processes[-1].run()
         time.sleep(.1)

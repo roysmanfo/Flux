@@ -13,7 +13,7 @@ Example:
 ```
 """
 
-__all__ = ['helpers', 'observer', 'flux', 'set', 'joke', 'export', 'ls', 'file']
+__all__ = ['helpers', 'observer', 'flux', 'set', 'joke', 'export', 'ls', 'file', 'ps']
 
 from . import helpers
 from . import flux
@@ -23,4 +23,5 @@ from . import joke
 from . import export
 from . import ls
 from . import file
+from . import ps
 
