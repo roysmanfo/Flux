@@ -42,6 +42,9 @@ def manage(command: list[str], info: Info) -> None:
     elif command[0] == "observer":
         exec_command_class = fluxcmd.observer.Command
 
+    elif command[0] == "ps":
+        exec_command_class = fluxcmd.ps.Command
+
     elif command[0] == "set":
         exec_command_class = fluxcmd.set.Commmand
 
