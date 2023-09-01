@@ -14,4 +14,5 @@ Command | Description
 `flux` | [Gives information about the program](./flux.md)
 `ls` | [List information about the FILEs](./ls.md)
 `observer` | [Scans the bucket folder and sorts files in a the destination folder](./observer.md)
+`ps` | [Allows to view running Flux processes](./ps.md)
 `set` | [Allows to modify USER settings.](./set.md)
