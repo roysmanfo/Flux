@@ -4,7 +4,7 @@ Allows the user to change different settings, such as the username or info.user.
 """
 from pathlib import Path
 from .helpers.arguments import Parser
-from .helpers.commands import CommandInterface
+from .helpers.commands import *
 
 class Commmand(CommandInterface):
     def init(self):
@@ -29,14 +29,19 @@ class Commmand(CommandInterface):
             
             if not self.args.setting:
                 if not self.args.value or not self.args.reset:
-                    self.parser.exit(2, "error: the following arguments are required: -s\n")
+                    self.error(STATUS_ERR, "The following arguments are required: -s")
                     return
 
 
             if not self.args.value:
                 if not self.args.reset:
-                    self.parser.exit(2, "error: one of the following arguments is required: -v, -r\n")
+                    self.error(STATUS_ERR, "At least one of the following arguments is required: -v, -r")
                     return
+                
+            if self.args.value and self.args.reset:
+                self.error(STATUS_ERR, "Too many actions specified: -v, -r")
+                return
+                
 
         self.switch()
 
@@ -74,4 +79,4 @@ class Commmand(CommandInterface):
 
         # Command does not exist
         else:
-            self.stderr.write('Setting not found\n')
+            self.error(STATUS_ERR, 'Setting not found')
