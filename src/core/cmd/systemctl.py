@@ -28,15 +28,8 @@ class Commmand(CommandInterface):
         if not self.args.reset_all:
             
             if not self.args.setting:
-                if not self.args.value or not self.args.reset:
-                    self.error(STATUS_ERR, "The following arguments are required: -s")
-                    return
-
-
-            if not self.args.value:
-                if not self.args.reset:
-                    self.error(STATUS_ERR, "At least one of the following arguments is required: -v, -r")
-                    return
+                self.error(STATUS_ERR, "The following arguments are required: -s")
+                return
                 
             if self.args.value and self.args.reset:
                 self.error(STATUS_ERR, "Too many actions specified: -v, -r")
@@ -58,24 +51,53 @@ class Commmand(CommandInterface):
 
         # Change username
         if self.args.setting == "username":
-            if self.args.value and len(self.args.value[0].strip()) > 1 or self.args.reset:
-                self.info.user.set_username("default" if self.args.reset else " ".join(self.args.value), self.info, self.args.reset)
+            if self.args.value or self.args.reset:
+                if len(self.args.value[0].strip()) > 1:
+                    self.info.user.set_username("default" if self.args.reset else " ".join(self.args.value), self.info, self.args.reset)
+                else:
+                    self.stderr.write("The username provided is too short\n")
             else:
-                self.stderr.write("The username provided is too short\n")
+                self.stdout.write(f"{self.info.user.username}\n\n")
 
         # Set 1 or more new bg-task/s
         elif self.args.setting == "bg-task":
-            self.info.user.set_bg_task(self.info, self.args.value, self.args.reset)
+            if self.args.value or self.args.reset:
+                self.info.user.set_bg_task(self.info, self.args.value, self.args.reset)
+            else:
+                self.stdout.write(f"{', '.join(self.info.user.background_tasks) if self.info.user.background_tasks else 'No background tasks'}\n\n")
 
         # Set/ change an email
         # if muliple emails given, set as email the first valid one
         elif self.args.setting == "email":
-            self.info.user.set_email(self.info, self.args.value, self.args.reset)
+            if self.args.value or self.args.reset:
+                self.info.user.set_email(self.info, self.args.value, self.args.reset)
+            else:
+                self.stdout.write(f"'{self.info.user.email}'\n\n")
 
         # change a Path
-        elif self.args.setting.startswith("path.") and len(self.args.setting.split(".")) == 2:
-            target = self.args.setting.split(".")[1]
-            self.info.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.info, self.args.reset)
+        elif self.args.setting.startswith("path"):
+            if self.args.setting.startswith("path.") and len(self.args.setting.split(".")) == 2:
+                target = self.args.setting.split(".")[1]
+                if self.args.value or self.args.reset:
+                    self.info.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.info, self.args.reset)
+                else:
+                    self.stdout.write(f"{self.info.user.paths.all()[target]}\n\n")
+            else:
+                keys: list[str] = sorted(list(self.info.user.paths.all().keys()))
+                values: list[str] = [self.info.user.paths.all()[i] for i in keys]
+                longest_key = 0
+                longest_val = 0
+
+                for k in keys:
+                    longest_key = max(longest_key, len(k))
+                for v in values:
+                    longest_val = max(longest_val, len(str(v)))
+
+                self.stdout.write(f"Path name{' ' * (longest_key - len('Path name') + 4)}|  Value\n")
+                self.stdout.write(f"{'⎯' * ((longest_key - len('Path name')) * 2 + 7 + longest_val)}\n")
+                for k in keys:
+                    self.stdout.write(f"{k}{' ' * (longest_key - len(k) + 4)}|  {values[keys.index(k)]}\n")
+                self.stdout.write("\n")
 
         # Command does not exist
         else:
