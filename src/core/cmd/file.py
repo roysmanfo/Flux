@@ -48,7 +48,11 @@ class Command(CommandInterface):
         if self.args.metadata:
             info = self.get_metadata(self.args.PATH, self.args.keys)
         else:
-            info = self.file_info(self.args.PATH)
+            try:
+                info = self.file_info(self.args.PATH)
+            except PermissionError:
+                self.error(STATUS_ERR, f"cannot open `{self.args.PATH}` (permission denied)")
+                return
 
         if info is None:
             self.parser.exit_execution = True
