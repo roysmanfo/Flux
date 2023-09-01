@@ -1,5 +1,5 @@
 """
-# `set`
+# `systemctl`
 Allows the user to change different settings, such as the username or info.user.path informations
 """
 from pathlib import Path
@@ -8,23 +8,12 @@ from .helpers.commands import CommandInterface
 
 class Commmand(CommandInterface):
     def init(self):
-        self.parser = Parser(prog="set",
+        self.parser = Parser(prog="systemctl", add_help=True,
                              description="Allows the user to change different settings, such as the username or info.user.path informations")
-        self.parser.add_argument("-s", dest="setting")
-        self.parser.add_argument("-v", dest="value", nargs="+")
-        self.parser.add_argument("-r","--reset", dest="reset", action="store_true")
-        self.parser.add_argument("--reset-all", dest="reset_all", action="store_true")
-        self.parser.add_help_message("""Allows the user to change different settings, such as the username or info.user.path informations
-                                     
-usage: set [-h] [--reset-all] -s SETTING [--reset][-v VALUE]
-
-options:
-  -h, --help        Show this help message
-  -s SETTING        The setting to change
-  -v VALUE          The new value of the setting to change (used with -s)
-  -r, --reset       Reset the selected setting to it's default value (used with -s)
-  --reset-all       Reset all settings
-""")
+        self.parser.add_argument("-s", dest="setting", help="The setting to change")
+        self.parser.add_argument("-v", dest="value", nargs="+", help="The new value of the setting to change (used with -s)")
+        self.parser.add_argument("-r","--reset", dest="reset", action="store_true", help="Reset the selected setting to it's default value (used with -s)")
+        self.parser.add_argument("--reset-all", dest="reset_all", action="store_true", help="Reset all settings")
 
     def run(self, command: list):
         """
@@ -33,17 +22,13 @@ options:
         self.args = self.parser.parse_args(command[1:])
 
         if self.parser.exit_execution:
-            return
-
-        if self.args.help:
-            self.parser.help()
+            print()
             return
 
         if not self.args.reset_all:
             
             if not self.args.setting:
                 if not self.args.value or not self.args.reset:
-                    self.parser.help()
                     self.parser.exit(2, "error: the following arguments are required: -s\n")
                     return
 

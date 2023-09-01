@@ -45,8 +45,8 @@ def manage(command: list[str], info: Info) -> None:
     elif command[0] == "ps":
         exec_command_class = fluxcmd.ps.Command
 
-    elif command[0] == "set":
-        exec_command_class = fluxcmd.set.Commmand
+    elif command[0] == "systemctl":
+        exec_command_class = fluxcmd.systemctl.Commmand
 
     try:
         is_thread = command[-1] == "&"
