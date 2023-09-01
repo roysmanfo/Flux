@@ -4,8 +4,9 @@ from typing import List, Callable
 import os
 
 # Process status codes
-STATUS_OK = 0
-STATUS_ERR = 1
+STATUS_OK = 0 # Exited with no problems
+STATUS_ERR = 1 # An error accoured
+STATUS_WARN = 2 # Exited with warnings
 
 
 class Process:
