@@ -8,6 +8,9 @@ Syntax
 file [-h] [-m] [-k KEYS] PATH
 ```
 
+Positional Arguments | Description
+--------|------------
+`PATH` | The path of the file
 
 Options | Description
 --------|------------
