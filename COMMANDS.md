@@ -15,6 +15,7 @@ Command | Description
 **ls** [options] | List information about the FILEs
 **joke**  | Tells a random programming joke.
 **observer** [options] | Scans the bucket folder and sorts files in the destination folder
+**ps** [options] | Allows to view running Flux processes
 **set** [options] | Allows to modify the settings
 ____
 
