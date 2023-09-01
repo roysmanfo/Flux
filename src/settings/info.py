@@ -246,7 +246,7 @@ class Path:
             "bucket": self.bucket,
             "bucket-destination": self.bucket_destination
         }
-        return sorted(paths)
+        return paths
 
     def _set_default_terminal_path(self) -> pathlib.Path:
         """
