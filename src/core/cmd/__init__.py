@@ -13,12 +13,12 @@ Example:
 ```
 """
 
-__all__ = ['helpers', 'observer', 'flux', 'set', 'joke', 'export', 'ls', 'file', 'ps']
+__all__ = ['helpers', 'observer', 'flux', 'systemctl', 'joke', 'export', 'ls', 'file', 'ps']
 
 from . import helpers
 from . import flux
 from . import observer
-from . import set
+from . import systemctl
 from . import joke
 from . import export
 from . import ls
