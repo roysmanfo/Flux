@@ -35,7 +35,7 @@ class Process:
 
     def run(self, is_main_thread = False):
         if is_main_thread:
-            self.thread = Thread(target=self.command_instance, name=self.line_args[0])
+            self.thread = Thread(target=self._run_main, name=self.line_args[0])
             self.thread.start()
             return
         
