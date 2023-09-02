@@ -73,7 +73,7 @@ options:
             self.show_path()
             return
 
-        if self.IS_THREAD:
+        if self.IS_PROCESS:
             self.stdout.write("Running observer in background...\n")
 
         if from_command_line:
@@ -112,7 +112,7 @@ options:
             event_handler.on_modified(DirModifiedEvent)
 
             # Check if we decided to run the process as a background task
-            if forever or self.IS_THREAD:
+            if forever or self.IS_PROCESS:
 
                 try:
                     while not self.info.exit:
