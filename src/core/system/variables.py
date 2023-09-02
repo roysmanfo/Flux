@@ -1,6 +1,4 @@
 
-from typing import overload
-
 
 class Variable:
     def __init__(self, name: str, value: str, is_reserved: bool) -> None:
@@ -27,30 +25,39 @@ class Variables:
     def __init__(self) -> None:
         self.variables: list[Variable] = []
 
-    def add(self, name: str, value: str, is_reserved: bool = False) -> None:
+    def add(self, name: str, value: str, is_reserved: bool = False) -> bool:
         """
         Creates a new variable
+
+        @returns True if the variable was created, False otherwise (name already taken)
         """
-        self.variables.append(Variable(name, value, is_reserved))
+        if self.find(name):
+            return False
+        
+        self.variables.append(Variable(name.upper(), value, is_reserved))
+        return False
+
 
     def remove(self, name: str) -> bool:
         """
         Deletes a variable
 
-        Returns True if the variable has been removed, False otherwise (variable not found)
+        Returns True if the variable has been removed, False otherwise (variable not found or is reserved)
         """
+        if not self.exists(name):
+            return False
+        
         for var in self.variables:
             if var.name == name:
                 if var.is_reserved:
                     print(
                         f"Variable ${var.name} can't be deleted because it is a reserved variable")
-
+                    return False
                 self.variables.remove(var)
                 return True
 
         return False
 
-    @overload
     def exists(self, name: str) -> bool:
         """
         Checks if a variable exists
@@ -60,8 +67,7 @@ class Variables:
                 return True
         return False
 
-    @overload
-    def exists(self, var: Variable) -> bool:
+    def find(self, var: Variable) -> bool:
         """
         Checks if a variable exists
         """
