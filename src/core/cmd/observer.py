@@ -70,26 +70,26 @@ options:
             return
 
         if args.path:
-            self.show_path(self.info)
+            self.show_path()
             return
 
         if self.IS_THREAD:
             self.stdout.write("Running observer in background...\n")
 
         if from_command_line:
-            self.sort_files(self.info)
+            self.sort_files()
 
         else:
-            self.sort_files(self.info, forever=True)
+            self.sort_files(forever=True)
 
-    def show_path(self, info: object) -> bool:
-        self.stdout.write("Bucket:", info.user.paths.bucket)
-        self.stdout.write("Destination:", info.user.paths.bucket_destination, "\n")
+    def show_path(self) -> bool:
+        self.stdout.write(f"Bucket:{self.info.user.paths.bucket}\n")
+        self.stdout.write(f"Destination:{self.info.user.paths.bucket_destination}\n\n")
         return False
 
-    def sort_files(self, info: object, forever: bool = False) -> None:
-        watch_path = Path(info.user.paths.bucket)
-        destination_root = Path(info.user.paths.bucket_destination)
+    def sort_files(self, forever: bool = False) -> None:
+        watch_path = Path(self.info.user.paths.bucket)
+        destination_root = Path(self.info.user.paths.bucket_destination)
 
         try:
             os.makedirs(watch_path)
@@ -115,7 +115,7 @@ options:
             if forever or self.IS_THREAD:
 
                 try:
-                    while not info.exit:
+                    while not self.info.exit:
                         time.sleep(.1)
                         continue
                     observer.stop()
@@ -131,7 +131,7 @@ options:
 
         except FileNotFoundError:
             # We deleted one or both directories
-            self.sort_files(info, forever)
+            self.sort_files(forever)
 
     class EventHandler(FileSystemEventHandler):
         """    
