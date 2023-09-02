@@ -14,7 +14,7 @@ class CommandInterface:
     ### GENERAL ATTRIBUTES
     Attributes shared by commands
 
-    - `IS_THREAD (const, bool)`     Whether or not the command is being runned as a thread 
+    - `IS_PROCESS (const, bool)`     Whether or not the command is being runned as a thread 
     - `info (variable, Info)`       A reference to the instance of the Info class, containing process information 
     - `stdout (variable, TextIO)`   The stdout of the command
     - `stderr (variable, TextIO)`   The stderr of the command
@@ -33,13 +33,13 @@ class CommandInterface:
 
     def __init__(self,
                  info: Info,
-                 is_thread: bool,
+                 is_process: bool,
                  stdout: TextIO = sys.stdout, 
                  stderr: TextIO = sys.stdout, 
                  stdin: TextIO = sys.stdout
                 ) -> None:
         
-        self.IS_THREAD: bool = is_thread
+        self.IS_PROCESS: bool = is_process
         self.info: Info = info
         self.status: int | None = None
         self.stdout = stdout
