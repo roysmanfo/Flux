@@ -1,4 +1,7 @@
 
+from typing import overload
+
+
 class Variable:
     def __init__(self, name: str, value: str, is_reserved: bool) -> None:
         self.name = name
@@ -7,6 +10,16 @@ class Variable:
 
     def __str__(self) -> str:
         return f"Variable(name={self.name}, is_reserved={self.is_reserved}, value={self.value})"
+
+    def __eq__(self, __value: object) -> bool:
+
+        if not isinstance(__value, Variable):
+            return False
+
+        return all([__value.name == self.name, __value.value == self.value, __value.is_reserved == self.is_reserved])
+
+    def equals(self, var: object):
+        return self.__eq__(var)
 
 
 class Variables:
@@ -37,14 +50,24 @@ class Variables:
 
         return False
 
+    @overload
     def exists(self, name: str) -> bool:
         """
         Checks if a variable exists
         """
-        for var in self.variables:
-            if var.name == name:
+        for v in self.variables:
+            if v.name == name:
                 return True
+        return False
 
+    @overload
+    def exists(self, var: Variable) -> bool:
+        """
+        Checks if a variable exists
+        """
+        for v in self.variables:
+            if v.equals(var):
+                return True
         return False
 
     def get(self, name: str) -> Variable | None:
