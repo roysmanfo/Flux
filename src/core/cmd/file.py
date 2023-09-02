@@ -1,18 +1,12 @@
 """
-File command
-============
+# `file`
 
 This command gives information on a specific file given as argument
-
-
-Usage: python file.py FILEPATH
-  or:  python file.py DIRPATH
-  or:  python file.py FILEPATH [args]
-```
-
+```txt
 Opions:
-    -m, --metadata              Extracts the metadata of the file if possible.
+    -m, --metadata              Extracts the metadata of the file if possible.  
     -k key, --keys key          Used combined with `-m`, allows to specify a key (can be used multiple times)
+```
 """
 from .helpers.commands import *
 from .helpers.arguments import Parser
