@@ -60,6 +60,10 @@ class Command(CommandInterface):
             content = f"'{content}'" if len(str(content).split()) > 1 else content
             if os.path.isdir(complete_path):
                 output.append(f"{Fore.LIGHTBLUE_EX}{content}")
+            elif content.removesuffix("'").split(".")[-1].lower() in ['jpg', 'jpeg', 'tif', 'jfif', 'png', 'gif', 'bmp', 'webp', 'pdf']:
+                output.append(f"{Fore.LIGHTMAGENTA_EX}{content}")
+            elif sys.platform.lower().startswith("win") and "." + content.removesuffix("'").split(".")[-1].upper() in os.environ['PATHEXT']:
+                output.append(f"{Back.LIGHTYELLOW_EX} {Fore.BLACK}{content} {Back.RESET}")
             else:
                 output.append(f"{Fore.LIGHTGREEN_EX}{content}")
 
@@ -100,8 +104,13 @@ class Command(CommandInterface):
 
         formatted_info = format_file_info(file_info)
 
+        # Color formatting
         if os.path.isdir(file_path):
             formatted_info += f" {Fore.LIGHTBLUE_EX}{os.path.basename(file_path)}"
+        elif file_path.removesuffix("'").split(".")[-1].lower() in ['jpg', 'jpeg', 'tif', 'jfif', 'png', 'gif', 'bmp', 'webp', 'pdf']:
+            formatted_info +=  f" {Fore.LIGHTMAGENTA_EX}{os.path.basename(file_path)}"
+        elif sys.platform.lower().startswith("win") and "." + file_path.removesuffix("'").split(".")[-1].upper() in os.environ['PATHEXT']:
+            formatted_info += f" {Back.LIGHTYELLOW_EX}{Fore.BLACK}{os.path.basename(file_path)}{Back.RESET}"
         else:
             formatted_info += f" {Fore.LIGHTGREEN_EX}{os.path.basename(file_path)}"
 
