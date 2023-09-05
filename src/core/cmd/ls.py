@@ -35,7 +35,11 @@ class Command(CommandInterface):
 
         if os.path.isdir(self.args.PATH) or os.path.ismount(self.args.PATH):
             self.args.PATH = os.path.abspath(self.args.PATH)
-            dir_contents = os.listdir(self.args.PATH)
+            try:
+                dir_contents = os.listdir(self.args.PATH)
+            except PermissionError:
+                self.error(STATUS_ERR, f"cannot open `{self.args.PATH}` (permission denied)")
+                return
 
         elif os.path.isfile(self.args.PATH) or os.path.islink(self.args.PATH):
             dir_contents = [self.args.PATH]
