@@ -79,12 +79,12 @@ class Command(CommandInterface):
                 if str(self.args.PATH).rsplit('.', maxsplit=1)[-1].lower() in image_ext:
                     encoding = ""
                 else:
-                    encoding: str = ", " + \
-                        chardet.detect(file.read())[
-                            'encoding'] or ", unknown encoding"
+                    encoding: str = f", {chardet.detect(file.read())['encoding'] or 'unknown encoding'}"
+                    if encoding != 'unknown encoding':
+                        encoding = encoding.upper()
         else:
             encoding = ""
-        return f"{filepath}: {file_type}, {oct(file_stats.st_mode)[-3:]}, {file_stats.st_size} bytes{encoding.upper()}"
+        return f"{filepath}: {file_type}, {oct(file_stats.st_mode)[-3:]}, {file_stats.st_size} bytes{encoding}"
 
 
     def get_metadata(self, path, keys: list = []) -> str | None:
