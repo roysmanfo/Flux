@@ -74,7 +74,7 @@ class Command(CommandInterface):
 
         if not os.path.isdir(filepath):
             with open(filepath, 'rb') as file:
-                image_ext = ['jpg', 'jpeg', 'tif', 'tif', 'png',
+                image_ext = ['jpg', 'jpeg', 'tif', 'tiff', 'png',
                             'gif', 'bmp', 'webp', 'pdf', 'docx', 'xlsx', 'pptx']
                 if str(self.args.PATH).rsplit('.', maxsplit=1)[-1].lower() in image_ext:
                     encoding = ""
@@ -102,7 +102,7 @@ class Command(CommandInterface):
         - Microsoft Office documents (.docx, .xlsx, .pptx)
         """
 
-        accepted = ['jpg', 'jpeg', 'tif', 'tif', 'png', 'gif',
+        accepted = ['jpg', 'jpeg', 'tif', 'tiff', 'png', 'gif',
                     'bmp', 'webp', 'pdf', 'docx', 'xlsx', 'pptx']
         acc = ", ".join([i for i in accepted])
         acc.removesuffix(', ')
