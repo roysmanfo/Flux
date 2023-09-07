@@ -3,8 +3,8 @@
 Allows to view running Flux processes
 """
 
-from .helpers.commands import *
-from .helpers.arguments import Parser
+from ...helpers.commands import *
+from ...helpers.arguments import Parser
 
 class Command(CommandInterface):
     def init(self):

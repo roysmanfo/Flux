@@ -36,9 +36,9 @@ import time
 from threading import Thread
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent
-from .helpers.extensions import extension_paths
-from .helpers.arguments import Parser
-from .helpers.commands import CommandInterface
+from ...helpers.extensions import extension_paths
+from ...helpers.arguments import Parser
+from ...helpers.commands import CommandInterface
 
 
 class Command(CommandInterface):

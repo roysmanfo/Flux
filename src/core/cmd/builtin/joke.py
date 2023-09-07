@@ -4,8 +4,8 @@
 This command tells a random programming joke
 """
 
-from .helpers import jokes
-from .helpers.commands import CommandInterface
+from ...helpers import jokes
+from ...helpers.commands import CommandInterface
 import random
 
 

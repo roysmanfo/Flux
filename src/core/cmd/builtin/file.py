@@ -8,8 +8,8 @@ Opions:
     -k key, --keys key          Used combined with `-m`, allows to specify a key (can be used multiple times)
 ```
 """
-from .helpers.commands import *
-from .helpers.arguments import Parser
+from ...helpers.commands import *
+from ...helpers.arguments import Parser
 import os
 from pathlib import Path
 import chardet
