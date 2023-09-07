@@ -5,7 +5,27 @@ This is the place where the input given gets analized and associated
 with the respective command (if existent).
 """
 from src.settings.info import Info
+import os
+import importlib
 
+# List of directories to search for custom scripts/extensions
+custom_script_dirs = ["scripts", "extensions"]
+
+def load_custom_script(script_name: str):
+    """
+    Load an external command installed on the machine
+    """
+
+    for dir_name in custom_script_dirs:
+        script_path = os.path.join(dir_name, script_name + ".py")
+        if os.path.isfile(script_path):
+            try:
+                module = importlib.import_module(f"{dir_name}.{script_name}")
+                exec_command_class = getattr(module, "Command")
+                return exec_command_class
+            except (ImportError, AttributeError):
+                pass
+    return None
 
 def manage(command: list[str], info: Info) -> None:
 
@@ -13,15 +33,16 @@ def manage(command: list[str], info: Info) -> None:
     # for further processing and execution
 
     from . import cmd as fluxcmd
+    from . import helpers
 
-    def execute_command(callable: fluxcmd.helpers.commands.CommandInterface, command) -> None:
+    def execute_command(callable: helpers.commands.CommandInterface, command) -> None:
         callable.init()
         callable.run(command)
         callable.close()
         callable.exit()
 
-    exec_command: fluxcmd.helpers.commands.CommandInterface
-    exec_command_class = fluxcmd.helpers.commands.CommandInterface
+    exec_command: helpers.commands.CommandInterface
+    exec_command_class = helpers.commands.CommandInterface
 
     info.processes.clean()
 
@@ -54,10 +75,12 @@ def manage(command: list[str], info: Info) -> None:
         exec_command_class = fluxcmd.ps.Command
 
     elif command_name == "systemctl":
-        exec_command_class = fluxcmd.systemctl.Commmand
+        exec_command_class = fluxcmd.systemctl.Commmand 
 
     else:
-        print(f"-flux: {command_name}: command not found\n")
+        exec_command_class = load_custom_script(command_name)
+        if not exec_command_class:
+            print(f"-flux: {command_name}: command not found\n")
 
     try:
         is_thread = command[-1] == "&"
