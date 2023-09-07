@@ -11,7 +11,7 @@ Command | Description
 **exit** | Closes the terminal
 `!` **export** [options] | Allows to modify env variables
 **file** [options] | Gets information on a specific file
-`!` **flux** [options] | Gives information about the programm
+**flux** [options] | Shows the program banner and gives information about the programm
 **ls** [options] | List information about the FILEs
 **joke**  | Tells a random programming joke.
 **observer** [options] | Scans the bucket folder and sorts files in the destination folder
