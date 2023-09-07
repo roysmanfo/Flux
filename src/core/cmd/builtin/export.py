@@ -3,7 +3,7 @@
 Allows the user to create temporary variables for later use
 """
 
-from .helpers.commands import CommandInterface
+from ...helpers.commands import CommandInterface
 
 class Command(CommandInterface):
     def run(self, command: list) -> None:

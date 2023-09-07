@@ -1,8 +1,8 @@
 import colorama
 from colorama import Fore
 import random
-from .helpers.commands import CommandInterface
-from .helpers.arguments import Parser
+from ...helpers.commands import CommandInterface
+from ...helpers.arguments import Parser
 colorama.init(autoreset=True)
 
 

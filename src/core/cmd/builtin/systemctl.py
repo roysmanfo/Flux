@@ -3,8 +3,8 @@
 Allows the user to change different settings, such as the username or info.user.path informations
 """
 from pathlib import Path
-from .helpers.arguments import Parser
-from .helpers.commands import *
+from ...helpers.arguments import Parser
+from ...helpers.commands import *
 
 class Commmand(CommandInterface):
     def init(self):
