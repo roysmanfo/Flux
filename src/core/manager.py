@@ -81,6 +81,7 @@ def manage(command: list[str], info: Info) -> None:
         exec_command_class = load_custom_script(command_name)
         if not exec_command_class:
             print(f"-flux: {command_name}: command not found\n")
+            return
 
     try:
         is_thread = command[-1] == "&"
