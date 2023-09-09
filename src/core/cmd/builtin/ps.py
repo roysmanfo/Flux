@@ -34,8 +34,10 @@ class Command(CommandInterface):
 
         if self.args.mode == "all":
             for p in procceses:
-                self.stdout.write(p.all_info() + "\n")
+                self.stdout.write(p.get_info().__str__() + "\n")
 
         else:
             for p in procceses:
                 self.stdout.write(p.__str__() + "\n")
+
+        self.stdout.write("\n")
