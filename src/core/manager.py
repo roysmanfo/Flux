@@ -48,9 +48,11 @@ def manage(command: list[str], info: Info) -> None:
 
     command_name = info.variables.get(command[0]).value if info.variables.exists(command[0]) else command[0]
 
-    if command[0].startswith("$") and len(command_name.split()) > 1:
+    if command[0].startswith("$"):
         command.pop(0)
-        command = command_name.split().extend(command)
+        tail = command 
+        command = command_name.split()
+        command.extend(tail)
         command_name = command[0]
 
     if command_name == "export":
@@ -79,6 +81,9 @@ def manage(command: list[str], info: Info) -> None:
 
     else:
         exec_command_class = load_custom_script(command_name)
+        if command_name == "":
+            return
+        
         if not exec_command_class:
             print(f"-flux: {command_name}: command not found\n")
             return
@@ -89,7 +94,7 @@ def manage(command: list[str], info: Info) -> None:
 
         if is_thread:
             command.pop(-1)
-            info.processes.add(info, command, exec_command)
+            info.processes.add(info, command, exec_command, False)
         else:
             execute_command(exec_command, command)
 
