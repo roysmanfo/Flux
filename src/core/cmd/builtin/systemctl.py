@@ -83,21 +83,10 @@ class Commmand(CommandInterface):
                 else:
                     self.stdout.write(f"{self.info.user.paths.all()[target]}\n\n")
             else:
-                keys: list[str] = sorted(list(self.info.user.paths.all().keys()))
-                values: list[str] = [self.info.user.paths.all()[i] for i in keys]
-                longest_key = 0
-                longest_val = 0
+                from src.utils.format import create_table
 
-                for k in keys:
-                    longest_key = max(longest_key, len(k))
-                for v in values:
-                    longest_val = max(longest_val, len(str(v)))
+                self.stdout.write(create_table("Path name", "Value", self.info.user.paths.all()))
 
-                self.stdout.write(f"Path name{' ' * (longest_key - len('Path name') + 4)}|  Value\n")
-                self.stdout.write(f"{'⎯' * ((longest_key - len('Path name')) * 2 + 7 + longest_val)}\n")
-                for k in keys:
-                    self.stdout.write(f"{k}{' ' * (longest_key - len(k) + 4)}|  {values[keys.index(k)]}\n")
-                self.stdout.write("\n")
 
         # Command does not exist
         else:
