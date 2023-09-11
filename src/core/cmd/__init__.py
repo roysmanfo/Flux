@@ -13,9 +13,10 @@ Example:
 ```
 """
 
-__all__ = ['builtin', 'observer', 'flux', 'systemctl', 'joke', 'export', 'ls', 'file', 'ps']
+__all__ = ['builtin', 'observer', 'flux', 'fpm', 'systemctl', 'joke', 'export', 'ls', 'file', 'ps']
 
 from .builtin import flux
+from .builtin import fpm
 from .builtin import observer
 from .builtin import systemctl
 from .builtin import joke
@@ -23,4 +24,5 @@ from .builtin import export
 from .builtin import ls
 from .builtin import file
 from .builtin import ps
+
 

@@ -11,6 +11,7 @@ import importlib
 # List of directories to search for custom scripts/extensions
 custom_script_dirs = ["scripts", "extensions"]
 
+
 def load_custom_script(script_name: str):
     """
     Load an external command installed on the machine
@@ -26,6 +27,7 @@ def load_custom_script(script_name: str):
             except (ImportError, AttributeError):
                 pass
     return None
+
 
 def manage(command: list[str], info: Info) -> None:
 
@@ -46,11 +48,14 @@ def manage(command: list[str], info: Info) -> None:
 
     info.processes.clean()
 
-    command_name = info.variables.get(command[0]).value if info.variables.exists(command[0]) else command[0]
+    if info.variables.exists(command[0]):
+        command_name = info.variables.get(command[0]).value
+    else:
+        command_name = command[0]
 
     if command[0].startswith("$"):
         command.pop(0)
-        tail = command 
+        tail = command
         command = command_name.split()
         command.extend(tail)
         command_name = command[0]
@@ -63,6 +68,9 @@ def manage(command: list[str], info: Info) -> None:
 
     elif command_name == "flux":
         exec_command_class = fluxcmd.flux.Command
+
+    elif command_name == "fpm":
+        exec_command_class = fluxcmd.fpm.Command
 
     elif command_name == "joke":
         exec_command_class = fluxcmd.joke.Command
@@ -77,13 +85,13 @@ def manage(command: list[str], info: Info) -> None:
         exec_command_class = fluxcmd.ps.Command
 
     elif command_name == "systemctl":
-        exec_command_class = fluxcmd.systemctl.Commmand 
+        exec_command_class = fluxcmd.systemctl.Commmand
 
     else:
         exec_command_class = load_custom_script(command_name)
         if command_name == "":
             return
-        
+
         if not exec_command_class:
             print(f"-flux: {command_name}: command not found\n")
             return
