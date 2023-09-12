@@ -21,20 +21,30 @@ class Command(CommandInterface):
         if self.parser.exit_execution:
             print()
             return
+        
+        self.args.files = sorted(self.args.files)
 
         for file in self.args.files:
             file = str(os.path.abspath(file))
             if not os.path.exists(file):
                 self.error(STATUS_ERR, f"cannot access '{file}': No such file or directory")
-
-        # * With single files use zipfile
-        with zipfile.ZipFile(f'{self.args.archive_name}.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for file in self.args.files:
-                if os.path.isdir(file):
-                    self.compress_folder(file, zipf)
-                else:
-                    self.compress_file(file, zipf)
+                return
             
+        # * With single files use zipfile
+        try:
+            with zipfile.ZipFile(f'{self.args.archive_name}.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for file in self.args.files:
+                    self.stdout.write(f"adding: {file}\n")
+                    if os.path.isdir(file):
+                        self.compress_folder(file, zipf)
+                    else:
+                        self.compress_file(file, zipf)
+        except PermissionError:
+            self.error(STATUS_ERR, f"cannot open '{file}': (permission denied)")
+            os.remove(f'{self.args.archive_name}.zip')
+            return
+        
+        self.stdout.write("\n")
 
     @staticmethod
     def compress_folder(path: str, ziph: zipfile.ZipFile):
