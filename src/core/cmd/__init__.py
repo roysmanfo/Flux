@@ -13,7 +13,7 @@ Example:
 ```
 """
 
-__all__ = ['builtin', 'observer', 'flux', 'fpm', 'systemctl', 'joke', 'export', 'ls', 'file', 'ps']
+__all__ = ['builtin', 'observer', 'flux', 'fpm', 'systemctl', 'joke', 'export', 'ls', 'file', 'ps', 'zip']
 
 from .builtin import flux
 from .builtin import fpm
@@ -24,5 +24,6 @@ from .builtin import export
 from .builtin import ls
 from .builtin import file
 from .builtin import ps
+from .builtin import zip
 
 

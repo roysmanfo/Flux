@@ -85,7 +85,10 @@ def manage(command: list[str], info: Info) -> None:
         exec_command_class = fluxcmd.ps.Command
 
     elif command_name == "systemctl":
-        exec_command_class = fluxcmd.systemctl.Commmand
+        exec_command_class = fluxcmd.systemctl.Command
+    
+    elif command_name == "zip":
+        exec_command_class = fluxcmd.zip.Command
 
     else:
         exec_command_class = load_custom_script(command_name)
