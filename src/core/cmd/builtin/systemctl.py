@@ -6,7 +6,7 @@ from pathlib import Path
 from ...helpers.arguments import Parser
 from ...helpers.commands import *
 
-class Commmand(CommandInterface):
+class Command(CommandInterface):
     def init(self):
         self.parser = Parser(prog="systemctl", add_help=True,
                              description="Allows the user to change different settings, such as the username or info.user.path informations")
