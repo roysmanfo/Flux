@@ -3,8 +3,11 @@ import sys
 from typing import TextIO
 from src.core.system.processes import *
 from colorama import init as col_init, Fore
+from .arguments import Parser
+from argparse import Namespace
 
 col_init(autoreset=True)
+
 
 class CommandInterface:
     """
@@ -12,7 +15,7 @@ class CommandInterface:
 
     Every command that uses is equiped with the standard methods to work on the app.  \n
     Every single command should use this class to keep a consistent standard.
-    
+
     ### GENERAL ATTRIBUTES
     Attributes shared by commands
 
@@ -21,6 +24,8 @@ class CommandInterface:
     - `stdout (variable, TextIO)`   The stdout of the command
     - `stderr (variable, TextIO)`   The stderr of the command
     - `stdin (variable, TextIO)`    The stdin of the command
+    - `parser (variable, Parser)`   A program targeted implementation of argparse.ArgumentParser
+    - `args (variable, Namespace)`  The usual output returned by ArgumentParser.parse_args
 
     ### AUTOMATIC CALLS
     Methods that get called regardless by the terminal
@@ -39,34 +44,35 @@ class CommandInterface:
 
     """
 
-
     def __init__(self,
                  info: Info,
                  is_process: bool,
-                 stdout: TextIO = sys.stdout, 
-                 stderr: TextIO = sys.stdout, 
+                 stdout: TextIO = sys.stdout,
+                 stderr: TextIO = sys.stdout,
                  stdin: TextIO = sys.stdout
-                ) -> None:
-        
+                 ) -> None:
+
         self.IS_PROCESS: bool = is_process
         self.info: Info = info
         self.status: int | None = None
         self.stdout = stdout
         self.stderr = stderr
         self.stdin = stdin
+        self.parser: Parser = None
+        self.args: Namespace = None
 
     """
     AUTOMATIC CALLS
     """
 
-    def init(self, *args, **kwargs):
+    def init(self):
         """
         This is function is called right before run().\n
         This function should be used to do setup operations
         """
         ...
-    
-    def run(self, command: list[str], *args, **kwargs):
+
+    def run(self, command: list[str]):
         """
         This is the entry function for the command.\n
         This function should be used to manage arguments and adapt command execution.
@@ -100,7 +106,8 @@ class CommandInterface:
         By default sets the status to STATUS_ERR.
         """
         if use_color:
-            self.stderr.write(f"{Fore.RED}{self.parser.prog}: {msg}{Fore.RESET}\n\n")
+            self.stderr.write(
+                f"{Fore.RED}{self.parser.prog}: {msg}{Fore.RESET}\n\n")
         else:
             self.stderr.write(f"{self.parser.prog}: {msg}\n\n")
         self.status = status or STATUS_ERR
@@ -112,18 +119,18 @@ class CommandInterface:
 
         By default sets the status to STATUS_WARN.
         """
-        
+
         if to_stdout:
             if use_color:
-                self.stdout.write(f"{Fore.YELLOW}{self.parser.prog}: {msg}{Fore.RESET}\n")
+                self.stdout.write(
+                    f"{Fore.YELLOW}{self.parser.prog}: {msg}{Fore.RESET}\n")
             else:
                 self.stdout.write(f"{msg}\n")
         else:
             if use_color:
-                self.stderr.write(f"{Fore.YELLOW}{self.parser.prog}: {msg}{Fore.RESET}\n")
+                self.stderr.write(
+                    f"{Fore.YELLOW}{self.parser.prog}: {msg}{Fore.RESET}\n")
             else:
                 self.stderr.write(f"{msg}\n")
-
-
 
         self.status = status or STATUS_WARN
