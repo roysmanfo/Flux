@@ -84,6 +84,9 @@ def manage(command: list[str], info: Info) -> None:
     elif command_name == "ps":
         exec_command_class = fluxcmd.ps.Command
 
+    elif command_name == "rm":
+        exec_command_class = fluxcmd.rm.Command
+
     elif command_name == "systemctl":
         exec_command_class = fluxcmd.systemctl.Command
     
