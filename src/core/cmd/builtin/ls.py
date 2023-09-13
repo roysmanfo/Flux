@@ -110,7 +110,7 @@ class Command(CommandInterface):
             permissions = get_permissions_string(mode)
             size = file_info.st_size
             modified_time = time.strftime("%b %d %H:%M", time.localtime(file_info.st_mtime))
-            return f"{permissions} {size:8} {modified_time}"
+            return f"{permissions} {size:9} {modified_time}"
 
         file_info: os.stat_result = os.stat(file_path)
 
