@@ -93,6 +93,9 @@ def manage(command: list[str], info: Info) -> None:
     elif command_name == "zip":
         exec_command_class = fluxcmd.zip.Command
 
+    elif command_name == "unzip":
+        exec_command_class = fluxcmd.unzip.Command
+
     else:
         exec_command_class = load_custom_script(command_name)
         if command_name == "":

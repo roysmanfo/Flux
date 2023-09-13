@@ -25,6 +25,7 @@ __all__ = [
     'ps',
     'rm',
     'systemctl',
+    'unzip',
     'zip'
 ]
 
@@ -38,6 +39,7 @@ from .builtin import observer
 from .builtin import ps
 from .builtin import rm
 from .builtin import systemctl
+from .builtin import unzip
 from .builtin import zip
 
 
