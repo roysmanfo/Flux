@@ -60,50 +60,28 @@ def manage(command: list[str], info: Info) -> None:
         command.extend(tail)
         command_name = command[0]
 
-    if command_name == "export":
-        exec_command_class = fluxcmd.export.Command
 
-    elif command_name == "file":
-        exec_command_class = fluxcmd.file.Command
+    match command_name:
+        case "":            return
+        case "export":      exec_command_class = fluxcmd.export.Command
+        case "file":        exec_command_class = fluxcmd.file.Command
+        case "flux":        exec_command_class = fluxcmd.flux.Command
+        case "joke":        exec_command_class = fluxcmd.joke.Command
+        case "ls":          exec_command_class = fluxcmd.ls.Command
+        case "observer":    exec_command_class = fluxcmd.observer.Command
+        case "ps":          exec_command_class = fluxcmd.ps.Command
+        case "rm":          exec_command_class = fluxcmd.rm.Command
+        case "systemctl":   exec_command_class = fluxcmd.systemctl.Command
+        case "zip":         exec_command_class = fluxcmd.zip.Command
+        case "unzip":       exec_command_class = fluxcmd.unzip.Command
+        case _:             exec_command_class = load_custom_script(command_name)
 
-    elif command_name == "flux":
-        exec_command_class = fluxcmd.flux.Command
+        
 
-    elif command_name == "fpm":
-        exec_command_class = fluxcmd.fpm.Command
 
-    elif command_name == "joke":
-        exec_command_class = fluxcmd.joke.Command
-
-    elif command_name == "ls":
-        exec_command_class = fluxcmd.ls.Command
-
-    elif command_name == "observer":
-        exec_command_class = fluxcmd.observer.Command
-
-    elif command_name == "ps":
-        exec_command_class = fluxcmd.ps.Command
-
-    elif command_name == "rm":
-        exec_command_class = fluxcmd.rm.Command
-
-    elif command_name == "systemctl":
-        exec_command_class = fluxcmd.systemctl.Command
-    
-    elif command_name == "zip":
-        exec_command_class = fluxcmd.zip.Command
-
-    elif command_name == "unzip":
-        exec_command_class = fluxcmd.unzip.Command
-
-    else:
-        exec_command_class = load_custom_script(command_name)
-        if command_name == "":
-            return
-
-        if not exec_command_class:
-            print(f"-flux: {command_name}: command not found\n")
-            return
+    if not exec_command_class:
+        print(f"-flux: {command_name}: command not found\n")
+        return
 
     try:
         is_thread = command[-1] == "&"
