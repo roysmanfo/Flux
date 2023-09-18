@@ -66,6 +66,7 @@ def manage(command: list[str], info: Info) -> None:
         case "export":      exec_command_class = fluxcmd.export.Command
         case "file":        exec_command_class = fluxcmd.file.Command
         case "flux":        exec_command_class = fluxcmd.flux.Command
+        case "fpm":         exec_command_class = fluxcmd.fpm.Command
         case "joke":        exec_command_class = fluxcmd.joke.Command
         case "ls":          exec_command_class = fluxcmd.ls.Command
         case "observer":    exec_command_class = fluxcmd.observer.Command
