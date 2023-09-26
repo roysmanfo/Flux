@@ -60,6 +60,7 @@ class CommandInterface:
         self.stdin = stdin
         self.parser: Parser = None
         self.args: Namespace = None
+        self.logger: Logger = Logger()
 
     """
     AUTOMATIC CALLS
@@ -134,3 +135,46 @@ class CommandInterface:
                 self.stderr.write(f"{msg}\n")
 
         self.status = status or STATUS_WARN
+
+
+class Logger():
+    """
+    Standardized handler for error/warning messages
+
+    By default `self.path` is an empty string and 
+    will be used if no path is given as function argument,
+
+    You can change its value in the `run` function
+
+    ```
+    def run(self, command: list[str]):    
+        self.args = self.parser.parse_args(command[1:])
+        self.logger.path = self.args.PATH
+    ```
+
+    or by recreating the object in your setup 
+
+    ```
+    def init(self):
+        self.logger = Logger(PATH)
+    ```
+
+    otherwise you will have to provide the path on each call
+
+    ```
+    try:
+        # Some operations
+    except PermissionError:
+        self.error(STATUS_ERR, self.logger.permission_error(PATH))
+    ```
+    """
+    
+    def __init__(self, path: str | os.PathLike | None = None) -> None:
+        self.path = path or ""
+
+    def path_not_found(self, path: str | os.PathLike | None = None):
+        return f"cannot open `{path or self.path}` (No such file or directory)"
+
+    def permission_denied(self, path: str | os.PathLike | None = None):
+        return f"cannot open `{path or self.path}` (permission denied)"
+    
