@@ -168,13 +168,16 @@ class Logger():
         self.error(STATUS_ERR, self.logger.permission_error(PATH))
     ```
     """
-    
+
     def __init__(self, path: str | os.PathLike | None = None) -> None:
         self.path = path or ""
 
     def path_not_found(self, path: str | os.PathLike | None = None):
         return f"cannot open `{path or self.path}` (No such file or directory)"
 
+    def file_not_found(self, path: str | os.PathLike | None = None):
+        return self.path_not_found(path)
+            
     def permission_denied(self, path: str | os.PathLike | None = None):
         return f"cannot open `{path or self.path}` (permission denied)"
     
