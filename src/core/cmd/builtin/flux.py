@@ -16,7 +16,7 @@ class Command(CommandInterface):
         self.args = self.parser.parse_args(self.command[1:])
 
 
-        if len(command) == 1 or self.args.help:
+        if len(self.command) == 1 or self.args.help:
             self.description(random.choice([0, 1]))
 
 

@@ -59,7 +59,7 @@ options:
                 - Destination: Where the files will be sorted
 """)
 
-    def run(self, command: list[str], from_command_line: bool = True) -> None:
+    def run(self) -> None:
         args = self.parser.parse_args(self.command[1:])
 
         if self.parser.exit_execution:
@@ -74,13 +74,9 @@ options:
             return
 
         if self.IS_PROCESS:
-            self.stdout.write("Running observer in background...\n")
+            self.stdout.write("Running observer in background...\n\n")
 
-        if from_command_line:
-            self.sort_files()
-
-        else:
-            self.sort_files(forever=True)
+        self.sort_files()
 
     def show_path(self) -> bool:
         self.stdout.write(f"Bucket:{self.info.user.paths.bucket}\n")
@@ -112,7 +108,7 @@ options:
             event_handler.on_modified(DirModifiedEvent)
 
             # Check if we decided to run the process as a background task
-            if forever or self.IS_PROCESS:
+            if self.IS_PROCESS:
 
                 try:
                     while not self.info.exit:

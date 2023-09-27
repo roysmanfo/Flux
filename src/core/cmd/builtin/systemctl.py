@@ -81,7 +81,10 @@ class Command(CommandInterface):
                 if self.args.value or self.args.reset:
                     self.info.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.info, self.args.reset)
                 else:
-                    self.stdout.write(f"{self.info.user.paths.all()[target]}\n\n")
+                    try:
+                        self.stdout.write(f"{self.info.user.paths.all()[target]}\n\n")
+                    except KeyError:
+                        self.error(STATUS_ERR, f"setting not found")
             else:
                 from src.utils.format import create_table
 
@@ -90,4 +93,4 @@ class Command(CommandInterface):
 
         # Command does not exist
         else:
-            self.error(STATUS_ERR, 'Setting not found')
+            self.error(STATUS_ERR, 'setting not found')
