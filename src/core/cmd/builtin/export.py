@@ -26,7 +26,7 @@ class Command(CommandInterface):
         # Create a temporary variable if it doesn't already exist
         # else update it
         if len(self.command) > 2 and self.command[1].startswith("$") and len(self.command[1]) > 0:
-            self.set_variable(self.command)
+            self.set_variable()
 
     def set_variable(self) -> None:
         name: str = self.command[1]        
