@@ -15,11 +15,11 @@ class Command(CommandInterface):
         self.parser.add_argument("-r","--reset", dest="reset", action="store_true", help="Reset the selected setting to it's default value (used with -s)")
         self.parser.add_argument("--reset-all", dest="reset_all", action="store_true", help="Reset all settings")
 
-    def run(self, command: list):
+    def run(self):
         """
         Handles which setting to change
         """
-        self.args = self.parser.parse_args(command[1:])
+        self.args = self.parser.parse_args(self.command[1:])
 
         if self.parser.exit_execution:
             print()

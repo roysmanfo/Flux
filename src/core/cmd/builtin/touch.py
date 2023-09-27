@@ -19,8 +19,8 @@ class Command(CommandInterface):
         self.parser.add_argument('-c', '--no-create', action='store_true', help='do not create any files')
         self.parser.add_argument('-m', action='store_true', help='change only the modification time')
 
-    def run(self, command: list[str]):
-        self.args = self.parser.parse_args(command[1:])
+    def run(self):
+        self.args = self.parser.parse_args(self.command[1:])
 
         if self.parser.exit_execution:
             print()

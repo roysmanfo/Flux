@@ -28,8 +28,8 @@ class Command(CommandInterface):
         self.parser.add_argument("-m", "--metadata", help="Extracts metadata from the file if possible.", action="store_true")
         self.parser.add_argument("-k", "--keys", help="Used combined with `-m`, allows filtering keys (can be used multiple times)", action="append")
 
-    def run(self, command: list[str]):
-        self.args = self.parser.parse_args(command[1:])
+    def run(self):
+        self.args = self.parser.parse_args(self.command[1:])
 
         if self.parser.exit_execution:
             print()

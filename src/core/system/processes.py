@@ -87,7 +87,7 @@ class Process:
 
     def _run(self):
         self.command_instance.init()
-        self.command_instance.run(self.line_args)
+        self.command_instance.run()
         self.command_instance.close()
         self.status = self.command_instance.exit()
 

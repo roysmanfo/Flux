@@ -12,7 +12,7 @@ import random
 class Command(CommandInterface):
     
     
-    def run(self, command: list[str]):
+    def run(self):
         """
         This command tells a random programming joke
         """

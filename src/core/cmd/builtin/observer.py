@@ -60,7 +60,7 @@ options:
 """)
 
     def run(self, command: list[str], from_command_line: bool = True) -> None:
-        args = self.parser.parse_args(command[1:])
+        args = self.parser.parse_args(self.command[1:])
 
         if self.parser.exit_execution:
             return

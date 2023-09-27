@@ -37,9 +37,9 @@ def manage(command: list[str], info: Info) -> None:
     from . import cmd as fluxcmd
     from . import helpers
 
-    def execute_command(callable: helpers.commands.CommandInterface, command) -> None:
+    def execute_command(callable: helpers.commands.CommandInterface) -> None:
         callable.init()
-        callable.run(command)
+        callable.run()
         callable.close()
         callable.exit()
 
@@ -86,13 +86,13 @@ def manage(command: list[str], info: Info) -> None:
 
     try:
         is_thread = command[-1] == "&"
-        exec_command = exec_command_class(info, is_thread)
+        exec_command = exec_command_class(info, command, is_thread)
 
         if is_thread:
             command.pop(-1)
             info.processes.add(info, command, exec_command, False)
         else:
-            execute_command(exec_command, command)
+            execute_command(exec_command)
 
     except UnboundLocalError as e:
         if command_name != "":

@@ -19,13 +19,15 @@ class CommandInterface:
     ### GENERAL ATTRIBUTES
     Attributes shared by commands
 
-    - `IS_PROCESS (const, bool)`     Whether or not the command is being runned as a background thread 
-    - `info (variable, Info)`       A reference to the instance of the Info class, containing process information 
-    - `stdout (variable, TextIO)`   The stdout of the command
-    - `stderr (variable, TextIO)`   The stderr of the command
-    - `stdin (variable, TextIO)`    The stdin of the command
-    - `parser (variable, Parser)`   A program targeted implementation of argparse.ArgumentParser
-    - `args (variable, Namespace)`  The usual output returned by ArgumentParser.parse_args
+    - `IS_PROCESS (const, bool)`        Whether or not the command is being runned as a background thread 
+    - `info (variable, Info)`           A reference to the instance of the Info class, containing process information 
+    - `command (variable, list[str])`   The full command typed by the user (also contains the command name, es. ['ls', 'some_path'])
+    - `stdout (variable, TextIO)`       The stdout of the command
+    - `stderr (variable, TextIO)`       The stderr of the command
+    - `stdin (variable, TextIO)`        The stdin of the command
+    - `parser (variable, Parser)`       A program targeted implementation of argparse.ArgumentParser
+    - `args (variable, Namespace)`      The usual output returned by ArgumentParser.parse_args
+    - `logger (variable, Logger)`       Standardized handler for error/warning messages
 
     ### AUTOMATIC CALLS
     Methods that get called regardless by the terminal
@@ -46,6 +48,7 @@ class CommandInterface:
 
     def __init__(self,
                  info: Info,
+                 command: list[str],
                  is_process: bool,
                  stdout: TextIO = sys.stdout,
                  stderr: TextIO = sys.stdout,
@@ -54,6 +57,7 @@ class CommandInterface:
 
         self.IS_PROCESS: bool = is_process
         self.info: Info = info
+        self.command: list[str] = command
         self.status: int | None = None
         self.stdout = stdout
         self.stderr = stderr
@@ -73,7 +77,7 @@ class CommandInterface:
         """
         ...
 
-    def run(self, command: list[str]):
+    def run(self):
         """
         This is the entry function for the command.\n
         This function should be used to manage arguments and adapt command execution.
@@ -147,8 +151,8 @@ class Logger():
     You can change its value in the `run` function
 
     ```
-    def run(self, command: list[str]):    
-        self.args = self.parser.parse_args(command[1:])
+    def run(self):    
+        self.args = self.parser.parse_args(self.command[1:])
         self.logger.path = self.args.PATH
     ```
 
