@@ -53,6 +53,8 @@ def manage(command: list[str], info: Info) -> None:
     else:
         command_name = command[0]
 
+    command_name = str(command_name)
+
     if command[0].startswith("$"):
         command.pop(0)
         tail = command
