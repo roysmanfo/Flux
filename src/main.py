@@ -62,6 +62,8 @@ def run():
             if len(cmd) > 1:
                 try:
                     new_dir = "" + cmd[1].strip("\"").strip("'")
+                    if new_dir.startswith("$"):
+                        new_dir = INFO.variables.get(new_dir).value or new_dir
                     os.chdir(f"{new_dir}")
                 except FileNotFoundError:
                     # Disply an error message if path specified is iniexistent
