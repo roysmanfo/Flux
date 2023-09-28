@@ -84,7 +84,6 @@ def run():
 if __name__ == "__main__":
 
     try:
-        2/0
         INFO.processes._add_main_process(INFO, ['flux'], run)
     except Exception as e:
         # Catch all the exceptions related to the whole program.
