@@ -96,7 +96,7 @@ if __name__ == "__main__":
         sys.stderr.write(f"\nError message \n{'-' * 13}\n{type(e).__name__}: {e.__str__()}\n\n")
 
         log_path = utils.crash_handler.write_error_log()[1]
-        print("The full traceback of this error can be found here: \n" + log_path + "\n")
+        sys.stderr.write("The full traceback of this error can be found here: \n" + log_path + "\n")
 
         sys.exit(1)
 
