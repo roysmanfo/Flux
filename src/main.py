@@ -6,8 +6,11 @@ from utils import transform
 # External Dependencies
 import sys
 import os
-from threading import Thread
 from colorama import init, Fore
+import tempfile
+import datetime
+import traceback
+
 init(autoreset=True)
 
 
@@ -85,11 +88,25 @@ if __name__ == "__main__":
 
     try:
         INFO.processes._add_main_process(INFO, ['flux'], run)
-    except KeyboardInterrupt:
+    except Exception as e:
         # Catch all the exceptions related to the whole program.
         # Exeptions in single commands will get handled by the command itself.
 
-        # print(f"{Fore.RED}Flux failed to execute{Fore.RESET}")
+        # Something REALLY weird is going on if execution reaches here
+
+        sys.stderr.write("Failed do start\n")
+        sys.stderr.write("We belive the problem might be on your system\n")
+        sys.stderr.write(f"\nError message: \n{e.__str__()}\n\n")
+
+        timestamp = datetime.datetime.now().ctime()
+        date = "_".join(timestamp.replace(":","_").split()) #.strftime("%Y_%m_%d_%H_%M_%S")
+        fd, tmp = tempfile.mkstemp(".log", f"Flux_log_{date}__", None, text=True)
+        with open(tmp, 'w') as log:
+            log.write(timestamp + f"\n{'=' * len(timestamp)}" + "\n\n")
+
+            traceback_str = traceback.format_exc()
+            log.write(traceback_str)
+        print("The full traceback of this error can be found here: \n" + tmp + "\n")
         sys.exit(1)
 
     sys.exit(0)
