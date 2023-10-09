@@ -1,3 +1,4 @@
+from typing import Iterator, Any
 
 
 def create_table(collumn1: str, collumn2: str, contents: dict) -> str:
@@ -22,3 +23,28 @@ def create_table(collumn1: str, collumn2: str, contents: dict) -> str:
     output += "\n"
 
     return output
+
+
+def create_adaptive_table(*collumns: str, contents: Iterator[Iterator[Any]]) -> str:
+    """
+    Return a N x M table where N rappresents the number of columns and M the number of records in contents
+    """
+
+    records: list[list[str]] = contents
+
+    n_columns = len(collumns)
+
+    column_widths = [max(len(str(record[i])) for record in records) + 2 for i in range(n_columns)]
+    column_widths = [max(len(collumn), width) + 2 for collumn, width in zip(collumns, column_widths)]
+
+    output = ""
+    output += "   ".join(f"{collumn}{' ' * (width - len(collumn))}" for collumn, width in zip(collumns, column_widths)) + "\n"
+    output += "     ".join("-" * (width - 2) for width in column_widths) + "\n"
+
+    for record in records:
+        output += "   ".join(f"{str(record[i])}{' ' * (width - len(str(record[i])))}" for i, width in enumerate(column_widths)) + "\n"
+
+    output += "\n"
+
+    return output
+

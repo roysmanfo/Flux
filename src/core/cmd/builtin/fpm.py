@@ -10,13 +10,13 @@ COMMANDS_AVAILABLE = [
     'autoremove',
 ]
 
-COMMAND_DESC = {
-    'install': 'Install external commands',
-    'purge': 'Uninstall commandt',
-    'update': 'Update the fetch lists',
-    'upgrade': 'Upgrade currently installed commands',
-    'autoremove': 'Remove data that belonged to other commands',
-}
+COMMAND_DESC = [
+    ('install', 'Install external commands'),
+    ('purge', 'Uninstall commandt'),
+    ('update', 'Update the fetch lists'),
+    ('upgrade', 'Upgrade currently installed commands'),
+    ('autoremove', 'Remove data that belonged to other commands'),
+]
 
 
 class Command(CommandInterface):
@@ -34,5 +34,5 @@ class Command(CommandInterface):
             return
         
         if self.args.list:
-            from src.utils.format import create_table
-            self.stdout.write(create_table("Name", "Description", COMMAND_DESC))
+            from src.utils.format import create_adaptive_table
+            self.stdout.write(create_adaptive_table("Name", "Description", contents=COMMAND_DESC))
