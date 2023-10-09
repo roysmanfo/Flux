@@ -5,36 +5,14 @@ This is the place where the input given gets analized and associated
 with the respective command (if existent).
 """
 from src.settings.info import Info
-import os
-import importlib
 
-# List of directories to search for custom scripts/extensions
-custom_script_dirs = ["scripts", "extensions"]
-
-
-def load_custom_script(script_name: str):
-    """
-    Load an external command installed on the machine
-    """
-
-    for dir_name in custom_script_dirs:
-        script_path = os.path.join(dir_name, script_name + ".py")
-        if os.path.isfile(script_path):
-            try:
-                module = importlib.import_module(f"{dir_name}.{script_name}")
-                exec_command_class = getattr(module, "Command")
-                return exec_command_class
-            except (ImportError, AttributeError):
-                pass
-    return None
-
+from .system import loader
 
 def manage(command: list[str], info: Info) -> None:
 
     # Match the command name to the corresponding file in ./cmd/
     # for further processing and execution
 
-    from . import cmd as fluxcmd
     from . import helpers
 
     def execute_command(callable: helpers.commands.CommandInterface) -> None:
@@ -63,24 +41,9 @@ def manage(command: list[str], info: Info) -> None:
         command_name = command[0]
 
 
-    match command_name:
-        case "":            return
-        case "export":      exec_command_class = fluxcmd.export.Command
-        case "file":        exec_command_class = fluxcmd.file.Command
-        case "flux":        exec_command_class = fluxcmd.flux.Command
-        case "fpm":         exec_command_class = fluxcmd.fpm.Command
-        case "joke":        exec_command_class = fluxcmd.joke.Command
-        case "ls":          exec_command_class = fluxcmd.ls.Command
-        case "observer":    exec_command_class = fluxcmd.observer.Command
-        case "ps":          exec_command_class = fluxcmd.ps.Command
-        case "rm":          exec_command_class = fluxcmd.rm.Command
-        case "systemctl":   exec_command_class = fluxcmd.systemctl.Command
-        case "zip":         exec_command_class = fluxcmd.zip.Command
-        case "unzip":       exec_command_class = fluxcmd.unzip.Command
-        case _:             exec_command_class = load_custom_script(command_name)
-
-        
-
+    exec_command_class = loader.load_builtin_script(command_name)
+    if not exec_command_class:
+        exec_command_class = loader.load_custom_script(command_name)
 
     if not exec_command_class:
         print(f"-flux: {command_name}: command not found\n")
