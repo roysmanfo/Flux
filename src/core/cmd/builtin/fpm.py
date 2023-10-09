@@ -12,7 +12,7 @@ COMMANDS_AVAILABLE = [
 
 COMMAND_DESC = [
     ('install', 'Install external commands'),
-    ('purge', 'Uninstall commandt'),
+    ('purge', 'Uninstall commands'),
     ('update', 'Update the fetch lists'),
     ('upgrade', 'Upgrade currently installed commands'),
     ('autoremove', 'Remove data that belonged to other commands'),
