@@ -198,4 +198,7 @@ class Logger():
             
     def permission_denied(self, path: str | os.PathLike | None = None):
         return f"cannot open `{path or self.path}` (permission denied)"
+
+    def file_exists(self, path: str | os.PathLike | None = None):
+        return f"cannot create directory `{path or self.path}`: File exists"
     
