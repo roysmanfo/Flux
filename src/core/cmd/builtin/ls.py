@@ -22,11 +22,6 @@ class Command(CommandInterface):
         self.parser.add_argument("-l", dest="l", action="store_true", help="Use a long listing format")
 
     def run(self):
-        self.args = self.parser.parse_args(self.command[1:])
-
-        if self.parser.exit_execution:
-            print()
-            return
         
         if not os.path.exists(self.args.PATH):
             self.error(STATUS_ERR, f"cannot access '{self.args.PATH}': No such file or directory")

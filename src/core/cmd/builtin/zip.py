@@ -16,11 +16,6 @@ class Command(CommandInterface):
 
 
     def run(self):
-        self.args = self.parser.parse_args(self.command[1:])
-        
-        if self.parser.exit_execution:
-            print()
-            return
         
         self.args.files = sorted(self.args.files)
 

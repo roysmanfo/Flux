@@ -12,7 +12,6 @@ class Command(CommandInterface):
         self.parser.add_argument("mode", nargs="?", default="simple", help="How to view the processes <(s)imple|(l)ist|(o)utput|(t)hreads|(m)isc|(a)ll>")
 
     def run(self):
-        self.args = self.parser.parse_args(self.command[1:])
         mapped_modes = {
             's': 'simple',  'simple':   'simple',
             'l': 'list',    'list':     'list',

@@ -19,11 +19,6 @@ class Command(CommandInterface):
         """
         Handles which setting to change
         """
-        self.args = self.parser.parse_args(self.command[1:])
-
-        if self.parser.exit_execution:
-            print()
-            return
 
         if not self.args.reset_all:
             

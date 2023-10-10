@@ -13,8 +13,6 @@ class Command(CommandInterface):
 
 
     def run(self):
-        self.args = self.parser.parse_args(self.command[1:])
-
 
         if len(self.command) == 1 or self.args.help:
             self.description(random.choice([0, 1]))

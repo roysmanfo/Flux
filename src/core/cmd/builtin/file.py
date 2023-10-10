@@ -29,11 +29,6 @@ class Command(CommandInterface):
         self.parser.add_argument("-k", "--keys", help="Used combined with `-m`, allows filtering keys (can be used multiple times)", action="append")
 
     def run(self):
-        self.args = self.parser.parse_args(self.command[1:])
-
-        if self.parser.exit_execution:
-            print()
-            return
 
         if not os.path.exists(self.args.PATH):
             self.error(STATUS_ERR, f"cannot open `{self.args.PATH}` (No such file or directory)")

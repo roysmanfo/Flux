@@ -17,6 +17,7 @@ def manage(command: list[str], info: Info) -> None:
 
     def execute_command(callable: helpers.commands.CommandInterface) -> None:
         callable.init()
+        callable.setup()
         callable.run()
         callable.close()
         callable.exit()

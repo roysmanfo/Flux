@@ -72,10 +72,24 @@ class CommandInterface:
 
     def init(self):
         """
-        This is function is called right before run().\n
-        This function should be used to do setup operations
+        This function is called on start of execution.\n
+        This function should be used to do setup operations (like create the Parser)
         """
         ...
+
+    def setup(self):
+        """
+        This is function is called right before run().\n
+        This function is used to parse arguments and exit on parsing errors
+        """
+        try:
+            self.args = self.parser.parse_args(self.command[1:])
+
+            if self.parser.exit_execution:
+                print()
+                return
+        except AttributeError:
+            self.args = None
 
     def run(self):
         """

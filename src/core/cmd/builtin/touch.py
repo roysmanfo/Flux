@@ -20,12 +20,6 @@ class Command(CommandInterface):
         self.parser.add_argument('-m', action='store_true', help='change only the modification time')
 
     def run(self):
-        self.args = self.parser.parse_args(self.command[1:])
-
-        if self.parser.exit_execution:
-            print()
-            return
-        
         self.logger.path = self.args.FILE
 
         if not os.path.exists(self.args.FILE):

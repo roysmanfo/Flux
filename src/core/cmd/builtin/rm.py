@@ -20,11 +20,6 @@ class Command(CommandInterface):
 
 
     def run(self):
-        self.args = self.parser.parse_args(self.command[1:])
-
-        if self.parser.exit_execution:
-            print()
-            return
 
         if self.args.path:
             if not os.path.exists(self.args.path):

@@ -17,13 +17,7 @@ class Command(CommandInterface):
         self.parser.add_argument("-a", "--adapt", action="store_true", help="handle conflicts if the destionation folder already exists")
 
 
-    def run(self):
-        self.args = self.parser.parse_args(self.command[1:])
-        
-        if self.parser.exit_execution:
-            print()
-            return
-        
+    def run(self):        
         
         if not os.path.exists(self.args.archive_name):
             attempts: list[str] = [self.args.archive_name]

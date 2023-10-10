@@ -60,16 +60,12 @@ options:
 """)
 
     def run(self) -> None:
-        args = self.parser.parse_args(self.command[1:])
 
-        if self.parser.exit_execution:
-            return
-
-        if args.help:
+        if self.args.help:
             self.parser.help()
             return
 
-        if args.path:
+        if self.args.path:
             self.show_path()
             return
 
