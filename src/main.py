@@ -65,6 +65,7 @@ def run():
                     if new_dir.startswith("$"):
                         new_dir = INFO.variables.get(new_dir).value or new_dir
                     os.chdir(f"{new_dir}")
+                    INFO.variables.set("$PWD", new_dir)
                 except FileNotFoundError:
                     # Disply an error message if path specified is iniexistent
                     print("-flux: cd: No such file or directory\n")
@@ -75,6 +76,7 @@ def run():
             else:
                 os.chdir(INFO.variables.get("$HOME").value)
                 INFO.user.paths.terminal = INFO.variables.get("$HOME").value
+                INFO.variables.set("$PWD", INFO.user.paths.terminal)
 
         # Pass the command to the manager
         else:
