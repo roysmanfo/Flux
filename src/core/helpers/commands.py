@@ -110,7 +110,7 @@ class CommandInterface:
     def exit(self):
         """
         This is the last function that gets called.\n
-        This function should be used to definetly close execution.
+        This function should be used to define what status code to return
         """
         return self.status if self.status else STATUS_OK
 
