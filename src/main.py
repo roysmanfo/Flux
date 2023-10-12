@@ -66,9 +66,20 @@ def run():
                         new_dir = INFO.variables.get(new_dir).value or new_dir
                     os.chdir(f"{new_dir}")
                     INFO.variables.set("$PWD", new_dir)
+                
                 except FileNotFoundError:
                     # Disply an error message if path specified is iniexistent
                     print("-flux: cd: No such file or directory\n")
+                    pass
+
+                except NotADirectoryError:
+                    # Disply an error message if path specified is iniexistent
+                    print(f"-flux: cd: {new_dir}: Not a directory\n")
+                    pass
+                
+                except OSError:
+                    # Disply an error message if path specified is iniexistent
+                    print(f"-flux: cd: {new_dir}: cannot read file or directory\n")
                     pass
                 INFO.user.paths.terminal = os.getcwd()
                 INFO.user.paths.terminal.replace("\\", "/")
