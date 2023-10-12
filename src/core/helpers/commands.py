@@ -32,7 +32,8 @@ class CommandInterface:
     ### AUTOMATIC CALLS
     Methods that get called regardless by the terminal
 
-    - `init()`      This method is called right before run().
+    - `init()`      This function is called on start of execution.
+    - `setup()`     This is function is called right before run().
     - `run()`       This is the entry method for the command.
     - `close()`     This is the method that gets called right after run() the command. 
     - `exit()`      This is the last method that gets called.
