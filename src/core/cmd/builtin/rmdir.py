@@ -17,7 +17,7 @@ class Command(CommandInterface):
             if not os.path.exists(folder):
                 self.error(STATUS_ERR, self.logger.path_not_found(folder))
 
-            elif (os.listdir(folder)) > 0 :
+            elif len(os.listdir(folder)) > 0 :
                 self.error(STATUS_ERR, f"rmdir: failed to remove `{folder}`: Directory not empty")
             
             else:
