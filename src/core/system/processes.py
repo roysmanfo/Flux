@@ -90,6 +90,7 @@ class Process:
         self.command_instance.setup()
         
         if self.command_instance.parser and self.command_instance.exit_execution:
+            self.command_instance.close()
             self.status = self.command_instance.exit()
             return
         

@@ -20,6 +20,8 @@ def manage(command: list[str], info: Info) -> None:
         callable.setup()
 
         if callable.parser and callable.parser.exit_execution:
+            callable.close()
+            callable.exit()
             return
         
         callable.run()
