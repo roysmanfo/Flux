@@ -18,6 +18,10 @@ def manage(command: list[str], info: Info) -> None:
     def execute_command(callable: helpers.commands.CommandInterface) -> None:
         callable.init()
         callable.setup()
+
+        if callable.parser and callable.parser.exit_execution:
+            return
+        
         callable.run()
         callable.close()
         callable.exit()
