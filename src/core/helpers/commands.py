@@ -206,6 +206,9 @@ class Logger():
     def cannot_remove_dir(self, path: str | os.PathLike | None = None):
         return f"cannot remove `{path or self.path}`: Is a directory"
 
+    def parameter_not_specified(self, param: str | os.PathLike | None = None):
+        return f"{param or self.path} not specified"
+
     def same_file(self, path1: str | os.PathLike | None = None, path2: str | os.PathLike | None = None):
         return f"`{path1 or self.path}` and `{path2 or path1 or self.path}` are the same file"
     
