@@ -21,7 +21,8 @@ class Command(CommandInterface):
                 self.error(STATUS_ERR, self.logger.file_not_found(i))
                 return
 
-        if not os.path.exists(self.args.dest) and os.path.isdir(self.args.dest):            
+        # Handle multiple files given as source to copy
+        if len(self.args.source) > 0 or not os.path.exists(self.args.dest) or not os.path.isdir(self.args.dest):            
             try:
                 os.makedirs(self.args.dest)
 
@@ -43,15 +44,6 @@ class Command(CommandInterface):
                 self.args.no_clobber = False
             else:
                 self.args.interactive = False
-
-        # Handle multiple files given as source to copy
-        if len(self.args.source) > 0:
-            if not os.path.exists(self.args.dest) or not os.path.isdir(self.args.dest):
-                try:
-                    os.makedirs(self.args.dest)
-                except PermissionError:
-                    self.error(STATUS_ERR, self.logger.permission_denied(self.args.dest))
-                    return
                 
         dest = self.args.dest            
         for path in self.args.source:
