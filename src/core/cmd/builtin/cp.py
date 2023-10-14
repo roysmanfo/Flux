@@ -20,7 +20,7 @@ class Command(CommandInterface):
             if not os.path.exists(i):
                 self.error(STATUS_ERR, self.logger.file_not_found(i))
                 return
-            
+
         if not os.path.exists(self.args.dest) and os.path.isdir(self.args.dest):            
             try:
                 os.makedirs(self.args.dest)
@@ -44,15 +44,26 @@ class Command(CommandInterface):
             else:
                 self.args.interactive = False
 
-
-        
+        # Handle multiple files given as source to copy
+        if len(self.args.source) > 0:
+            if not os.path.exists(self.args.dest) or not os.path.isdir(self.args.dest):
+                try:
+                    os.makedirs(self.args.dest)
+                except PermissionError:
+                    self.error(STATUS_ERR, self.logger.permission_denied(self.args.dest))
+                    return
+                
+        dest = self.args.dest            
         for path in self.args.source:
-
+            
             if os.path.isdir(path):
                 self.copy_folder(path)
             
-            if os.path.isfile(path):
+            elif os.path.isfile(path):
                 self.copy_file(path)
+
+            # reset the destination if it has been modified (es. in copy_file())
+            self.args.dest = dest
 
             print()
 
