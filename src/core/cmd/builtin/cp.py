@@ -39,6 +39,7 @@ class Command(CommandInterface):
             for arg in self.command[::-1]:
                 if arg in i + n:
                     a = arg
+                    break
 
             if a in i:
                 self.args.no_clobber = False
