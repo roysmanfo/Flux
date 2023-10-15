@@ -64,6 +64,10 @@ class Process:
         hours = int(minutes / 60)
         seconds = int(seconds % 60)
 
+        while minutes >= 60:
+            hours += 1
+            minutes -= 60
+
         if hours > 0:
             return f"{hours}h {minutes}m {seconds}s"
 
