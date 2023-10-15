@@ -1,6 +1,6 @@
 from src.settings.info import Info
 import sys
-from typing import TextIO
+from typing import Any, TextIO
 from src.core.system.processes import *
 from colorama import init as col_init, Fore
 from .arguments import Parser
@@ -160,7 +160,7 @@ class Logger():
     """
     Standardized handler for error/warning messages
 
-    By default `self.path` is an empty string and 
+    By default `self.value` is an empty string and 
     will be used if no path is given as function argument,
 
     You can change its value in the `run` function
@@ -188,27 +188,30 @@ class Logger():
     ```
     """
 
-    def __init__(self, path: str | os.PathLike | None = None) -> None:
-        self.path = path or ""
+    def __init__(self, value: Any | None = None) -> None:
+        self.value = value or ""
 
     def path_not_found(self, path: str | os.PathLike | None = None):
-        return f"cannot open `{path or self.path}` (No such file or directory)"
+        return f"cannot open `{path or self.value}` (No such file or directory)"
 
     def file_not_found(self, path: str | os.PathLike | None = None):
-        return self.path_not_found(path)
+        return self.value_not_found(path)
             
     def permission_denied(self, path: str | os.PathLike | None = None):
-        return f"cannot open `{path or self.path}` (permission denied)"
+        return f"cannot open `{path or self.value}` (permission denied)"
 
     def file_exists(self, path: str | os.PathLike | None = None):
-        return f"cannot create directory `{path or self.path}`: File exists"
+        return f"cannot create directory `{path or self.value}`: File exists"
 
     def cannot_remove_dir(self, path: str | os.PathLike | None = None):
-        return f"cannot remove `{path or self.path}`: Is a directory"
+        return f"cannot remove `{path or self.value}`: Is a directory"
 
     def parameter_not_specified(self, param: str | os.PathLike | None = None):
-        return f"{param or self.path} not specified"
+        return f"{param or self.value} not specified"
+
+    def parameter_not_supported(self, param: str | None = None):
+        return f"unsupported option '{param or self.value}'"
 
     def same_file(self, path1: str | os.PathLike | None = None, path2: str | os.PathLike | None = None):
-        return f"`{path1 or self.path}` and `{path2 or path1 or self.path}` are the same file"
+        return f"`{path1 or path2 or self.value}` and `{path2 or path1 or self.value}` are the same file"
     
