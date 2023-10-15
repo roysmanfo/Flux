@@ -10,22 +10,26 @@ STATUS_WARN = 2  # Exited with warnings
 
 
 class ProcessInfo:
-    def __init__(self, id: int, owner: str, name: str, native_id: int, time_alive: str, is_reserved_process: bool) -> None:
+    def __init__(self, id: int, pid: int, owner: str, name: str, native_id: int, time_alive: str, is_reserved_process: bool, line_args: list[str]) -> None:
         self.id = id
+        self.pid = pid
         self.owner = owner
         self.name = name
         self.native_id = native_id
         self.time_alive = time_alive
         self.is_reserved_process = is_reserved_process
+        self.line_args = line_args
 
     def __str__(self) -> str:
         s = "ProcessInfo("
         s += f"id={self.id}, "
+        s += f"pid={self.pid}, "
         s += f"owner={self.owner}, "
         s += f"name={self.name}, "
         s += f"native_id={self.native_id}, "
         s += f"is_reserved_process={self.is_reserved_process}, "
         s += f"time_alive={self.time_alive}"
+        s += f"line_args={self.line_args}"
         s += ")"
         return s
 
@@ -49,11 +53,13 @@ class Process:
 
     def get_info(self) -> ProcessInfo:
         return ProcessInfo(self.id,
+                           os.getppid(),
                            self.owner,
                            self.name,
                            self.native_id,
                            self._calculate_time(time.time() - self.started),
-                           self.is_reserved_process
+                           self.is_reserved_process,
+                           self.line_args
                            )
 
     def __str__(self) -> str:
@@ -108,10 +114,10 @@ class Processes:
         self.processes: list[Process] = []
         self.process_counter: int = os.getpid()
 
-    def list(self) -> list[Process]:
+    def list(self) -> list[ProcessInfo]:
         # Avoid returning the system managed list of processes
         # Instead return a copy
-        return self.processes.copy()
+        return [p.get_info() for p in self.processes.copy()]
 
     def _generate_pid(self) -> int:
         self.process_counter += 1
