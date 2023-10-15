@@ -5,6 +5,7 @@ Allows to view running Flux processes
 
 from ...helpers.commands import *
 from ...helpers.arguments import Parser
+from src.utils.format import create_adaptive_table
 
 class Command(CommandInterface):
     def init(self):
@@ -20,23 +21,23 @@ class Command(CommandInterface):
             'm': 'misc',    'misc':     'misc',
             'a': 'all',     'all':      'all',
         }
-        
-        self.args.mode = mapped_modes[self.args.mode.lower()]
+
+        self.args.mode = mapped_modes[self.args.mode.lower()] if self.args.mode in mapped_modes.keys() else None
 
 
         procceses = self.info.processes.list()
 
-        if self.parser.exit_execution:
-            print()
-            return
-
-
+        contents = []
         if self.args.mode == "all":
+            contents = []
             for p in procceses:
-                self.stdout.write(p.get_info().__str__() + "\n")
+                contents.append([p.id, p.owner, p.name, p.native_id, p._calculate_time(time.time() - p.started), " ".join(p.line_args)])
 
+            self.stdout.write(create_adaptive_table("ID", "OWNER", "NAME", "NATIVE ID", "TIME ALIVE", "ARGS", contents=contents))
+            
         else:
-            for p in procceses:
-                self.stdout.write(p.__str__() + "\n")
 
-        self.stdout.write("\n")
+            for p in procceses:
+                contents.append([p.id, p.owner, p.name, p._calculate_time(time.time() - p.started)])
+
+            self.stdout.write(create_adaptive_table("ID", "OWNER", "NAME", "TIME ALIVE", contents=contents))
