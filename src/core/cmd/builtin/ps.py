@@ -9,7 +9,7 @@ from src.utils.format import create_adaptive_table
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(prog="lp", description="Allows to view running Flux processes", add_help=True)
+        self.parser = Parser(prog="ps", description="Allows to view running Flux processes", add_help=True)
         self.parser.add_argument("mode", nargs="?", default="simple", help="How to view the processes <(s)imple|(l)ist|(o)utput|(t)hreads|(m)isc|(a)ll>")
 
     def run(self):
