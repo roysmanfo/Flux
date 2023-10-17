@@ -81,9 +81,10 @@ class Command(CommandInterface):
                     except KeyError:
                         self.error(STATUS_ERR, f"setting not found")
             else:
-                from src.utils.format import create_table
-
-                self.stdout.write(create_table("Path name", "Value", self.info.user.paths.all()))
+                from src.utils.format import create_adaptive_table
+                c = [(p, self.info.user.paths.all_paths[p]) for p in self.info.user.paths.all_paths.keys()]
+                
+                self.stdout.write(create_adaptive_table("Path name", "Value", contents=c))
 
 
         # Command does not exist
