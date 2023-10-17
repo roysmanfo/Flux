@@ -27,7 +27,24 @@ def create_table(collumn1: str, collumn2: str, contents: dict) -> str:
 
 def create_adaptive_table(*collumns: str, contents: Iterator[Iterator[Any]]) -> str:
     """
-    Return a N x M table where N rappresents the number of columns and M the number of records in contents
+    Return a N x M table where N rappresents the number of columns
+    and M rappresents the number of records in contents (+2 rows: 1 for the title and 1 for the underline)
+
+    #### Example
+    With this input...
+    ```
+    >>> create_adaptive_table("col1", "col2", contents=[(1, 2), (3, 4)])
+    ```
+
+    ... we expect the following output
+    ```txt
+    col1     col2  
+    ----     ------
+    1        2  
+    3        4  
+
+    ```
+
     """
 
     records: list[list[str]] = contents
