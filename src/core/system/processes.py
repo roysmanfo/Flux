@@ -107,6 +107,7 @@ class Process:
         self.command_instance.run()
         self.command_instance.close()
         self.status = self.command_instance.exit()
+        print(f"[{self.id}] {self.name} stopped")
 
 
 class Processes:
