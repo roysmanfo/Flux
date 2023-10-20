@@ -1,6 +1,7 @@
 from ...helpers.commands import *
 from ...helpers.arguments import Parser
 
+from pathlib import Path
 import os 
 import shutil
 
@@ -14,6 +15,7 @@ class Command(CommandInterface):
         self.parser.add_argument('-f', '--force', action='store_true', default=True, help='do not prompt before overwriting (overrides a previous -i or -n)')
         self.parser.add_argument('-i', '--interactive', action='store_true', help='prompt before overwrite (overrides a previous -n or -f)')
         self.parser.add_argument('-n', '--no-clobber', action='store_true', help='do not overwrite an existing file (overrides previus -i or -f)')
+        self.parser.add_argument('-T', '--no-target-directory', action='store_true', help='treat DEST as a normal file')
         self.parser.add_argument('-v', '--verbose', action='store_true', help='explain what is being done')
 
     def run(self):
@@ -27,13 +29,15 @@ class Command(CommandInterface):
                 return
 
         # Handle multiple files given as source to copy
-        if len(self.args.source) > 0 or not os.path.exists(self.args.dest) or not os.path.isdir(self.args.dest):            
-            try:
-                os.makedirs(self.args.dest)
+        if len(self.args.source) > 0 and (not os.path.exists(self.args.dest) or not os.path.isdir(self.args.dest)):
+            if os.path.isdir(self.args.dest) and not self.args.no_target_directory:       
+                try:
+                    os.makedirs(self.args.dest) 
 
-            except PermissionError:
-                self.error(STATUS_ERR, self.logger.permission_denied(self.args.dest))
-                return
+                except PermissionError:
+                    self.error(STATUS_ERR, self.logger.permission_denied(self.args.dest))
+                    return
+                    
 
 
         if self.args.force and self.args.interactive and self.args.no_clobber:
@@ -60,6 +64,7 @@ class Command(CommandInterface):
 
         for path in self.args.source:
             if os.path.isdir(path):
+
                 try:
                     self.args.source.extend(os.listdir(path))
                     self.args.source.remove(path)
@@ -67,6 +72,8 @@ class Command(CommandInterface):
                 except PermissionError:
                     self.error(STATUS_ERR, self.logger.permission_denied(path))
                     return
+                
+
 
         self.args.source.sort()
 
@@ -83,10 +90,13 @@ class Command(CommandInterface):
 
 
     def move(self, path: str):
-        d = self.args.dest if os.path.isdir(self.args.dest) else os.path.dirname(self.args.dest)
-        final_path = os.path.join(self.args.dest, path)
 
-        if os.path.exists(final_path):
+
+
+        final_path = self.args.dest
+        p = Path(final_path).resolve()
+
+        if os.path.exists(p) and not os.path.isdir(p):
             if self.args.no_clobber:
                 return
 
@@ -104,12 +114,12 @@ class Command(CommandInterface):
 
             if self.args.force:
                 try:
-                    os.remove(d)
+                    os.remove(final_path)
                 except PermissionError:
-                    self.error(STATUS_ERR, self.logger.permission_denied(d))
+                    self.error(STATUS_ERR, self.logger.permission_denied(final_path))
                     return
 
-        dest = shutil.move(path, d)
+        dest = shutil.move(path, final_path)
 
         if self.args.verbose:
             print('%s -> %s' % (path, dest))
