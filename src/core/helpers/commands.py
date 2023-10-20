@@ -195,7 +195,7 @@ class Logger():
         return f"cannot open `{path or self.value}` (No such file or directory)"
 
     def file_not_found(self, path: str | os.PathLike | None = None):
-        return self.value_not_found(path)
+        return self.path_not_found(path)
             
     def permission_denied(self, path: str | os.PathLike | None = None):
         return f"cannot open `{path or self.value}` (permission denied)"
