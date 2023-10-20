@@ -30,7 +30,7 @@ class Command(CommandInterface):
 
         # Handle multiple files given as source to copy
         if len(self.args.source) > 0 and (not os.path.exists(self.args.dest) or not os.path.isdir(self.args.dest)):
-            if os.path.isdir(self.args.dest) and not self.args.no_target_directory:       
+            if not self.args.no_target_directory:       
                 try:
                     os.makedirs(self.args.dest) 
 
