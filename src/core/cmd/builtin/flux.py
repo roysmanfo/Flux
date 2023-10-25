@@ -12,11 +12,9 @@ class Command(CommandInterface):
         self.parser = Parser("flux")
 
 
-    def run(self, command: list[str]):
-        self.args = self.parser.parse_args(command[1:])
+    def run(self):
 
-
-        if len(command) == 1 or self.args.help:
+        if len(self.command) == 1 or self.args.help:
             self.description(random.choice([0, 1]))
 
 

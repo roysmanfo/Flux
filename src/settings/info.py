@@ -199,7 +199,8 @@ class Path:
 
         try:
             with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
-                path = json.load(f)["paths"]
+                path: dict = json.load(f)["paths"]
+                self.all_paths = path.copy()
 
                 self.terminal: pathlib.Path = pathlib.Path(
                     path["terminal"]).resolve()
@@ -238,6 +239,7 @@ class Path:
     def all(self) -> dict:
         """
         Returns a dictionary of all Paths in the settings file
+        with deir current value
         """
         paths = {
             "terminal": self.terminal,
@@ -392,6 +394,7 @@ class Info:
         self.init_reserved_variables()
 
     def init_reserved_variables(self) -> None:
-        self.variables.add("$ALL", "$ALL:$HOME:$PATH", True)
+        self.variables.add("$ALL", "$ALL:$HOME:$PATH:$PWD", True)
         self.variables.add("$HOME", self.user.paths.terminal, True)
         self.variables.add("$PATH", "", True)
+        self.variables.add("$PWD", self.user.paths.terminal, True)

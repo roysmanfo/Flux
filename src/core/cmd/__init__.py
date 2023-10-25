@@ -13,14 +13,33 @@ Example:
 ```
 """
 
-__all__ = ['builtin', 'observer', 'flux', 'systemctl', 'joke', 'export', 'ls', 'file', 'ps']
+__all__ = [
+    'builtin', 
+    'export',
+    'file',
+    'flux',
+    'fpm',
+    'joke',
+    'ls',
+    'observer',
+    'ps',
+    'rm',
+    'systemctl',
+    'unzip',
+    'zip'
+]
 
-from .builtin import flux
-from .builtin import observer
-from .builtin import systemctl
-from .builtin import joke
 from .builtin import export
-from .builtin import ls
 from .builtin import file
+from .builtin import flux
+from .builtin import fpm
+from .builtin import joke
+from .builtin import ls
+from .builtin import observer
 from .builtin import ps
+from .builtin import rm
+from .builtin import systemctl
+from .builtin import unzip
+from .builtin import zip
+
 

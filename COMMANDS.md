@@ -1,22 +1,5 @@
 # List of all available `flux` commands
-This is a list of all available flux commands.  
-You can also check the [docs](./docs/README.md) for more detailed information
-
-Commands with a `!` in front are commands still in development
-
-Command | Description
---- | ---
-**cd** | Allows you to move on the file system
-**clear** | Clears the screen
-**exit** | Closes the terminal
-`!` **export** [options] | Allows to modify env variables
-**file** [options] | Gets information on a specific file
-**flux** [options] | Shows the program banner and gives information about the programm
-**ls** [options] | List information about the FILEs
-**joke**  | Tells a random programming joke.
-**observer** [options] | Scans the bucket folder and sorts files in the destination folder
-**ps** [options] | Allows to view running Flux processes
-**systemctl** [options] | Allows the user to change different settings
+You can check the [docs](./docs/README.md) for a detailed list
 ____
 
 ## Future Features Ideas
