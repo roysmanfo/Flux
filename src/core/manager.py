@@ -32,6 +32,8 @@ def manage(command: list[str], info: Info) -> None:
         except Exception as e:
             callable.fail_safe(e)
 
+        del callable
+
     exec_command: helpers.commands.CommandInterface
     exec_command_class = helpers.commands.CommandInterface
 
@@ -73,3 +75,6 @@ def manage(command: list[str], info: Info) -> None:
     except UnboundLocalError as e:
         if command_name != "":
             print(f"-flux: {command_name}: command not found\n{e}\n")
+
+    finally:
+        del exec_command_class
