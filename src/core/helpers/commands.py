@@ -44,6 +44,7 @@ class CommandInterface:
 
     - `error()`     This function should be called once an error accoures.
     - `warning()`   This function should be called to issue warnings.
+    - `input()`     This is similar to python's `input()`, but uses `self.stdin` to not have to modify `sys.stdin` .
 
     """
 
