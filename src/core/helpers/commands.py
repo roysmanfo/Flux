@@ -19,8 +19,8 @@ class CommandInterface:
     ### GENERAL ATTRIBUTES
     Attributes shared by commands
 
-    - `IS_PROCESS (const, bool)`        Whether or not the command is being runned as a background thread 
-    - `info (variable, Info)`           A reference to the instance of the Info class, containing process information 
+    - `IS_PROCESS (const, bool)`        Whether or not the command is being runned as a background thread
+    - `info (variable, Info)`           A reference to the instance of the Info class, containing process information
     - `command (variable, list[str])`   The full command typed by the user (also contains the command name, es. ['ls', 'some_path'])
     - `stdout (variable, TextIO)`       The stdout of the command
     - `stderr (variable, TextIO)`       The stderr of the command
@@ -35,7 +35,7 @@ class CommandInterface:
     - `init()`      This function is called on start of execution.
     - `setup()`     This is function is called right before run().
     - `run()`       This is the entry method for the command.
-    - `close()`     This is the method that gets called right after run() the command. 
+    - `close()`     This is the method that gets called right after run() the command.
     - `exit()`      This is the last method that gets called.
 
     ### HELPER FUNCTIONS
@@ -53,7 +53,7 @@ class CommandInterface:
                  is_process: bool,
                  stdout: TextIO = sys.stdout,
                  stderr: TextIO = sys.stdout,
-                 stdin: TextIO = sys.stdout
+                 stdin: TextIO = sys.stdin
                  ) -> None:
 
         self.IS_PROCESS: bool = is_process
@@ -155,6 +155,21 @@ class CommandInterface:
 
         self.status = status or STATUS_WARN
 
+    def input(self, __prompt: object = "") -> str | None:
+        """
+        This function is used to get an input from the standard input
+        and returns it as a string (if a Ctrl-c is detected, returns None).
+        """
+        
+        try:
+            if __prompt:
+                self.stdout.write(__prompt)
+
+            file_contents = self.stdin.readline()
+            return file_contents
+        
+        except KeyboardInterrupt:
+            return None
 
 class Logger():
     """
@@ -196,7 +211,7 @@ class Logger():
 
     def file_not_found(self, path: str | os.PathLike | None = None):
         return self.path_not_found(path)
-            
+
     def permission_denied(self, path: str | os.PathLike | None = None):
         return f"cannot open `{path or self.value}` (permission denied)"
 
@@ -214,4 +229,3 @@ class Logger():
 
     def same_file(self, path1: str | os.PathLike | None = None, path2: str | os.PathLike | None = None):
         return f"`{path1 or path2 or self.value}` and `{path2 or path1 or self.value}` are the same file"
-    
