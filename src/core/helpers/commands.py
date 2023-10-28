@@ -32,11 +32,12 @@ class CommandInterface:
     ### AUTOMATIC CALLS
     Methods that get called regardless by the terminal
 
-    - `init()`      This function is called on start of execution.
-    - `setup()`     This is function is called right before run().
-    - `run()`       This is the entry method for the command.
-    - `close()`     This is the method that gets called right after run() the command.
-    - `exit()`      This is the last method that gets called.
+    - `init()`          This function is called on start of execution.
+    - `setup()`         This is function is called right before run().
+    - `run()`           This is the entry method for the command.
+    - `close()`         This is the method that gets called right after run() the command.
+    - `exit()`          This is the last method that gets called.
+    - `fail_safe()`     This function gets called to capture unhandled exception.
 
     ### HELPER FUNCTIONS
     Other usefull methods, NOT called by the terminal.
@@ -114,6 +115,29 @@ class CommandInterface:
         This function should be used to define what status code to return
         """
         return self.status if self.status else STATUS_OK
+
+    def fail_safe(self, exception: Exception):
+        """
+        This function gets called to capture unhandled exception.\n
+        This function may be called at any time, and once called command execution will be terminated without
+        `self.close()` or `self.exit()`
+
+        By default creates a crash report as a temp file for the user to see with all the Traceback informations
+        and sets `self.status` to `STATUR_ERR`
+        """
+        from src.utils.crash_handler import write_error_log
+        prefx = self.parser.prog if self.parser else self.command[0]
+        prefx += '_'
+        
+        if prefx == '_':
+            prefx = None
+        
+        tmp = write_error_log(prefx)[1]
+
+        self.stderr.write(f"An error accoured while trying to execute command  ({type(exception).__name__})\n")
+        self.stderr.write(f"The full error log can be found here: \n{tmp}\n\n")
+        self.status = STATUS_ERR
+        
 
     """
     HELPER FUNCTIONS

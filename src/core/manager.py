@@ -16,17 +16,21 @@ def manage(command: list[str], info: Info) -> None:
     from . import helpers
 
     def execute_command(callable: helpers.commands.CommandInterface) -> None:
-        callable.init()
-        callable.setup()
+        try:
+            callable.init()
+            callable.setup()
 
-        if callable.parser and callable.parser.exit_execution:
+            if callable.parser and callable.parser.exit_execution:
+                callable.close()
+                callable.exit()
+                return
+            
+            callable.run()
             callable.close()
             callable.exit()
-            return
-        
-        callable.run()
-        callable.close()
-        callable.exit()
+            
+        except Exception as e:
+            callable.fail_safe(e)
 
     exec_command: helpers.commands.CommandInterface
     exec_command_class = helpers.commands.CommandInterface
