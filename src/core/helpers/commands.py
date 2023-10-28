@@ -1,3 +1,4 @@
+import os as _os
 from src.settings.info import Info
 import sys
 from typing import Any, TextIO
@@ -231,26 +232,26 @@ class Logger():
     def __init__(self, value: Any | None = None) -> None:
         self.value = value or ""
 
-    def path_not_found(self, path: str | os.PathLike | None = None):
+    def path_not_found(self, path: str | _os.PathLike | None = None):
         return f"cannot open `{path or self.value}` (No such file or directory)"
 
-    def file_not_found(self, path: str | os.PathLike | None = None):
+    def file_not_found(self, path: str | _os.PathLike | None = None):
         return self.path_not_found(path)
 
-    def permission_denied(self, path: str | os.PathLike | None = None):
+    def permission_denied(self, path: str | _os.PathLike | None = None):
         return f"cannot open `{path or self.value}` (permission denied)"
 
-    def file_exists(self, path: str | os.PathLike | None = None):
+    def file_exists(self, path: str | _os.PathLike | None = None):
         return f"cannot create directory `{path or self.value}`: File exists"
 
-    def cannot_remove_dir(self, path: str | os.PathLike | None = None):
+    def cannot_remove_dir(self, path: str | _os.PathLike | None = None):
         return f"cannot remove `{path or self.value}`: Is a directory"
 
-    def parameter_not_specified(self, param: str | os.PathLike | None = None):
+    def parameter_not_specified(self, param: str | _os.PathLike | None = None):
         return f"{param or self.value} not specified"
 
     def parameter_not_supported(self, param: str | None = None):
         return f"unsupported option '{param or self.value}'"
 
-    def same_file(self, path1: str | os.PathLike | None = None, path2: str | os.PathLike | None = None):
+    def same_file(self, path1: str | _os.PathLike | None = None, path2: str | _os.PathLike | None = None):
         return f"`{path1 or path2 or self.value}` and `{path2 or path1 or self.value}` are the same file"

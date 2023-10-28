@@ -1,7 +1,7 @@
 from threading import Thread
-import time
+import time as _time
 from typing import List, Callable
-import os
+import os as _os
 
 # Process status codes
 STATUS_OK = 0  # Exited with no problems
@@ -44,7 +44,7 @@ class Process:
         self.owner: str = owner
         self.command_instance: Callable = command_instance
         self.line_args: List[str] = line_args
-        self.started: float = time.time()
+        self.started: float = _time.time()
         self.status: int | None = None
         self.thread: Thread = None
         self.native_id: int | None = None
@@ -53,11 +53,11 @@ class Process:
 
     def get_info(self) -> ProcessInfo:
         return ProcessInfo(self.id,
-                           os.getppid(),
+                           _os.getppid(),
                            self.owner,
                            self.name,
                            self.native_id,
-                           self._calculate_time(time.time() - self.started),
+                           self._calculate_time(_time.time() - self.started),
                            self.is_reserved_process,
                            self.line_args
                            )
@@ -113,7 +113,7 @@ class Process:
 class Processes:
     def __init__(self):
         self.processes: list[Process] = []
-        self.process_counter: int = os.getpid()
+        self.process_counter: int = _os.getpid()
 
     def list(self) -> list[ProcessInfo]:
         # Avoid returning the system managed list of processes
@@ -134,7 +134,7 @@ class Processes:
                               command_instance=callable, line_args=line_args, is_reserved_process=is_reserved))
         print(f"[{self.processes[-1].id}] {line_args[0]}")
         self.processes[-1].run()
-        time.sleep(.1)
+        _time.sleep(.1)
 
     def find(self, id: int) -> Process | None:
         for p in self.processes:
