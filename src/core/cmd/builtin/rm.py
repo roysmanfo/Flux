@@ -53,19 +53,27 @@ class Command(CommandInterface):
         if self.args.recursive:
             files = []
 
-            # Just to show what shutil.rmtree is doing
-            for _, _, file in os.walk(self.args.path):
-                files.extend(file)
-                if self.args.verbose:
-                    for f in file:
-                        self.stdout.write(f"collecting: {f}\n")
+            if os.path.isfile(self.args.path):
+                try:
+                    if self.args.verbose:
+                        self.stdout.write(f"collecting: {self.args.path}\n")
+                    os.remove(self.args.path)
+                except PermissionError:
+                    self.warning(STATUS_WARN, f"cannot open '{folder}': (permission denied)", to_stdout=False)
+            else:
+                # Just to show what shutil.rmtree is doing
+                for _, _, file in os.walk(self.args.path):
+                    files.extend(file)
+                    if self.args.verbose:
+                        for f in file:
+                            self.stdout.write(f"collecting: {f}\n")
 
-            try:
-                if self.args.verbose:
-                    self.stdout.write(f"deleting {len(files)} files...\n")
-                shutil.rmtree(os.path.abspath(self.args.path))
-            except PermissionError:
-                self.warning(STATUS_WARN, f"cannot open '{folder}': (permission denied)", to_stdout=False)
+                try:
+                    if self.args.verbose:
+                        self.stdout.write(f"deleting {len(files)} files...\n")
+                    shutil.rmtree(os.path.abspath(self.args.path))
+                except PermissionError:
+                    self.warning(STATUS_WARN, f"cannot open '{folder}': (permission denied)", to_stdout=False)
             self.stdout.write(f"\n")
                 
 
