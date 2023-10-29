@@ -7,6 +7,7 @@ from ...helpers.commands import *
 from ...helpers.arguments import Parser
 
 import zipfile
+import os
 
 class Command(CommandInterface):
     def init(self):
