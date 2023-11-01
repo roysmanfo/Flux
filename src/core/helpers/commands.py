@@ -237,28 +237,55 @@ class Logger():
         self.value = value or ""
 
     def path_not_found(self, path: str | _os.PathLike | None = None):
+        """
+        cannot open `{path}` (No such file or directory)
+        """
         return f"cannot open `{path or self.value}` (No such file or directory)"
 
     def file_not_found(self, path: str | _os.PathLike | None = None):
+        """
+        cannot open `{path}` (No such file or directory)
+        """
         return self.path_not_found(path)
 
     def permission_denied(self, path: str | _os.PathLike | None = None):
+        """
+        cannot open `{path}` (permission denied)
+        """
         return f"cannot open `{path or self.value}` (permission denied)"
 
     def file_exists(self, path: str | _os.PathLike | None = None):
+        """
+        cannot create directory `{path}`: File exists
+        """
         return f"cannot create directory `{path or self.value}`: File exists"
 
     def cannot_remove_dir(self, path: str | _os.PathLike | None = None):
+        """
+        cannot remove `{path}`: Is a directory
+        """
         return f"cannot remove `{path or self.value}`: Is a directory"
 
     def cannot_read_dir(self, path: str | _os.PathLike | None = None):
+        """
+        cannot read `{path}`: Is a directory
+        """
         return f"cannot read `{path or self.value}`: Is a directory"
 
     def parameter_not_specified(self, param: str | _os.PathLike | None = None):
+        """
+        {param} not specified
+        """
         return f"{param or self.value} not specified"
 
     def parameter_not_supported(self, param: str | None = None):
+        """
+        unsupported option '{param}'
+        """
         return f"unsupported option '{param or self.value}'"
 
     def same_file(self, path1: str | _os.PathLike | None = None, path2: str | _os.PathLike | None = None):
+        """
+        `{path1}` and `{path2}` are the same file
+        """
         return f"`{path1 or path2 or self.value}` and `{path2 or path1 or self.value}` are the same file"
