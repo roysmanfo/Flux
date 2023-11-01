@@ -78,9 +78,17 @@ class Command(CommandInterface):
                 lines = [i.replace("\t", "^I") for i in f.readlines()]
 
             if self.args.squeeze_blank:
+                r = []
                 for l in lines:
-                    if l.strip() == '' and lines.index(l) < len(lines) - 1 and lines[lines.index(l) + 1].strip() == '':
-                        lines.remove(l)
+                    if l.strip() == '':
+                        if l is lines[-1]:
+                            r.append(l)
+                        elif not lines[lines.index(l) + 1].strip() == '':
+                            r.append(l)
+                    else:
+                        r.append(l)
+
+                lines = r
 
             if self.args.show_ends:
                 lines = [i + '$' for i in lines]
