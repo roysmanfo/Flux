@@ -247,6 +247,9 @@ class Logger():
     def cannot_remove_dir(self, path: str | _os.PathLike | None = None):
         return f"cannot remove `{path or self.value}`: Is a directory"
 
+    def cannot_read_dir(self, path: str | _os.PathLike | None = None):
+        return f"cannot read `{path or self.value}`: Is a directory"
+
     def parameter_not_specified(self, param: str | _os.PathLike | None = None):
         return f"{param or self.value} not specified"
 
