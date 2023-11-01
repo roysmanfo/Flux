@@ -186,16 +186,20 @@ class CommandInterface:
         This function is used to get an input from the standard input
         and returns it as a string (if a Ctrl-c is detected, returns None).
         """
-        
         try:
             if __prompt:
                 self.stdout.write(__prompt)
 
             file_contents = self.stdin.readline()
+            
+            if file_contents == '':
+                return None
+            
             return file_contents
-        
         except KeyboardInterrupt:
             return None
+
+
 
 class Logger():
     """
