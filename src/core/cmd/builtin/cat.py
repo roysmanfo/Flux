@@ -3,6 +3,7 @@ from ...helpers.arguments import Parser
 import os
 import chardet
 
+
 class Command(CommandInterface):
     def init(self):
         self.parser = Parser("cat", add_help=True, description="Concatenate FILE(s) to standard output")
@@ -30,23 +31,36 @@ class Command(CommandInterface):
         if self.args.e:
             self.args.show_ends = True
             self.args.show_nonprinting = True
-        
+
         if self.args.t:
             self.args.show_tabs = True
             self.args.show_nonprinting = True
 
-
     def run(self):
         for file in self.args.files:
             file: str
-            if not os.path.exists(file):
-                self.error(STATUS_ERR, self.logger.file_not_found(file))
 
-            elif os.path.isdir(file):
-                self.error(STATUS_ERR, self.logger.cannot_read_dir(file))
-            
+            if file != '-':
+                if not os.path.exists(file):
+                    self.error(STATUS_ERR, self.logger.file_not_found(file))
+                    continue
+
+                if os.path.isdir(file):
+                    self.error(STATUS_ERR, self.logger.cannot_read_dir(file))
+                    continue
+
+
+            if file == '-':
+                lines: list[str] = []
+                inp = ''
+                while not inp is None:
+                    inp = self.input()
+                    lines.append(inp)
+                print()
+
+                lines =  [i.removesuffix('\n') for i in lines[:-1]] # Also remove trailing None from the list
+
             else:
-
                 with open(file, 'rb') as f:
                     if not f.readable():
                         self.error(STATUS_ERR, self.logger.permission_denied(file))
@@ -55,50 +69,41 @@ class Command(CommandInterface):
                     if not enc:
                         self.error(STATUS_ERR, f"could not determine the encoding of `{file}`")
                         return
-                    
+
                 with open(file, 'r', encoding=enc) as f:
-                        lines = [ i.removesuffix('\n') for i in f.readlines()]
-                    
-                        if self.args.show_tabs:
-                            lines = [ i.replace("\t", "^I") for i in f.readlines()]
-
-                        if self.args.squeeze_blank:
-                            for l in lines:
-                                if l.strip() == '' and lines.index(l) < len(lines) - 1 and lines[lines.index(l) + 1].strip() == '':
-                                    lines.remove(l)
-
-                        if self.args.show_ends:
-                            lines = [i + '$' for i in lines]
-
-                        if self.args.number:
-                            longest = len(str(len(lines)))
-                            lines = [f"  {' ' * (longest - len(str(i)))}{i}  {v}" for i,v in enumerate(lines, 1)]
-
-                        if self.args.b:
-                            r = lines.copy()
-                            longest = len(str(len(lines)))
-                            i = 1
-                            for l in lines:
-                                if l.strip() != '':
-                                    r.append(f"  {' ' * (longest - len(str(i)))}{i}  {l}")
-                                    i += 1
-                                else:
-                                    r.append( f"  {' ' * (longest)}  {l}")
-
-                            lines = r
-
-                        self.stdout.write("\n".join(lines))
-                        self.stdout.write("\n")
-
-                        if len(lines) > 0 and (not lines[-1].endswith("\n") or not lines[-1] == ""):
-                            self.stdout.write("\n")
-                        
-
-
-                        
+                    lines = [i.removesuffix('\n') for i in f.readlines()]
 
             
+            if self.args.show_tabs:
+                lines = [i.replace("\t", "^I") for i in f.readlines()]
 
-            
+            if self.args.squeeze_blank:
+                for l in lines:
+                    if l.strip() == '' and lines.index(l) < len(lines) - 1 and lines[lines.index(l) + 1].strip() == '':
+                        lines.remove(l)
 
-            
+            if self.args.show_ends:
+                lines = [i + '$' for i in lines]
+
+            if self.args.number:
+                longest = len(str(len(lines)))
+                lines = [f"  {' ' * (longest - len(str(i)))}{i}  {v}" for i, v in enumerate(lines, 1)]
+
+            if self.args.b:
+                r = lines.copy()
+                longest = len(str(len(lines)))
+                i = 1
+                for l in lines:
+                    if l.strip() != '':
+                        r.append(f"  {' ' * (longest - len(str(i)))}{i}  {l}")
+                        i += 1
+                    else:
+                        r.append(f"  {' ' * (longest)}  {l}")
+
+                lines = r
+
+            self.stdout.write("\n".join(lines))
+            self.stdout.write("\n")
+
+            if len(lines) > 0 and (not lines[-1].endswith("\n") or not lines[-1] == ""):
+                self.stdout.write("\n")
