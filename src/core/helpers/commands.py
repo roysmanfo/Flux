@@ -47,6 +47,8 @@ class CommandInterface:
     - `error()`     This function should be called once an error accoures.
     - `warning()`   This function should be called to issue warnings.
     - `input()`     This is similar to python's `input()`, but uses `self.stdin` to not have to modify `sys.stdin` .
+    - `print()`     This is similar to python's `print()`, but uses `self.stdout` to not have to modify `sys.stdout` .
+    - `printerr()`  This is similar to `self.print()`, but uses `self.stderr` instead.
 
     """
 
@@ -135,8 +137,8 @@ class CommandInterface:
         
         tmp = write_error_log(prefx)[1]
 
-        self.stderr.write(f"An error accoured while trying to execute command  ({type(exception).__name__})\n")
-        self.stderr.write(f"The full error log can be found here: \n{tmp}\n\n")
+        self.printerr(f"An error accoured while trying to execute command  ({type(exception).__name__})")
+        self.printerr(f"The full error log can be found here: \n{tmp}\n")
         self.status = STATUS_ERR
         
 
@@ -152,10 +154,9 @@ class CommandInterface:
         By default sets the status to STATUS_ERR.
         """
         if use_color:
-            self.stderr.write(
-                f"{Fore.RED}{self.parser.prog}: {msg}{Fore.RESET}\n\n")
+            self.printerr(f"{Fore.RED}{self.parser.prog}: {msg}{Fore.RESET}\n")
         else:
-            self.stderr.write(f"{self.parser.prog}: {msg}\n\n")
+            self.printerr(f"{self.parser.prog}: {msg}\n")
         self.status = status or STATUS_ERR
 
     def warning(self, status: int | None = None, msg: str | None = None, use_color: bool = False, to_stdout: bool = True):
@@ -168,27 +169,26 @@ class CommandInterface:
 
         if to_stdout:
             if use_color:
-                self.stdout.write(
-                    f"{Fore.YELLOW}{self.parser.prog}: {msg}{Fore.RESET}\n")
+                self.print(f"{Fore.YELLOW}{self.parser.prog}: {msg}{Fore.RESET}")
             else:
-                self.stdout.write(f"{msg}\n")
+                self.print(msg)
         else:
             if use_color:
-                self.stderr.write(
-                    f"{Fore.YELLOW}{self.parser.prog}: {msg}{Fore.RESET}\n")
+                self.print(f"{Fore.YELLOW}{self.parser.prog}: {msg}{Fore.RESET}")
             else:
-                self.stderr.write(f"{msg}\n")
+                self.print(msg)
 
         self.status = status or STATUS_WARN
 
     def input(self, __prompt: object = "") -> str | None:
         """
-        This function is used to get an input from the standard input
-        and returns it as a string (if a Ctrl-c is detected, returns None).
+        This function takes an input from the stdin and returns it as a string
+
+        If a Ctrl-c is detected, returns None.
         """
         try:
             if __prompt:
-                self.stdout.write(__prompt)
+                self.print(__prompt, end="")
 
             file_contents = self.stdin.readline()
             
@@ -198,6 +198,48 @@ class CommandInterface:
             return file_contents
         except KeyboardInterrupt:
             return None
+        
+    def print(self, *values: object, sep: str | None = " ", end: str | None = "\n",  flush: bool = False) -> None :
+        """
+        Prints the values to self.stdout.
+
+        - #### sep
+        \tstring inserted between values, default a space.
+
+        - #### end
+        \tstring appended after the last value, default a newline.
+
+        - #### flush
+        \twhether to forcibly flush the stream.
+        """
+
+        self.stdout.write(f"{sep}".join(values))
+        self.stdout.write(end)
+
+        if flush:
+            self.stdout.flush()
+
+    def printerr(self, *values: object, sep: str | None = " ", end: str | None = "\n",  flush: bool = False) -> None :
+        """
+        Prints the values to self.stderr.
+
+        - #### sep
+        \tstring inserted between values, default a space.
+
+        - #### end
+        \tstring appended after the last value, default a newline.
+
+        - #### flush
+        \twhether to forcibly flush the stream.
+        """
+
+        self.stderr.write(f"{sep}".join(values))
+        self.stderr.write(end)
+
+        if flush:
+            self.stdout.flush()
+        
+
 
 
 
@@ -206,20 +248,20 @@ class Logger():
     Standardized handler for error/warning messages
 
     By default `self.value` is an empty string and 
-    will be used if no path is given as function argument,
+    will be used if no value is given as function argument,
 
     You can change its value in the `run` function
 
     ```
     def run(self):    
-        self.args = self.parser.parse_args(self.command[1:])
-        self.logger.path = self.args.PATH
+        self.logger.value = self.args.PATH
     ```
 
     or by recreating the object in your setup 
 
     ```
-    def init(self):
+    def setup(self):
+        super().setup()
         self.logger = Logger(PATH)
     ```
 
