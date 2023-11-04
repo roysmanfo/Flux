@@ -24,7 +24,7 @@ class Command(CommandInterface):
     def run(self):
         
         if not os.path.exists(self.args.PATH):
-            self.error(STATUS_ERR, f"cannot access '{self.args.PATH}': No such file or directory")
+            self.error(f"cannot access '{self.args.PATH}': No such file or directory")
             return
         
         dir_contents: list[str]
@@ -34,7 +34,7 @@ class Command(CommandInterface):
             try:
                 dir_contents = os.listdir(self.args.PATH)
             except PermissionError:
-                self.error(STATUS_ERR, f"cannot open `{self.args.PATH}` (permission denied)")
+                self.error(f"cannot open `{self.args.PATH}` (permission denied)")
                 return
 
         elif os.path.isfile(self.args.PATH) or os.path.islink(self.args.PATH):

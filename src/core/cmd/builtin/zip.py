@@ -23,7 +23,7 @@ class Command(CommandInterface):
         for file in self.args.files:
             file = str(os.path.abspath(file))
             if not os.path.exists(file):
-                self.error(STATUS_ERR, f"cannot access '{file}': No such file or directory")
+                self.error(f"cannot access '{file}': No such file or directory")
                 return
             
         # * With single files use zipfile
@@ -36,7 +36,7 @@ class Command(CommandInterface):
                     else:
                         self.compress_file(file, zipf)
         except PermissionError:
-            self.error(STATUS_ERR, f"cannot open '{file}': (permission denied)")
+            self.error(f"cannot open '{file}': (permission denied)")
             os.remove(f'{self.args.archive_name}.zip')
             return
         

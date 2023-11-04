@@ -23,11 +23,11 @@ class Command(CommandInterface):
         if not self.args.reset_all:
             
             if not self.args.setting:
-                self.error(STATUS_ERR, "The following arguments are required: -s")
+                self.error("The following arguments are required: -s")
                 return
                 
             if self.args.value and self.args.reset:
-                self.error(STATUS_ERR, "Too many actions specified: -v, -r")
+                self.error("Too many actions specified: -v, -r")
                 return
                 
 
@@ -79,7 +79,7 @@ class Command(CommandInterface):
                     try:
                         self.stdout.write(f"{self.info.user.paths.all()[target]}\n\n")
                     except KeyError:
-                        self.error(STATUS_ERR, f"setting not found")
+                        self.error(f"setting not found")
             else:
                 from src.utils.format import create_adaptive_table
                 c = [(p, self.info.user.paths.all_paths[p]) for p in self.info.user.paths.all_paths.keys()]
@@ -89,4 +89,4 @@ class Command(CommandInterface):
 
         # Command does not exist
         else:
-            self.error(STATUS_ERR, 'setting not found')
+            self.error('setting not found')

@@ -31,14 +31,14 @@ class Command(CommandInterface):
 
                 if not os.path.exists(self.args.archive_name):
                     attempts.append(self.args.archive_name)
-                    self.error(STATUS_ERR, f"cannot find or open {attempts[0]}, {attempts[1]} or {attempts[2]}.")
+                    self.error(f"cannot find or open {attempts[0]}, {attempts[1]} or {attempts[2]}.")
                     return
 
         if not os.path.exists(self.args.destination):
             try:
                 os.makedirs(self.args.destination, mode=777, exist_ok=True)
             except PermissionError:
-                self.error(STATUS_ERR, f"cannot create '{self.args.destination}': (permission denied)")
+                self.error(f"cannot create '{self.args.destination}': (permission denied)")
                 return
                 
         else:
@@ -52,7 +52,7 @@ class Command(CommandInterface):
                 self.args.destination = os.path.join(prefix, dest)
 
             else:
-                self.error(STATUS_ERR, f"folder '{self.args.destination}' already exists")
+                self.error(f"folder '{self.args.destination}' already exists")
                 return
 
 

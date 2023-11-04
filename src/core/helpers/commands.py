@@ -146,7 +146,7 @@ class CommandInterface:
     HELPER FUNCTIONS
     """
 
-    def error(self, status: int | None = None, msg: str | None = None, use_color: bool = False):
+    def error(self, msg: str | None = None, use_color: bool = False, status: int | None = None):
         """
         This function should be called once an error accoures.\n
         This function should be called to handle errors.
@@ -159,7 +159,7 @@ class CommandInterface:
             self.printerr(f"{self.parser.prog}: {msg}\n")
         self.status = status or STATUS_ERR
 
-    def warning(self, status: int | None = None, msg: str | None = None, use_color: bool = False, to_stdout: bool = True):
+    def warning(self, msg: str | None = None, status: int | None = None, use_color: bool = False, to_stdout: bool = True):
         """
         This function should be called to issue warnings.\n
         This function should be called to handle warnings (by default writes to stdout).
@@ -271,7 +271,7 @@ class Logger():
     try:
         # Some operations
     except PermissionError:
-        self.error(STATUS_ERR, self.logger.permission_error(PATH))
+        self.error(self.logger.permission_error(PATH))
     ```
     """
 

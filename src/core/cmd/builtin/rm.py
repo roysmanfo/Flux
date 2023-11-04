@@ -24,14 +24,14 @@ class Command(CommandInterface):
         if self.args.path:
             if not os.path.exists(self.args.path):
                 if not self.args.force:
-                    self.error(STATUS_ERR, f"canot access '{self.args.path}': No such file or directory")
+                    self.error(f"canot access '{self.args.path}': No such file or directory")
                     return
         else:
-            self.error(STATUS_ERR, "missing operand")
+            self.error("missing operand")
             return
         
         if os.path.isdir(self.args.path) and not (self.args.dir or self.args.recursive):
-            self.error(STATUS_ERR, f"cannot remove '{self.args.path}': Is a directory")
+            self.error(f"cannot remove '{self.args.path}': Is a directory")
             return
         
         if self.args.dir:
@@ -45,7 +45,7 @@ class Command(CommandInterface):
                         if self.args.verbose:
                             self.stdout.write(f"removing: {folder}\n")
                     except PermissionError:
-                        self.warning(STATUS_WARN, f"cannot open '{folder}': (permission denied)", to_stdout=False)
+                        self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
             self.stdout.write(f"\n")
 
             
@@ -59,7 +59,7 @@ class Command(CommandInterface):
                         self.stdout.write(f"collecting: {self.args.path}\n")
                     os.remove(self.args.path)
                 except PermissionError:
-                    self.warning(STATUS_WARN, f"cannot open '{folder}': (permission denied)", to_stdout=False)
+                    self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
             else:
                 # Just to show what shutil.rmtree is doing
                 for _, _, file in os.walk(self.args.path):
@@ -73,7 +73,7 @@ class Command(CommandInterface):
                         self.stdout.write(f"deleting {len(files)} files...\n")
                     shutil.rmtree(os.path.abspath(self.args.path))
                 except PermissionError:
-                    self.warning(STATUS_WARN, f"cannot open '{folder}': (permission denied)", to_stdout=False)
+                    self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
             self.stdout.write(f"\n")
                 
 
@@ -83,7 +83,7 @@ class Command(CommandInterface):
                 os.remove(self.args.path)
             except PermissionError:
                 if self.status != STATUS_WARN:
-                    self.warning(STATUS_WARN, f"cannot open '{self.args.path}': (permission denied)", to_stdout=False)
+                    self.warning(f"cannot open '{self.args.path}': (permission denied)", to_stdout=False)
 
 
 

@@ -19,7 +19,7 @@ class Command(CommandInterface):
 
         for i in self.args.source:
             if not os.path.exists(i):
-                self.error(STATUS_ERR, self.logger.file_not_found(i))
+                self.error(self.logger.file_not_found(i))
                 return
 
         # Handle multiple files given as source to copy
@@ -28,7 +28,7 @@ class Command(CommandInterface):
                 os.makedirs(self.args.dest)
 
             except PermissionError:
-                self.error(STATUS_ERR, self.logger.permission_denied(self.args.dest))
+                self.error(self.logger.permission_denied(self.args.dest))
                 return
 
 
@@ -64,7 +64,7 @@ class Command(CommandInterface):
         
     def copy_folder(self, path: str):
         if not self.args.recursive:
-            self.warning(STATUS_WARN, self.logger.parameter_not_specified('-r') + f"; omitting directory {path}")
+            self.warning(self.logger.parameter_not_specified('-r') + f"; omitting directory {path}")
             return
         
         try:
@@ -77,7 +77,7 @@ class Command(CommandInterface):
                     self.stdout.write(f"'{path}' -> '{after[before.index(path)]}'\n")
 
         except PermissionError:
-            self.error(STATUS_ERR, self.logger.permission_denied(path))
+            self.error(self.logger.permission_denied(path))
             return
 
 
@@ -105,7 +105,7 @@ class Command(CommandInterface):
                 os.makedirs(os.path.dirname(self.args.dest))
 
             except PermissionError:
-                self.error(STATUS_ERR, self.logger.permission_denied(path))
+                self.error(self.logger.permission_denied(path))
                 return
 
         try:
@@ -115,7 +115,7 @@ class Command(CommandInterface):
                 self.stdout.write("'{}' -> '{}'\n".format(path, self.args.dest))
                 
         except shutil.SameFileError:
-            self.warning(STATUS_WARN, self.logger.same_file(path, self.args.dest))
+            self.warning(self.logger.same_file(path, self.args.dest))
 
         except PermissionError:
-            self.error(STATUS_ERR, self.logger.permission_denied(self.args.dest))
+            self.error(self.logger.permission_denied(self.args.dest))

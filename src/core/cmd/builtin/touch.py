@@ -30,10 +30,10 @@ class Command(CommandInterface):
                     return True
                 
                 except PermissionError:
-                    self.error(STATUS_ERR, self.logger.permission_denied())
+                    self.error(self.logger.permission_denied())
                     return
             else:
-                self.error(STATUS_ERR, self.logger.path_not_found())
+                self.error(self.logger.path_not_found())
                 return
 
 
@@ -50,11 +50,11 @@ class Command(CommandInterface):
             return True
         
         except PermissionError:
-            self.error(STATUS_ERR, self.logger.permission_denied())
+            self.error(self.logger.permission_denied())
             return False
         
         except FileNotFoundError:
-            self.error(STATUS_ERR, self.logger.path_not_found())
+            self.error(self.logger.path_not_found())
             return False         
 
     def modify_modification_time(self):
@@ -62,5 +62,5 @@ class Command(CommandInterface):
             os.utime(self.args.FILE, (os.stat(self.args.FILE).st_atime, time.time()))
             return True
         except PermissionError:
-            self.error(STATUS_ERR, self.logger.permission_denied())
+            self.error(self.logger.permission_denied())
             return False
