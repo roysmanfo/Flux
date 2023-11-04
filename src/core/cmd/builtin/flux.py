@@ -31,4 +31,4 @@ class Command(CommandInterface):
     {:^27}
     
     """.format(emote, "By @RoysManfo")
-        self.stdout.write(title + Fore.RESET + "\n")
+        self.print(title + Fore.RESET)

@@ -28,7 +28,7 @@ class Command(CommandInterface):
                         os.removedirs(folder)
 
                     if self.args.verbose:
-                        self.stdout.write("rmdir: removing directory '{}'\n".format(folder))
+                        self.print("rmdir: removing directory '{}'".format(folder))
                 
                 except PermissionError:
                     self.error(self.logger.permission_denied(folder))

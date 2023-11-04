@@ -16,5 +16,5 @@ class Command(CommandInterface):
         """
         This command tells a random programming joke
         """
-        self.stdout.write(random.choice(jokes.jokes))
-        self.stdout.write("\n\n")
+        self.print(random.choice(jokes.jokes))
+        self.print()

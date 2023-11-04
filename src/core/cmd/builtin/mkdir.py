@@ -25,7 +25,7 @@ class Command(CommandInterface):
                         os.makedirs(folder, self.args.mode, exist_ok=True)
 
                     if self.args.verbose:
-                        self.stdout.write("mkdir: created directory '{}'\n".format(folder))
+                        self.print("mkdir: created directory '{}'".format(folder))
                 
                 except PermissionError:
                     self.error(self.logger.permission_denied(folder))

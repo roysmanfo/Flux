@@ -110,8 +110,7 @@ class Command(CommandInterface):
 
                 lines = r
 
-            self.stdout.write("\n".join(lines))
-            self.stdout.write("\n")
+            self.print("\n".join(lines))
 
             if len(lines) > 0 and (not lines[-1].endswith("\n") or not lines[-1] == ""):
-                self.stdout.write("\n")
+                self.print()

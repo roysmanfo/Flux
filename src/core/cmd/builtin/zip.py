@@ -30,7 +30,7 @@ class Command(CommandInterface):
         try:
             with zipfile.ZipFile(f'{self.args.archive_name}.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
                 for file in self.args.files:
-                    self.stdout.write(f"adding: {file}\n")
+                    self.print(f"adding: {file}")
                     if os.path.isdir(file):
                         self.compress_folder(file, zipf)
                     else:
@@ -40,7 +40,7 @@ class Command(CommandInterface):
             os.remove(f'{self.args.archive_name}.zip')
             return
         
-        self.stdout.write("\n")
+        self.print()
 
     @staticmethod
     def compress_folder(path: str, ziph: zipfile.ZipFile):

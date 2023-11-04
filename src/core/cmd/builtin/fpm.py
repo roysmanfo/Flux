@@ -30,4 +30,4 @@ class Command(CommandInterface):
         
         if self.args.list:
             from src.utils.format import create_adaptive_table
-            self.stdout.write(create_adaptive_table("Name", "Description", contents=COMMAND_DESC))
+            self.print(create_adaptive_table("Name", "Description", contents=COMMAND_DESC))

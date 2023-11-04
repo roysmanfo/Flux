@@ -18,6 +18,6 @@ class Command(CommandInterface):
         if self.args.physical and platform.system() == 'Linux':
             output = output.resolve(True)
 
-        self.stdout.write(str(output) + "\n\n")
+        self.print(str(output) + "\n")
 
         

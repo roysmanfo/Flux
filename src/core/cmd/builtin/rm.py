@@ -43,10 +43,10 @@ class Command(CommandInterface):
                     try:
                         os.rmdir(folder)
                         if self.args.verbose:
-                            self.stdout.write(f"removing: {folder}\n")
+                            self.print(f"removing: {folder}")
                     except PermissionError:
                         self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
-            self.stdout.write(f"\n")
+            self.print()
 
             
 
@@ -56,7 +56,7 @@ class Command(CommandInterface):
             if os.path.isfile(self.args.path):
                 try:
                     if self.args.verbose:
-                        self.stdout.write(f"collecting: {self.args.path}\n")
+                        self.print(f"collecting: {self.args.path}")
                     os.remove(self.args.path)
                 except PermissionError:
                     self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
@@ -66,15 +66,15 @@ class Command(CommandInterface):
                     files.extend(file)
                     if self.args.verbose:
                         for f in file:
-                            self.stdout.write(f"collecting: {f}\n")
+                            self.print(f"collecting: {f}")
 
                 try:
                     if self.args.verbose:
-                        self.stdout.write(f"deleting {len(files)} files...\n")
+                        self.print(f"deleting {len(files)} files...")
                     shutil.rmtree(os.path.abspath(self.args.path))
                 except PermissionError:
                     self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
-            self.stdout.write(f"\n")
+            self.print()
                 
 
     def close(self):

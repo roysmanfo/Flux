@@ -50,8 +50,8 @@ class Command(CommandInterface):
                 self.args.PATH = os.path.dirname(self.args.PATH)
             dir_contents = [self.long_listing_format(os.path.join(self.args.PATH, i)) for i in dir_contents]
             for file in dir_contents:
-                self.stdout.write(file + "\n")
-            self.stdout.write("\n\n")
+                self.print(file)
+            self.print("\n")
             return
         
         output = []
@@ -78,13 +78,13 @@ class Command(CommandInterface):
         linelenght = 0
         for content in output:
             if linelenght + len(content) + 2 < (max_line_length):
-                self.stdout.write(f"{content}  ")
+                self.print(f"{content}  ", end="")
                 linelenght += len(content) + 2
             else:
                 linelenght = len(content) + 2
-                self.stdout.write(f"\n{content}  ")
+                self.print(f"\n{content}  ", end="")
 
-        self.stdout.write("\n\n")
+        self.print("\n")
     
     
     @staticmethod

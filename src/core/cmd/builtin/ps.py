@@ -30,15 +30,15 @@ class Command(CommandInterface):
             case "simple":
                 for p in procceses:
                     contents.append([p.id, p.owner, p.name, p.time_alive])
-
-                self.stdout.write(format.create_adaptive_table("ID", "OWNER", "NAME", "TIME ALIVE", contents=contents))
+                self.print()
+                self.print(format.create_adaptive_table("ID", "OWNER", "NAME", "TIME ALIVE", contents=contents), end="")
 
             case "all":
                 contents = []
                 for p in procceses:
                     contents.append([p.id, p.pid, p.owner, p.name, p.native_id, p.time_alive, p.is_reserved_process, " ".join(p.line_args)])
-
-                self.stdout.write(format.create_adaptive_table("ID", "PID", "OWNER", "NAME", "NATIVE ID", "TIME ALIVE", "IS RESERVED PROCESS", "ARGS", contents=contents))
+                self.print()
+                self.print(format.create_adaptive_table("ID", "PID", "OWNER", "NAME", "NATIVE ID", "TIME ALIVE", "IS RESERVED PROCESS", "ARGS", contents=contents), end="")
 
             case "threads":
                 contents = []

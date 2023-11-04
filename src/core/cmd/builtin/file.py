@@ -49,7 +49,7 @@ class Command(CommandInterface):
             self.parser.exit_execution = True
             return
 
-        self.stdout.write(info + "\n\n")
+        self.print(info + "\n")
 
     def file_info(self, filepath: str | Path) -> str:
         """

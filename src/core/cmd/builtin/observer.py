@@ -70,13 +70,13 @@ options:
             return
 
         if self.IS_PROCESS:
-            self.stdout.write("Running observer in background...\n\n")
+            self.print("Running observer in background...\n")
 
         self.sort_files()
 
     def show_path(self) -> bool:
-        self.stdout.write(f"Bucket:{self.info.user.paths.bucket}\n")
-        self.stdout.write(f"Destination:{self.info.user.paths.bucket_destination}\n\n")
+        self.print(f"Bucket:{self.info.user.paths.bucket}")
+        self.print(f"Destination:{self.info.user.paths.bucket_destination}\n")
         return False
 
     def sort_files(self, forever: bool = False) -> None:
