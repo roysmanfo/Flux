@@ -1,16 +1,17 @@
 import os as _os
 from src.settings.info import Info
 import sys
-from typing import Any, TextIO
+from typing import Any, TextIO, List, Union
 from src.core.system.processes import *
 from colorama import init as col_init, Fore
 from .arguments import Parser
 from argparse import Namespace
+from abc import ABC, abstractmethod
 
 col_init(autoreset=True)
 
 
-class CommandInterface:
+class CommandInterface(ABC):
     """
     Interface class for commands
 
@@ -54,7 +55,7 @@ class CommandInterface:
 
     def __init__(self,
                  info: Info,
-                 command: list[str],
+                 command: List[str],
                  is_process: bool,
                  stdout: TextIO = sys.stdout,
                  stderr: TextIO = sys.stdout,
@@ -63,8 +64,8 @@ class CommandInterface:
 
         self.IS_PROCESS: bool = is_process
         self.info: Info = info
-        self.command: list[str] = command
-        self.status: int | None = None
+        self.command: List[str] = command
+        self.status: Union[int, None] = None
         self.stdout = stdout
         self.stderr = stderr
         self.stdin = stdin
@@ -96,7 +97,9 @@ class CommandInterface:
                 return
         except AttributeError:
             self.args = None
-
+    
+    # ! This method MUST be overwritten
+    @abstractmethod
     def run(self):
         """
         This is the entry function for the command.\n
@@ -145,7 +148,7 @@ class CommandInterface:
     """
     HELPER FUNCTIONS
     """
-
+    
     def error(self, msg: str | None = None, use_color: bool = False, status: int | None = None):
         """
         This function should be called once an error accoures.\n
