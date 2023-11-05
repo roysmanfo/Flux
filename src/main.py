@@ -1,14 +1,16 @@
-# Flux modules
-from core import setup, manager
-from settings.info import Info
-import utils
-
 # External Dependencies
 import sys
 import os
 from colorama import init, Fore
 
+sys.path.append("..")
 init(autoreset=True)
+
+# Flux modules
+from core import setup, manager
+from settings.info import Info
+import utils
+
 
 
 # Setup process
