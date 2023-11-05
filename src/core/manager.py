@@ -4,11 +4,28 @@
 This is the place where the input given gets analized and associated
 with the respective command (if existent).
 """
-from src.settings.info import Info
+import sys
+from typing import List, TextIO
 
+from src.settings.info import Info
 from .system import loader
 
-def manage(command: list[str], info: Info) -> None:
+
+def get_stdout(command: List[str]) -> [TextIO, str]:
+    if ">>" in command:
+        if command.index(">>") < len(command) - 1:
+            try:
+                pathname = command[command.index(">>") + 1]
+                command.remove(">>")
+                command.remove(pathname)
+                return [open(pathname, "w"), pathname]
+            
+            except PermissionError:
+                return [None, pathname]
+    return [sys.stdout, None]
+
+
+def manage(command: List[str], info: Info) -> None:
 
     # Match the command name to the corresponding file in ./cmd/
     # for further processing and execution
@@ -37,8 +54,10 @@ def manage(command: list[str], info: Info) -> None:
     exec_command: helpers.commands.CommandInterface
     exec_command_class = helpers.commands.CommandInterface
 
+    # Remove completed Processes
     info.processes.clean()
 
+    # Check for variables
     if info.variables.exists(command[0]):
         command_name = info.variables.get(command[0]).value
     else:
@@ -54,6 +73,15 @@ def manage(command: list[str], info: Info) -> None:
         command_name = command[0]
 
 
+    # Check for stdout redirect
+    stdout, out_path = get_stdout(command)
+
+    if stdout is None:
+        print(f"-flux: {out_path}: Permission denied\n")
+        return
+    
+
+    # Load command
     exec_command_class = loader.load_builtin_script(command_name)
     if not exec_command_class:
         exec_command_class = loader.load_custom_script(command_name)
@@ -64,7 +92,7 @@ def manage(command: list[str], info: Info) -> None:
 
     try:
         is_thread = command[-1] == "&"
-        exec_command = exec_command_class(info, command, is_thread)
+        exec_command = exec_command_class(info, command, is_thread, stdout=stdout)
 
         if is_thread:
             command.pop(-1)
