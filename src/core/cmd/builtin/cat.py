@@ -65,7 +65,10 @@ class Command(CommandInterface):
                     if not f.readable():
                         self.error(self.logger.permission_denied(file))
                         return
-                    enc = chardet.detect(f.read())["encoding"]
+                    
+                    content = f.read()
+                    enc = "utf-8" if content.strip() == b"" else chardet.detect(content)["encoding"]
+
                     if not enc:
                         self.error(f"could not determine the encoding of `{file}`")
                         return
