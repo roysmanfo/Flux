@@ -3,6 +3,8 @@ __pycache__
 
 ignore_*.*
 
+# Virtual environment
+venv/
 
 # Virtual environment stuff
 Lib
