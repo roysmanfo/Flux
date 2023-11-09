@@ -1,15 +1,12 @@
-import os as _os
-from src.settings.info import Info
 import sys
-from typing import Any, TextIO, List, Union
-from src.core.system.processes import *
-from colorama import init as col_init, Fore
-from .arguments import Parser
-from argparse import Namespace
+import os as _os
 from abc import ABC, abstractmethod
+from typing import Any, TextIO, List, Union
+from argparse import Namespace
 
-col_init(autoreset=True)
-
+from src.settings.info import Info
+from src.core.system.processes import *
+from .arguments import Parser
 
 class CommandInterface(ABC):
     """
@@ -72,6 +69,10 @@ class CommandInterface(ABC):
         self.parser: Parser = None
         self.args: Namespace = None
         self.logger: Logger = Logger()
+        self.colors = Colors(not (stdout is sys.stdout))
+
+        print("red: ", self.colors.Fore.RED +"red" + self.colors.Fore.RESET)
+
 
     """
     AUTOMATIC CALLS
@@ -157,7 +158,7 @@ class CommandInterface(ABC):
         By default sets the status to STATUS_ERR.
         """
         if use_color:
-            self.printerr(f"{Fore.RED}{self.parser.prog}: {msg}{Fore.RESET}\n")
+            self.printerr(f"{self.colors.Fore.RED}{self.parser.prog}: {msg}{self.colors.Fore.RESET}\n")
         else:
             self.printerr(f"{self.parser.prog}: {msg}\n")
         self.status = status or STATUS_ERR
@@ -172,12 +173,12 @@ class CommandInterface(ABC):
 
         if to_stdout:
             if use_color:
-                self.print(f"{Fore.YELLOW}{self.parser.prog}: {msg}{Fore.RESET}")
+                self.print(f"{self.colors.Fore.YELLOW}{self.parser.prog}: {msg}{self.colors.Fore.RESET}")
             else:
                 self.print(msg)
         else:
             if use_color:
-                self.print(f"{Fore.YELLOW}{self.parser.prog}: {msg}{Fore.RESET}")
+                self.print(f"{self.colors.Fore.YELLOW}{self.parser.prog}: {msg}{self.colors.Fore.RESET}")
             else:
                 self.print(msg)
 
@@ -334,3 +335,11 @@ class Logger():
         `{path1}` and `{path2}` are the same file
         """
         return f"`{path1 or path2 or self.value}` and `{path2 or path1 or self.value}` are the same file"
+
+
+class Colors:
+    def __init__(self, to_file: bool) -> None:
+        from . import colors
+        self.Fore = colors.Foreground(to_file)
+        self.Back = colors.Background(to_file)
+        self.Style = colors.Styles(to_file)
