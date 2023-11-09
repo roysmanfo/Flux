@@ -71,9 +71,6 @@ class CommandInterface(ABC):
         self.logger: Logger = Logger()
         self.colors = Colors(not (stdout is sys.stdout))
 
-        print("red: ", self.colors.Fore.RED +"red" + self.colors.Fore.RESET)
-
-
     """
     AUTOMATIC CALLS
     """
