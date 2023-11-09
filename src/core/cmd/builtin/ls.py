@@ -26,7 +26,7 @@ class Command(CommandInterface):
             self.error(f"cannot access '{self.args.PATH}': No such file or directory")
             return
         
-        dir_contents: list[str]
+        dir_contents: list[str] = []
 
         if os.path.isdir(self.args.PATH) or os.path.ismount(self.args.PATH):
             self.args.PATH = os.path.abspath(self.args.PATH)
@@ -59,19 +59,19 @@ class Command(CommandInterface):
             content = f"'{content}'" if len(str(content).split()) > 1 else content
             # Folder
             if os.path.isdir(complete_path):
-                output.append(f"{self.colors.Fore.LIGHTBLUE_EX}{content}")
+                output.append(f"{self.colors.Fore.LIGHTBLUE_EX}{content}{self.colors.Fore.RESET}")
             # Image
             elif content.removesuffix("'").split(".")[-1].lower() in ['jpg', 'jpeg', 'tif', 'jfif', 'png', 'gif', 'bmp', 'webp', 'pdf']:
-                output.append(f"{self.colors.Fore.LIGHTMAGENTA_EX}{content}")
+                output.append(f"{self.colors.Fore.LIGHTMAGENTA_EX}{content}{self.colors.Fore.RESET}")
             # Executable
             elif sys.platform.lower().startswith("win") and "." + content.removesuffix("'").split(".")[-1].upper() in os.environ['PATHEXT']:
-                output.append(f"{self.colors.Back.LIGHTYELLOW_EX} {self.colors.Fore.BLACK}{content} {self.colors.Back.RESET}")
+                output.append(f"{self.colors.Fore.LIGHTYELLOW_EX}{content}{self.colors.Fore.RESET}")
             # Compressed archive
             elif zipfile.is_zipfile(content):
-                output.append(f"{self.colors.Fore.LIGHTRED_EX}{content}")
+                output.append(f"{self.colors.Fore.LIGHTRED_EX}{content}{self.colors.Fore.RESET}")
             # Regular file
             else:
-                output.append(f"{self.colors.Fore.LIGHTGREEN_EX}{content}")
+                output.append(f"{self.colors.Fore.LIGHTGREEN_EX}{content}{self.colors.Fore.RESET}")
 
         max_line_length = os.get_terminal_size().columns // 4 * 3
         linelenght = 0
