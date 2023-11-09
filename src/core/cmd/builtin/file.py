@@ -160,8 +160,8 @@ class Command(CommandInterface):
         """
         try:
             with open(path, 'rb') as pdf_file:
-                pdf_reader = PyPDF2.PdfFileReader(pdf_file)
-                metadata = pdf_reader.getDocumentInfo()
+                pdf_reader = PyPDF2.PdfReader(pdf_file)
+                metadata = {k.removeprefix('/'): v for k, v  in pdf_reader.metadata}
                 if keys:
                     filtered_metadata = {k: v for k, v in metadata.items() if k in keys}
                     results = [f"{key}: {value}" for key, value in filtered_metadata.items()]
