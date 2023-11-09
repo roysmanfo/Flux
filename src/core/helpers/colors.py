@@ -7,6 +7,7 @@ to_file = False
 class Foreground:
     def __init__(self, to_file: bool) -> None:
         self.RESET           = "\033[0m"     if not to_file else ""
+        self.BLACK           = "\033[0;30m"  if not to_file else ""
         self.RED             = "\033[0;31m"  if not to_file else ""
         self.GREEN           = "\033[0;32m"  if not to_file else ""
         self.BLUE            = "\033[0;34m"  if not to_file else ""
