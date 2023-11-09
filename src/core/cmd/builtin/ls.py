@@ -6,23 +6,22 @@ List information about the FILEs (the current directory by default).
 
 from ...helpers.commands import *
 from ...helpers.arguments import Parser
+
 import os
 import stat
 import time
-from colorama import init as col_init, Fore, Back 
 import zipfile
 
 class Command(CommandInterface):
 
     def init(self):
-        col_init(autoreset=True)
         self.parser = Parser(add_help=True, prog="ls", description="List information about the FILEs (the current directory by default).")
         self.parser.add_argument("PATH", nargs="?", default=self.info.user.paths.terminal, help="The path of the directory to list")
         self.parser.add_argument("-a", "--all", dest="all", action="store_true", help="Do not ignore entries starting with .")
         self.parser.add_argument("-l", dest="l", action="store_true", help="Use a long listing format")
 
     def run(self):
-        
+
         if not os.path.exists(self.args.PATH):
             self.error(f"cannot access '{self.args.PATH}': No such file or directory")
             return
@@ -60,19 +59,19 @@ class Command(CommandInterface):
             content = f"'{content}'" if len(str(content).split()) > 1 else content
             # Folder
             if os.path.isdir(complete_path):
-                output.append(f"{Fore.LIGHTBLUE_EX}{content}")
+                output.append(f"{self.colors.Fore.LIGHTBLUE_EX}{content}")
             # Image
             elif content.removesuffix("'").split(".")[-1].lower() in ['jpg', 'jpeg', 'tif', 'jfif', 'png', 'gif', 'bmp', 'webp', 'pdf']:
-                output.append(f"{Fore.LIGHTMAGENTA_EX}{content}")
+                output.append(f"{self.colors.Fore.LIGHTMAGENTA_EX}{content}")
             # Executable
             elif sys.platform.lower().startswith("win") and "." + content.removesuffix("'").split(".")[-1].upper() in os.environ['PATHEXT']:
-                output.append(f"{Back.LIGHTYELLOW_EX} {Fore.BLACK}{content} {Back.RESET}")
+                output.append(f"{self.colors.Back.LIGHTYELLOW_EX} {self.colors.Fore.BLACK}{content} {self.colors.Back.RESET}")
             # Compressed archive
             elif zipfile.is_zipfile(content):
-                output.append(f"{Fore.LIGHTRED_EX}{content}")
+                output.append(f"{self.colors.Fore.LIGHTRED_EX}{content}")
             # Regular file
             else:
-                output.append(f"{Fore.LIGHTGREEN_EX}{content}")
+                output.append(f"{self.colors.Fore.LIGHTGREEN_EX}{content}")
 
         max_line_length = os.get_terminal_size().columns // 4 * 3
         linelenght = 0
@@ -87,8 +86,7 @@ class Command(CommandInterface):
         self.print("\n")
     
     
-    @staticmethod
-    def long_listing_format(file_path: str) -> str:
+    def long_listing_format(self, file_path: str) -> str:
         def get_permissions_string(mode):
             permissions = {
                 stat.S_IRUSR: 'r', stat.S_IWUSR: 'w', stat.S_IXUSR: 'x',
@@ -115,19 +113,19 @@ class Command(CommandInterface):
 
         # Folder
         if os.path.isdir(file_path):
-            formatted_info += f" {Fore.LIGHTBLUE_EX}{os.path.basename(file_path)}"
+            formatted_info += f" {self.colors.Fore.LIGHTBLUE_EX}{os.path.basename(file_path)}"
         # Image
         elif file_path.removesuffix("'").split(".")[-1].lower() in ['jpg', 'jpeg', 'tif', 'jfif', 'png', 'gif', 'bmp', 'webp', 'pdf']:
-            formatted_info +=  f" {Fore.LIGHTMAGENTA_EX}{os.path.basename(file_path)}"
+            formatted_info +=  f" {self.colors.Fore.LIGHTMAGENTA_EX}{os.path.basename(file_path)}"
         # Executable
         elif sys.platform.lower().startswith("win") and "." + file_path.removesuffix("'").split(".")[-1].upper() in os.environ['PATHEXT']:
-            formatted_info += f" {Back.LIGHTYELLOW_EX}{Fore.BLACK}{os.path.basename(file_path)}{Back.RESET}"
+            formatted_info += f" {self.colors.Back.LIGHTYELLOW_EX}{self.colors.Fore.BLACK}{os.path.basename(file_path)}{self.colors.Back.RESET}"
         # Compressed archive
         elif zipfile.is_zipfile(file_path):
-            formatted_info += f" {Fore.LIGHTRED_EX}{os.path.basename(file_path)}"
+            formatted_info += f" {self.colors.Fore.LIGHTRED_EX}{os.path.basename(file_path)}"
         # regular file
         else:
-            formatted_info += f" {Fore.LIGHTGREEN_EX}{os.path.basename(file_path)}"
+            formatted_info += f" {self.colors.Fore.LIGHTGREEN_EX}{os.path.basename(file_path)}"
 
         return formatted_info
 
