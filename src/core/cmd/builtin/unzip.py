@@ -11,7 +11,7 @@ import zipfile
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(prog='unzip', description="Extracts files from compressed zip archives", add_help=True)
+        self.parser = Parser(prog='unzip', description="Extracts files from compressed zip archives")
         self.parser.add_argument("archive_name", help="the name of the zip archive (you can omit the .zip extension)")
         self.parser.add_argument("destination", nargs='?', default=".", help="the destination of the extracted data (default: current directory)")
         self.parser.add_argument("-a", "--adapt", action="store_true", help="handle conflicts if the destionation folder already exists")

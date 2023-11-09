@@ -13,7 +13,7 @@ import time
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(prog="touch", add_help=True, description="Update the access and modification times of each FILE to the current time. Or create an empty one")
+        self.parser = Parser(prog="touch", description="Update the access and modification times of each FILE to the current time. Or create an empty one")
         self.parser.add_argument("FILE", help='the file to modify/create')
         self.parser.add_argument('-a', action='store_true', help='change only the access time')
         self.parser.add_argument('-c', '--no-create', action='store_true', help='do not create any files')

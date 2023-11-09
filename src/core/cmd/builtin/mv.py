@@ -8,7 +8,7 @@ import shutil
 class Command(CommandInterface):
     
     def init(self):
-        self.parser = Parser(prog='mv', add_help=True, description='Rename SOURCE to DEST, or move SOURCE(s) to DIRECTORY.')
+        self.parser = Parser(prog='mv', description='Rename SOURCE to DEST, or move SOURCE(s) to DIRECTORY.')
 
         self.parser.add_argument('source', nargs='+', help='the file(s) or directory(s) to copy')
         self.parser.add_argument('dest', help='the destination of the sources')

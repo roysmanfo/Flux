@@ -6,7 +6,7 @@ import chardet
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser("cat", add_help=True, description="Concatenate FILE(s) to standard output")
+        self.parser = Parser("cat", description="Concatenate FILE(s) to standard output")
         self.parser.add_argument("files", nargs="+", help="the files to read (when is -, read standard input)")
         self.parser.add_argument("-A", "--show-all", action="store_true", help="equivalent to -vET")
         self.parser.add_argument("-b", action="store_true", help="number nonempty output lines, overrides -n")

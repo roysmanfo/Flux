@@ -15,7 +15,7 @@ import zipfile
 class Command(CommandInterface):
 
     def init(self):
-        self.parser = Parser(add_help=True, prog="ls", description="List information about the FILEs (the current directory by default).")
+        self.parser = Parser(prog="ls", description="List information about the FILEs (the current directory by default).")
         self.parser.add_argument("PATH", nargs="?", default=self.info.user.paths.terminal, help="The path of the directory to list")
         self.parser.add_argument("-a", "--all", dest="all", action="store_true", help="Do not ignore entries starting with .")
         self.parser.add_argument("-l", dest="l", action="store_true", help="Use a long listing format")

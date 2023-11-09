@@ -8,7 +8,7 @@ from ...helpers.commands import *
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(prog="systemctl", add_help=True,
+        self.parser = Parser(prog="systemctl",
                              description="Allows the user to change different settings, such as the username or info.user.path informations")
         self.parser.add_argument("-s", dest="setting", help="The setting to change")
         self.parser.add_argument("-v", dest="value", nargs="+", help="The new value of the setting to change (used with -s)")

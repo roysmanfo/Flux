@@ -4,7 +4,7 @@ from ...helpers.arguments import Parser
 import os
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser("mkdir", add_help=True, description="Create the DIRECTORY(ies), if they do not already exist")
+        self.parser = Parser("mkdir", description="Create the DIRECTORY(ies), if they do not already exist")
         self.parser.add_argument('path', nargs="+", help="the path of the directory to create")
         self.parser.add_argument('-m', '--mode', type=int, default=511, help="set file mode (as in chmod), not a=rwx - umask")
         self.parser.add_argument('-p', '--parents', action='store_true', help="no error if existing, make parent directories as needed, with their file modes unaffected by any -m option")

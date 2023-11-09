@@ -5,7 +5,7 @@ import os
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser("cp", add_help=True, description="Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
+        self.parser = Parser("cp", description="Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
 
         self.parser.add_argument('source', nargs='+', help='the file(s) or directory(s) to copy')
         self.parser.add_argument('dest', help='the destination of the sources')

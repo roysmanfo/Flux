@@ -21,7 +21,7 @@ class Parser(ArgumentParser):
                  fromfile_prefix_chars=None,
                  argument_default=None,
                  conflict_handler='error',
-                 add_help=False,
+                 add_help=True,
                  allow_abbrev=True,
                  exit_on_error=True) -> None:
         super().__init__(prog, usage, description, epilog, parents, formatter_class, prefix_chars, fromfile_prefix_chars,

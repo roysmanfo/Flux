@@ -4,7 +4,7 @@ from ...helpers.arguments import Parser
 import os
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser("rmdir", add_help=True, description="Remove the DIRECTORY(ies), if they are empty")
+        self.parser = Parser("rmdir", description="Remove the DIRECTORY(ies), if they are empty")
         self.parser.add_argument('path', nargs="+", help="the path of the directory to create")
         self.parser.add_argument('-m', '--mode', type=int, default=511, help="set file mode (as in chmod), not a=rwx - umask")
         self.parser.add_argument('-p', '--parents', action='store_true', help="no error if existing, make parent directories as needed, with their file modes unaffected by any -m option")

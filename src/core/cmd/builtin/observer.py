@@ -33,7 +33,6 @@ import os
 import shutil
 from pathlib import Path
 import time
-from threading import Thread
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent
 from ...helpers.extensions import extension_paths
@@ -44,9 +43,7 @@ from ...helpers.commands import CommandInterface
 class Command(CommandInterface):
 
     def init(self) -> None:
-
-        self.parser = Parser(prog="observer",
-                             description="Scans the bucket folder and sorts files in a `Files` folder")
+        self.parser = Parser(prog="observer", add_help=False)
         self.parser.add_argument("--path", action="store_true")
         self.parser.add_help_message("""Scans the bucket folder and sorts files in the destination folder
                

@@ -22,7 +22,7 @@ COMMAND_DESC = [
 class Command(CommandInterface):
     def init(self):
 
-        self.parser = Parser(prog="fpm", description="(Flux Package Manager)  Package manager similar to apt to install additional commands.", add_help=True)
+        self.parser = Parser(prog="fpm", description="(Flux Package Manager)  Package manager similar to apt to install additional commands.")
         self.parser.add_argument("command", nargs="?", help="The command to execute")
         self.parser.add_argument("-l", dest="list", action="store_true",  help="List available commands")
     

@@ -11,7 +11,7 @@ import shutil
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(prog='rm', description="Remove files and directories", add_help=True)
+        self.parser = Parser(prog='rm', description="Remove files and directories")
         self.parser.add_argument('path', nargs="?", help="The file/directory to delete")
         self.parser.add_argument('-f', '--force', action="store_true", help="ignore nonexistent files and arguments, never prompt")
         self.parser.add_argument('-r', '-R', '--recursive', dest="recursive", action="store_true", help="remove directories and their contents recursively")

@@ -23,7 +23,7 @@ import PyPDF2
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(add_help=True, prog="file", description="Gives information on a specific file given as an argument")
+        self.parser = Parser(prog="file", description="Gives information on a specific file given as an argument")
         self.parser.add_argument("PATH", help="The path of the file.")
         self.parser.add_argument("-m", "--metadata", help="Extracts metadata from the file if possible.", action="store_true")
         self.parser.add_argument("-k", "--keys", help="Used combined with `-m`, allows filtering keys (can be used multiple times)", action="append")

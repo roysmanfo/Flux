@@ -11,7 +11,7 @@ import os
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(prog='zip', description="Zip stores files in zip archives", add_help=True)
+        self.parser = Parser(prog='zip', description="Zip stores files in zip archives")
         self.parser.add_argument("archive_name", help="the name of the new archive")
         self.parser.add_argument("files", nargs='+', help="the name of the new archive")
 

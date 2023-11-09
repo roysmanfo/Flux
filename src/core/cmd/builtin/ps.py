@@ -9,7 +9,7 @@ from src.utils import format
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(prog="ps", description="Allows to view running Flux processes", add_help=True)
+        self.parser = Parser(prog="ps", description="Allows to view running Flux processes")
         self.parser.add_argument("mode", nargs="?", default="simple", help="How to view the processes <(s)imple|(t)hreads|(m)isc|(a)ll>")
 
     def run(self):
