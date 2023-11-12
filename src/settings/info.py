@@ -394,7 +394,7 @@ class Info:
         self.init_reserved_variables()
 
     def init_reserved_variables(self) -> None:
-        (os.environ)
+
         self.variables.add("$ALL", "$ALL:$HOME:$PATH:$PWD", True)
         self.variables.add("$HOME", self.user.paths.terminal, True)
         self.variables.add("$PATH", ":".join(list(os.environ.values())), True)
