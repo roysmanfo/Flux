@@ -1,4 +1,4 @@
-import sys
+import sys as _sys
 import os as _os
 from abc import ABC, abstractmethod
 from typing import Any, TextIO, List, Union
@@ -54,9 +54,9 @@ class CommandInterface(ABC):
                  info: Info,
                  command: List[str],
                  is_process: bool,
-                 stdout: TextIO = sys.stdout,
-                 stderr: TextIO = sys.stdout,
-                 stdin: TextIO = sys.stdin
+                 stdout: TextIO = _sys.stdout,
+                 stderr: TextIO = _sys.stdout,
+                 stdin: TextIO = _sys.stdin
                  ) -> None:
 
         self.IS_PROCESS: bool = is_process
@@ -69,7 +69,7 @@ class CommandInterface(ABC):
         self.parser: Parser = None
         self.args: Namespace = None
         self.logger: Logger = Logger()
-        self.colors = Colors(not (stdout is sys.stdout))
+        self.colors = Colors(not (stdout is _sys.stdout))
 
     """
     AUTOMATIC CALLS
@@ -108,10 +108,13 @@ class CommandInterface(ABC):
     def close(self):
         """
         This is the function that gets called after we run the command.\n
-        This function should be used to handle cases like the command being executed as a background task,
-        or to do some cleaning after the command executed.
-        """
-        ...
+        This function is used to close open files, like a redirected stdout
+        """        
+
+        if self.stdout != _sys.stdout:
+            self.stdout.close()
+
+
 
     def exit(self):
         """
@@ -340,3 +343,4 @@ class Colors:
         self.Fore = colors.Foreground(to_file)
         self.Back = colors.Background(to_file)
         self.Style = colors.Styles(to_file)
+
