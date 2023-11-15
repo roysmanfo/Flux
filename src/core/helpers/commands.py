@@ -130,7 +130,7 @@ class CommandInterface(ABC):
         `self.close()` or `self.exit()`
 
         By default creates a crash report as a temp file for the user to see with all the Traceback informations
-        and sets `self.status` to `STATUR_ERR`
+        and sets `self.status` to `STATUS_ERR`
         """
         from src.utils.crash_handler import write_error_log
         prefx = self.parser.prog if self.parser else self.command[0]
