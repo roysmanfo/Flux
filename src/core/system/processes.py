@@ -49,7 +49,6 @@ class Process:
         self.thread: Thread = None
         self.native_id: int | None = None
         self.is_reserved_process = is_reserved_process
-        # self.process_info = ProcessInfo(self.id, self.owner, self.thread.name, self.thread.native_id, self._calculate_time(time.time() - self.started))
 
     def get_info(self) -> ProcessInfo:
         return ProcessInfo(self.id,
@@ -98,12 +97,12 @@ class Process:
     def _run(self):
         self.command_instance.init()
         self.command_instance.setup()
-        
+
         if self.command_instance.parser and self.command_instance.parser.exit_execution:
             self.command_instance.close()
             self.status = self.command_instance.exit()
             return
-        
+
         self.command_instance.run()
         self.command_instance.close()
         self.status = self.command_instance.exit()
