@@ -18,10 +18,15 @@ def get_stdout(command: List[str]) -> [TextIO, str]:
                 pathname = command[command.index(">>") + 1]
                 command.remove(">>")
                 command.remove(pathname)
-                return [open(pathname, "w"), pathname]
+                return [open(pathname, "at"), pathname]
             
             except PermissionError:
                 return [None, pathname]
+            
+            except OSError:
+                return [None, pathname]
+
+
     return [sys.stdout, None]
 
 
@@ -32,24 +37,32 @@ def manage(command: List[str], info: Info) -> None:
 
     from . import helpers
 
-    def execute_command(callable: helpers.commands.CommandInterface) -> None:
+    def execute_command(callable: helpers.commands.CommandInterface) -> int:
+        """
+        Execute the loaded script
+
+        `@returns` the command's status code\n
+        `@rtype` int
+        """
         try:
             callable.init()
             callable.setup()
 
             if callable.parser and callable.parser.exit_execution:
                 callable.close()
-                callable.exit()
-                return
+                status = callable.exit()
+                return status
             
             callable.run()
             callable.close()
-            callable.exit()
+            status = callable.exit()
             
         except Exception as e:
             callable.fail_safe(e)
+            status: int = callable.status
 
         del callable
+        return status
 
     exec_command: helpers.commands.CommandInterface
     exec_command_class = helpers.commands.CommandInterface
