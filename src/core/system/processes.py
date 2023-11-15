@@ -95,17 +95,24 @@ class Process:
         self.command_instance()
 
     def _run(self):
-        self.command_instance.init()
-        self.command_instance.setup()
+        try:
+            self.command_instance.init()
+            self.command_instance.setup()
 
-        if self.command_instance.parser and self.command_instance.parser.exit_execution:
+            if self.command_instance.parser and self.command_instance.parser.exit_execution:
+                self.command_instance.close()
+                self.status = self.command_instance.exit()
+                return
+
+            self.command_instance.run()
             self.command_instance.close()
             self.status = self.command_instance.exit()
-            return
+        
+        except Exception as e:
+            self.command_instance.fail_safe(e)
+            self.status = self.command_instance.status
 
-        self.command_instance.run()
-        self.command_instance.close()
-        self.status = self.command_instance.exit()
+
         print(f"[{self.id}] {self.name} stopped")
 
 
