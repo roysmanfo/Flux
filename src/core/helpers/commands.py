@@ -216,8 +216,16 @@ class CommandInterface(ABC):
         - #### flush
         \twhether to forcibly flush the stream.
         """
+        text = ""
+        values = values.__str__()
 
-        self.stdout.write(f"{sep}".join(values))
+        try:
+            iter(values) 
+            text = values
+        except Exception:
+            text = f"{sep}".join(values)
+
+        self.stdout.write(text)
         self.stdout.write(end)
 
         if flush:
@@ -237,7 +245,16 @@ class CommandInterface(ABC):
         \twhether to forcibly flush the stream.
         """
 
-        self.stderr.write(f"{sep}".join(values))
+        text = ""
+        values = values.__str__()
+        
+        try:
+            iter(values) 
+            text = values
+        except Exception:
+            text = f"{sep}".join(values)
+
+        self.stderr.write(text)
         self.stderr.write(end)
 
         if flush:
