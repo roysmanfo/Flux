@@ -32,24 +32,34 @@ class Command(CommandInterface):
             self.display(self.format_str(content))
         else:
             for file in self.args.file:
+                inp = ""
                 self.logger.value = file
                 content = ""
-
-                if not os.path.exists(file) and file:
-                    self.error(self.logger.file_not_found())
-                    continue
                 
-                if os.path.isdir(file):
-                    self.error(self.logger.cannot_read_dir())
-                    continue
+                if file == "-":
+                    while inp is not None:
+                        inp = self.input()
 
-                try:
-                    with open(file, "r") as f:
-                        content = f.read()
-                        self.display(self.format_str(content))
+                        if inp is not None:
+                            content += inp
+                else:
+                    if not os.path.exists(file) and file:
+                        self.error(self.logger.file_not_found())
+                        continue
+                    
+                    if os.path.isdir(file):
+                        self.error(self.logger.cannot_read_dir())
+                        continue
 
-                except PermissionError:
-                    self.error(self.logger.permission_denied())
+                    try:
+                        with open(file, "r") as f:
+                            content = f.read()
+
+                    except PermissionError:
+                        self.error(self.logger.permission_denied())
+                        continue
+
+                self.display(self.format_str(content))
                     
 
         
