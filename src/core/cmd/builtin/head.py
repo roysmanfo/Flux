@@ -12,12 +12,7 @@ class Command(CommandInterface):
         self.parser.add_argument("file", nargs="*", help="the files to display; With no FILE, or when FILE is -, read standard input.")
         self.parser.add_argument("-c", "--bytes", type=int, help="print the first NUM bytes of each file")
         self.parser.add_argument("-n", "--lines", default=10, type=int, help="print the first NUM lines instead of the first 10")
-        self.parser.add_argument("-z", "--zero-terminated", help="line delimiter is NUL, not newline")
-
-    def setup(self):
-        super().setup()
-
-
+        self.parser.add_argument("-z", "--zero-terminated", action="store_true", help="line delimiter is NUL, not newline")
 
     def run(self):
         self.args.file: list[str]
@@ -28,7 +23,7 @@ class Command(CommandInterface):
             if content is None:
                 return
             
-            content = self.format_str(content)
+            self.display(self.format_str(content))
         else:
             for file in self.args.file:
                 self.logger.value = file
@@ -45,6 +40,7 @@ class Command(CommandInterface):
                 try:
                     with open(file, "r") as f:
                         content = f.read()
+                        self.display(self.format_str(content))
 
                 except PermissionError:
                     self.error(self.logger.permission_denied())
@@ -64,3 +60,13 @@ class Command(CommandInterface):
             content = [i.replace("\n", "NUL") for i in content]
 
         return content
+    
+
+    def display(self, content: list[str]) -> None:
+        for i in content:
+            # You may be asking yourself why did I add NUL in the first place
+            # Well, idk man
+            self.print(i.rstrip("NUL"), end="" if i.endswith("\n") else "\n")
+        
+        self.print()
+
