@@ -18,10 +18,16 @@ class Command(CommandInterface):
         self.args.file: list[str]
 
         if len(self.args.file) == 0:
-            content = self.input()
+            content = ""
+            inp = ""
+
+            while inp is not None:
+                inp = self.input()
+
+                if inp is not None:
+                    content += inp
             
-            if content is None:
-                return
+            self.print() # place a space between stdin and stdout
             
             self.display(self.format_str(content))
         else:
