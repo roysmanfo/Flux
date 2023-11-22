@@ -37,12 +37,12 @@ def manage(command: List[str], info: Info) -> None:
 
     from . import helpers
 
-    def execute_command(callable: helpers.commands.CommandInterface) -> int:
+    def execute_script(callable: helpers.commands.CommandInterface) -> int:
         """
         Execute the loaded script
 
-        `@returns` the command's status code\n
-        `@rtype` int
+        `:returns` the command's status code\n
+        `:rtype` int
         """
         try:
             callable.init()
@@ -111,7 +111,7 @@ def manage(command: List[str], info: Info) -> None:
             command.pop(-1)
             info.processes.add(info, command, exec_command, False)
         else:
-            execute_command(exec_command)
+            execute_script(exec_command)
 
     except UnboundLocalError as e:
         if command_name != "":
