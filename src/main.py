@@ -93,7 +93,8 @@ def run():
 
         # Pass the command to the manager
         else:
-            manager.manage(cmd, INFO)
+            if cmd[0] != "":
+                manager.manage(cmd, INFO)
 
 
 if __name__ == "__main__":
