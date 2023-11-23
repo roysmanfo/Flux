@@ -4,6 +4,7 @@
 This is the place where the input given gets analized and associated
 with the respective command (if existent).
 """
+import subprocess
 import sys
 from typing import List, TextIO
 
@@ -99,19 +100,31 @@ def manage(command: List[str], info: Info) -> None:
     if not exec_command_class:
         exec_command_class = loader.load_custom_script(command_name)
 
+
+
+    if not exec_command_class:
+        exec_command_class = loader.load_system_command(command_name)
+
+    
+
     if not exec_command_class:
         print(f"-flux: {command_name}: command not found\n")
         return
 
     try:
-        is_thread = command[-1] == "&"
-        exec_command = exec_command_class(info, command, is_thread, stdout=stdout)
+        if isinstance(exec_command_class, helpers.commands.CommandInterface):
+            is_thread = command[-1] == "&"
+            exec_command = exec_command_class(info, command, is_thread, stdout=stdout)
 
-        if is_thread:
-            command.pop(-1)
-            info.processes.add(info, command, exec_command, False)
+            if is_thread:
+                command.pop(-1)
+                info.processes.add(info, command, exec_command, False)
+            else:
+                execute_script(exec_command)
         else:
-            execute_script(exec_command)
+            p = subprocess.run(command, stdin=sys.stdin, stdout=stdout, stderr=sys.stderr, text=True)
+            print("process exited with return code", p.returncode)
+            
 
     except UnboundLocalError as e:
         if command_name != "":

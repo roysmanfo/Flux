@@ -1,11 +1,14 @@
 import os
 import importlib
+from src.settings.info import Info
+from pathlib import Path
+from typing import Callable, Optional, TextIO
 
 # List of directories to search for custom scripts/extensions
-custom_script_dirs = ["scripts", "extensions"]
+custom_script_dirs = ["fpm"]
 manager_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-def load_custom_script(script_name: str):
+def load_custom_script(script_name: str) -> Optional[Callable[[Info, str, bool, TextIO], None]]:
     """
     Load an external command installed on the machine
     """
@@ -21,7 +24,7 @@ def load_custom_script(script_name: str):
                 pass
     return None
 
-def load_builtin_script(script_name: str):
+def load_builtin_script(script_name: str) -> Optional[Callable[[Info, str, bool, TextIO], None]]:
     """
     Load an internal command installed on the machine
     """
@@ -46,3 +49,23 @@ def load_builtin_script(script_name: str):
         except (ImportError, AttributeError) as e:
             pass
     return None
+
+def load_system_command(command_name: str, info: Info) -> Optional[Path]:
+    """
+    Load an executable installed on the machine found on $PATH
+
+    `:returns` the path to the executable if found, None otherwise\n
+    `:rtype` Path | NoneType
+
+    """
+
+    PATH = info.variables.get("$PATH").value.split(":")
+
+    for path in PATH:
+        for dirname, _, filenames in os.walk(path):
+            if any([ command_name == os.path.splitext(file)[0] and os.access(os.path.join(dirname, command_name), os.X_OK) for file in filenames]):
+                return Path(os.path.join(dirname, command_name)).resolve()
+            
+    return None
+
+
