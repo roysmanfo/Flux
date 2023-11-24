@@ -103,7 +103,8 @@ def manage(command: List[str], info: Info) -> None:
 
 
     if not exec_command_class:
-        exec_command_class = loader.load_system_command(command_name)
+        # TODO: make a database for the binaries because searching each time is time consuming
+        exec_command_class = loader.load_system_command(command_name, info)
 
     
 
