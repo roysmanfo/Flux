@@ -100,31 +100,31 @@ def manage(command: List[str], info: Info) -> None:
     if not exec_command_class:
         exec_command_class = loader.load_custom_script(command_name)
 
-
-
     if not exec_command_class:
-        # TODO: make a database for the binaries because searching each time is time consuming
-        exec_command_class = loader.load_system_command(command_name, info)
+        try:
+            # NOTE: In the future also the return code will be saved and used
+            p = subprocess.Popen(command_name, stdin=sys.stdin, stdout=stdout, stderr=sys.stderr, text=True)
+            is_thread = command[-1] == "&"
 
-    
-
-    if not exec_command_class:
-        print(f"-flux: {command_name}: command not found\n")
-        return
+            if not is_thread:
+                p.wait()
+                
+        except Exception as e:
+            print(f"-flux: {command_name}: command not found\n")
+                    
+        finally:
+            return
 
     try:
-        if isinstance(exec_command_class, helpers.commands.CommandInterface):
-            is_thread = command[-1] == "&"
-            exec_command = exec_command_class(info, command, is_thread, stdout=stdout)
+        
+        is_thread = command[-1] == "&"
+        exec_command = exec_command_class(info, command, is_thread, stdout=stdout)
 
-            if is_thread:
-                command.pop(-1)
-                info.processes.add(info, command, exec_command, False)
-            else:
-                execute_script(exec_command)
+        if is_thread:
+            command.pop(-1)
+            info.processes.add(info, command, exec_command, False)
         else:
-            p = subprocess.run(command, stdin=sys.stdin, stdout=stdout, stderr=sys.stderr, text=True)
-            print("process exited with return code", p.returncode)
+            execute_script(exec_command)
             
 
     except UnboundLocalError as e:

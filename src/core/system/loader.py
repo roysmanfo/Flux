@@ -49,23 +49,3 @@ def load_builtin_script(script_name: str) -> Optional[Callable[[Info, str, bool,
         except (ImportError, AttributeError) as e:
             pass
     return None
-
-def load_system_command(command_name: str, info: Info) -> Optional[Path]:
-    """
-    Load an executable installed on the machine found on $PATH
-
-    `:returns` the path to the executable if found, None otherwise\n
-    `:rtype` Path | NoneType
-
-    """
-
-    PATH = info.variables.get("$PATH").value.split(":")
-
-    for path in PATH:
-        for dirname, _, filenames in os.walk(path):
-            if any([ command_name == os.path.splitext(file)[0] and os.access(os.path.join(dirname, command_name), os.X_OK) for file in filenames]):
-                return Path(os.path.join(dirname, command_name)).resolve()
-            
-    return None
-
-
