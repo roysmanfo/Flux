@@ -397,5 +397,5 @@ class Info:
 
         self.variables.add("$ALL", "$ALL:$HOME:$PATH:$PWD", True)
         self.variables.add("$HOME", self.user.paths.terminal, True)
-        self.variables.add("$PATH", f"{os.pathsep}".join(list(os.environ.values())), True)
+        self.variables.add("$PATH", f"{os.pathsep}".join(list(os.environ.get("PATH", ""))), True)
         self.variables.add("$PWD", self.user.paths.terminal, True)
