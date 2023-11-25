@@ -73,7 +73,7 @@ class Variables:
         Checks if a variable exists
         """
         for v in self.variables:
-            if v.equals(var):
+            if v == var:
                 return True
         return False
 
@@ -95,7 +95,7 @@ class Variables:
         """
         for var in self.variables:
             if var.name == name:
-                var.value = str(value)
+                var.value = value.__str__()
                 return
 
     def no_var_found(self, var) -> None:
