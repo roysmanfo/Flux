@@ -1,4 +1,4 @@
-
+from typing import List, Optional
 
 class Variable:
     def __init__(self, name: str, value: str, is_reserved: bool) -> None:
@@ -15,15 +15,16 @@ class Variable:
             return False
 
         return all([__value.name == self.name, __value.value == self.value, __value.is_reserved == self.is_reserved])
+    
+    def __ne__(self, __value: object) -> bool:
+        return not self.__eq__(__value)
 
-    def equals(self, var: object):
-        return self.__eq__(var)
 
 
 class Variables:
 
-    def __init__(self) -> None:
-        self.variables: list[Variable] = []
+    def __init__(self):
+        self.variables: List[Variable] = []
 
     def add(self, name: str, value: str, is_reserved: bool = False) -> bool:
         """
@@ -76,7 +77,7 @@ class Variables:
                 return True
         return False
 
-    def get(self, name: str) -> Variable | None:
+    def get(self, name: str) -> Optional[Variable]:
         """
         Gets the value of a variable
 
@@ -97,7 +98,7 @@ class Variables:
                 var.value = str(value)
                 return
 
-    def no_var_found(self, var):
+    def no_var_found(self, var) -> None:
         """
         Should be called when a variable with specified name is found
         """
