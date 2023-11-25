@@ -109,6 +109,9 @@ def manage(command: List[str], info: Info) -> None:
             if not is_thread:
                 p.wait()
                 
+        except PermissionError:
+            print(f"-flux: {command_name}: unable to run (permission denied)\n")
+
         except Exception as e:
             print(f"-flux: {command_name}: command not found\n")
                     
