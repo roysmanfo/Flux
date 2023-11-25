@@ -10,7 +10,7 @@ class Test_Variables(unittest.TestCase):
 
         from src.core import setup
         from src.settings.info import Info
-        from src.core.cmd import export
+        from src.core.cmd.builtin import export
 
         INFO: Info = setup.setup()
         cmnd = export.Command(INFO, ['export', 'foo', 'bar'], False)
@@ -25,7 +25,7 @@ class Test_Variables(unittest.TestCase):
 
         from src.core import setup
         from src.settings.info import Info
-        from src.core.cmd import export
+        from src.core.cmd.builtin import export
 
         INFO: Info = setup.setup()
         cmnd = export.Command(INFO, ['export', '$foo'], False)
@@ -40,7 +40,7 @@ class Test_Variables(unittest.TestCase):
 
         from src.core import setup
         from src.settings.info import Info
-        from src.core.cmd import export
+        from src.core.cmd.builtin import export
 
         INFO: Info = setup.setup()
         cmnd = export.Command(INFO, ['export', '$$', 'bar'], False)
