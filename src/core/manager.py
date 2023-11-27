@@ -116,8 +116,12 @@ def manage(command: List[str], info: Info) -> None:
     if not exec_command_class:
         try:
             # NOTE: In the future also the return code will be saved and used
-            p = subprocess.Popen(command_name, stdin=sys.stdin, stdout=stdout, stderr=sys.stderr, text=True)
             is_thread = command[-1] == "&"
+            
+            if is_thread:
+                command = command[:-1]
+
+            p = subprocess.Popen(command, stdin=sys.stdin, stdout=stdout, stderr=sys.stderr, text=True)
 
             if not is_thread:
                 p.wait()
