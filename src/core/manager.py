@@ -26,6 +26,19 @@ def get_stdout(command: List[str]) -> [TextIO, str]:
             
             except OSError:
                 return [None, pathname]
+    elif "1>" in command:
+        if command.index("1>") < len(command) - 1:
+            try:
+                pathname = command[command.index("1>") + 1]
+                command.remove("1>")
+                command.remove(pathname)
+                return [open(pathname, "wt"), pathname]
+            
+            except PermissionError:
+                return [None, pathname]
+            
+            except OSError:
+                return [None, pathname]
 
 
     return [sys.stdout, None]
