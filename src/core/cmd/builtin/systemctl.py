@@ -74,7 +74,10 @@ class Command(CommandInterface):
             if self.args.setting.startswith("path.") and len(self.args.setting.split(".")) == 2:
                 target = self.args.setting.split(".")[1]
                 if self.args.value or self.args.reset:
-                    self.info.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.info, self.args.reset)
+                    if self.args.value[0] and Path(self.args.value[0]).exists():
+                        self.info.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.info, self.args.reset)
+                    else:
+                        self.error(self.logger.file_not_found(self.args.value[0]))
                 else:
                     try:
                         self.print(f"{self.info.user.paths.all()[target]}\n")
