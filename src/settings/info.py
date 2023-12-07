@@ -8,10 +8,26 @@ from src.core.system.processes import Processes
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
 
-SETTINGS_FILE = pathlib.Path(
-    os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings.json"))
-SETTINGS_FOLDER = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 
+class SysPaths:
+    CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux"))
+    SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json"))
+    SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE))
+    CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache"))
+
+    def create_initial_folders(self) -> None:
+        """
+        You should check for permission when creatin an object of this class
+
+        It is not to take for granted that we have write permission on `~`
+
+        `:raises` PermissionError if we do not have permissions to write in a folder
+        """
+
+        os.makedirs(self.CONFIG_FOLDER, exist_ok=True)
+        os.makedirs(self.SETTINGS_FOLDER, exist_ok=True)
+        os.makedirs(self.CACHE_FOLDER, exist_ok=True)
+            
 
 class Info:
     ...
@@ -39,7 +55,7 @@ class User():
 
     def __init__(self):
         try:
-            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+            with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
                 sett = json.load(f)
 
             self.email: str = sett["email"]
@@ -60,7 +76,7 @@ class User():
         """
 
         # Create the settings file
-        with open(SETTINGS_FILE, "w", encoding='utf-8') as file:
+        with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as file:
             file.write("{}")
 
         path = Path(False)
@@ -77,7 +93,7 @@ class User():
         # Check if there already is a settings file, if there is, overwrite it, otherwise
         # create a new one
 
-        with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+        with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as l:
             l.write("")
             json.dump(settings, l, indent=4, sort_keys=True)
 
@@ -89,10 +105,10 @@ class User():
             new_username = os.path.basename(os.path.expanduser('~'))
 
         info.user.username = new_username
-        with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+        with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
             settings = json.load(f)
             settings['username'] = new_username
-            with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+            with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as l:
                 l.write("")
                 json.dump(settings, l, indent=4, sort_keys=True)
 
@@ -135,10 +151,10 @@ class User():
         """
         if reset:
             info.user.email = ""
-            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+            with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
                 sett: list = json.load(f)
                 sett["email"] = info.user.email
-                with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+                with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as l:
                     json.dump(sett, l, indent=4, sort_keys=True)
 
             print("Email changed to: ''")
@@ -171,10 +187,10 @@ class User():
 
                 # Update the email
                 info.user.email = email
-                with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+                with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
                     sett: list = json.load(f)
                     sett["email"] = email
-                    with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+                    with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as l:
                         json.dump(sett, l, indent=4, sort_keys=True)
 
                 print("Email changed to: ", email)
@@ -198,7 +214,7 @@ class Path:
             return
 
         try:
-            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+            with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
                 path: dict = json.load(f)["paths"]
                 self.all_paths = path.copy()
 
@@ -322,10 +338,10 @@ class Path:
                 print(f"Permission denied to create {new_path}")
                 return
 
-        with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+        with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
             tasks: dict = json.load(f)
             tasks["paths"][target] = str(new_path)
-            with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+            with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as l:
                 json.dump(tasks, l, indent=4, sort_keys=True)
         print(f"Successfully changed path.{target} to {new_path}\n")
 
@@ -337,7 +353,7 @@ class BgTasks():
 
     def __init__(self):
         try:
-            with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+            with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
                 tasks = json.load(f)["background-tasks"]
                 self.tasks: list = tasks if tasks else []
 
@@ -348,18 +364,18 @@ class BgTasks():
         self.tasks = []
 
     def add_task(self, task: str):
-        with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+        with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
             tasks: list = json.load(f)
             tasks["background-tasks"].append(task)
-            with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+            with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as l:
                 # print(tasks)
                 json.dump(tasks, l, indent=4, sort_keys=True)
 
     def remove_task(self, task: str):
-        with open(SETTINGS_FILE, "r", encoding='utf-8') as f:
+        with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
             tasks: list = json.load(f)
             tasks["background-tasks"].remove(task)
-            with open(SETTINGS_FILE, "w", encoding='utf-8') as l:
+            with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as l:
                 # print(tasks)
                 json.dump(tasks, l, indent=4, sort_keys=True)
 
@@ -379,13 +395,10 @@ class Info:
     - exit:                 If true, the program and every single process gets shut down
     """
 
-    def __init__(self,
-                 user: User,
-                 ):
+    def __init__(self, user: User, syspaths: SysPaths):
 
         self.user = user
-        self.settings_file = SETTINGS_FILE
-        self.settings_folder = SETTINGS_FOLDER
+        self.syspaths = syspaths
         self.version = VERSION
         self.variables: Variables = Variables()
         self.processes: Processes = Processes()
