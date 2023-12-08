@@ -1,7 +1,7 @@
 import sys as _sys
 import os as _os
 from abc import ABC, abstractmethod
-from typing import Any, TextIO, List, Union
+from typing import Any, Optional, TextIO, List
 from argparse import Namespace
 
 from src.settings.info import Info
@@ -21,12 +21,14 @@ class CommandInterface(ABC):
     - `IS_PROCESS (const, bool)`        Whether or not the command is being runned as a background thread
     - `info (variable, Info)`           A reference to the instance of the Info class, containing process information
     - `command (variable, list[str])`   The full command typed by the user (also contains the command name, es. ['ls', 'some_path'])
+    - `status (variable, int)`          The return code of the command (default statuses follow the following convention 'STATUS_[err/ok/warn]' )
     - `stdout (variable, TextIO)`       The stdout of the command
     - `stderr (variable, TextIO)`       The stderr of the command
     - `stdin (variable, TextIO)`        The stdin of the command
     - `parser (variable, Parser)`       A program targeted implementation of argparse.ArgumentParser
     - `args (variable, Namespace)`      The usual output returned by ArgumentParser.parse_args
     - `logger (variable, Logger)`       Standardized handler for error/warning messages
+    - `colors (variable, Colors)`       Colors for command output, does not have effect outside terminal
 
     ### AUTOMATIC CALLS
     Methods that get called regardless by the terminal
@@ -62,12 +64,12 @@ class CommandInterface(ABC):
         self.IS_PROCESS: bool = is_process
         self.info: Info = info
         self.command: List[str] = command
-        self.status: Union[int, None] = None
+        self.status: Optional[int] = None
         self.stdout = stdout
         self.stderr = stderr
         self.stdin = stdin
-        self.parser: Parser = None
-        self.args: Namespace = None
+        self.parser: Optional[Parser] = None
+        self.args: Optional[Namespace] = None
         self.logger: Logger = Logger()
         self.colors = Colors(not (stdout is _sys.stdout))
 
