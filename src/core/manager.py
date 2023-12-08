@@ -114,26 +114,8 @@ def manage(command: List[str], info: Info) -> None:
         exec_command_class = loader.load_custom_script(command_name)
 
     if not exec_command_class:
-        try:
-            # NOTE: In the future also the return code will be saved and used
-            is_thread = command[-1] == "&"
-            
-            if is_thread:
-                command = command[:-1]
-
-            p = subprocess.Popen(command, stdin=sys.stdin, stdout=stdout, stderr=sys.stderr, text=True)
-
-            if not is_thread:
-                p.wait()
-                
-        except PermissionError:
-            print(f"-flux: {command_name}: unable to run (permission denied)\n")
-
-        except Exception as e:
-            print(f"-flux: {command_name}: command not found\n")
-                    
-        finally:
-            return
+        print(f"-flux: {command_name}: command not found\n")
+        return
 
     try:
         
