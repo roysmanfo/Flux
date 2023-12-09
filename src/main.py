@@ -11,12 +11,6 @@ from core import setup, manager
 from settings.info import Info
 import utils
 
-
-
-# Setup process
-INFO: Info = setup.setup()
-
-
 def listen() -> list[str]:
     """
     This function is used to get the command typed by the user preceded by
@@ -98,6 +92,12 @@ def run():
 if __name__ == "__main__":
 
     try:
+        # Setup process
+        INFO: Info = setup.setup()
+
+        del setup
+        del Info
+
         INFO.processes._add_main_process(INFO, ['flux'], run)
     except Exception as e:
         # Catch all the exceptions related to the whole program.
