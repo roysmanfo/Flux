@@ -18,6 +18,9 @@ class Variable:
     
     def __ne__(self, __value: object) -> bool:
         return not self.__eq__(__value)
+    
+    def copy(self):
+        return Variable(self.name, self.value, self.is_reserved)
 
 
 
@@ -85,7 +88,7 @@ class Variables:
         """
         for var in self.variables:
             if var.name == name:
-                return var
+                return var.copy()
 
         return None
 
@@ -97,6 +100,11 @@ class Variables:
             if var.name == name:
                 var.value = value.__str__()
                 return
+
+    def copy(self):
+        v = Variables()
+        v.variables = self.variables.copy()
+        return v
 
     def no_var_found(self, var) -> None:
         """

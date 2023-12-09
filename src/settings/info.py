@@ -27,6 +27,9 @@ class SysPaths:
         os.makedirs(self.CONFIG_FOLDER, exist_ok=True)
         os.makedirs(self.SETTINGS_FOLDER, exist_ok=True)
         os.makedirs(self.CACHE_FOLDER, exist_ok=True)
+
+    def copy(self):
+        return SysPaths()
             
 
 class Info:
@@ -66,6 +69,16 @@ class User():
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             self.reset_settings()
             self.__init__()
+
+    def copy(self):
+        user = User()
+        
+        user.email = self.email
+        user.background_tasks = self.background_tasks
+        user.username = self.username
+        user.paths = self.paths.copy()
+        
+        return user
 
     def reset_settings(self) -> None:
         """
@@ -252,6 +265,15 @@ class Path:
 
         return all_paths
 
+    def copy(self):
+        paths = Path(False)
+        paths.terminal = self.terminal
+        paths.documents = self.documents
+        paths.images = self.images
+        paths.bucket = self.bucket
+        paths.bucket_destination = self.bucket_destination
+        return paths
+
     def all(self) -> dict:
         """
         Returns a dictionary of all Paths in the settings file
@@ -412,3 +434,10 @@ class Info:
         self.variables.add("$HOME", self.user.paths.terminal, True)
         self.variables.add("$PATH", f"{os.pathsep}".join(list(os.environ.get("PATH", ""))), True)
         self.variables.add("$PWD", self.user.paths.terminal, True)
+
+    def copy(self):
+        """
+        Returns a copy of the current state of Info
+        """
+        return Info(self.user.copy(), self.syspaths.copy())
+

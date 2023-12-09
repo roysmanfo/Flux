@@ -165,3 +165,9 @@ class Processes:
         for p in self.processes:
             if not p.thread.is_alive():
                 self.processes.remove(p)
+
+    def copy(self):
+        processes = Processes()
+        processes.processes = self.processes.copy()
+        return processes
+        
