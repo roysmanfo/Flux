@@ -28,5 +28,5 @@ class Command(CommandInterface):
         p.wait()
     
     def close(self):
-        self.status = p.returncode if p else None
+        self.status = p.returncode if p else STATUS_ERR
 
