@@ -97,6 +97,8 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
         
         except OSError:
             SOUT = [None, pathname]
+    else:
+        SOUT = [None, pathname]
 
     return SOUT
 
