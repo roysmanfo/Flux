@@ -109,9 +109,9 @@ def manage(command: List[str], info: Info) -> None:
     # Match the command name to the corresponding file in ./cmd/
     # for further processing and execution
 
-    from . import helpers
+    from .helpers.commands import CommandInterface
 
-    def execute_script(callable: helpers.commands.CommandInterface) -> int:
+    def execute_script(callable: CommandInterface) -> int:
         """
         Execute the loaded script
 
@@ -138,8 +138,8 @@ def manage(command: List[str], info: Info) -> None:
         del callable
         return status
 
-    exec_command: helpers.commands.CommandInterface
-    exec_command_class = helpers.commands.CommandInterface
+    exec_command: CommandInterface
+    exec_command_class = CommandInterface
 
     # Remove completed Processes
     info.processes.clean()
