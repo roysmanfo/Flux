@@ -5,6 +5,7 @@ This is the place where the input given gets analized and associated
 with the respective command (if existent).
 """
 import sys
+import os
 from typing import List, Optional, TextIO, Tuple
 
 from src.settings.info import Info
@@ -45,7 +46,7 @@ def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
             pathname = command[command.index(REDIRECT) + 1]
             command.remove(REDIRECT)
             command.remove(pathname)
-            SOUT = [open(pathname, MODE), pathname]
+            SOUT = [open(pathname, MODE) if pathname != os.path.join("/", "dev", "null") else None, pathname]
         
         except PermissionError:
             SOUT = [None, pathname]
@@ -91,7 +92,7 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
             command.remove(REDIRECT)
             command.remove(pathname)
             
-            SOUT = [open(pathname, MODE), pathname]
+            SOUT = [open(pathname, MODE) if pathname != os.path.join("/", "dev", "null") else None, pathname]
         
         except PermissionError:
             SOUT = [None, pathname]

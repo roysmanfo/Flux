@@ -56,8 +56,8 @@ class CommandInterface(ABC):
                  info: Info,
                  command: List[str],
                  is_process: bool,
-                 stdout: TextIO = _sys.stdout,
-                 stderr: TextIO = _sys.stdout,
+                 stdout: Optional[TextIO] = _sys.stdout,
+                 stderr: Optional[TextIO] = _sys.stdout,
                  stdin: TextIO = _sys.stdin
                  ) -> None:
 
@@ -218,12 +218,12 @@ class CommandInterface(ABC):
         - #### flush
         \twhether to forcibly flush the stream.
         """
-        
-        self.stdout.write(f"{sep}".join([ v.__str__() for v in values]))
-        self.stdout.write(end)
+        if self.stdout:
+            self.stdout.write(f"{sep}".join([ v.__str__() for v in values]))
+            self.stdout.write(end)
 
-        if flush:
-            self.stdout.flush()
+            if flush:
+                self.stdout.flush()
 
     def printerr(self, *values: object, sep: str | None = " ", end: str | None = "\n",  flush: bool = False) -> None :
         """
@@ -238,12 +238,12 @@ class CommandInterface(ABC):
         - #### flush
         \twhether to forcibly flush the stream.
         """
+        if self.stderr:
+            self.stderr.write(f"{sep}".join([ v.__str__() for v in values]))
+            self.stderr.write(end)
 
-        self.stderr.write(f"{sep}".join([ v.__str__() for v in values]))
-        self.stderr.write(end)
-
-        if flush:
-            self.stdout.flush()
+            if flush:
+                self.stdout.flush()
         
 
 
