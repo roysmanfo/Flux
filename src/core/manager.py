@@ -4,45 +4,101 @@
 This is the place where the input given gets analized and associated
 with the respective command (if existent).
 """
-import subprocess
 import sys
-from typing import List, TextIO
+from typing import List, Optional, TextIO, Tuple
 
 from src.settings.info import Info
 from .system import loader
 
 
-def get_stdout(command: List[str]) -> [TextIO, str]:
-    if ">>" in command:
-        if command.index(">>") < len(command) - 1:
-            try:
-                pathname = command[command.index(">>") + 1]
-                command.remove(">>")
-                command.remove(pathname)
-                return [open(pathname, "at"), pathname]
-            
-            except PermissionError:
-                return [None, pathname]
-            
-            except OSError:
-                return [None, pathname]
-    elif "1>" in command:
-        if command.index("1>") < len(command) - 1:
-            try:
-                pathname = command[command.index("1>") + 1]
-                command.remove("1>")
-                command.remove(pathname)
-                return [open(pathname, "wt"), pathname]
-            
-            except PermissionError:
-                return [None, pathname]
-            
-            except OSError:
-                return [None, pathname]
+def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
+    """
+    Returns the stout of the command and pathname of the file if redirection accours 
+
+    :returns
+        - The stdout on which write the output
+        - the path to that file 
+
+    :rtype Actually returns a list [TextIO, str | None]
+    """
+    
+    SOUT: list[TextIO, Optional[str]]
+    REDIRECT: str
+    MODE: str
 
 
-    return [sys.stdout, None]
+    # Append output to file
+    if ">>" in command or "&>>" in command:
+        REDIRECT = ">>" if ">>" in command else "&>>"
+        MODE = "at"
+    # Overwite file with output
+    elif "1>" in command or "&>" in command:
+        REDIRECT = "1>" if "1>" in command else "&>"
+        MODE = "wt"
 
+    else:
+        return [sys.stdout, None]
+
+
+    if command.index(REDIRECT) < len(command) - 1:
+        try:
+            pathname = command[command.index(REDIRECT) + 1]
+            command.remove(REDIRECT)
+            command.remove(pathname)
+            SOUT = [open(pathname, MODE), pathname]
+        
+        except PermissionError:
+            SOUT = [None, pathname]
+        
+        except OSError:
+            SOUT = [None, pathname]
+
+    return SOUT
+
+
+def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
+    """
+    Returns the sterr of the command and pathname of the file if redirection accours 
+
+    :returns
+        - The stderr on which write the output
+        - the path to that file 
+
+    :rtype Actually returns a list [TextIO, str | None]
+    """
+    
+    SOUT: list[TextIO, Optional[str]]
+    REDIRECT: str
+    MODE: str
+
+
+    # Append output to file
+    if "&>>" in command:
+        REDIRECT = ">>" if ">>" in command else "&>>"
+        MODE = "at"
+    # Overwite file with output
+    elif "2>" in command or "&>" in command:
+        REDIRECT = "2>" if "2>" in command else "&>"
+        MODE = "wt"
+
+    else:
+        return [sys.stdout, None]
+
+
+    if command.index(REDIRECT) < len(command) - 1:
+        try:
+            pathname = command[command.index(REDIRECT) + 1]
+            command.remove(REDIRECT)
+            command.remove(pathname)
+            SOUT = [open(pathname, MODE), pathname]
+        
+        except PermissionError:
+            SOUT = [None, pathname]
+        
+        except OSError:
+            SOUT = [None, pathname]
+
+    return SOUT
 
 def manage(command: List[str], info: Info) -> None:
 
@@ -102,9 +158,14 @@ def manage(command: List[str], info: Info) -> None:
 
     # Check for stdout redirect
     stdout, out_path = get_stdout(command)
+    stderr, err_path = get_stderr(command)
 
     if stdout is None:
         print(f"-flux: {out_path}: Permission denied\n")
+        return
+    
+    if stderr is None:
+        print(f"-flux: {err_path}: Permission denied\n")
         return
     
 
@@ -120,7 +181,7 @@ def manage(command: List[str], info: Info) -> None:
     try:
         
         is_thread = command[-1] == "&"
-        exec_command = exec_command_class(info, command, is_thread, stdout=stdout)
+        exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr)
 
         if is_thread:
             command.pop(-1)
