@@ -65,13 +65,9 @@ class Process:
         return self.get_info().__str__()
 
     def _calculate_time(self, seconds: float) -> str:
-        minutes = int(seconds / 60)
-        hours = int(minutes / 60)
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
         seconds = int(seconds % 60)
-
-        while minutes >= 60:
-            hours += 1
-            minutes -= 60
 
         if hours > 0:
             return f"{hours}h {minutes}m {seconds}s"
@@ -148,7 +144,7 @@ class Processes:
                 return p
         return None
 
-    def remove(self, id) -> Process:
+    def remove(self, id: int) -> Process:
         for p in self.processes:
             if p.id == id:
                 self.processes.remove(p)
