@@ -32,8 +32,8 @@ def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
         REDIRECT = ">>" if ">>" in command else "&>>"
         MODE = "at"
     # Overwite file with output
-    elif "1>" in command or "&>" in command:
-        REDIRECT = "1>" if "1>" in command else "&>"
+    elif ">" in command or "1>" in command or "&>" in command :
+        REDIRECT = ">" if ">" in command else "1>" if "1>" in command else "&>"
         MODE = "wt"
 
     else:
@@ -61,7 +61,7 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
     Returns the sterr of the command and pathname of the file if redirection accours 
 
     :returns
-        - The stderr on which write the output
+        - The stderr on which write the output (None if redirected to /dev/null)
         - the path to that file 
 
     :rtype Actually returns a list [TextIO, str | None]
@@ -90,6 +90,7 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
             pathname = command[command.index(REDIRECT) + 1]
             command.remove(REDIRECT)
             command.remove(pathname)
+            
             SOUT = [open(pathname, MODE), pathname]
         
         except PermissionError:
