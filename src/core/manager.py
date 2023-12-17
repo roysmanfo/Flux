@@ -27,6 +27,8 @@ def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
     REDIRECT: str
     MODE: str
 
+    NULL_PATH = os.path.join("/", "dev", "null")
+
 
     # Append output to file
     if ">>" in command or "&>>" in command:
@@ -46,7 +48,7 @@ def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
             pathname = command[command.index(REDIRECT) + 1]
             command.remove(REDIRECT)
             command.remove(pathname)
-            SOUT = [open(pathname, MODE) if pathname != os.path.join("/", "dev", "null") else None, pathname]
+            SOUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
         except PermissionError:
             SOUT = [None, pathname]
