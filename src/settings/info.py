@@ -14,6 +14,7 @@ class SysPaths:
     SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json"))
     SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE))
     CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache"))
+    LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local"))
 
     def create_initial_folders(self) -> None:
         """
@@ -27,6 +28,7 @@ class SysPaths:
         os.makedirs(self.CONFIG_FOLDER, exist_ok=True)
         os.makedirs(self.SETTINGS_FOLDER, exist_ok=True)
         os.makedirs(self.CACHE_FOLDER, exist_ok=True)
+        os.makedirs(self.LOCAL_FOLDER, exist_ok=True)
 
     def copy(self):
         return SysPaths()
