@@ -17,7 +17,7 @@ import mimetypes
 import magic
 from pydub.utils import mediainfo
 from pathlib import Path
-import PyPDF2
+import pypdf
 
 # from PIL.ExifTags import TAGS
 
@@ -160,8 +160,13 @@ class Command(CommandInterface):
         """
         try:
             with open(path, 'rb') as pdf_file:
-                pdf_reader = PyPDF2.PdfReader(pdf_file)
-                metadata = {k.removeprefix('/'): v for k, v  in pdf_reader.metadata}
+                pdf_reader = pypdf.PdfReader(pdf_file)
+                metadata = {}
+                
+                for m in pdf_reader.metadata.keys():
+                    m: str
+                    metadata[m.removeprefix('/')] = pdf_reader.metadata[m]
+                    
                 if keys:
                     filtered_metadata = {k: v for k, v in metadata.items() if k in keys}
                     results = [f"{key}: {value}" for key, value in filtered_metadata.items()]
