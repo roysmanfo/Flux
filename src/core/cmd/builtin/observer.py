@@ -46,20 +46,22 @@ class Command(CommandInterface):
 
     def init(self) -> None:
         self.parser = Parser(prog="observer", add_help=False)
-        self.parser.add_argument("--path", action="store_true")
+        self.parser.add_argument("-p", "--path", action="store_true")
         self.parser.add_argument("-a", "--add", nargs=2)
         self.parser.add_argument("-l", "--list", action="store_true")
+        self.parser.add_argument("-u", "--update", nargs=2)
         self.parser.add_help_message("""Scans the bucket folder and sorts files in the destination folder
                
-usage: observer [-h] [-a] [--path]
+usage: observer [-h] [-l] [--path] [-a [.]EXT DEST] [-u [.]EXT DEST] 
                                     
 options:
--h, --help              show this help message and exit
--a, --add [.]EXT DEST   add a new filetype
--l, --list [.]EXT DEST  list all filetypes controlled
---path                  reveal the bucket's paths:
-                            - bucket: Where this command will look for new files
-                            - destination: Where the files will be sorted
+-h, --help                  show this help message and exit
+-a, --add [.]EXT DEST       add a new filetype
+-l, --list                  list all filetypes controlled
+-u, --update [.]EXT DEST    list all filetypes controlled
+-p, --path                  reveal the bucket's paths:
+                                - bucket: Where this command will look for new files
+                                - destination: Where the files will be sorted
 """)
 
     def setup(self):
@@ -97,6 +99,10 @@ options:
             self.add_filetype()
             return
 
+        if self.args.update:
+            self.update_filetype()
+            return
+
         if self.args.path:
             self.show_path()
             return
@@ -110,14 +116,13 @@ options:
         self.print(utils.format.create_adaptive_table("extension", "destination", contents=list(extension_paths.items())))
 
     def add_filetype(self):
-        self.args.add: list[str]
         new_ext, dest = [str(i) for i in self.args.add]
     
         if not new_ext.startswith("."):
             new_ext = '.' + new_ext # or simply  `new_ext = str(new_ext[::-1] + '.')[::-1]`
 
         if extension_paths.get(new_ext):
-            self.warning("the filetype selected is already being monitored")
+            self.warning("the filetype selected is already being monitored, use -u to update it")
             return
 
         extension_paths.update({new_ext: dest})
@@ -127,6 +132,30 @@ options:
                 json.dump(extension_paths, f, indent=4, sort_keys=True)
 
             self.print(f"filetype '{new_ext}' added")
+
+        except PermissionError:
+            self.error(self.logger.permission_denied(self.ext_path))
+
+        except FileNotFoundError:
+            self.error(self.logger.file_not_found(self.ext_path))
+    
+    def update_filetype(self):
+        ext, dest = [str(i) for i in self.args.update]
+    
+        if not ext.startswith("."):
+            ext = '.' + ext # or simply  `ext = str(ext[::-1] + '.')[::-1]`
+
+        if not extension_paths.get(ext):
+            self.error("the filetype selected is not being monitored, use -a to add it")
+            return
+
+        extension_paths.update({ext: dest})
+        
+        try:
+            with open(self.ext_path, "w") as f:            
+                json.dump(extension_paths, f, indent=4, sort_keys=True)
+
+            self.print(f"filetype '{ext}' uptated to point '{dest}'")
 
         except PermissionError:
             self.error(self.logger.permission_denied(self.ext_path))
