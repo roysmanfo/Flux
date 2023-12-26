@@ -45,15 +45,17 @@ class Command(CommandInterface):
     def init(self) -> None:
         self.parser = Parser(prog="observer", add_help=False)
         self.parser.add_argument("--path", action="store_true")
+        self.parser.add_argument("-a", "--add", nargs=2)
         self.parser.add_help_message("""Scans the bucket folder and sorts files in the destination folder
                
-usage: observer [-h] [--path]
+usage: observer [-h] [-a] [--path]
                                     
 options:
--h, --help  Show this help message and exit
---path      Reveal the bucket's paths:
-                - Bucket: Where this command will look for new files
-                - Destination: Where the files will be sorted
+-h, --help              show this help message and exit
+-a, --add [.]EXT DEST   add a new filetype
+--path                  reveal the bucket's paths:
+                            - bucket: Where this command will look for new files
+                            - destination: Where the files will be sorted
 """)
 
     def setup(self):
@@ -62,6 +64,7 @@ options:
 
         self.jokes: list[str] = []
         jpath = os.path.join(self.info.syspaths.LOCAL_FOLDER, "observer", "extensions.json")
+        self.ext_path = jpath
         try:
             with open(jpath) as f:
                 extension_paths = json.load(f)
@@ -81,6 +84,10 @@ options:
         if self.args.help:
             self.parser.help()
             return
+        
+        if self.args.add:
+            self.add_filetype()
+            return
 
         if self.args.path:
             self.show_path()
@@ -90,6 +97,31 @@ options:
             self.print("Running observer in background...\n")
 
         self.sort_files()
+
+    def add_filetype(self):
+        self.args.add: list[str]
+        new_ext, dest = [str(i) for i in self.args.add]
+    
+        if not new_ext.startswith("."):
+            new_ext = '.' + new_ext # or simply  `new_ext = str(new_ext[::-1] + '.')[::-1]`
+
+        if extension_paths.get(new_ext):
+            self.warning("the filetype selected is already being monitored")
+            return
+
+        extension_paths.update({new_ext: dest})
+
+        try:
+            with open(self.ext_path, "w") as f:            
+                json.dump(extension_paths, f, indent=4)
+
+            self.print(f"filetype '{new_ext}' added")
+
+        except PermissionError:
+            self.error(self.logger.permission_denied(self.ext_path))
+
+        except FileNotFoundError:
+            self.error(self.logger.file_not_found(self.ext_path))
 
     def show_path(self) -> bool:
         self.print(f"Bucket:{self.info.user.paths.bucket}")
