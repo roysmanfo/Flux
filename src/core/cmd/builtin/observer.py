@@ -38,6 +38,8 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent
 from ...helpers.arguments import Parser
 from ...helpers.commands import CommandInterface
+from src import utils
+
 
 extension_paths = {}
 class Command(CommandInterface):
@@ -46,6 +48,7 @@ class Command(CommandInterface):
         self.parser = Parser(prog="observer", add_help=False)
         self.parser.add_argument("--path", action="store_true")
         self.parser.add_argument("-a", "--add", nargs=2)
+        self.parser.add_argument("-l", "--list", action="store_true")
         self.parser.add_help_message("""Scans the bucket folder and sorts files in the destination folder
                
 usage: observer [-h] [-a] [--path]
@@ -53,6 +56,7 @@ usage: observer [-h] [-a] [--path]
 options:
 -h, --help              show this help message and exit
 -a, --add [.]EXT DEST   add a new filetype
+-l, --list [.]EXT DEST  list all filetypes controlled
 --path                  reveal the bucket's paths:
                             - bucket: Where this command will look for new files
                             - destination: Where the files will be sorted
@@ -73,7 +77,7 @@ options:
             os.makedirs(os.path.dirname(jpath), exist_ok=True) # exists_ok=True in case just the file is missing
             with open(jpath, "w") as f:
                 extension_paths = EXTENSIONS
-                json.dump(extension_paths, f, indent=4)
+                json.dump(extension_paths, f, indent=4, sort_keys=True)
             
         except PermissionError:
             self.error(self.logger.permission_denied(jpath))
@@ -83,6 +87,10 @@ options:
 
         if self.args.help:
             self.parser.help()
+            return
+        
+        if self.args.list:
+            self.list_filetypes()
             return
         
         if self.args.add:
@@ -97,6 +105,9 @@ options:
             self.print("Running observer in background...\n")
 
         self.sort_files()
+
+    def list_filetypes(self):
+        self.print(utils.format.create_adaptive_table("extension", "destination", contents=list(extension_paths.items())))
 
     def add_filetype(self):
         self.args.add: list[str]
@@ -113,7 +124,7 @@ options:
 
         try:
             with open(self.ext_path, "w") as f:            
-                json.dump(extension_paths, f, indent=4)
+                json.dump(extension_paths, f, indent=4, sort_keys=True)
 
             self.print(f"filetype '{new_ext}' added")
 
