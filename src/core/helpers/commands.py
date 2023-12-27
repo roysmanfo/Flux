@@ -58,7 +58,7 @@ class CommandInterface(ABC):
                  is_process: bool,
                  stdout: Optional[TextIO] = _sys.stdout,
                  stderr: Optional[TextIO] = _sys.stdout,
-                 stdin: TextIO = _sys.stdin
+                 stdin: Optional[TextIO] = _sys.stdin
                  ) -> None:
 
         self.IS_PROCESS: bool = is_process
