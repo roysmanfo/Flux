@@ -8,7 +8,7 @@ from typing import Callable, Optional, TextIO
 custom_script_dirs = ["fpm"]
 manager_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-def load_custom_script(script_name: str) -> Optional[Callable[[Info, str, bool, TextIO], None]]:
+def load_custom_script(script_name: str) -> Optional[Callable[[Info, str, bool, TextIO, TextIO, TextIO], None]]:
     """
     Load an external command installed on the machine
     """
@@ -24,7 +24,7 @@ def load_custom_script(script_name: str) -> Optional[Callable[[Info, str, bool, 
                 pass
     return None
 
-def load_builtin_script(script_name: str) -> Optional[Callable[[Info, str, bool, TextIO], None]]:
+def load_builtin_script(script_name: str) -> Optional[Callable[[Info, str, bool, TextIO, TextIO, TextIO], None]]:
     """
     Load an internal command installed on the machine
     """
