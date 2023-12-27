@@ -106,6 +106,50 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
 
     return SOUT
 
+
+def get_stdin(command: List[str]) -> Tuple[TextIO, Optional[str]]:
+    """
+    Returns the stin of the command and pathname of the file if redirection accours 
+
+    :returns
+        - The stdin on which read the inut (None if redirected to /dev/null)
+        - the path to that file 
+
+    :rtype Actually returns a list [TextIO, str | None]
+    """
+    
+    SOUT: list[TextIO, Optional[str]]
+    REDIRECT: str
+    MODE: str
+
+
+    if "<" in command:
+        REDIRECT = "<"
+        MODE = "rt"
+    else:
+        return [sys.stdout, None]
+
+
+    if command.index(REDIRECT) < len(command) - 1:
+        try:
+            pathname = command[command.index(REDIRECT) + 1]
+            command.remove(REDIRECT)
+            command.remove(pathname)
+            
+            SOUT = [open(pathname, MODE) if pathname != os.path.join("/", "dev", "null") else None, pathname]
+        
+        except PermissionError:
+            SOUT = [None, pathname]
+        
+        except OSError:
+            SOUT = [None, pathname]
+    else:
+        SOUT = [None, pathname]
+
+    return SOUT
+
+
+
 def manage(command: List[str], info: Info) -> None:
 
     # Match the command name to the corresponding file in ./cmd/
@@ -165,6 +209,7 @@ def manage(command: List[str], info: Info) -> None:
     # Check for stdout redirect
     stdout, out_path = get_stdout(command)
     stderr, err_path = get_stderr(command)
+    stdin, in_path = get_stdin(command)
 
     if stdout is None:
         print(f"-flux: {out_path}: Permission denied\n")
@@ -172,6 +217,10 @@ def manage(command: List[str], info: Info) -> None:
     
     if stderr is None:
         print(f"-flux: {err_path}: Permission denied\n")
+        return
+    
+    if stdin is None:
+        print(f"-flux: {in_path}: Permission denied\n")
         return
     
 
@@ -187,7 +236,7 @@ def manage(command: List[str], info: Info) -> None:
     try:
         
         is_thread = command[-1] == "&"
-        exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr)
+        exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin)
 
         if is_thread:
             command.pop(-1)
