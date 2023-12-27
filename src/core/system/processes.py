@@ -1,6 +1,6 @@
 from threading import Thread
 import time as _time
-from typing import List, Callable
+from typing import List, Callable, Union
 import os as _os
 
 # Process status codes
@@ -38,7 +38,7 @@ class ProcessInfo:
 
 
 class Process:
-    def __init__(self, id: int, owner: str, command_instance: Callable, line_args: list[str], is_reserved_process: bool) -> None:
+    def __init__(self, id: int, owner: str, command_instance: Union[Callable, object], line_args: list[str], is_reserved_process: bool) -> None:
         self.id: int = id
         self.name: str = line_args[0]
         self.owner: str = owner
@@ -131,9 +131,9 @@ class Processes:
                               command_instance=callable, line_args=prog_name, is_reserved_process=True))
         self.processes[-1].run(is_main_thread=True)
 
-    def add(self, info: object, line_args: List[str], callable: Callable, is_reserved: bool):
+    def add(self, info: object, line_args: List[str], command_instance: object, is_reserved: bool):
         self.processes.append(Process(id=self._generate_pid(), owner=info.user.username,
-                              command_instance=callable, line_args=line_args, is_reserved_process=is_reserved))
+                              command_instance=command_instance, line_args=line_args, is_reserved_process=is_reserved))
         print(f"[{self.processes[-1].id}] {line_args[0]}")
         self.processes[-1].run()
         _time.sleep(.1)
