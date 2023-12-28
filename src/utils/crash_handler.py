@@ -1,8 +1,6 @@
 import datetime
 import tempfile
 import traceback
-from typing import TextIO
-
 
 def write_error_log(
         fileprefix: str | None = None,
@@ -14,7 +12,7 @@ def write_error_log(
     -------
     - fileprefix:       the prefix of the .log filename (default: Flux_log_{datetime}_)
     - error_log:        the full error log (default: python default Traceback)
-    - title:            the title to put at the start of the error file (default: )
+    - title:            the title to put at the start of the error file (default: current_time)
 
 
     Returns

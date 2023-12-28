@@ -3,7 +3,7 @@ Necessary procedures to prepare the program to work
 as intended.
 """
 import os
-from src.settings.info import User, Info
+from src.settings.info import User, Info, SysPaths
 
 def setup() -> Info:
     """
@@ -15,15 +15,18 @@ def setup() -> Info:
     This process makes it easier to start Flux as we just need to call this
     function in the main file and everything will be handled automaticaly. 
 
-    Returns
-    -------
-    @returns : An object of type Info
+    * `:returns` : An object containing system information
+    * `:dtype`   : Info
+    * `:raises`  : PermissionError if the folders could not be created
     """
 
     # Load user
+    SYS_PATHS = SysPaths()
+    SYS_PATHS.create_initial_folders() # May rise an exception
+    
     USER = User()
     os.chdir(USER.paths.terminal)
 
-    INFO = Info(USER)
+    INFO = Info(USER, SYS_PATHS)
     return INFO
 

@@ -1,7 +1,7 @@
 from threading import Thread
-import time
-from typing import List, Callable
-import os
+import time as _time
+from typing import List, Callable, Union
+import os as _os
 
 # Process status codes
 STATUS_OK = 0  # Exited with no problems
@@ -38,26 +38,25 @@ class ProcessInfo:
 
 
 class Process:
-    def __init__(self, id: int, owner: str, command_instance: Callable, line_args: list[str], is_reserved_process: bool) -> None:
+    def __init__(self, id: int, owner: str, command_instance: Union[Callable, object], line_args: list[str], is_reserved_process: bool) -> None:
         self.id: int = id
         self.name: str = line_args[0]
         self.owner: str = owner
         self.command_instance: Callable = command_instance
         self.line_args: List[str] = line_args
-        self.started: float = time.time()
+        self.started: float = _time.time()
         self.status: int | None = None
         self.thread: Thread = None
         self.native_id: int | None = None
         self.is_reserved_process = is_reserved_process
-        # self.process_info = ProcessInfo(self.id, self.owner, self.thread.name, self.thread.native_id, self._calculate_time(time.time() - self.started))
 
     def get_info(self) -> ProcessInfo:
         return ProcessInfo(self.id,
-                           os.getppid(),
+                           _os.getppid(),
                            self.owner,
                            self.name,
                            self.native_id,
-                           self._calculate_time(time.time() - self.started),
+                           self._calculate_time(_time.time() - self.started),
                            self.is_reserved_process,
                            self.line_args
                            )
@@ -66,13 +65,9 @@ class Process:
         return self.get_info().__str__()
 
     def _calculate_time(self, seconds: float) -> str:
-        minutes = int(seconds / 60)
-        hours = int(minutes / 60)
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
         seconds = int(seconds % 60)
-
-        while minutes >= 60:
-            hours += 1
-            minutes -= 60
 
         if hours > 0:
             return f"{hours}h {minutes}m {seconds}s"
@@ -96,24 +91,31 @@ class Process:
         self.command_instance()
 
     def _run(self):
-        self.command_instance.init()
-        self.command_instance.setup()
-        
-        if self.command_instance.parser and self.command_instance.parser.exit_execution:
+        try:
+            self.command_instance.init()
+            self.command_instance.setup()
+
+            if self.command_instance.parser and self.command_instance.parser.exit_execution:
+                self.command_instance.close()
+                self.status = self.command_instance.exit()
+                return
+
+            self.command_instance.run()
             self.command_instance.close()
             self.status = self.command_instance.exit()
-            return
         
-        self.command_instance.run()
-        self.command_instance.close()
-        self.status = self.command_instance.exit()
+        except Exception as e:
+            self.command_instance.fail_safe(e)
+            self.status = self.command_instance.status
+
+
         print(f"[{self.id}] {self.name} stopped")
 
 
 class Processes:
     def __init__(self):
         self.processes: list[Process] = []
-        self.process_counter: int = os.getpid()
+        self.process_counter: int = _os.getpid()
 
     def list(self) -> list[ProcessInfo]:
         # Avoid returning the system managed list of processes
@@ -129,12 +131,12 @@ class Processes:
                               command_instance=callable, line_args=prog_name, is_reserved_process=True))
         self.processes[-1].run(is_main_thread=True)
 
-    def add(self, info: object, line_args: List[str], callable: Callable, is_reserved: bool):
+    def add(self, info: object, line_args: List[str], command_instance: object, is_reserved: bool):
         self.processes.append(Process(id=self._generate_pid(), owner=info.user.username,
-                              command_instance=callable, line_args=line_args, is_reserved_process=is_reserved))
+                              command_instance=command_instance, line_args=line_args, is_reserved_process=is_reserved))
         print(f"[{self.processes[-1].id}] {line_args[0]}")
         self.processes[-1].run()
-        time.sleep(.1)
+        _time.sleep(.1)
 
     def find(self, id: int) -> Process | None:
         for p in self.processes:
@@ -142,7 +144,7 @@ class Processes:
                 return p
         return None
 
-    def remove(self, id) -> Process:
+    def remove(self, id: int) -> Process:
         for p in self.processes:
             if p.id == id:
                 self.processes.remove(p)
@@ -159,3 +161,9 @@ class Processes:
         for p in self.processes:
             if not p.thread.is_alive():
                 self.processes.remove(p)
+
+    def copy(self):
+        processes = Processes()
+        processes.processes = self.processes.copy()
+        return processes
+        

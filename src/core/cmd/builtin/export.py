@@ -37,5 +37,5 @@ class Command(CommandInterface):
             self.info.variables.add(name, value.removeprefix("\"").removesuffix("\""))
         
         # Make shure the variable was set
-        self.stdout.write(f"{name} = '{self.info.variables.get(name).value}'\n\n")
+        self.print(f"{name} = '{self.info.variables.get(name).value}'\n")
 

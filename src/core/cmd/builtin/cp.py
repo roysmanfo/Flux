@@ -1,10 +1,11 @@
 from ...helpers.commands import *
 from ...helpers.arguments import Parser
 import shutil
+import os
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser("cp", add_help=True, description="Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
+        self.parser = Parser("cp", description="Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
 
         self.parser.add_argument('source', nargs='+', help='the file(s) or directory(s) to copy')
         self.parser.add_argument('dest', help='the destination of the sources')
@@ -18,7 +19,7 @@ class Command(CommandInterface):
 
         for i in self.args.source:
             if not os.path.exists(i):
-                self.error(STATUS_ERR, self.logger.file_not_found(i))
+                self.error(self.logger.file_not_found(i))
                 return
 
         # Handle multiple files given as source to copy
@@ -27,7 +28,7 @@ class Command(CommandInterface):
                 os.makedirs(self.args.dest)
 
             except PermissionError:
-                self.error(STATUS_ERR, self.logger.permission_denied(self.args.dest))
+                self.error(self.logger.permission_denied(self.args.dest))
                 return
 
 
@@ -63,7 +64,7 @@ class Command(CommandInterface):
         
     def copy_folder(self, path: str):
         if not self.args.recursive:
-            self.warning(STATUS_WARN, self.logger.parameter_not_specified('-r') + f"; omitting directory {path}")
+            self.warning(self.logger.parameter_not_specified('-r') + f"; omitting directory {path}")
             return
         
         try:
@@ -73,10 +74,10 @@ class Command(CommandInterface):
             
             if self.args.verbose:
                 for path in before:
-                    self.stdout.write(f"'{path}' -> '{after[before.index(path)]}'\n")
+                    self.print(f"'{path}' -> '{after[before.index(path)]}'")
 
         except PermissionError:
-            self.error(STATUS_ERR, self.logger.permission_denied(path))
+            self.error(self.logger.permission_denied(path))
             return
 
 
@@ -104,17 +105,17 @@ class Command(CommandInterface):
                 os.makedirs(os.path.dirname(self.args.dest))
 
             except PermissionError:
-                self.error(STATUS_ERR, self.logger.permission_denied(path))
+                self.error(self.logger.permission_denied(path))
                 return
 
         try:
             shutil.copy(path, self.args.dest)
 
             if self.args.verbose:
-                self.stdout.write("'{}' -> '{}'\n".format(path, self.args.dest))
+                self.print("'{}' -> '{}'".format(path, self.args.dest))
                 
         except shutil.SameFileError:
-            self.warning(STATUS_WARN, self.logger.same_file(path, self.args.dest))
+            self.warning(self.logger.same_file(path, self.args.dest))
 
         except PermissionError:
-            self.error(STATUS_ERR, self.logger.permission_denied(self.args.dest))
+            self.error(self.logger.permission_denied(self.args.dest))

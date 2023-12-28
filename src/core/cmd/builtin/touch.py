@@ -13,7 +13,7 @@ import time
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(prog="touch", add_help=True, description="Update the access and modification times of each FILE to the current time. Or create an empty one")
+        self.parser = Parser(prog="touch", description="Update the access and modification times of each FILE to the current time. Or create an empty one")
         self.parser.add_argument("FILE", help='the file to modify/create')
         self.parser.add_argument('-a', action='store_true', help='change only the access time')
         self.parser.add_argument('-c', '--no-create', action='store_true', help='do not create any files')
@@ -30,10 +30,10 @@ class Command(CommandInterface):
                     return True
                 
                 except PermissionError:
-                    self.error(STATUS_ERR, self.logger.permission_denied())
+                    self.error(self.logger.permission_denied())
                     return
             else:
-                self.error(STATUS_ERR, self.logger.path_not_found())
+                self.error(self.logger.path_not_found())
                 return
 
 
@@ -50,11 +50,11 @@ class Command(CommandInterface):
             return True
         
         except PermissionError:
-            self.error(STATUS_ERR, self.logger.permission_denied())
+            self.error(self.logger.permission_denied())
             return False
         
         except FileNotFoundError:
-            self.error(STATUS_ERR, self.logger.path_not_found())
+            self.error(self.logger.path_not_found())
             return False         
 
     def modify_modification_time(self):
@@ -62,5 +62,5 @@ class Command(CommandInterface):
             os.utime(self.args.FILE, (os.stat(self.args.FILE).st_atime, time.time()))
             return True
         except PermissionError:
-            self.error(STATUS_ERR, self.logger.permission_denied())
+            self.error(self.logger.permission_denied())
             return False

@@ -1,19 +1,15 @@
-# Flux modules
-from core import setup, manager
-from settings.info import Info
-import utils
-
 # External Dependencies
 import sys
 import os
 from colorama import init, Fore
 
+sys.path.append("..")
 init(autoreset=True)
 
-
-# Setup process
-INFO: Info = setup.setup()
-
+# Flux modules
+from core import setup, manager
+from settings.info import Info
+import utils
 
 def listen() -> list[str]:
     """
@@ -68,19 +64,17 @@ def run():
                     INFO.variables.set("$PWD", new_dir)
                 
                 except FileNotFoundError:
-                    # Disply an error message if path specified is iniexistent
+                    # Disply an error message if path is iniexistent
                     print("-flux: cd: No such file or directory\n")
-                    pass
 
                 except NotADirectoryError:
-                    # Disply an error message if path specified is iniexistent
+                    # Disply an error message if path is iniexistent
                     print(f"-flux: cd: {new_dir}: Not a directory\n")
-                    pass
-                
+
                 except OSError:
-                    # Disply an error message if path specified is iniexistent
+                    # Disply an error message if path is iniexistent
                     print(f"-flux: cd: {new_dir}: cannot read file or directory\n")
-                    pass
+
                 INFO.user.paths.terminal = os.getcwd()
                 INFO.user.paths.terminal.replace("\\", "/")
 
@@ -91,12 +85,19 @@ def run():
 
         # Pass the command to the manager
         else:
-            manager.manage(cmd, INFO)
+            if cmd[0] != "":
+                manager.manage(cmd, INFO)
 
 
 if __name__ == "__main__":
 
     try:
+        # Setup process
+        INFO: Info = setup.setup()
+
+        del setup
+        del Info
+
         INFO.processes._add_main_process(INFO, ['flux'], run)
     except Exception as e:
         # Catch all the exceptions related to the whole program.

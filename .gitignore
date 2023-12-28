@@ -1,6 +1,11 @@
 __pycache__
 */settings/settings.json
 
+ignore_*.*
+
+# Virtual environment
+venv/
+
 # Virtual environment stuff
 Lib
 Scripts

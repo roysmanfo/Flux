@@ -1,4 +1,4 @@
-from typing import Iterator, Any
+from typing import Iterator, Any, List, Union
 
 
 def create_table(collumn1: str, collumn2: str, contents: dict) -> str:
@@ -25,7 +25,7 @@ def create_table(collumn1: str, collumn2: str, contents: dict) -> str:
     return output
 
 
-def create_adaptive_table(*collumns: str, contents: Iterator[Iterator[Any]]) -> str:
+def create_adaptive_table(*collumns: Union[str, List[str]], contents: Iterator[Iterator[Any]]) -> str:
     """
     Return a N x M table where N rappresents the number of columns
     and M rappresents the number of records in contents (+2 rows: 1 for the title and 1 for the underline)

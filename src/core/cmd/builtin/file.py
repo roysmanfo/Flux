@@ -17,13 +17,13 @@ import mimetypes
 import magic
 from pydub.utils import mediainfo
 from pathlib import Path
-import PyPDF2
+import pypdf
 
 # from PIL.ExifTags import TAGS
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(add_help=True, prog="file", description="Gives information on a specific file given as an argument")
+        self.parser = Parser(prog="file", description="Gives information on a specific file given as an argument")
         self.parser.add_argument("PATH", help="The path of the file.")
         self.parser.add_argument("-m", "--metadata", help="Extracts metadata from the file if possible.", action="store_true")
         self.parser.add_argument("-k", "--keys", help="Used combined with `-m`, allows filtering keys (can be used multiple times)", action="append")
@@ -31,7 +31,7 @@ class Command(CommandInterface):
     def run(self):
 
         if not os.path.exists(self.args.PATH):
-            self.error(STATUS_ERR, f"cannot open `{self.args.PATH}` (No such file or directory)")
+            self.error(f"cannot open `{self.args.PATH}` (No such file or directory)")
             return
 
         self.args.PATH = Path(self.args.PATH)
@@ -42,14 +42,14 @@ class Command(CommandInterface):
             try:
                 info = self.file_info(self.args.PATH)
             except PermissionError:
-                self.error(STATUS_ERR, f"cannot open `{self.args.PATH}` (permission denied)")
+                self.error(f"cannot open `{self.args.PATH}` (permission denied)")
                 return
 
         if info is None:
             self.parser.exit_execution = True
             return
 
-        self.stdout.write(info + "\n\n")
+        self.print(info + "\n")
 
     def file_info(self, filepath: str | Path) -> str:
         """
@@ -70,7 +70,7 @@ class Command(CommandInterface):
         try:
             file_size = os.path.getsize(filepath)
         except OSError as e:
-            self.error(STATUS_ERR, f"Error getting file size: {e}")
+            self.error(f"Error getting file size: {e}")
             return
 
         return f"{filepath}: {file_type}{f', {mime_type}' if mime_type else ''}, {oct(os.stat(filepath).st_mode)[-3:]}, {file_size} bytes"
@@ -132,7 +132,7 @@ class Command(CommandInterface):
             # Extract metadata from ELF (Linux executable) files
             return self.extract_metadata_from_executable(path, keys)
         else:
-            self.error(STATUS_ERR, f"Metadata extraction not supported for this type of file: {path.name}")
+            self.error(f"Metadata extraction not supported for this type of file: {path.name}")
             return None
 
     def extract_metadata_from_image(self, path, keys: list = []) -> str:
@@ -150,7 +150,7 @@ class Command(CommandInterface):
                 results = [f"{j}: {image.info[j]}" for _, j in enumerate(keys)]
             return "\n".join(results)
         except Exception as e:
-            self.error(STATUS_ERR, f"Error extracting metadata from image: {e}")
+            self.error(f"Error extracting metadata from image: {e}")
             return None
 
 
@@ -160,8 +160,13 @@ class Command(CommandInterface):
         """
         try:
             with open(path, 'rb') as pdf_file:
-                pdf_reader = PyPDF2.PdfFileReader(pdf_file)
-                metadata = pdf_reader.getDocumentInfo()
+                pdf_reader = pypdf.PdfReader(pdf_file)
+                metadata = {}
+                
+                for m in pdf_reader.metadata.keys():
+                    m: str
+                    metadata[m.removeprefix('/')] = pdf_reader.metadata[m]
+                    
                 if keys:
                     filtered_metadata = {k: v for k, v in metadata.items() if k in keys}
                     results = [f"{key}: {value}" for key, value in filtered_metadata.items()]
@@ -169,7 +174,7 @@ class Command(CommandInterface):
                     results = [f"{key}: {value}" for key, value in metadata.items()]
                 return "\n".join(results)
         except Exception as e:
-            self.error(STATUS_ERR, f"Error extracting metadata from PDF: {e}")
+            self.error(f"Error extracting metadata from PDF: {e}")
             return None
 
     def extract_metadata_from_office_document(self, path, keys: list = []) -> str:
@@ -189,7 +194,7 @@ class Command(CommandInterface):
                 encoding = chardet.detect(binary_data)['encoding'] or 'unknown encoding'
                 return f"{path}: Office Document, {file_size} bytes, Encoding: {encoding}"
         except Exception as e:
-            self.error(STATUS_ERR, f"Error extracting metadata from Office document: {e}")
+            self.error(f"Error extracting metadata from Office document: {e}")
             return None
 
 
@@ -206,7 +211,7 @@ class Command(CommandInterface):
                 results = [f"{key}: {value}" for key, value in audio_info.items()]
             return "\n".join(results)
         except Exception as e:
-            self.error(STATUS_ERR, f"Error extracting metadata from audio file: {e}")
+            self.error(f"Error extracting metadata from audio file: {e}")
             return None
         
     def extract_metadata_from_executable(self, path, keys: list = []) -> str:
@@ -223,5 +228,5 @@ class Command(CommandInterface):
             file_size = len(binary_data)
             return f"{path}: Executable, {file_size} bytes"
         except Exception as e:
-            self.error(STATUS_ERR, f"Error extracting metadata from executable file: {e}")
+            self.error(f"Error extracting metadata from executable file: {e}")
             return None

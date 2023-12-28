@@ -5,7 +5,7 @@ from ...helpers.arguments import Parser
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser("pwd", add_help=True, description="Print the name of the current working directory")
+        self.parser = Parser("pwd", description="Print the name of the current working directory")
         self.parser.add_argument("-L", dest='local', action='store_true', default=True, help='print the value of $PWD if it names the current working directory (default: True)')
         self.parser.add_argument("-P", dest='physical', action='store_true', default=True, help='print the physical directory, without any symbolic links')
 
@@ -18,6 +18,6 @@ class Command(CommandInterface):
         if self.args.physical and platform.system() == 'Linux':
             output = output.resolve(True)
 
-        self.stdout.write(str(output) + "\n\n")
+        self.print(str(output) + "\n")
 
         
