@@ -1,7 +1,7 @@
 import sys as _sys
 import os as _os
 from abc import ABC, abstractmethod
-from typing import Any, Optional, TextIO, List
+from typing import Any, Literal, Optional, TextIO, List
 from argparse import Namespace
 
 from src.settings.info import Info
@@ -152,7 +152,7 @@ class CommandInterface(ABC):
     HELPER FUNCTIONS
     """
     
-    def error(self, msg: str | None = None, use_color: bool = False, status: int | None = None):
+    def error(self, msg: Optional[str] = None, use_color: bool = False, status: Optional[int] = None):
         """
         This function should be called once an error accoures.\n
         This function should be called to handle errors.
@@ -165,7 +165,7 @@ class CommandInterface(ABC):
             self.printerr(f"{self.parser.prog}: {msg}\n")
         self.status = status or STATUS_ERR
 
-    def warning(self, msg: str | None = None, status: int | None = None, use_color: bool = False, to_stdout: bool = True):
+    def warning(self, msg: Optional[str] = None, status: Optional[int] = None, use_color: bool = False, to_stdout: bool = True):
         """
         This function should be called to issue warnings.\n
         This function should be called to handle warnings (by default writes to stdout).
@@ -205,7 +205,7 @@ class CommandInterface(ABC):
         except KeyboardInterrupt:
             return None
         
-    def print(self, *values: object, sep: str | None = " ", end: str | None = "\n",  flush: bool = False) -> None :
+    def print(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n",  flush: bool = False) -> None :
         """
         Prints the values to self.stdout.
 
@@ -225,7 +225,7 @@ class CommandInterface(ABC):
             if flush:
                 self.stdout.flush()
 
-    def printerr(self, *values: object, sep: str | None = " ", end: str | None = "\n",  flush: bool = False) -> None :
+    def printerr(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n",  flush: bool = False) -> None :
         """
         Prints the values to self.stderr.
 
@@ -281,58 +281,58 @@ class Logger():
     ```
     """
 
-    def __init__(self, value: Any | None = None) -> None:
+    def __init__(self, value: Optional[Any] = None) -> None:
         self.value = value or ""
 
-    def path_not_found(self, path: str | _os.PathLike | None = None):
+    def path_not_found(self, path: Optional[Union[str, _os.PathLike]] = None):
         """
         cannot open `{path}` (No such file or directory)
         """
         return f"cannot open `{path or self.value}` (No such file or directory)"
 
-    def file_not_found(self, path: str | _os.PathLike | None = None):
+    def file_not_found(self, path: Optional[Union[str, _os.PathLike]] = None):
         """
         cannot open `{path}` (No such file or directory)
         """
         return self.path_not_found(path)
 
-    def permission_denied(self, path: str | _os.PathLike | None = None):
+    def permission_denied(self, path: Optional[Union[str, _os.PathLike]] = None):
         """
         cannot open `{path}` (permission denied)
         """
         return f"cannot open `{path or self.value}` (permission denied)"
 
-    def file_exists(self, path: str | _os.PathLike | None = None):
+    def file_exists(self, path: Optional[Union[str, _os.PathLike]] = None):
         """
         cannot create directory `{path}`: File exists
         """
         return f"cannot create directory `{path or self.value}`: File exists"
 
-    def cannot_remove_dir(self, path: str | _os.PathLike | None = None):
+    def cannot_remove_dir(self, path: Optional[Union[str, _os.PathLike]] = None):
         """
         cannot remove `{path}`: Is a directory
         """
         return f"cannot remove `{path or self.value}`: Is a directory"
 
-    def cannot_read_dir(self, path: str | _os.PathLike | None = None):
+    def cannot_read_dir(self, path: Optional[Union[str, _os.PathLike]] = None):
         """
         cannot read `{path}`: Is a directory
         """
         return f"cannot read `{path or self.value}`: Is a directory"
 
-    def parameter_not_specified(self, param: str | _os.PathLike | None = None):
+    def parameter_not_specified(self, param: Optional[Union[str, _os.PathLike]] = None):
         """
         {param} not specified
         """
         return f"{param or self.value} not specified"
 
-    def parameter_not_supported(self, param: str | None = None):
+    def parameter_not_supported(self, param: Optional[str] = None):
         """
         unsupported option '{param}'
         """
         return f"unsupported option '{param or self.value}'"
 
-    def same_file(self, path1: str | _os.PathLike | None = None, path2: str | _os.PathLike | None = None):
+    def same_file(self, path1: Optional[Union[str, _os.PathLike]] = None, path2: Optional[Union[str, _os.PathLike]] = None):
         """
         `{path1}` and `{path2}` are the same file
         """
