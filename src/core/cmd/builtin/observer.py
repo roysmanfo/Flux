@@ -53,7 +53,7 @@ class Command(CommandInterface):
         self.parser.add_argument("-u", "--update", nargs=2)
         self.parser.add_help_message("""Scans the bucket folder and sorts files in the destination folder
                
-usage: observer [-h] [-l] [--path] [-a [.]EXT DEST] [-u [.]EXT DEST] 
+usage: observer [-h] [-l] [-p] [-a [.]EXT DEST] [-u [.]EXT DEST] 
                                     
 options:
 -h, --help                  show this help message and exit
