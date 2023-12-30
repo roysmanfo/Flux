@@ -20,6 +20,7 @@ class Command(CommandInterface):
         self.parser.add_argument("PATH", nargs="?", default=self.info.user.paths.terminal, help="The path of the directory to list")
         self.parser.add_argument("-a", "--all", action="store_true", help="do not ignore entries starting with .")
         self.parser.add_argument("-A", "--almost-all", action="store_true", help="do not list implied . and ..")
+        self.parser.add_argument("-r", "--reverse", action="store_true", help="reverse order while sorting")
         self.parser.add_argument("-l", dest="l", action="store_true", help="use a long listing format")
 
     def run(self):
@@ -49,6 +50,9 @@ class Command(CommandInterface):
             dir_contents.append("..")
             dir_contents.sort()
         
+        if self.args.reverse:
+            dir_contents = dir_contents[::-1]
+
         #Long listing format
         if self.args.l:
             if os.path.isfile(self.args.PATH):
