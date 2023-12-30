@@ -43,6 +43,10 @@ class Command(CommandInterface):
         #List all files
         if not self.args.all:
             dir_contents = [i for i in dir_contents if not i.startswith(".")]
+        else:
+            dir_contents.append(".")
+            dir_contents.append("..")
+            dir_contents.sort()
         
         #Long listing format
         if self.args.l:

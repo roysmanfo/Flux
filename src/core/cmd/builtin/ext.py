@@ -12,7 +12,15 @@ class Command(CommandInterface):
         self.parser.add_argument("command", action="append", help="the command to run")
 
     def setup(self):
-        if "-h" in self.command or "--help" in self.command:
+        if "-h" in self.command and self.command.index("-h") == 1:
+            super().setup()
+        
+        elif "--help" in self.command and self.command.index("--help") == 1:
+            super().setup()
+        
+        elif len(self.command) < 2:
+            # print an help message
+            self.command.append("-h")
             super().setup()
 
         elif len(self.command[1:]) == 0 :
