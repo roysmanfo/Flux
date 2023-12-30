@@ -18,8 +18,9 @@ class Command(CommandInterface):
     def init(self):
         self.parser = Parser(prog="ls", description="List information about the FILEs (the current directory by default).")
         self.parser.add_argument("PATH", nargs="?", default=self.info.user.paths.terminal, help="The path of the directory to list")
-        self.parser.add_argument("-a", "--all", dest="all", action="store_true", help="Do not ignore entries starting with .")
-        self.parser.add_argument("-l", dest="l", action="store_true", help="Use a long listing format")
+        self.parser.add_argument("-a", "--all", action="store_true", help="do not ignore entries starting with .")
+        self.parser.add_argument("-A", "--almost-all", action="store_true", help="do not list implied . and ..")
+        self.parser.add_argument("-l", dest="l", action="store_true", help="use a long listing format")
 
     def run(self):
 
@@ -43,7 +44,7 @@ class Command(CommandInterface):
         #List all files
         if not self.args.all:
             dir_contents = [i for i in dir_contents if not i.startswith(".")]
-        else:
+        elif not self.args.almost_all:
             dir_contents.append(".")
             dir_contents.append("..")
             dir_contents.sort()
