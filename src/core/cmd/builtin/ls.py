@@ -46,9 +46,8 @@ class Command(CommandInterface):
         if not self.args.all:
             dir_contents = [i for i in dir_contents if not i.startswith(".")]
         elif not self.args.almost_all:
-            dir_contents.append(".")
-            dir_contents.append("..")
-            dir_contents.sort()
+            dir_contents.insert(0, "..")
+            dir_contents.insert(0, ".")
         
         if self.args.reverse:
             dir_contents = dir_contents[::-1]
