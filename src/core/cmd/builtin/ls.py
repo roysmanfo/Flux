@@ -17,9 +17,10 @@ class Command(CommandInterface):
 
     def init(self):
         self.parser = Parser(prog="ls", description="List information about the FILEs (the current directory by default).")
-        self.parser.add_argument("PATH", nargs="?", default=self.info.user.paths.terminal, help="The path of the directory to list")
+        self.parser.add_argument("PATH", nargs="?", default=".", help="The path of the directory to list")
         self.parser.add_argument("-a", "--all", action="store_true", help="do not ignore entries starting with .")
         self.parser.add_argument("-A", "--almost-all", action="store_true", help="do not list implied . and ..")
+        self.parser.add_argument("-d", "--directory", action="store_true", help="list directories themselves, not their contents")
         self.parser.add_argument("-r", "--reverse", action="store_true", help="reverse order while sorting")
         self.parser.add_argument("-l", dest="l", action="store_true", help="use a long listing format")
 
@@ -30,24 +31,29 @@ class Command(CommandInterface):
             return
         
         dir_contents: list[str] = []
-
-        if os.path.isdir(self.args.PATH) or os.path.ismount(self.args.PATH):
+        
+        if self.args.directory or os.path.isfile(self.args.PATH) or os.path.islink(self.args.PATH):
+            dir_contents = [self.args.PATH] 
+        
+        elif os.path.isdir(self.args.PATH) or os.path.ismount(self.args.PATH):
             self.args.PATH = os.path.abspath(self.args.PATH)
             try:
                 dir_contents = os.listdir(self.args.PATH)
             except PermissionError:
                 self.error(f"cannot open `{self.args.PATH}` (permission denied)")
                 return
+        else:
+            # wtf is this path pointing to
+            pass
 
-        elif os.path.isfile(self.args.PATH) or os.path.islink(self.args.PATH):
-            dir_contents = [self.args.PATH]
 
         #List all files
-        if not self.args.all:
-            dir_contents = [i for i in dir_contents if not i.startswith(".")]
-        elif not self.args.almost_all:
-            dir_contents.insert(0, "..")
-            dir_contents.insert(0, ".")
+        if not self.args.directory:
+            if not self.args.all:
+                dir_contents = [i for i in dir_contents if not i.startswith(".")]
+            elif not self.args.almost_all:
+                dir_contents.insert(0, "..")
+                dir_contents.insert(0, ".")
         
         if self.args.reverse:
             dir_contents = dir_contents[::-1]
