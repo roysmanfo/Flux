@@ -334,7 +334,8 @@ class Logger():
 
     def invalid_argument(self, param: Optional[str] = None, rule: Optional[str] = None):
         """
-        invalid argument `{param}`: {rule}
+        invalid argument `{param}`: `{rule}`
+
         invalid argument `{param}`
         """
 
