@@ -322,15 +322,26 @@ class Logger():
 
     def parameter_not_specified(self, param: Optional[Union[str, _os.PathLike]] = None):
         """
-        {param} not specified
+        `{param}` not specified
         """
         return f"{param or self.value} not specified"
 
     def parameter_not_supported(self, param: Optional[str] = None):
         """
-        unsupported option '{param}'
+        unsupported option `{param}`
         """
         return f"unsupported option '{param or self.value}'"
+
+    def invalid_argument(self, param: Optional[str] = None, rule: Optional[str] = None):
+        """
+        invalid argument `{param}`: {rule}
+        invalid argument `{param}`
+        """
+
+        if rule:
+            return f"invalid argument '{param or self.value}': {rule}"
+
+        return f"invalid argument '{param or self.value}'"
 
     def same_file(self, path1: Optional[Union[str, _os.PathLike]] = None, path2: Optional[Union[str, _os.PathLike]] = None):
         """
