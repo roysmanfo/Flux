@@ -44,7 +44,7 @@ class Command(CommandInterface):
 
     def setup(self):
         super().setup()
-        if not self.parser.exit_execution:
+        if not self.status == STATUS_ERR:
 
             # check if the values provided make sense
 
