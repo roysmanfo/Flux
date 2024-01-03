@@ -22,11 +22,11 @@ class Stats:
 
     @property
     def loss(self):
-        return round(self.p_lost / self.counter, 2)
+        return round(self.p_lost / self.counter * 100, 2)
     
     @property
     def time(self):
-        return round((time.time() - self.start_time) * 1000, 3)
+        return int((time.time() - self.start_time) * 1000)
 
 class Command(CommandInterface):
 
@@ -138,10 +138,16 @@ class Command(CommandInterface):
     def close(self):
         super().close()
 
-        if not self.status == STATUS_ERR or self.parser.exit_execution:
+        if not self.status == STATUS_ERR:
             self.print(f"\n--- {self.args.destination} ping statistics---")
             self.print(f"{self.stats.counter} packets transmited, {self.stats.p_received} received, {self.stats.loss}% packet loss, time {self.stats.time}ms")
-            self.print(f"rrt min/avg/max = {self.stats.max}/{self.stats.avg}/{self.stats.min} ms")
+            
+            if self.stats.min == float("inf"):
+                self.stats.min = .0
+            if self.stats.max == float("-inf"):
+                self.stats.max = .0
+
+            self.print(f"rtt min/avg/max = {round(self.stats.min, 3)}/{round(self.stats.avg or 0, 3)}/{round(self.stats.max, 3)} ms")
 
 
  
