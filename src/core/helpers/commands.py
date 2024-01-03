@@ -93,6 +93,7 @@ class CommandInterface(ABC):
             self.args = self.parser.parse_args(self.command[1:])
 
             if self.parser.exit_execution:
+                self.status = STATUS_ERR
                 print()
                 return
         except AttributeError:
