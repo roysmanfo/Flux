@@ -6,18 +6,41 @@ import time
 import platform
 
 
+class Stats:
+    def __init__(self) -> None:
+        self.counter = 0
+        self.min = float('inf')
+        self.max = float('-inf')
+        self.p_lost = 0
+        self.p_received = 0
+
+        self.start_time = time.time()
+
+    @property
+    def avg(self):
+        return round((self.max + self.min) / 2, 3)
+
+    @property
+    def loss(self):
+        return round(self.p_lost / self.counter, 2)
+    
+    @property
+    def time(self):
+        return round((time.time() - self.start_time) * 1000, 3)
+
 class Command(CommandInterface):
 
     def init(self):
         self.parser = Parser(prog="ping", description="send ICMP ECHO_REQUEST to network hosts")
         self.parser.add_argument("destination", help="dns name or ip address")
-        self.parser.add_argument("-c", dest="count", type=int, help="stop after <count> replies")
+        self.parser.add_argument("-c", dest="count", type=int, default=4, help="stop after <count> replies, default 4")
         self.parser.add_argument("-i", dest="interval", default=1, type=float, help="seconds between sending each packet")
         self.parser.add_argument("-I", dest="interface", help="either interface name or address (Linux only)")
         self.parser.add_argument("-t", dest="ttl", default=116, type=int, help="define time to live")
         self.parser.add_argument("-s", dest="size", default=64, type=int, help="use <size> as number of data bytes to be sent")
         self.parser.add_argument("-q", dest="quiet", action="store_true", help="quiet output")
         self.parser.add_argument("-W", dest="timeout", default=3, type=int, help="time to wait for response")
+        self.stats = None
 
     def setup(self):
         super().setup()
@@ -50,7 +73,7 @@ class Command(CommandInterface):
             elif self.args.timeout < 0:
                 self.error(f"bad linger time: {self.args.timeout}")
                 self.parser.exit_execution = True
-                
+
 
 
     def run(self):
@@ -64,18 +87,20 @@ class Command(CommandInterface):
         self.print(f"PING {self.args.destination} ({dest_addr}) 56(84) bytes of data.")
         
         try:
-            self.args.destination = socket.getfqdn(self.args.destination)
+            fqdn = socket.getfqdn(self.args.destination)
         except socket.error:
             self.error("unable to determine full domain name")
             return
         
         icmp_seq = 0
         t = time.time()
+        self.stats = Stats()
+
 
         try:
             while self.args.count != 0:
 
-                if time.time() - t >= self.args.timeout:
+                if time.time() - t >= self.args.interval:
                     delay = ping3.ping(
                         dest_addr=dest_addr,
                         timeout=self.args.timeout,
@@ -87,8 +112,19 @@ class Command(CommandInterface):
                         interface=self.args.interface
                     )
 
+
+                    # modify stats
+                    self.stats.counter += 1
+                    if delay:
+                        self.stats.p_received += 1
+                        self.stats.max = round(max(self.stats.max, delay), 3)
+                        self.stats.min = round(min(self.stats.min, delay), 3)
+                    else:
+                        self.stats.p_lost += 1
+
+
                     if not self.args.quiet:
-                        self.print(f"{self.args.size} bytes from {self.args.destination} ({dest_addr}): icmp_seq={icmp_seq} ttl={self.args.ttl} time={round(delay, 1)} ms")
+                        self.print(f"{self.args.size} bytes from {fqdn} ({dest_addr}): icmp_seq={icmp_seq} ttl={self.args.ttl} time={round(delay, 1)} ms")
 
                     if self.args.count:
                         self.args.count -= 1
@@ -98,7 +134,14 @@ class Command(CommandInterface):
 
         except KeyboardInterrupt:
             pass
+    
+    def close(self):
+        super().close()
 
+        if not self.status == STATUS_ERR or self.parser.exit_execution:
+            self.print(f"\n--- {self.args.destination} ping statistics---")
+            self.print(f"{self.stats.counter} packets transmited, {self.stats.p_received} received, {self.stats.loss}% packet loss, time {self.stats.time}ms")
+            self.print(f"rrt min/avg/max = {self.stats.max}/{self.stats.avg}/{self.stats.min} ms")
 
 
  
