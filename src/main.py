@@ -1,6 +1,7 @@
 # External Dependencies
 import sys
 import os
+import signal
 from colorama import init, Fore
 
 sys.path.append("..")
@@ -8,7 +9,6 @@ init(autoreset=True)
 
 # Flux modules
 from core import setup, manager
-from settings.info import Info
 import utils
 
 def listen() -> list[str]:
@@ -93,10 +93,24 @@ if __name__ == "__main__":
 
     try:
         # Setup process
-        INFO: Info = setup.setup()
-
+        INFO = setup.setup()
+        I_HANDLER = setup.create_interrupt_handler()
         del setup
-        del Info
+
+        # always available interrupts
+        signal.signal(signal.SIGABRT, I_HANDLER.handle_interrupts)
+        signal.signal(signal.SIGFPE, I_HANDLER.handle_interrupts)
+        signal.signal(signal.SIGILL, I_HANDLER.handle_interrupts)
+        signal.signal(signal.SIGINT, I_HANDLER.handle_interrupts)
+        signal.signal(signal.SIGSEGV, I_HANDLER.handle_interrupts)
+        signal.signal(signal.SIGTERM, I_HANDLER.handle_interrupts)
+
+        # win interrupts
+        if sys.platform == "win32":
+            signal.signal(signal.SIGBREAK, I_HANDLER.handle_interrupts)
+            signal.signal(signal.CTRL_C_EVENT, I_HANDLER.handle_interrupts)
+            signal.signal(signal.CTRL_BREAK_EVENT, I_HANDLER.handle_interrupts)
+
 
         INFO.processes._add_main_process(INFO, ['flux'], run)
     except Exception as e:

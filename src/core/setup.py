@@ -4,6 +4,7 @@ as intended.
 """
 import os
 from src.settings.info import User, Info, SysPaths
+from src.core.system.interrupt import InterruptHandler
 
 def setup() -> Info:
     """
@@ -30,3 +31,5 @@ def setup() -> Info:
     INFO = Info(USER, SYS_PATHS)
     return INFO
 
+def create_interrupt_handler() -> InterruptHandler:
+    return InterruptHandler()
