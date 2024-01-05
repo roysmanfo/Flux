@@ -219,7 +219,13 @@ options:
             observer = Observer()
             observer.schedule(event_handler, f'{watch_path}', recursive=True)
 
-            observer.start()
+            try:
+                print(observer.is_alive())
+                observer.start()
+            except RuntimeError:
+                self.error("could not start observer")
+                return
+
             event_handler.on_modified(DirModifiedEvent)
 
             # Check if we decided to run the process as a background task
@@ -228,10 +234,12 @@ options:
                 try:
                     while not self.info.exit:
                         time.sleep(.1)
-                        continue
+
                     observer.stop()
-                except KeyboardInterrupt:
+                except Exception as e:
                     observer.stop()
+                    self.warning(e)
+                    return
             else:
                 time.sleep(1)
                 observer.stop()
