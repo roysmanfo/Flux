@@ -1,7 +1,7 @@
 import sys as _sys
 import os as _os
 from abc import ABC, abstractmethod
-from typing import Any, Literal, Optional, TextIO, List
+from typing import Any, Optional, TextIO, List
 from argparse import Namespace
 
 from src.settings.info import Info
@@ -196,6 +196,9 @@ class CommandInterface(ABC):
         try:
             if __prompt:
                 self.print(__prompt, end="")
+
+            if not self.stdin.readable():
+                return None
 
             file_contents = self.stdin.readline()
             
