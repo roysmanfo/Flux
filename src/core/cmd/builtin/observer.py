@@ -220,8 +220,8 @@ options:
             observer.schedule(event_handler, f'{watch_path}', recursive=True)
 
             try:
-                print(observer.is_alive())
-                observer.start()
+                if not observer.is_alive():
+                    observer.start()
             except RuntimeError:
                 self.error("could not start observer")
                 return
