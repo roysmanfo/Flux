@@ -40,14 +40,38 @@ class CommandInterface(ABC):
     - `exit()`          This is the last method that gets called.
     - `fail_safe()`     This function gets called to capture unhandled exception.
 
+    Execution flow
+    ```py
+
+        try:
+            command.init()
+            command.setup()
+
+            if command.status == STATUS_ERR or command.parser and command.parser.exit_execution:
+                command.close()
+                status = command.exit()
+                return status
+            
+            command.run()
+            command.close()
+            status = command.exit()
+                
+            except Exception as e:
+                command.fail_safe(e)
+                status: int = command.status
+
+            del command
+            return status
+    ```
+
     ### HELPER FUNCTIONS
     Other usefull methods, NOT called by the terminal.
     If you want to use these methods you need to call them yourself.
 
     - `error()`     This function should be called once an error accoures.
     - `warning()`   This function should be called to issue warnings.
-    - `input()`     This is similar to python's `input()`, but uses `self.stdin` to not have to modify `sys.stdin` .
-    - `print()`     This is similar to python's `print()`, but uses `self.stdout` to not have to modify `sys.stdout` .
+    - `input()`     This is similar to python's `input()`, but uses `self.stdin` and doesn't modify `sys.stdin` .
+    - `print()`     This is similar to python's `print()`, but uses `self.stdout` and doesn't modify `sys.stdout` .
     - `printerr()`  This is similar to `self.print()`, but uses `self.stderr` instead.
 
     """
