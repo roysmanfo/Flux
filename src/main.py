@@ -94,7 +94,7 @@ if __name__ == "__main__":
     try:
 
         # NOTE: temporary solution, to get this message just run the program with "python3 main.py stable"
-        if not (len(sys.argv) > 1 and sys.argv[1].lower() == "stable"):
+        if len(sys.argv) > 1 and sys.argv[1].lower() == "stable":
             if sys.version_info >= (3, 12):
                 print("The way python handles threads after  python 3.12 has changed and won't allow Flux to run as intended\n")
 
