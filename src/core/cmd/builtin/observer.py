@@ -33,6 +33,7 @@ import json
 import os
 import shutil
 from pathlib import Path
+import sys
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent
@@ -86,6 +87,11 @@ options:
         except PermissionError:
             self.error(self.logger.permission_denied(jpath))
             self.parser.exit_execution = True
+        
+        finally: 
+            if sys.version_info >= (3, 12):
+                detected = "%s.%s.%s" % (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
+                self.error("the way this program handles threads is not yet suported after python 3.11 (detected %s)" % detected)
 
     def run(self) -> None:
 
@@ -213,8 +219,7 @@ options:
             pass
 
         try:
-            event_handler = self.EventHandler(
-                watch_path=watch_path, destination_root=destination_root)
+            event_handler = self.EventHandler(watch_path, destination_root)
 
             observer = Observer()
             observer.schedule(event_handler, f'{watch_path}', recursive=True)
@@ -222,8 +227,10 @@ options:
             try:
                 if not observer.is_alive():
                     observer.start()
-            except RuntimeError:
-                self.error("could not start observer")
+                else:
+                    self.warning("observer is already running")
+            except RuntimeError as e:
+                self.error("could not start observer {}".format(e.__str__()))
                 return
 
             event_handler.on_modified(DirModifiedEvent)
