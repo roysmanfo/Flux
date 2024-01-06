@@ -155,7 +155,7 @@ def manage(command: List[str], info: Info) -> None:
     # Match the command name to the corresponding file in ./cmd/
     # for further processing and execution
 
-    from .helpers.commands import CommandInterface
+    from .helpers.commands import CommandInterface, STATUS_ERR
 
     def execute_script(callable: CommandInterface) -> int:
         """
@@ -168,7 +168,7 @@ def manage(command: List[str], info: Info) -> None:
             callable.init()
             callable.setup()
 
-            if callable.parser and callable.parser.exit_execution:
+            if callable.status == STATUS_ERR or callable.parser and callable.parser.exit_execution:
                 callable.close()
                 status = callable.exit()
                 return status
