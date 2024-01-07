@@ -11,8 +11,9 @@ from typing import List, Optional, TextIO, Tuple
 from src.settings.info import Info
 from .system import loader
 
+NULL_PATH = os.devnull
 
-def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
+def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     """
     Returns the stout of the command and pathname of the file if redirection accours 
 
@@ -20,14 +21,13 @@ def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
         - The stdout on which write the output
         - the path to that file 
 
-    :rtype Actually returns a list [TextIO, str | None]
+    :rtype Actually returns a list [TextIO | None, str | None]
     """
     
     SOUT: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
 
-    NULL_PATH = os.path.join("/", "dev", "null")
 
 
     # Append output to file
@@ -59,7 +59,7 @@ def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
     return SOUT
 
 
-def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
+def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     """
     Returns the sterr of the command and pathname of the file if redirection accours 
 
@@ -67,7 +67,7 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
         - The stderr on which write the output (None if redirected to /dev/null)
         - the path to that file 
 
-    :rtype Actually returns a list [TextIO, str | None]
+    :rtype Actually returns a list [TextIO | None, str | None]
     """
     
     SOUT: list[TextIO, Optional[str]]
@@ -94,7 +94,7 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
             command.remove(REDIRECT)
             command.remove(pathname)
             
-            SOUT = [open(pathname, MODE) if pathname != os.path.join("/", "dev", "null") else None, pathname]
+            SOUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
         except PermissionError:
             SOUT = [None, pathname]
@@ -107,7 +107,7 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
     return SOUT
 
 
-def get_stdin(command: List[str]) -> Tuple[TextIO, Optional[str]]:
+def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     """
     Returns the stin of the command and pathname of the file if redirection accours 
 
@@ -115,7 +115,7 @@ def get_stdin(command: List[str]) -> Tuple[TextIO, Optional[str]]:
         - The stdin on which read the inut (None if redirected to /dev/null)
         - the path to that file 
 
-    :rtype Actually returns a list [TextIO, str | None]
+    :rtype Actually returns a list [TextIO | None, str | None]
     """
     
     SOUT: list[TextIO, Optional[str]]
@@ -136,7 +136,7 @@ def get_stdin(command: List[str]) -> Tuple[TextIO, Optional[str]]:
             command.remove(REDIRECT)
             command.remove(pathname)
             
-            SOUT = [open(pathname, MODE) if pathname != os.path.join("/", "dev", "null") else None, pathname]
+            SOUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
         except PermissionError:
             SOUT = [None, pathname]
@@ -235,7 +235,7 @@ def manage(command: List[str], info: Info) -> None:
 
     try:
         
-        is_thread = command[-1] == "&"
+        is_thread = command[-1].endswith("&") and not command[0].endswith("&")
         exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin)
 
         if is_thread:
