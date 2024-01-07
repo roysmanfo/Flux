@@ -27,11 +27,11 @@ def listen() -> list[str]:
 
     except KeyboardInterrupt:
         print(f"{Fore.RED}^C{Fore.RESET}")
-        return utils.transform.string_to_list("")
+        return [""]
 
     except EOFError:
         print(f"{Fore.RED}^C{Fore.RESET}")
-        return utils.transform.string_to_list("")
+        return [""]
 
 
 def run():
