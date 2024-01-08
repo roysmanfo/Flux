@@ -85,7 +85,7 @@ options:
                 json.dump(extension_paths, f, indent=4, sort_keys=True)
             
         except PermissionError:
-            self.error(self.logger.permission_denied(jpath))
+            self.error(self.errors.permission_denied(jpath))
             self.parser.exit_execution = True
         
         finally: 
@@ -146,10 +146,10 @@ options:
             self.print(f"filetype '{ext}' removed")
 
         except PermissionError:
-            self.error(self.logger.permission_denied(self.ext_path))
+            self.error(self.errors.permission_denied(self.ext_path))
 
         except FileNotFoundError:
-            self.error(self.logger.file_not_found(self.ext_path))
+            self.error(self.errors.file_not_found(self.ext_path))
 
     def add_filetype(self):
         new_ext, dest = [str(i) for i in self.args.add]
@@ -170,10 +170,10 @@ options:
             self.print(f"filetype '{new_ext}' added")
 
         except PermissionError:
-            self.error(self.logger.permission_denied(self.ext_path))
+            self.error(self.errors.permission_denied(self.ext_path))
 
         except FileNotFoundError:
-            self.error(self.logger.file_not_found(self.ext_path))
+            self.error(self.errors.file_not_found(self.ext_path))
     
     def update_filetype(self):
         ext, dest = [str(i) for i in self.args.update]
@@ -194,10 +194,10 @@ options:
             self.print(f"filetype '{ext}' uptated to point '{dest}'")
 
         except PermissionError:
-            self.error(self.logger.permission_denied(self.ext_path))
+            self.error(self.errors.permission_denied(self.ext_path))
 
         except FileNotFoundError:
-            self.error(self.logger.file_not_found(self.ext_path))
+            self.error(self.errors.file_not_found(self.ext_path))
 
     def show_path(self) -> bool:
         self.print(f"Bucket:{self.info.user.paths.bucket}")

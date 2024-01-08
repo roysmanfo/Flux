@@ -77,7 +77,7 @@ class Command(CommandInterface):
                     if self.args.value[0] and Path(self.args.value[0]).exists():
                         self.info.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.info, self.args.reset)
                     else:
-                        self.error(self.logger.file_not_found(self.args.value[0]))
+                        self.error(self.errors.file_not_found(self.args.value[0]))
                 else:
                     try:
                         self.print(f"{self.info.user.paths.all()[target]}\n")

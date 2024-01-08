@@ -15,7 +15,7 @@ class Command(CommandInterface):
         for folder in self.args.path:
 
             if not os.path.exists(folder):
-                self.error(self.logger.path_not_found(folder))
+                self.error(self.errors.path_not_found(folder))
 
             elif len(os.listdir(folder)) > 0 :
                 self.error(f"rmdir: failed to remove `{folder}`: Directory not empty")
@@ -31,10 +31,10 @@ class Command(CommandInterface):
                         self.print("rmdir: removing directory '{}'".format(folder))
                 
                 except PermissionError:
-                    self.error(self.logger.permission_denied(folder))
+                    self.error(self.errors.permission_denied(folder))
                 
                 except OSError:
-                    self.error(self.logger.path_not_found(folder))
+                    self.error(self.errors.path_not_found(folder))
 
 
 

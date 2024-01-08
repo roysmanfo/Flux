@@ -42,11 +42,11 @@ class Command(CommandInterface):
 
             if file != '-':
                 if not os.path.exists(file):
-                    self.error(self.logger.file_not_found(file))
+                    self.error(self.errors.file_not_found(file))
                     continue
 
                 if os.path.isdir(file):
-                    self.error(self.logger.cannot_read_dir(file))
+                    self.error(self.errors.cannot_read_dir(file))
                     continue
 
 
@@ -63,7 +63,7 @@ class Command(CommandInterface):
             else:
                 with open(file, 'rb') as f:
                     if not f.readable():
-                        self.error(self.logger.permission_denied(file))
+                        self.error(self.errors.permission_denied(file))
                         return
                     
                     content = f.read()

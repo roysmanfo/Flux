@@ -54,5 +54,5 @@ class Command(CommandInterface):
                 self.stdout.write(format.create_adaptive_table("ID", "PID", "OWNER", "NAME", "IS RESERVED PROCESS", "TIME ALIVE", contents=contents))
 
             case _:
-                self.error(self.logger.parameter_not_supported(self.args.mode))
+                self.error(self.errors.parameter_not_supported(self.args.mode))
                 

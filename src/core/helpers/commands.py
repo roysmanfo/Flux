@@ -27,7 +27,7 @@ class CommandInterface(ABC):
     - `stdin (variable, TextIO)`        The stdin of the command
     - `parser (variable, Parser)`       A program targeted implementation of argparse.ArgumentParser
     - `args (variable, Namespace)`      The usual output returned by ArgumentParser.parse_args
-    - `logger (variable, Logger)`       Standardized handler for error/warning messages
+    - `errors (variable, Errors)`       Standardized error/warning messages
     - `colors (variable, Colors)`       Colors for command output, does not have effect outside terminal
 
     ### AUTOMATIC CALLS
@@ -94,7 +94,7 @@ class CommandInterface(ABC):
         self.stdin = stdin
         self.parser: Optional[Parser] = None
         self.args: Optional[Namespace] = None
-        self.logger: Logger = Logger()
+        self.errors: Errors = Errors()
         self.colors = Colors(not (stdout is _sys.stdout))
 
     """
@@ -277,9 +277,9 @@ class CommandInterface(ABC):
 
 
 
-class Logger():
+class Errors():
     """
-    Standardized handler for error/warning messages
+    Standardized error/warning messages
 
     By default `self.value` is an empty string and 
     will be used if no value is given as function argument,
@@ -288,7 +288,7 @@ class Logger():
 
     ```
     def run(self):    
-        self.logger.value = self.args.PATH
+        self.errors.value = self.args.PATH
     ```
 
     or by recreating the object in your setup 
@@ -296,7 +296,7 @@ class Logger():
     ```
     def setup(self):
         super().setup()
-        self.logger = Logger(PATH)
+        self.errors = Errors(PATH)
     ```
 
     otherwise you will have to provide the path on each call
@@ -305,7 +305,7 @@ class Logger():
     try:
         # Some operations
     except PermissionError:
-        self.error(self.logger.permission_error(PATH))
+        self.error(self.errors.permission_error(PATH))
     ```
     """
 
