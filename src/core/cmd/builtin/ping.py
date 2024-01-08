@@ -139,7 +139,7 @@ class Command(CommandInterface):
         super().close()
 
         if not self.status == STATUS_ERR:
-            self.print(f"\n--- {self.args.destination} ping statistics---")
+            self.print(f"\n--- {self.args.destination} ping statistics ---")
             self.print(f"{self.stats.counter} packets transmited, {self.stats.p_received} received, {self.stats.loss}% packet loss, time {self.stats.time}ms")
             
             if self.stats.min == float("inf"):
