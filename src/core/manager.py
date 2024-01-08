@@ -236,6 +236,8 @@ def manage(command: List[str], info: Info) -> None:
     try:
         
         is_thread = command[-1].endswith("&") and not command[0].endswith("&")
+        # XXX: Ensure stability on python 3.12 as threads created by flux are not supported (#44)
+        is_thread = is_thread and sys.version_info < (3, 12)
         exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin)
 
         if is_thread:
