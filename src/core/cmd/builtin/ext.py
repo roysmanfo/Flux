@@ -24,7 +24,7 @@ class Command(CommandInterface):
             super().setup()
 
         elif len(self.command[1:]) == 0 :
-            self.error(self.logger.parameter_not_specified("command"))
+            self.error(self.errors.parameter_not_specified("command"))
             self.parser.exit_execution = True
             return
 

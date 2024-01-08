@@ -33,7 +33,7 @@ class Command(CommandInterface):
         else:
             for file in self.args.file:
                 inp = ""
-                self.logger.value = file
+                self.errors.value = file
                 content = ""
                 
                 if file == "-":
@@ -44,11 +44,11 @@ class Command(CommandInterface):
                             content += inp
                 else:
                     if not os.path.exists(file) and file:
-                        self.error(self.logger.file_not_found())
+                        self.error(self.errors.file_not_found())
                         continue
                     
                     if os.path.isdir(file):
-                        self.error(self.logger.cannot_read_dir())
+                        self.error(self.errors.cannot_read_dir())
                         continue
 
                     try:
@@ -56,7 +56,7 @@ class Command(CommandInterface):
                             content = f.read()
 
                     except PermissionError:
-                        self.error(self.logger.permission_denied())
+                        self.error(self.errors.permission_denied())
                         continue
 
                 self.display(self.format_str(content))

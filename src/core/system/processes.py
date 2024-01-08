@@ -65,17 +65,17 @@ class Process:
         return self.get_info().__str__()
 
     def _calculate_time(self, seconds: float) -> str:
-        hours = int(seconds // 3600)
-        minutes = int((seconds % 3600) // 60)
-        seconds = int(seconds % 60)
+        hours, remainder = divmod(seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
 
         if hours > 0:
-            return f"{hours}h {minutes}m {seconds}s"
-
+            return f"{int(hours)}h {int(minutes)}m {int(seconds)}s"
+        
         if minutes > 0:
-            return f"{minutes}m {seconds}s"
+            return f"{int(minutes)}m {int(seconds)}s"
 
-        return f"{seconds}s"
+        return f"{int(seconds)}s"
+
 
     def run(self, is_main_thread=False):
         if is_main_thread:

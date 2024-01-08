@@ -15,7 +15,7 @@ class Command(CommandInterface):
         for folder in self.args.path:
 
             if os.path.exists(folder):
-                self.error(self.logger.file_exists(folder))
+                self.error(self.errors.file_exists(folder))
             
             else:
                 try:
@@ -28,10 +28,10 @@ class Command(CommandInterface):
                         self.print("mkdir: created directory '{}'".format(folder))
                 
                 except PermissionError:
-                    self.error(self.logger.permission_denied(folder))
+                    self.error(self.errors.permission_denied(folder))
                 
                 except OSError:
-                    self.error(self.logger.path_not_found(folder))
+                    self.error(self.errors.path_not_found(folder))
 
 
 

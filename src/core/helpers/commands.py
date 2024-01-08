@@ -1,7 +1,7 @@
 import sys as _sys
 import os as _os
 from abc import ABC, abstractmethod
-from typing import Any, Literal, Optional, TextIO, List
+from typing import Any, Optional, TextIO, List
 from argparse import Namespace
 
 from src.settings.info import Info
@@ -27,7 +27,7 @@ class CommandInterface(ABC):
     - `stdin (variable, TextIO)`        The stdin of the command
     - `parser (variable, Parser)`       A program targeted implementation of argparse.ArgumentParser
     - `args (variable, Namespace)`      The usual output returned by ArgumentParser.parse_args
-    - `logger (variable, Logger)`       Standardized handler for error/warning messages
+    - `errors (variable, Errors)`       Standardized error/warning messages
     - `colors (variable, Colors)`       Colors for command output, does not have effect outside terminal
 
     ### AUTOMATIC CALLS
@@ -40,14 +40,38 @@ class CommandInterface(ABC):
     - `exit()`          This is the last method that gets called.
     - `fail_safe()`     This function gets called to capture unhandled exception.
 
+    Execution flow
+    ```py
+
+        try:
+            command.init()
+            command.setup()
+
+            if command.status == STATUS_ERR or command.parser and command.parser.exit_execution:
+                command.close()
+                status = command.exit()
+                return status
+            
+            command.run()
+            command.close()
+            status = command.exit()
+                
+            except Exception as e:
+                command.fail_safe(e)
+                status: int = command.status
+
+            del command
+            return status
+    ```
+
     ### HELPER FUNCTIONS
     Other usefull methods, NOT called by the terminal.
     If you want to use these methods you need to call them yourself.
 
     - `error()`     This function should be called once an error accoures.
     - `warning()`   This function should be called to issue warnings.
-    - `input()`     This is similar to python's `input()`, but uses `self.stdin` to not have to modify `sys.stdin` .
-    - `print()`     This is similar to python's `print()`, but uses `self.stdout` to not have to modify `sys.stdout` .
+    - `input()`     This is similar to python's `input()`, but uses `self.stdin` and doesn't modify `sys.stdin` .
+    - `print()`     This is similar to python's `print()`, but uses `self.stdout` and doesn't modify `sys.stdout` .
     - `printerr()`  This is similar to `self.print()`, but uses `self.stderr` instead.
 
     """
@@ -70,7 +94,7 @@ class CommandInterface(ABC):
         self.stdin = stdin
         self.parser: Optional[Parser] = None
         self.args: Optional[Namespace] = None
-        self.logger: Logger = Logger()
+        self.errors: Errors = Errors()
         self.colors = Colors(not (stdout is _sys.stdout))
 
     """
@@ -93,6 +117,7 @@ class CommandInterface(ABC):
             self.args = self.parser.parse_args(self.command[1:])
 
             if self.parser.exit_execution:
+                self.status = STATUS_ERR
                 print()
                 return
         except AttributeError:
@@ -196,6 +221,9 @@ class CommandInterface(ABC):
             if __prompt:
                 self.print(__prompt, end="")
 
+            if not self.stdin.readable():
+                return None
+
             file_contents = self.stdin.readline()
             
             if file_contents == '':
@@ -249,9 +277,9 @@ class CommandInterface(ABC):
 
 
 
-class Logger():
+class Errors():
     """
-    Standardized handler for error/warning messages
+    Standardized error/warning messages
 
     By default `self.value` is an empty string and 
     will be used if no value is given as function argument,
@@ -260,7 +288,7 @@ class Logger():
 
     ```
     def run(self):    
-        self.logger.value = self.args.PATH
+        self.errors.value = self.args.PATH
     ```
 
     or by recreating the object in your setup 
@@ -268,7 +296,7 @@ class Logger():
     ```
     def setup(self):
         super().setup()
-        self.logger = Logger(PATH)
+        self.errors = Errors(PATH)
     ```
 
     otherwise you will have to provide the path on each call
@@ -277,7 +305,7 @@ class Logger():
     try:
         # Some operations
     except PermissionError:
-        self.error(self.logger.permission_error(PATH))
+        self.error(self.errors.permission_error(PATH))
     ```
     """
 
@@ -322,15 +350,27 @@ class Logger():
 
     def parameter_not_specified(self, param: Optional[Union[str, _os.PathLike]] = None):
         """
-        {param} not specified
+        `{param}` not specified
         """
         return f"{param or self.value} not specified"
 
     def parameter_not_supported(self, param: Optional[str] = None):
         """
-        unsupported option '{param}'
+        unsupported option `{param}`
         """
         return f"unsupported option '{param or self.value}'"
+
+    def invalid_argument(self, param: Optional[str] = None, rule: Optional[str] = None):
+        """
+        invalid argument `{param}`: `{rule}`
+
+        invalid argument `{param}`
+        """
+
+        if rule:
+            return f"invalid argument '{param or self.value}': {rule}"
+
+        return f"invalid argument '{param or self.value}'"
 
     def same_file(self, path1: Optional[Union[str, _os.PathLike]] = None, path2: Optional[Union[str, _os.PathLike]] = None):
         """

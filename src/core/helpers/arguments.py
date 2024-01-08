@@ -7,7 +7,7 @@ class Parser(ArgumentParser):
     `argparse.ArgumentParser` adaptation for program based parsing.
 
     Works kinda like argparse but excluding its default behaviours
-    like exiting the program on the firs parsing error.
+    like exiting the program on the first parsing error.
     """
 
     def __init__(self,

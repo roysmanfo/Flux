@@ -28,7 +28,7 @@ class Command(CommandInterface):
                 self.jokes = JOKES
             
         except PermissionError:
-            self.error(self.logger.permission_denied(jpath))
+            self.error(self.errors.permission_denied(jpath))
         
 
 
