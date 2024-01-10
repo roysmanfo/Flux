@@ -90,7 +90,7 @@ def run():
 
 
 if __name__ == "__main__":
-
+    
     try:
 
         # NOTE: temporary solution, to get this message just run the program with "python3 main.py stable"
@@ -105,11 +105,19 @@ if __name__ == "__main__":
                     case _: sys.exit(1)
 
 
+
+
         # Setup process
         INFO: Info = setup.setup()
 
         del setup
         del Info
+
+        if len(sys.argv) > 1:
+            
+            cmd = sys.argv[1:]
+            manager.manage(cmd, INFO)
+            sys.exit(0)
 
         INFO.processes._add_main_process(INFO, ['flux'], run)
     except Exception as e:
