@@ -63,8 +63,11 @@ class Command(CommandInterface):
             if os.path.isfile(self.args.PATH):
                 self.args.PATH = os.path.dirname(self.args.PATH)
             dir_contents = [self.long_listing_format(os.path.join(self.args.PATH, i)) for i in dir_contents]
+
+            self.print()        
             for file in dir_contents:
-                self.print(file)
+                if file:
+                    self.print(file)
             self.print("\n")
             return
         
@@ -114,33 +117,39 @@ class Command(CommandInterface):
             return mode_str
 
         def format_file_info(file_info: os.stat_result):
-            mode = file_info.st_mode
-            permissions = get_permissions_string(mode)
-            size = file_info.st_size
-            modified_time = time.strftime("%b %d %H:%M", time.localtime(file_info.st_mtime))
-            return f"{permissions} {size:9} {modified_time}"
+            try:
+                mode = file_info.st_mode
+                permissions = get_permissions_string(mode)
+                size = file_info.st_size
+                modified_time = time.strftime("%b %d %H:%M", time.localtime(file_info.st_mtime))
+                return f"{permissions} {size:9} {modified_time}"
+            
+            except OSError: # no permissions
+                return None
 
         file_info: os.stat_result = os.stat(file_path)
 
         formatted_info = format_file_info(file_info)
 
         # Color formatting
+        if formatted_info:
+            # Folder
+            if os.path.isdir(file_path):
+                formatted_info += f" {self.colors.Fore.LIGHTBLUE_EX}{os.path.basename(file_path)}"
+            # Image
+            elif file_path.removesuffix("'").split(".")[-1].lower() in ['jpg', 'jpeg', 'tif', 'jfif', 'png', 'gif', 'bmp', 'webp', 'pdf']:
+                formatted_info +=  f" {self.colors.Fore.LIGHTMAGENTA_EX}{os.path.basename(file_path)}"
+            # Executable
+            elif sys.platform.lower().startswith("win") and "." + file_path.removesuffix("'").split(".")[-1].upper() in os.environ['PATHEXT']:
+                formatted_info += f" {self.colors.Back.LIGHTYELLOW_EX}{self.colors.Fore.BLACK}{os.path.basename(file_path)}{self.colors.Back.RESET}"
+            # Compressed archive
+            elif zipfile.is_zipfile(file_path):
+                formatted_info += f" {self.colors.Fore.LIGHTRED_EX}{os.path.basename(file_path)}"
+            # regular file
+            else:
+                formatted_info += f" {self.colors.Fore.LIGHTGREEN_EX}{os.path.basename(file_path)}"
 
-        # Folder
-        if os.path.isdir(file_path):
-            formatted_info += f" {self.colors.Fore.LIGHTBLUE_EX}{os.path.basename(file_path)}"
-        # Image
-        elif file_path.removesuffix("'").split(".")[-1].lower() in ['jpg', 'jpeg', 'tif', 'jfif', 'png', 'gif', 'bmp', 'webp', 'pdf']:
-            formatted_info +=  f" {self.colors.Fore.LIGHTMAGENTA_EX}{os.path.basename(file_path)}"
-        # Executable
-        elif sys.platform.lower().startswith("win") and "." + file_path.removesuffix("'").split(".")[-1].upper() in os.environ['PATHEXT']:
-            formatted_info += f" {self.colors.Back.LIGHTYELLOW_EX}{self.colors.Fore.BLACK}{os.path.basename(file_path)}{self.colors.Back.RESET}"
-        # Compressed archive
-        elif zipfile.is_zipfile(file_path):
-            formatted_info += f" {self.colors.Fore.LIGHTRED_EX}{os.path.basename(file_path)}"
-        # regular file
-        else:
-            formatted_info += f" {self.colors.Fore.LIGHTGREEN_EX}{os.path.basename(file_path)}"
-
-        return formatted_info
-
+            return formatted_info
+        self.printerr(self.errors.cannot_read_fod(file_path.rstrip("\n")))
+        self.status = STATUS_ERR
+        return ""
