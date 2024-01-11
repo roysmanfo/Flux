@@ -48,35 +48,6 @@ def run():
             INFO.exit = True
             sys.exit(0)
 
-        elif cmd[0] == "cd":
-            if len(cmd) > 1:
-                try:
-                    new_dir = "" + cmd[1].strip("\"").strip("'")
-                    if new_dir.startswith("$"):
-                        new_dir = INFO.variables.get(new_dir).value or new_dir
-                    os.chdir(f"{new_dir}")
-                    INFO.variables.set("$PWD", new_dir)
-                
-                except FileNotFoundError:
-                    # Disply an error message if path is iniexistent
-                    print("-flux: cd: No such file or directory\n")
-
-                except NotADirectoryError:
-                    # Disply an error message if path is iniexistent
-                    print(f"-flux: cd: {new_dir}: Not a directory\n")
-
-                except OSError:
-                    # Disply an error message if path is iniexistent
-                    print(f"-flux: cd: {new_dir}: cannot read file or directory\n")
-
-                INFO.user.paths.terminal = os.getcwd()
-                INFO.user.paths.terminal.replace("\\", "/")
-
-            else:
-                os.chdir(INFO.variables.get("$HOME").value)
-                INFO.user.paths.terminal = INFO.variables.get("$HOME").value
-                INFO.variables.set("$PWD", INFO.user.paths.terminal)
-
         # Pass the command to the manager
         else:
             if cmd[0] != "":
