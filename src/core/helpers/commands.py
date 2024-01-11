@@ -352,7 +352,7 @@ class Errors():
         """
         `{path}`: cannot read file or directory
         """
-        return f"cannot read `{path or self.value}`: Is a directory"
+        return f"`{path or self.value}`: cannot read file or directory"
     
     def not_a_dir(self, path: Optional[Union[str, _os.PathLike]] = None):
         """
