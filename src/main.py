@@ -25,34 +25,27 @@ def listen() -> list[str]:
 
         return utils.transform.string_to_list(command)
 
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         print(f"{Fore.RED}^C{Fore.RESET}")
-        return [""]
-
-    except EOFError:
-        print(f"{Fore.RED}^C{Fore.RESET}")
-        return [""]
+        return []
 
 
 def run():
-    while True:
+    while not INFO.exit:
         os.chdir(INFO.user.paths.terminal)
         try:
             cmd = listen()
 
+            if cmd:
+                if cmd[0] == "exit":
+                    INFO.exit = True
+
+                # Pass the command to the manager
+                else:
+                    if cmd[0] != "":
+                        manager.manage(cmd, INFO)
         except KeyboardInterrupt:
-            print()
-            continue
-
-        if cmd[0] == "exit":
-            INFO.exit = True
-            sys.exit(0)
-
-        # Pass the command to the manager
-        else:
-            if cmd[0] != "":
-                manager.manage(cmd, INFO)
-
+            pass
 
 if __name__ == "__main__":
     
@@ -68,9 +61,6 @@ if __name__ == "__main__":
                 match input("do you want to continue [y/n]").lower():
                     case "y": None
                     case _: sys.exit(1)
-
-
-
 
         # Setup process
         INFO: Info = setup.setup()
