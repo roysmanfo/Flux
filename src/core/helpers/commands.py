@@ -347,6 +347,18 @@ class Errors():
         cannot read `{path}`: Is a directory
         """
         return f"cannot read `{path or self.value}`: Is a directory"
+    
+    def cannot_read_fod(self, path: Optional[Union[str, _os.PathLike]] = None):
+        """
+        `{path}`: cannot read file or directory
+        """
+        return f"cannot read `{path or self.value}`: Is a directory"
+    
+    def not_a_dir(self, path: Optional[Union[str, _os.PathLike]] = None):
+        """
+        `{path}`: Not a directory
+        """
+        return f"{path or self.value}: Not a directory"
 
     def parameter_not_specified(self, param: Optional[Union[str, _os.PathLike]] = None):
         """
@@ -371,6 +383,12 @@ class Errors():
             return f"invalid argument '{param or self.value}': {rule}"
 
         return f"invalid argument '{param or self.value}'"
+    
+    def too_many_args(self):
+        """
+        too many arguments
+        """
+        return f"too many arguments"
 
     def same_file(self, path1: Optional[Union[str, _os.PathLike]] = None, path2: Optional[Union[str, _os.PathLike]] = None):
         """
