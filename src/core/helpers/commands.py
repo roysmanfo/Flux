@@ -97,6 +97,17 @@ class CommandInterface(ABC):
         self.errors: Errors = Errors()
         self.colors = Colors(not (stdout is _sys.stdout))
 
+        self.CRITICAL = 50
+        self.FATAL = self.CRITICAL
+        self.ERROR = 40
+        self.WARNING = 30
+        self.WARN = self.WARNING
+        self.INFO = 20
+        self.DEBUG = 10
+        self.NOTSET = 0
+
+        self.log_level = self.NOTSET
+
     """
     AUTOMATIC CALLS
     """
@@ -174,28 +185,57 @@ class CommandInterface(ABC):
         
 
     """
-    HELPER FUNCTIONS
+    LOGGING FUNCTIONS
     """
     
-    def error(self, msg: Optional[str] = None, use_color: bool = False, status: Optional[int] = None):
+    def critical(self, msg: Optional[str] = None, use_color: bool = False):
+        """
+        This function should be called once a critical error accoures.\n
+        This function should be called to handle errors.
+
+        Also sets the status to STATUS_ERR.
+        """
+        if self.log_level <= self.CRITICAL:
+            if use_color:
+                self.printerr(f"{self.colors.Fore.RED}{self.parser.prog}: {msg}{self.colors.Fore.RESET}\n")
+            else:
+                self.printerr(f"{self.parser.prog}: {msg}\n")
+        self.status = STATUS_ERR
+
+    def fatal(self, msg: Optional[str] = None, use_color: bool = False):
+        """
+        This function should be called once a fatal error accoures.\n
+        This function should be called to handle errors.
+
+        Also sets the status to STATUS_ERR.
+        """
+        if self.log_level <= self.FATAL:
+            if use_color:
+                self.printerr(f"{self.colors.Fore.RED}{self.parser.prog}: {msg}{self.colors.Fore.RESET}\n")
+            else:
+                self.printerr(f"{self.parser.prog}: {msg}\n")
+        self.status = STATUS_ERR
+
+    def error(self, msg: Optional[str] = None, use_color: bool = False):
         """
         This function should be called once an error accoures.\n
         This function should be called to handle errors.
 
-        By default sets the status to STATUS_ERR.
+        Also sets the status to STATUS_ERR.
         """
-        if use_color:
-            self.printerr(f"{self.colors.Fore.RED}{self.parser.prog}: {msg}{self.colors.Fore.RESET}\n")
-        else:
-            self.printerr(f"{self.parser.prog}: {msg}\n")
-        self.status = status or STATUS_ERR
+        if self.log_level <= self.ERROR:
+            if use_color:
+                self.printerr(f"{self.colors.Fore.RED}{self.parser.prog}: {msg}{self.colors.Fore.RESET}\n")
+            else:
+                self.printerr(f"{self.parser.prog}: {msg}\n")
+        self.status = STATUS_ERR
 
-    def warning(self, msg: Optional[str] = None, status: Optional[int] = None, use_color: bool = False, to_stdout: bool = True):
+    def warning(self, msg: Optional[str] = None, use_color: bool = False, to_stdout: bool = True):
         """
         This function should be called to issue warnings.\n
         This function should be called to handle warnings (by default writes to stdout).
 
-        By default sets the status to STATUS_WARN.
+        Also sets the status to STATUS_WARN.
         """
 
         if to_stdout:
@@ -209,7 +249,25 @@ class CommandInterface(ABC):
             else:
                 self.print(msg)
 
-        self.status = status or STATUS_WARN
+        self.status = STATUS_WARN
+
+    def info(self, msg: Optional[str] = None):
+        """
+        This function should be called for providing the end user with some info.
+        """
+        if self.log_level <= self.INFO:
+            self.print(msg)
+    
+    def debug(self, msg: Optional[str] = None):
+        """
+        This function should be called for debugging.
+        """
+        if self.log_level <= self.DEBUG:
+            self.print(msg)
+
+    """
+    HELPER FUNCIONS
+    """
 
     def input(self, __prompt: object = "") -> str | None:
         """
@@ -272,8 +330,6 @@ class CommandInterface(ABC):
 
             if flush:
                 self.stdout.flush()
-        
-
 
 
 
