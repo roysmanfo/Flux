@@ -96,12 +96,8 @@ class Command(CommandInterface):
             if self.args.show_ends:
                 lines = [i + '$' for i in lines]
 
-            if self.args.number:
-                longest = len(str(len(lines)))
-                lines = [f"  {' ' * (longest - len(str(i)))}{i}  {v}" for i, v in enumerate(lines, 1)]
-
             if self.args.b:
-                r = lines.copy()
+                r = []
                 longest = len(str(len(lines)))
                 i = 1
                 for l in lines:
@@ -112,6 +108,10 @@ class Command(CommandInterface):
                         r.append(f"  {' ' * (longest)}  {l}")
 
                 lines = r
+
+            elif self.args.number:
+                longest = len(str(len(lines)))
+                lines = [f"  {' ' * (longest - len(str(i)))}{i}  {v}" for i, v in enumerate(lines, 1)]
 
             self.print("\n".join(lines))
 
