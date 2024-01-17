@@ -1,10 +1,4 @@
-                                     (ノಠ益ಠ)ノ彡┻━┻        
-                                _____ __    __ __  __  __ 
-                               |   __|  |  |  |  |\  \/  /
-                               |   _]|  |__|  |  | |    |
-                               |__|  |_____\_____//__/\__\
-
-                                      By @RoysManfo
+![logo](./img/logo.svg)
 
 ### NOTE: _Flux is currently in redesign phase in branch_ `redesign`
 <!-- ![Flux logo](img/Flux_logo.png) -->
