@@ -43,8 +43,13 @@ class Variables:
         """
         Creates a new variable
 
-        @returns True if the variable was created, False otherwise (name already taken)
+        `:returns` True if the variable was created, False otherwise (name already taken)
         """
+
+        # In case they are provided with the wrong type
+        name = str(name)
+        value = str(value)
+
         if self.get(name):
             return False
         

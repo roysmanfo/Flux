@@ -433,9 +433,9 @@ class Info:
     def init_reserved_variables(self) -> None:
 
         self.variables.add("$ALL", "$ALL:$HOME:$PATH:$PWD", True)
-        self.variables.add("$HOME", self.user.paths.terminal, True)
+        self.variables.add("$HOME", str(self.user.paths.terminal), True)
         self.variables.add("$PATH", os.environ.get("PATH", ""), True)
-        self.variables.add("$PWD", self.user.paths.terminal, True)
+        self.variables.add("$PWD", str(self.user.paths.terminal), True)
 
     def copy(self):
         """
