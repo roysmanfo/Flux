@@ -13,8 +13,10 @@ class Command(CommandInterface):
         super().setup()
         if len(self.args.dir) > 1:
             self.error(self.errors.too_many_args())
-        else:
+        elif len(self.args.dir) == 1:
             self.args.dir = self.args.dir[0]
+        else:
+            self.args.dir = self.sysinfo.variables.get("$HOME").value
 
     def run(self):
         if self.args.dir:
