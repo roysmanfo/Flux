@@ -72,7 +72,7 @@ options:
         super().setup()
 
         self.jokes: list[str] = []
-        jpath = os.path.join(self.info.syspaths.LOCAL_FOLDER, "observer", "extensions.json")
+        jpath = os.path.join(self.sysinfo.syspaths.LOCAL_FOLDER, "observer", "extensions.json")
         self.ext_path = jpath
         try:
             with open(jpath) as f:
@@ -200,13 +200,13 @@ options:
             self.error(self.errors.file_not_found(self.ext_path))
 
     def show_path(self) -> bool:
-        self.print(f"Bucket:{self.info.user.paths.bucket}")
-        self.print(f"Destination:{self.info.user.paths.bucket_destination}\n")
+        self.print(f"Bucket:{self.sysinfo.user.paths.bucket}")
+        self.print(f"Destination:{self.sysinfo.user.paths.bucket_destination}\n")
         return False
 
     def sort_files(self, forever: bool = False) -> None:
-        watch_path = Path(self.info.user.paths.bucket)
-        destination_root = Path(self.info.user.paths.bucket_destination)
+        watch_path = Path(self.sysinfo.user.paths.bucket)
+        destination_root = Path(self.sysinfo.user.paths.bucket_destination)
 
         try:
             os.makedirs(watch_path)
@@ -239,7 +239,7 @@ options:
             if self.IS_PROCESS:
 
                 try:
-                    while not self.info.exit:
+                    while not self.sysinfo.exit:
                         time.sleep(.1)
 
                     observer.stop()

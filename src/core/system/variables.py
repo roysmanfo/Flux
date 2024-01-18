@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, Dict, Iterator, Optional
 
 class Variable:
     def __init__(self, name: str, value: str, is_reserved: bool) -> None:
@@ -27,18 +27,33 @@ class Variable:
 class Variables:
 
     def __init__(self):
-        self.variables: List[Variable] = []
+        self._variables: Dict[str, Variable] = {}
+
+    def __iter__(self) -> Iterator[Variable]:
+        for v in self._variables:
+            yield self._variables.get(v)
+    
+    def __dict__(self):
+        res = {}
+        for v in self._variables:
+            res.update({v: self._variables.get(v).copy()})
+        return res
 
     def add(self, name: str, value: str, is_reserved: bool = False) -> bool:
         """
         Creates a new variable
 
-        @returns True if the variable was created, False otherwise (name already taken)
+        `:returns` True if the variable was created, False otherwise (name already taken)
         """
-        if self.find(name):
+
+        # In case they are provided with the wrong type
+        name = str(name)
+        value = str(value)
+
+        if self.get(name):
             return False
         
-        self.variables.append(Variable(name.upper(), value, is_reserved))
+        self._variables.update({name.upper(): Variable(name.upper(), value, is_reserved)})
         return False
 
 
@@ -48,66 +63,62 @@ class Variables:
 
         Returns True if the variable has been removed, False otherwise (variable not found or is reserved)
         """
+        name = name.upper()
+
         if not self.exists(name):
             return False
         
-        for var in self.variables:
-            if var.name == name:
-                if var.is_reserved:
-                    print(
-                        f"Variable ${var.name} can't be deleted because it is a reserved variable")
-                    return False
-                self.variables.remove(var)
-                return True
-
-        return False
+       
+        if self._variables.get(name).is_reserved:
+            print(
+                f"Variable ${name} can't be deleted because it is a reserved variable")
+            return False
+        self._variables.pop(name)
+        return True
 
     def exists(self, name: str) -> bool:
         """
         Checks if a variable exists
         """
-        for v in self.variables:
-            if v.name == name:
+        for v in self._variables:
+            if v == name:
                 return True
         return False
 
-    def find(self, var: Variable) -> bool:
+    def get(self, name: str, default: Any = None) -> Optional[Variable]:
         """
-        Checks if a variable exists
-        """
-        for v in self.variables:
-            if v == var:
-                return True
-        return False
+        Gets a variable based on its name
 
-    def get(self, name: str) -> Optional[Variable]:
+        Returns it's value if the variable has been remove found, otherwise returns default
         """
-        Gets the value of a variable
 
-        Returns it's value if the variable has been remove found, None otherwise
-        """
-        for var in self.variables:
-            if var.name == name:
-                return var.copy()
+        for var in self._variables:
+            if var == name:
+                return self._variables.get(var).copy()
 
-        return None
+        return default
 
     def set(self, name: str, value: str) -> None:
         """
         Update the value of a variable
         """
-        for var in self.variables:
-            if var.name == name:
-                var.value = value.__str__()
-                return
+
+        var = self.get(name)
+
+        if not var:
+            raise ValueError("invalid key %s" % name)
+
+        var.value = value.__str__()
 
     def copy(self):
-        v = Variables()
-        v.variables = self.variables.copy()
-        return v
+        """
+        Creates a screenshot of the current state of env vars (returns a deep copy of all variables) 
+        """
 
-    def no_var_found(self, var) -> None:
-        """
-        Should be called when a variable with specified name is found
-        """
-        print(f"No variable ${var} found")
+        v = Variables()
+        vars = {}
+
+        for var in v:
+            vars.update({var.name: var.copy()})
+        return v
+    

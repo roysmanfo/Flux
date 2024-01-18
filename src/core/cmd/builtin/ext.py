@@ -32,9 +32,15 @@ class Command(CommandInterface):
 
     def run(self):
         global p
-        p = subprocess.Popen(self.command, stdin=self.stdin, stdout=self.stdout, stderr=self.stderr, text=True)
-        p.wait()
-    
+
+        try:
+            p = subprocess.Popen(self.command, stdin=self.stdin, stdout=self.stdout, stderr=self.stderr, text=True)
+            p.wait()
+        except FileNotFoundError:
+            self.error("unable to spawn the specified process (not found)")
+            self.status = STATUS_ERR
+
     def close(self):
-        self.status = p.returncode if p else STATUS_ERR
+        if not self.status:
+            self.status = p.returncode if p else STATUS_ERR
 
