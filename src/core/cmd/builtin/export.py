@@ -31,11 +31,11 @@ class Command(CommandInterface):
     def set_variable(self) -> None:
         name: str = self.command[1]        
         value = str(self.command[2])
-        if self.info.variables.exists(name):
-            self.info.variables.set(name, value.removeprefix("\"").removesuffix("\""))
+        if self.sysinfo.variables.exists(name):
+            self.sysinfo.variables.set(name, value.removeprefix("\"").removesuffix("\""))
         else:
-            self.info.variables.add(name, value.removeprefix("\"").removesuffix("\""))
+            self.sysinfo.variables.add(name, value.removeprefix("\"").removesuffix("\""))
         
         # Make shure the variable was set
-        self.print(f"{name} = '{self.info.variables.get(name).value}'\n")
+        self.print(f"{name} = '{self.sysinfo.variables.get(name).value}'\n")
 

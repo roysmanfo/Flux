@@ -14,7 +14,7 @@ class Command(CommandInterface):
         In windows it is harder to read lnk files, so there -P is useless 
         """
 
-        output: Path = self.info.variables.get("$PWD").value
+        output: Path = self.sysinfo.variables.get("$PWD").value
         if self.args.physical and platform.system() == 'Linux':
             output = output.resolve(True)
 

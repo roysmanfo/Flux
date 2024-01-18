@@ -40,7 +40,7 @@ class Command(CommandInterface):
 
         # Reset all user vareables
         if self.args.reset_all:
-            self.info.user.reset_settings()
+            self.sysinfo.user.reset_settings()
             self.print('Restart the shell to apply changes')
             return
 
@@ -48,26 +48,26 @@ class Command(CommandInterface):
         if self.args.setting == "username":
             if self.args.value or self.args.reset:
                 if len(self.args.value[0].strip()) > 1:
-                    self.info.user.set_username("default" if self.args.reset else " ".join(self.args.value), self.info, self.args.reset)
+                    self.sysinfo.user.set_username("default" if self.args.reset else " ".join(self.args.value), self.sysinfo, self.args.reset)
                 else:
                     self.stderr.write("The username provided is too short\n")
             else:
-                self.print(f"{self.info.user.username}\n")
+                self.print(f"{self.sysinfo.user.username}\n")
 
         # Set 1 or more new bg-task/s
         elif self.args.setting == "bg-task":
             if self.args.value or self.args.reset:
-                self.info.user.set_bg_task(self.info, self.args.value, self.args.reset)
+                self.sysinfo.user.set_bg_task(self.sysinfo, self.args.value, self.args.reset)
             else:
-                self.print(f"{', '.join(self.info.user.background_tasks) if self.info.user.background_tasks else 'No background tasks'}\n")
+                self.print(f"{', '.join(self.sysinfo.user.background_tasks) if self.sysinfo.user.background_tasks else 'No background tasks'}\n")
 
         # Set/ change an email
         # if muliple emails given, set as email the first valid one
         elif self.args.setting == "email":
             if self.args.value or self.args.reset:
-                self.info.user.set_email(self.info, self.args.value, self.args.reset)
+                self.sysinfo.user.set_email(self.sysinfo, self.args.value, self.args.reset)
             else:
-                self.print(f"'{self.info.user.email}'\n")
+                self.print(f"'{self.sysinfo.user.email}'\n")
 
         # change a Path
         elif self.args.setting.startswith("path"):
@@ -75,17 +75,17 @@ class Command(CommandInterface):
                 target = self.args.setting.split(".")[1]
                 if self.args.value or self.args.reset:
                     if self.args.value[0] and Path(self.args.value[0]).exists():
-                        self.info.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.info, self.args.reset)
+                        self.sysinfo.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.sysinfo, self.args.reset)
                     else:
                         self.error(self.errors.file_not_found(self.args.value[0]))
                 else:
                     try:
-                        self.print(f"{self.info.user.paths.all()[target]}\n")
+                        self.print(f"{self.sysinfo.user.paths.all()[target]}\n")
                     except KeyError:
                         self.error(f"setting not found")
             else:
                 from src.utils.format import create_adaptive_table
-                c = [(p, self.info.user.paths.all_paths[p]) for p in self.info.user.paths.all_paths.keys()]
+                c = [(p, self.sysinfo.user.paths.all_paths[p]) for p in self.sysinfo.user.paths.all_paths.keys()]
                 
                 self.print(create_adaptive_table("Path name", "Value", contents=c))
 

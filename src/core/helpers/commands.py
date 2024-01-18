@@ -1,14 +1,15 @@
+from enum import IntEnum as _IntEnum
 import sys as _sys
 import os as _os
-from abc import ABC, abstractmethod
-from typing import Any, Optional, TextIO, List
-from argparse import Namespace
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from typing import Any, Optional, TextIO, List, Union
+from argparse import Namespace as _Namespace
 
 from src.settings.info import Info
-from src.core.system.processes import *
+from src.core.system.processes import (STATUS_OK, STATUS_ERR, STATUS_WARN)
 from .arguments import Parser
 
-class CommandInterface(ABC):
+class CommandInterface(_ABC):
     """
     Interface class for commands
 
@@ -19,7 +20,7 @@ class CommandInterface(ABC):
     Attributes shared by commands
 
     - `IS_PROCESS (const, bool)`        Whether or not the command is being runned as a background thread
-    - `info (variable, Info)`           A reference to the instance of the Info class, containing process information
+    - `sysinfo (variable, Info)`        A reference to the instance of the Info class, containing process information
     - `command (variable, list[str])`   The full command typed by the user (also contains the command name, es. ['ls', 'some_path'])
     - `status (variable, int)`          The return code of the command (default statuses follow the following convention 'STATUS_[err/ok/warn]' )
     - `stdout (variable, TextIO)`       The stdout of the command
@@ -29,6 +30,8 @@ class CommandInterface(ABC):
     - `args (variable, Namespace)`      The usual output returned by ArgumentParser.parse_args
     - `errors (variable, Errors)`       Standardized error/warning messages
     - `colors (variable, Colors)`       Colors for command output, does not have effect outside terminal
+    - `levels (variable, Levels)`       All the log levels available
+    - `log_level (variable, int)`       Only logs wit higher severity than this number will be displayed (displays everything by default)
 
     ### AUTOMATIC CALLS
     Methods that get called regardless by the terminal
@@ -64,12 +67,20 @@ class CommandInterface(ABC):
             return status
     ```
 
+    ### LOGGING FUNCTIONS
+    These functions work like in the logging module, where only logs with a certain severity are displayed (log_level)
+
+    - `critical()`  This function should be called once a critical error accoures.
+    - `fatal()`     This function should be called once a fatal error accoures.
+    - `error()`     This function should be called once an error accoures.
+    - `warning()`   This function should be called to issue warnings.
+    - `info()`      This function should be called for providing the end user with some info.
+    - `debug()`     This function should be called for debugging.
+
     ### HELPER FUNCTIONS
     Other usefull methods, NOT called by the terminal.
     If you want to use these methods you need to call them yourself.
 
-    - `error()`     This function should be called once an error accoures.
-    - `warning()`   This function should be called to issue warnings.
     - `input()`     This is similar to python's `input()`, but uses `self.stdin` and doesn't modify `sys.stdin` .
     - `print()`     This is similar to python's `print()`, but uses `self.stdout` and doesn't modify `sys.stdout` .
     - `printerr()`  This is similar to `self.print()`, but uses `self.stderr` instead.
@@ -86,27 +97,19 @@ class CommandInterface(ABC):
                  ) -> None:
 
         self.IS_PROCESS: bool = is_process
-        self.info: Info = info
+        self.sysinfo: Info = info
         self.command: List[str] = command
         self.status: Optional[int] = None
         self.stdout = stdout
         self.stderr = stderr
         self.stdin = stdin
         self.parser: Optional[Parser] = None
-        self.args: Optional[Namespace] = None
+        self.args: Optional[_Namespace] = None
         self.errors: Errors = Errors()
         self.colors = Colors(not (stdout is _sys.stdout))
 
-        self.CRITICAL = 50
-        self.FATAL = self.CRITICAL
-        self.ERROR = 40
-        self.WARNING = 30
-        self.WARN = self.WARNING
-        self.INFO = 20
-        self.DEBUG = 10
-        self.NOTSET = 0
-
-        self.log_level = self.NOTSET
+        self.levels = _Levels
+        self.log_level = self.levels.NOTSET
 
     """
     AUTOMATIC CALLS
@@ -135,7 +138,7 @@ class CommandInterface(ABC):
             self.args = None
     
     # ! This method MUST be overwritten
-    @abstractmethod
+    @_abstractmethod
     def run(self):
         """
         This is the entry function for the command.\n
@@ -195,7 +198,7 @@ class CommandInterface(ABC):
 
         Also sets the status to STATUS_ERR.
         """
-        if self.log_level <= self.CRITICAL:
+        if self.log_level <= _Levels.CRITICAL:
             if use_color:
                 self.printerr(f"{self.colors.Fore.RED}{self.parser.prog}: {msg}{self.colors.Fore.RESET}\n")
             else:
@@ -209,7 +212,7 @@ class CommandInterface(ABC):
 
         Also sets the status to STATUS_ERR.
         """
-        if self.log_level <= self.FATAL:
+        if self.log_level <= _Levels.FATAL:
             if use_color:
                 self.printerr(f"{self.colors.Fore.RED}{self.parser.prog}: {msg}{self.colors.Fore.RESET}\n")
             else:
@@ -223,7 +226,7 @@ class CommandInterface(ABC):
 
         Also sets the status to STATUS_ERR.
         """
-        if self.log_level <= self.ERROR:
+        if self.log_level <= _Levels.ERROR:
             if use_color:
                 self.printerr(f"{self.colors.Fore.RED}{self.parser.prog}: {msg}{self.colors.Fore.RESET}\n")
             else:
@@ -237,17 +240,17 @@ class CommandInterface(ABC):
 
         Also sets the status to STATUS_WARN.
         """
-
-        if to_stdout:
-            if use_color:
-                self.print(f"{self.colors.Fore.YELLOW}{self.parser.prog}: {msg}{self.colors.Fore.RESET}")
+        if self.log_level <= _Levels.WARNING:
+            if to_stdout:
+                if use_color:
+                    self.print(f"{self.colors.Fore.YELLOW}{self.parser.prog}: {msg}{self.colors.Fore.RESET}")
+                else:
+                    self.print(msg)
             else:
-                self.print(msg)
-        else:
-            if use_color:
-                self.print(f"{self.colors.Fore.YELLOW}{self.parser.prog}: {msg}{self.colors.Fore.RESET}")
-            else:
-                self.print(msg)
+                if use_color:
+                    self.print(f"{self.colors.Fore.YELLOW}{self.parser.prog}: {msg}{self.colors.Fore.RESET}")
+                else:
+                    self.print(msg)
 
         self.status = STATUS_WARN
 
@@ -255,14 +258,14 @@ class CommandInterface(ABC):
         """
         This function should be called for providing the end user with some info.
         """
-        if self.log_level <= self.INFO:
+        if self.log_level <= self.levels.INFO:
             self.print(msg)
     
     def debug(self, msg: Optional[str] = None):
         """
         This function should be called for debugging.
         """
-        if self.log_level <= self.DEBUG:
+        if self.log_level <= _Levels.DEBUG:
             self.print(msg)
 
     """
@@ -451,6 +454,16 @@ class Errors():
         `{path1}` and `{path2}` are the same file
         """
         return f"`{path1 or path2 or self.value}` and `{path2 or path1 or self.value}` are the same file"
+
+class _Levels(_IntEnum):
+    CRITICAL = 50
+    FATAL = CRITICAL
+    ERROR = 40
+    WARNING = 30
+    WARN = WARNING
+    INFO = 20
+    DEBUG = 10
+    NOTSET = 0
 
 
 class Colors:
