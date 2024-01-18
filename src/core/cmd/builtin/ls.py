@@ -141,7 +141,7 @@ class Command(CommandInterface):
                 formatted_info +=  f" {self.colors.Fore.LIGHTMAGENTA_EX}{os.path.basename(file_path)}"
             # Executable
             elif sys.platform.lower().startswith("win") and "." + file_path.removesuffix("'").split(".")[-1].upper() in os.environ['PATHEXT']:
-                formatted_info += f" {self.colors.Back.LIGHTYELLOW_EX}{self.colors.Fore.BLACK}{os.path.basename(file_path)}{self.colors.Back.RESET}"
+                formatted_info += f" {self.colors.Fore.LIGHTYELLOW_EX}{os.path.basename(file_path)}{self.colors.Fore.RESET}"
             # Compressed archive
             elif zipfile.is_zipfile(file_path):
                 formatted_info += f" {self.colors.Fore.LIGHTRED_EX}{os.path.basename(file_path)}"
