@@ -1,6 +1,7 @@
 import json
 import os
 import pathlib
+import platform
 
 from src.core.system.variables import Variables
 from src.core.system.processes import Processes
@@ -66,7 +67,6 @@ class User():
             self.email: str = sett["email"]
             self.username: str = sett["username"]
             self.paths: Path = Path()
-            self.background_tasks: list = BgTasks().tasks
 
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             self.reset_settings()
@@ -76,7 +76,6 @@ class User():
         user = User()
         
         user.email = self.email
-        user.background_tasks = self.background_tasks
         user.username = self.username
         user.paths = self.paths.copy()
         
@@ -95,14 +94,11 @@ class User():
             file.write("{}")
 
         path = Path(False)
-        bg_tasks = BgTasks()
-        bg_tasks.reset()
 
         settings = {
             "email": "",
             "username": os.path.basename(os.path.expanduser('~')),
             "paths": path.reset(),
-            "background-tasks": bg_tasks.tasks,
         }
 
         # Check if there already is a settings file, if there is, overwrite it, otherwise
@@ -126,39 +122,6 @@ class User():
             with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as l:
                 l.write("")
                 json.dump(settings, l, indent=4, sort_keys=True)
-
-    def set_bg_task(self, info: Info, tasks: list, reset: bool):
-
-        changes = 0
-        new_tasks = BgTasks()
-
-        if reset:
-            for task in info.user.background_tasks:
-                new_tasks.remove_task(task)
-                changes = 1
-
-            if changes != 0:
-                print('Changes will have effect on next startup')
-                info.user.background_tasks = BgTasks().tasks
-            print()
-            return
-
-        for task in tasks:
-            if task in info.bg_tasks_available:
-                if task not in info.user.background_tasks:
-                    info.user.background_tasks.append(task)
-                    new_tasks.add_task(task)
-                    changes = 1
-                else:
-                    print("This command is already a background task: " + task)
-            else:
-                print("This command is can't be converted to a background task: " + task)
-
-        if changes != 0:
-            print('Changes will have effect on next startup')
-
-            info.user.background_tasks = BgTasks().tasks
-        print()
 
     def set_email(self, info: Info, emails: list[str], reset: bool = False):
         """
@@ -315,17 +278,20 @@ class Path:
         """
         Returns the location of the observer's bucket folder
         """
-        path = pathlib.Path(os.path.join(
-            os.path.expanduser('~'), "Desktop", "Bucket"))
-        return path
+        if platform.system().lower().startswith("win"):
+            return pathlib.Path(os.path.join(os.path.expanduser('~'), "Desktop", "Bucket"))
+
+        return pathlib.Path(os.path.join(os.path.expanduser('~'), "bucket"))
 
     def _set_default_observer_bucket_destination_path(self) -> pathlib.Path:
         """
         Returns the location of the observer's bucket destination folder
         """
-        path = pathlib.Path(os.path.join(
-            os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
-        return path
+        if platform.system().lower().startswith("win"):
+            return pathlib.Path(os.path.join(os.path.expanduser('~'), "Desktop", "Bucket", "Files"))
+
+        return pathlib.Path(os.path.join(os.path.expanduser('~'), "bucket", "files"))
+        
 
     def set_path(self, target: str, new_path: pathlib.Path, info: Info, reset: bool = False) -> None:
         """
@@ -369,39 +335,6 @@ class Path:
                 json.dump(tasks, l, indent=4, sort_keys=True)
         print(f"Successfully changed path.{target} to {new_path}\n")
 
-
-class BgTasks():
-    """
-    Manages all background tasks
-    """
-
-    def __init__(self):
-        try:
-            with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
-                tasks = json.load(f)["background-tasks"]
-                self.tasks: list = tasks if tasks else []
-
-        except KeyError:
-            self.reset()
-
-    def reset(self) -> None:
-        self.tasks = []
-
-    def add_task(self, task: str):
-        with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
-            tasks: list = json.load(f)
-            tasks["background-tasks"].append(task)
-            with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as l:
-                # print(tasks)
-                json.dump(tasks, l, indent=4, sort_keys=True)
-
-    def remove_task(self, task: str):
-        with open(SysPaths.SETTINGS_FILE, "r", encoding='utf-8') as f:
-            tasks: list = json.load(f)
-            tasks["background-tasks"].remove(task)
-            with open(SysPaths.SETTINGS_FILE, "w", encoding='utf-8') as l:
-                # print(tasks)
-                json.dump(tasks, l, indent=4, sort_keys=True)
 
 class Info:
     """

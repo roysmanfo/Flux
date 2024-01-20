@@ -54,13 +54,6 @@ class Command(CommandInterface):
             else:
                 self.print(f"{self.sysinfo.user.username}\n")
 
-        # Set 1 or more new bg-task/s
-        elif self.args.setting == "bg-task":
-            if self.args.value or self.args.reset:
-                self.sysinfo.user.set_bg_task(self.sysinfo, self.args.value, self.args.reset)
-            else:
-                self.print(f"{', '.join(self.sysinfo.user.background_tasks) if self.sysinfo.user.background_tasks else 'No background tasks'}\n")
-
         # Set/ change an email
         # if muliple emails given, set as email the first valid one
         elif self.args.setting == "email":

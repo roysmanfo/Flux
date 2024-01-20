@@ -8,12 +8,11 @@ class Test_TestUser(unittest.TestCase):
         Check if all attributes heve the desired type
         """
 
-        from src.settings.info import User, Path, BgTasks
+        from src.settings.info import User, Path
         USER = User()
         types = [
             type(USER.email) == str,
             type(USER.paths) == Path,
-            type(USER.background_tasks) == list,
         ]
         result = all(types)
         self.assertTrue(
