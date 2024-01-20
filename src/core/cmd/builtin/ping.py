@@ -136,8 +136,6 @@ class Command(CommandInterface):
             pass
     
     def close(self):
-        super().close()
-
         if not self.status == STATUS_ERR:
             self.print(f"\n--- {self.args.destination} ping statistics ---")
             self.print(f"{self.stats.counter} packets transmited, {self.stats.p_received} received, {self.stats.loss}% packet loss, time {self.stats.time}ms")
@@ -149,5 +147,6 @@ class Command(CommandInterface):
 
             self.print(f"rtt min/avg/max = {round(self.stats.min, 3)}/{round(self.stats.avg or 0, 3)}/{round(self.stats.max, 3)} ms")
 
+        super().close()
 
  
