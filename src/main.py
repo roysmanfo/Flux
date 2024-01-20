@@ -1,6 +1,7 @@
 # External Dependencies
 import sys
 import os
+import signal
 from colorama import init, Fore
 
 sys.path.append("..")
@@ -73,6 +74,11 @@ if __name__ == "__main__":
             cmd = sys.argv[1:]
             manager.manage(cmd, INFO)
             sys.exit(0)
+
+        def exit_program(signal, frame):
+            INFO.exit = True
+
+        signal.signal(signal.SIGINT, exit_program)
 
         INFO.processes._add_main_process(INFO, ['flux'], run)
     except Exception as e:
