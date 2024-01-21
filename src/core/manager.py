@@ -25,7 +25,7 @@ def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    SOUT: list[TextIO, Optional[str]]
+    STD_OUT: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
 
@@ -49,15 +49,15 @@ def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             pathname = command[command.index(REDIRECT) + 1]
             command.remove(REDIRECT)
             command.remove(pathname)
-            SOUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
+            STD_OUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
         except PermissionError:
-            SOUT = [None, pathname]
+            STD_OUT = [None, pathname]
         
         except OSError:
-            SOUT = [None, pathname]
+            STD_OUT = [None, pathname]
 
-    return SOUT
+    return STD_OUT
 
 
 def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
@@ -71,7 +71,7 @@ def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    SOUT: list[TextIO, Optional[str]]
+    STD_ERR: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
 
@@ -95,17 +95,17 @@ def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             command.remove(REDIRECT)
             command.remove(pathname)
             
-            SOUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
+            STD_ERR = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
         except PermissionError:
-            SOUT = [None, pathname]
+            STD_ERR = [None, pathname]
         
         except OSError:
-            SOUT = [None, pathname]
+            STD_ERR = [None, pathname]
     else:
-        SOUT = [None, pathname]
+        STD_ERR = [None, pathname]
 
-    return SOUT
+    return STD_ERR
 
 
 def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
@@ -119,7 +119,7 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    SOUT: list[TextIO, Optional[str]]
+    STD_IN: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
 
@@ -137,17 +137,17 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             command.remove(REDIRECT)
             command.remove(pathname)
             
-            SOUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
+            STD_IN = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
         except PermissionError:
-            SOUT = [None, pathname]
+            STD_IN = [None, pathname]
         
         except OSError:
-            SOUT = [None, pathname]
+            STD_IN = [None, pathname]
     else:
-        SOUT = [None, pathname]
+        STD_IN = [None, pathname]
 
-    return SOUT
+    return STD_IN
 
 
 
@@ -230,7 +230,7 @@ def call(command_instance: CommandInterface) -> int:
     """
     Execute the loaded script
 
-    `:returns` the command's status code\n
+    `:returns` the command's status code
     `:rtype` int
     `:raises` ValueError if the command_instance isn't an instance of CommandInterface
     """
@@ -256,3 +256,4 @@ def call(command_instance: CommandInterface) -> int:
 
     del command_instance
     return status
+
