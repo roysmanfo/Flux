@@ -4,7 +4,7 @@ as intended.
 """
 import os
 import platform
-from typing import Optional
+from typing import List, Optional
 from src.settings.info import User, Info, SysPaths
 import subprocess
 
@@ -28,10 +28,7 @@ def setup() -> Info:
     if OS_NAME.startswith("win"):
         install_windows_requirements()
     
-    elif OS_NAME == "Linux":
-        install_linux_requirements()
-
-    elif OS_NAME == "darwin":
+    elif OS_NAME in ["linux", "darwin"]:
         install_linux_requirements()
 
 
@@ -70,43 +67,53 @@ def get_interpreter_command() -> Optional[str]:
 
     return None
 
-def install_windows_requirements(verbose: Optional[bool] = None) -> None:
+
+def install_requirements(dep: List[str], verbose: Optional[bool] = None) -> Optional[subprocess.CompletedProcess]:
+    try:
+        arg = " ".join(dep)
+        dep_list = '\n  -  '.join(dep)
+        if not verbose:
+            print(f"installing: {dep_list}")
+        return subprocess.run([get_interpreter_command(), "install", arg], capture_output=(not verbose), text=True, check=True)
+    except subprocess.CalledProcessError:
+        return None
+
+
+def install_windows_requirements() -> None:
     """
-    Installs dependecies specific to windows if not already found
+    Installs requirements specific to windows if not already found
     """
 
-    dependecies = [
+    dep = [
         "mutagen==1.47.0",
         "pydub==0.25.1",
         "PyPDF2==3.0.1",
         "python-magic-bin==0.4.14",
     ]
 
+    p = install_requirements(dep, True)
 
-    try:
-        arg = " ".join(dependecies)
-        dep_list = '\n  -  '.join(dependecies)
-        if not verbose:
-            print(f"installing dependencies: {dep_list}")
-        subprocess.run([get_interpreter_command(), "install", arg], capture_output=(not verbose), text=True, check=True)
-    except subprocess.CalledProcessError:
-        pass
+    if p and p.returncode != 0:
+        print(p.stderr)
+    else:
+        print("all requirements installed")
+        
 
-def install_linux_requirements(verbose: Optional[bool] = None) -> None:
+
+def install_linux_requirements() -> None:
     """
-    Installs dependecies specific to linux if not already found
+    Installs requirements specific to linux if not already found
     """
 
-    dependecies = [
+    dep = [
         "mutagen==1.47.0",
         "pydub==0.25.1",
         "PyPDF2==3.0.1",
     ]
 
-    try:
-        arg = " ".join(dependecies)
-        if not verbose:
-            print(f"installing dependencies: {'\n  -  '.join(dependecies)}")
-        subprocess.run([get_interpreter_command(), "install", arg], capture_output=(not verbose), text=True, check=True)
-    except subprocess.CalledProcessError:
-        pass
+    p = install_requirements(dep, True)
+   
+    if p and p.returncode != 0:
+        print(p.stderr)
+    else:
+        print("all requirements installed")
