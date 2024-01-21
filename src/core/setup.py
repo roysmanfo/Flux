@@ -74,7 +74,7 @@ def install_requirements(dep: List[str], verbose: Optional[bool] = None) -> Opti
         dep_list = '\n  -  '.join(dep)
         if not verbose:
             print(f"installing: {dep_list}")
-        return subprocess.run([get_interpreter_command(), "install", arg], capture_output=(not verbose), text=True, check=True)
+        return subprocess.run([get_interpreter_command(), "-m", "pip", "install", arg], capture_output=(not verbose), text=True, check=True)
     except subprocess.CalledProcessError:
         return None
 
@@ -93,7 +93,7 @@ def install_windows_requirements() -> None:
 
     p = install_requirements(dep, True)
 
-    if p and p.returncode != 0:
+    if p and (p.returncode != 0 or p.stderr):
         print(p.stderr)
     else:
         print("all requirements installed")
@@ -113,7 +113,7 @@ def install_linux_requirements() -> None:
 
     p = install_requirements(dep, True)
    
-    if p and p.returncode != 0:
+    if p and (p.returncode != 0 or p.stderr):
         print(p.stderr)
     else:
         print("all requirements installed")
