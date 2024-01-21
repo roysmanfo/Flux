@@ -10,6 +10,7 @@ from typing import List, Optional, TextIO, Tuple
 
 from src.settings.info import Info
 from .system import loader
+from .helpers.commands import CommandInterface, STATUS_ERR
 
 NULL_PATH = os.devnull
 
@@ -150,40 +151,22 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
 
 
 
-def manage(command: List[str], info: Info) -> None:
+def manage(command: List[str], info: Info) -> None:        
+    try:
+        exec_command = build(command, info)
 
-    # Match the command name to the corresponding file in ./cmd/
-    # for further processing and execution
+        if exec_command.IS_PROCESS:
+            command.pop(-1)
+            info.processes.add(info, command, exec_command, False)
+        else:
+            call(exec_command)
+    
+    except UnboundLocalError as e:
+        if command[0] != "":
+            print(f"-flux: {command[0]}: command not found\n{e}\n")
 
-    from .helpers.commands import CommandInterface, STATUS_ERR
 
-    def execute_script(callable: CommandInterface) -> int:
-        """
-        Execute the loaded script
-
-        `:returns` the command's status code\n
-        `:rtype` int
-        """
-        try:
-            callable.init()
-            callable.setup()
-
-            if callable.status == STATUS_ERR or callable.parser and callable.parser.exit_execution:
-                callable.close()
-                status = callable.exit()
-                return status
-            
-            callable.run()
-            callable.close()
-            status = callable.exit()
-            
-        except Exception as e:
-            callable.fail_safe(e)
-            status: int = callable.status
-
-        del callable
-        return status
-
+def build(command: List[str], info: Info) -> CommandInterface:
     exec_command: CommandInterface
     exec_command_class = CommandInterface
 
@@ -213,15 +196,15 @@ def manage(command: List[str], info: Info) -> None:
 
     if stdout is None:
         print(f"-flux: {out_path}: Permission denied\n")
-        return
+        return None
     
     if stderr is None:
         print(f"-flux: {err_path}: Permission denied\n")
-        return
+        return None
     
     if stdin is None:
         print(f"-flux: {in_path}: Permission denied\n")
-        return
+        return None
     
 
     # Load command
@@ -231,25 +214,45 @@ def manage(command: List[str], info: Info) -> None:
 
     if not exec_command_class:
         print(f"-flux: {command_name}: command not found\n")
-        return
+        return None
+    
+    is_thread = command[-1].endswith("&") and not command[0].endswith("&")
+    # XXX: Ensure stability on python 3.12 as threads created by flux are not supported (#44)
+    is_thread = is_thread and sys.version_info < (3, 12)
+    exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin)
+
+    if not isinstance(exec_command, CommandInterface):
+        return None
+    del exec_command_class
+    return exec_command
+
+def call(command_instance: CommandInterface) -> int:
+    """
+    Execute the loaded script
+
+    `:returns` the command's status code\n
+    `:rtype` int
+    `:raises` ValueError if the command_instance isn't an instance of CommandInterface
+    """
+
+    assert isinstance(command_instance, CommandInterface), ValueError("argument passed isn't an instance of CommandInterface")
 
     try:
+        command_instance.init()
+        command_instance.setup()
+
+        if command_instance.status == STATUS_ERR or command_instance.parser and command_instance.parser.exit_execution:
+            command_instance.close()
+            status = command_instance.exit()
+            return status
         
-        is_thread = command[-1].endswith("&") and not command[0].endswith("&")
-        # XXX: Ensure stability on python 3.12 as threads created by flux are not supported (#44)
-        is_thread = is_thread and sys.version_info < (3, 12)
-        exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin)
+        command_instance.run()
+        command_instance.close()
+        status = command_instance.exit()
+        
+    except Exception as e:
+        command_instance.fail_safe(e)
+        status: int = command_instance.status
 
-        if is_thread:
-            command.pop(-1)
-            info.processes.add(info, command, exec_command, False)
-        else:
-            execute_script(exec_command)
-            
-
-    except UnboundLocalError as e:
-        if command_name != "":
-            print(f"-flux: {command_name}: command not found\n{e}\n")
-
-    finally:
-        del exec_command_class
+    del command_instance
+    return status
