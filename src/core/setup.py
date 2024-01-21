@@ -70,11 +70,11 @@ def get_interpreter_command() -> Optional[str]:
 
 def install_requirements(dep: List[str], verbose: Optional[bool] = None) -> Optional[subprocess.CompletedProcess]:
     try:
-        arg = " ".join(dep)
-        dep_list = '\n  -  '.join(dep)
+        command = [get_interpreter_command(), "-m", "pip", "install"] + dep
         if not verbose:
+            dep_list = '\n  -  '.join(dep)
             print(f"installing: {dep_list}")
-        return subprocess.run([get_interpreter_command(), "-m", "pip", "install", arg], capture_output=(not verbose), text=True, check=True)
+        return subprocess.run(command, capture_output=(not verbose), text=True, check=True)
     except subprocess.CalledProcessError:
         return None
 
