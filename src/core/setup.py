@@ -85,8 +85,9 @@ def install_windows_requirements(verbose: Optional[bool] = None) -> None:
 
     try:
         arg = " ".join(dependecies)
+        dep_list = '\n  -  '.join(dependecies)
         if not verbose:
-            print(f"installing dependencies: {'\n  -  '.join(dependecies)}")
+            print(f"installing dependencies: {dep_list}")
         subprocess.run([get_interpreter_command(), "install", arg], capture_output=(not verbose), text=True, check=True)
     except subprocess.CalledProcessError:
         pass
