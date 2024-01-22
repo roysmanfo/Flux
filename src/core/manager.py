@@ -28,7 +28,7 @@ def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     STD_OUT: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
-
+    pathname = None
 
 
     # Append output to file
@@ -51,11 +51,11 @@ def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             command.remove(pathname)
             STD_OUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
-        except PermissionError:
+        except (PermissionError, OSError):
             STD_OUT = [None, pathname]
         
-        except OSError:
-            STD_OUT = [None, pathname]
+    else:
+        STD_OUT = [None, pathname]
 
     return STD_OUT
 
@@ -74,7 +74,7 @@ def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     STD_ERR: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
-
+    pathname = None
 
     # Append output to file
     if "&>>" in command:
@@ -97,11 +97,9 @@ def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             
             STD_ERR = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
-        except PermissionError:
+        except (PermissionError, OSError):
             STD_ERR = [None, pathname]
         
-        except OSError:
-            STD_ERR = [None, pathname]
     else:
         STD_ERR = [None, pathname]
 
@@ -122,7 +120,7 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     STD_IN: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
-
+    pathname = None
 
     if "<" in command:
         REDIRECT = "<"
@@ -139,11 +137,9 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             
             STD_IN = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
-        except PermissionError:
+        except (PermissionError, OSError):
             STD_IN = [None, pathname]
         
-        except OSError:
-            STD_IN = [None, pathname]
     else:
         STD_IN = [None, pathname]
 

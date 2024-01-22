@@ -5,7 +5,7 @@ def string_to_list(string: str) -> list[str]:
     """
     Adapts the list to be used in a shell environment by
     resolving special charachters
-    
+
     ```py
     string_to_list("some text") -> ["some", "text"]
     string_to_list("some 'text in another format'") -> ["some", "text in another format"]
@@ -16,6 +16,39 @@ def string_to_list(string: str) -> list[str]:
     words = shlex.split(string)
     if len(words) > 0:
         words[0] = words[0].lower() if not words[0].startswith("$") else words[0]
-        return words
+
+        command = []
+        for arg in words:
+            command += _separate_redirect_parts(arg)
+
+        return command
+
     return []
-        
+
+
+def _separate_redirect_parts(arg: str) -> list[str]:
+    """
+    This takes as input a string and separates the
+    redirect symbol (es. 1> ) from the destination
+
+    ```py
+    separate_redirect_parts("2>/dev/null") -> ["2>", "/dev/null"]
+    separate_redirect_parts("/dev/null") -> ["/dev/null"]
+    """
+
+    # This order is NOT random
+    LOOK_FOR = [
+        ">>",
+        "&>>",
+        "2>>",
+        "1>",
+        "&>",
+        "2>",
+        ">",
+        "<"
+    ]
+
+    for i in LOOK_FOR:
+        if arg.startswith(i) and i != arg:
+            return [i, arg.removeprefix(i)]
+    return [arg]
