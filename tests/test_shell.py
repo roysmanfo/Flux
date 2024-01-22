@@ -1,8 +1,14 @@
 import os
 import sys
 import unittest
+import tempfile
 from src.settings.info import SysPaths
 from src.core import setup, manager
+from src import utils
+
+TMP = tempfile.gettempdir()
+FILE = os.path.join(TMP, "file.txt")
+
 
 s_file_exists = os.path.exists(SysPaths.SETTINGS_FILE)
 
@@ -35,47 +41,47 @@ class Test_TestShell(unittest.TestCase):
             self.instance = None
 
     def test_build_01(self):
-        command = ["not existent command"]
+        command = utils.transform.string_to_list("not existent command")
         self.instance = manager.build(command, info)
         self.assertTrue(self.instance is None)
     
     def test_build_02(self):
-        command = ["£345%$£"]
+        command = utils.transform.string_to_list("£345%$£")
         self.instance = manager.build(command, info)
         self.assertTrue(self.instance is None)
     
     def test_build_03(self):
-        command = ["ls", ">"]
+        command = utils.transform.string_to_list("ls >")
         self.instance = manager.build(command, info)
         self.assertTrue(self.instance is None)
    
     def test_build_04(self):
-        command = ["ls", ">>"]
+        command = utils.transform.string_to_list("ls >>")
         self.instance = manager.build(command, info)
         self.assertTrue(self.instance is None)
     
     def test_build_05(self):
-        command = ["ls", ">/file"]
+        command = utils.transform.string_to_list(f"ls >{FILE}")
         self.instance = manager.build(command, info)
-        self.assertTrue(self.instance is not None)
+        self.assertFalse(self.instance is None)
 
     def test_build_06(self):
-        command = ["ls", ">", "/file"]
+        command = utils.transform.string_to_list(f"ls > {FILE}")
         self.instance = manager.build(command, info)
-        self.assertTrue(self.instance is not None)
+        self.assertFalse(self.instance is None)
 
     def test_build_07(self):
-        command = ["ls", "2>/file"]
+        command = utils.transform.string_to_list(f"ls 2>{FILE}")
         self.instance = manager.build(command, info)
-        self.assertTrue(self.instance is not None)
+        self.assertFalse(self.instance is None)
         
     def test_build_08(self):
-        command = ["ls", "2>>/file"]
+        command = utils.transform.string_to_list(f"ls 2>>{FILE}")
         self.instance = manager.build(command, info)
-        self.assertTrue(self.instance is not None)
+        self.assertFalse(self.instance is None)
     
     def test_build_09(self):
-        command = ["ls", "<"]
+        command = utils.transform.string_to_list("ls <")
         self.instance = manager.build(command, info)
         self.assertTrue(self.instance is None)
 
