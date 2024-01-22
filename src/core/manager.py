@@ -166,7 +166,7 @@ def manage(command: List[str], info: Info) -> None:
             print(f"-flux: {command[0]}: command not found\n{e}\n")
 
 
-def build(command: List[str], info: Info) -> CommandInterface:
+def build(command: List[str], info: Info) -> CommandInterface | None:
     exec_command: CommandInterface
     exec_command_class = CommandInterface
 
@@ -243,8 +243,7 @@ def call(command_instance: CommandInterface) -> int:
 
         if command_instance.status == STATUS_ERR or command_instance.parser and command_instance.parser.exit_execution:
             command_instance.close()
-            status = command_instance.exit()
-            return status
+            return command_instance.exit()
         
         command_instance.run()
         command_instance.close()
@@ -255,5 +254,5 @@ def call(command_instance: CommandInterface) -> int:
         status: int = command_instance.status
 
     del command_instance
-    return status
+    return (status if isinstance(status, int) else STATUS_ERR)
 
