@@ -37,18 +37,16 @@ def _separate_redirect_parts(arg: str) -> list[str]:
     """
 
     # This order is NOT random
-    LOOK_FOR = [
-        ">>",
-        "&>>",
-        "2>>",
-        "1>",
-        "&>",
-        "2>",
-        ">",
-        "<"
-    ]
+    
+    LONG_REDIRECT = ["1>>", "2>>", "&>>", "<<<"]
+    MEDIUM_REDIRECT = [">>", "<<", "1>", "2>", "&>", "|&"]
+    SHORT_REDIRECT = [">", "<", "|"]
+
+    LOOK_FOR = LONG_REDIRECT + MEDIUM_REDIRECT + SHORT_REDIRECT
 
     for i in LOOK_FOR:
-        if arg.startswith(i) and i != arg:
+        if arg.startswith(i):
+            if arg == i:
+                return [i]
             return [i, arg.removeprefix(i)]
     return [arg]
