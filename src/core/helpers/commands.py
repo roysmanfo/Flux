@@ -198,7 +198,7 @@ class CommandInterface(_ABC):
         and sets `self.status` to `STATUS_ERR`
         """
         from src.utils.crash_handler import write_error_log
-        prefx = self.parser.prog if self.parser else self.command[0]
+        prefx = self.parser.prog if self.parser else self.command[0] if self.command else ""
         prefx += '_'
         
         if prefx == '_':
