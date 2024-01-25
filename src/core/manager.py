@@ -159,7 +159,7 @@ def manage(command: List[str], info: Info) -> None:
         else:
             print(f"-flux: {command[0]}: command not found\n")
 
-    except UnboundLocalError as e:
+    except (UnboundLocalError, AssertionError) as e:
         if command[0] != "":
             print(f"-flux: {command[0]}: command not found\n{e}\n")
 
@@ -249,8 +249,20 @@ def call(command_instance: CommandInterface) -> int:
         status = command_instance.exit()
         
     except Exception as e:
-        command_instance.fail_safe(e)
-        status: int = command_instance.status
+        try:
+            command_instance.fail_safe(e)
+            status: int = command_instance.status
+
+        except Exception as ex:
+            # In case the command also overwites the fail_safe 
+            # and the new function contains unhandled exceptions 
+
+            from src.utils.crash_handler import write_error_log      
+            tmp = write_error_log()[1]
+
+            sys.stderr.write(f"An error accoured while trying to error log ({type(e).__name__})\n")
+            sys.stderr.write(f"The full error log can be found here: \n{tmp}\n\n")
+            status = STATUS_ERR
 
     del command_instance
     return (status if isinstance(status, int) else STATUS_ERR)
