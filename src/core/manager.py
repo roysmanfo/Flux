@@ -86,7 +86,7 @@ def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
         MODE = "wt"
 
     else:
-        return [sys.stdout, None]
+        return [sys.stderr, None]
 
 
     if command.index(REDIRECT) < len(command) - 1:
@@ -111,7 +111,7 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     Returns the stin of the command and pathname of the file if redirection accours 
 
     :returns
-        - The stdin on which read the inut (None if redirected to /dev/null)
+        - The stdin on which read the input (None if redirected to /dev/null)
         - the path to that file 
 
     :rtype Actually returns a list [TextIO | None, str | None]
@@ -126,7 +126,7 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
         REDIRECT = "<"
         MODE = "rt"
     else:
-        return [sys.stdout, None]
+        return [sys.stdin, None]
 
 
     if command.index(REDIRECT) < len(command) - 1:
@@ -150,13 +150,15 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
 def manage(command: List[str], info: Info) -> None:        
     try:
         exec_command = build(command, info)
-
-        if exec_command.IS_PROCESS:
-            command.pop(-1)
-            info.processes.add(info, command, exec_command, False)
+        if exec_command:
+            if exec_command.IS_PROCESS:
+                command.pop(-1)
+                info.processes.add(info, command, exec_command, False)
+            else:
+                call(exec_command)
         else:
-            call(exec_command)
-    
+            print(f"-flux: {command[0]}: command not found\n")
+
     except UnboundLocalError as e:
         if command[0] != "":
             print(f"-flux: {command[0]}: command not found\n{e}\n")
@@ -211,14 +213,16 @@ def build(command: List[str], info: Info) -> CommandInterface | None:
     if not exec_command_class:
         print(f"-flux: {command_name}: command not found\n")
         return None
+
+    if not CommandInterface._is_subclass(exec_command_class):
+        print(f"-flux: {command_name}: command not found\n")
+        return None
     
     is_thread = command[-1].endswith("&") and not command[0].endswith("&")
     # XXX: Ensure stability on python 3.12 as threads created by flux are not supported (#44)
     is_thread = is_thread and sys.version_info < (3, 12)
     exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin)
 
-    if not isinstance(exec_command, CommandInterface):
-        return None
     del exec_command_class
     return exec_command
 
@@ -228,10 +232,9 @@ def call(command_instance: CommandInterface) -> int:
 
     `:returns` the command's status code
     `:rtype` int
-    `:raises` ValueError if the command_instance isn't an instance of CommandInterface
+    `:raises` AssertionError if the command_instance isn't an instance of CommandInterface
     """
-
-    assert isinstance(command_instance, CommandInterface), ValueError("argument passed isn't an instance of CommandInterface")
+    assert CommandInterface._is_subclass_instance(command_instance), "argument passed isn't an instance of CommandInterface"
 
     try:
         command_instance.init()
