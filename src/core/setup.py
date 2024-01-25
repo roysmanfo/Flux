@@ -25,11 +25,11 @@ def setup() -> Info:
     """
     
     OS_NAME = platform.system().lower()
-    if OS_NAME.startswith("win"):
-        install_windows_requirements()
+    # if OS_NAME.startswith("win"):
+    #     install_windows_requirements()
     
-    elif OS_NAME in ["linux", "darwin"]:
-        install_linux_requirements()
+    # elif OS_NAME in ["linux", "darwin"]:
+    #     install_linux_requirements()
 
 
     # Load user
@@ -74,6 +74,8 @@ def install_requirements(dep: List[str], verbose: Optional[bool] = None) -> Opti
         if not verbose:
             dep_list = '\n  -  '.join(dep)
             print(f"installing: {dep_list}")
+        
+        subprocess.run([get_interpreter_command(), "-m", "pip", "install", "--upgrade", "--user","pip"], capture_output=(not verbose), text=True, check=True)
         return subprocess.run(command, capture_output=(not verbose), text=True, check=True)
     except subprocess.CalledProcessError:
         return None
