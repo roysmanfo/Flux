@@ -111,6 +111,24 @@ class CommandInterface(_ABC):
         self.levels = _Levels
         self.log_level = self.levels.NOTSET
 
+    def __init_subclass__(cls) -> None:
+        cls._FLUX_COMMAND = True
+
+    @staticmethod
+    def _is_subclass(cls) -> bool:
+        cls_mro = [i.__name__ for i in cls.mro()[-3:]]
+        self_mro = [i.__name__ for i in CommandInterface.mro()]
+        return cls_mro == self_mro
+
+    @staticmethod
+    def _is_subclass_instance(instance) -> bool:
+        if hasattr(instance, "_FLUX_COMMAND"):
+            _FLUX_COMMAND = getattr(instance, "_FLUX_COMMAND")
+            if type(_FLUX_COMMAND) == bool and _FLUX_COMMAND:
+                return True
+        return False
+
+
     """
     AUTOMATIC CALLS
     """
