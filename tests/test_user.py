@@ -9,7 +9,7 @@ class Test_TestUser(unittest.TestCase):
         """
 
         import os
-        from src.settings.info import Path, BgTasks, SysPaths
+        from src.settings.info import Path, SysPaths
         from src.core import setup
 
         s_file_exists = os.path.exists(SysPaths.SETTINGS_FILE)
