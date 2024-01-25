@@ -154,6 +154,12 @@ class CommandInterface(_ABC):
 
         if self.stdout != _sys.stdout:
             self.stdout.close()
+        
+        if self.stderr != _sys.stderr:
+            self.stderr.close()
+
+        if self.stdin != _sys.stdin:
+            self.stdin.close()
 
 
 
@@ -185,6 +191,17 @@ class CommandInterface(_ABC):
         self.printerr(f"An error accoured while trying to execute command  ({type(exception).__name__})")
         self.printerr(f"The full error log can be found here: \n{tmp}\n")
         self.status = STATUS_ERR
+
+        # close possibly open files
+        if self.stdout != _sys.stdout:
+            self.stdout.close()
+        
+        if self.stderr != _sys.stderr:
+            self.stderr.close()
+
+        if self.stdin != _sys.stdin:
+            self.stdin.close()
+
         
 
     """
