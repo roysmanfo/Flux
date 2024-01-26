@@ -67,31 +67,26 @@ if __name__ == "__main__":
         I_HANDLER = setup.create_interrupt_handler()
         del setup
 
-        # always available interrupts
-        signal.signal(signal.SIGABRT, I_HANDLER.handle_interrupts)
-        signal.signal(signal.SIGFPE, I_HANDLER.handle_interrupts)
-        signal.signal(signal.SIGILL, I_HANDLER.handle_interrupts)
-        signal.signal(signal.SIGINT, I_HANDLER.handle_interrupts)
-        signal.signal(signal.SIGSEGV, I_HANDLER.handle_interrupts)
-        signal.signal(signal.SIGTERM, I_HANDLER.handle_interrupts)
-
-        # win interrupts
-        if sys.platform == "win32":
-            signal.signal(signal.SIGBREAK, I_HANDLER.handle_interrupts)
-            signal.signal(signal.CTRL_C_EVENT, I_HANDLER.handle_interrupts)
-            signal.signal(signal.CTRL_BREAK_EVENT, I_HANDLER.handle_interrupts)
-
-
-        if len(sys.argv) > 1:
-            
-            cmd = sys.argv[1:]
-            manager.manage(cmd, INFO)
-            sys.exit(0)
+        
+        # add all available interrupts
+        for sig in list(signal.Signals):
+            try:
+                signal.signal(sig, I_HANDLER.handle_interrupts)
+                sig_name = sig.__repr__().removeprefix("<Signals.").split(":")[0].upper()
+                I_HANDLER.supported.update({sig_name: int(sig)})
+            except ValueError as e:
+                pass
 
         def exit_program(signal, frame):
             INFO.exit = True
 
         signal.signal(signal.SIGINT, exit_program)
+
+        # check for line arguments
+        if len(sys.argv) > 1:
+            cmd = sys.argv[1:]
+            manager.manage(cmd, INFO)
+            sys.exit(0)
 
         INFO.processes._add_main_process(INFO, ['flux'], run)
     except Exception as e:

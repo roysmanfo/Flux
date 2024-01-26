@@ -1,10 +1,11 @@
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from signal import Signals
 
 class Interrupt:
-    def __init__(self, signal: Signals, callback: Callable[[Any], None]) -> None:
+    def __init__(self, signal: int, callback: Callable[[Any], None], exec_once: Optional[bool] = None) -> None:
         self.signal = signal
         self.callback = callback
+        self.exec_once = exec_once
 
 
     def call(self) -> None:
@@ -17,6 +18,7 @@ class Interrupt:
 class InterruptHandler(object):
     def __init__(self) -> None:
         self.interrupts: list[Interrupt] = []
+        self.supported: dict[str, int] = {}
 
     def search_all(self, sig_type: Signals) -> list[Interrupt]:
         """
@@ -35,7 +37,16 @@ class InterruptHandler(object):
                 return i 
         return None
 
-    def handle_interrupts(self, signum, frame) -> None:
+    def get_available_signals(self) -> dict:
+        return self.supported
+
+    def get_available_signals_names(self) -> list[str]:
+        return list(self.supported.keys())
+
+    def get_available_signal_values(self) -> list[int]:
+        return list(self.supported.values())
+
+    def _handle_interrupts(self, signum, frame) -> None:
         print(signum) # check if everything works
 
         # TODO: call all appropriate interrupts based on the interrupt type 
