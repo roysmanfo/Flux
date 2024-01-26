@@ -10,9 +10,11 @@ from typing import List, Optional, TextIO, Tuple
 
 from src.settings.info import Info
 from .system import loader
+from .helpers.commands import CommandInterface, STATUS_ERR
 
+NULL_PATH = os.devnull
 
-def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
+def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     """
     Returns the stout of the command and pathname of the file if redirection accours 
 
@@ -20,14 +22,13 @@ def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
         - The stdout on which write the output
         - the path to that file 
 
-    :rtype Actually returns a list [TextIO, str | None]
+    :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    SOUT: list[TextIO, Optional[str]]
+    STD_OUT: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
-
-    NULL_PATH = os.path.join("/", "dev", "null")
+    pathname = None
 
 
     # Append output to file
@@ -48,18 +49,18 @@ def get_stdout(command: List[str]) -> Tuple[TextIO, Optional[str]]:
             pathname = command[command.index(REDIRECT) + 1]
             command.remove(REDIRECT)
             command.remove(pathname)
-            SOUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
+            STD_OUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
-        except PermissionError:
-            SOUT = [None, pathname]
+        except (PermissionError, OSError):
+            STD_OUT = [None, pathname]
         
-        except OSError:
-            SOUT = [None, pathname]
+    else:
+        STD_OUT = [None, pathname]
 
-    return SOUT
+    return STD_OUT
 
 
-def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
+def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     """
     Returns the sterr of the command and pathname of the file if redirection accours 
 
@@ -67,13 +68,13 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
         - The stderr on which write the output (None if redirected to /dev/null)
         - the path to that file 
 
-    :rtype Actually returns a list [TextIO, str | None]
+    :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    SOUT: list[TextIO, Optional[str]]
+    STD_ERR: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
-
+    pathname = None
 
     # Append output to file
     if "&>>" in command:
@@ -85,7 +86,7 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
         MODE = "wt"
 
     else:
-        return [sys.stdout, None]
+        return [sys.stderr, None]
 
 
     if command.index(REDIRECT) < len(command) - 1:
@@ -94,40 +95,38 @@ def get_stderr(command: List[str]) -> Tuple[TextIO, Optional[str]]:
             command.remove(REDIRECT)
             command.remove(pathname)
             
-            SOUT = [open(pathname, MODE) if pathname != os.path.join("/", "dev", "null") else None, pathname]
+            STD_ERR = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
-        except PermissionError:
-            SOUT = [None, pathname]
+        except (PermissionError, OSError):
+            STD_ERR = [None, pathname]
         
-        except OSError:
-            SOUT = [None, pathname]
     else:
-        SOUT = [None, pathname]
+        STD_ERR = [None, pathname]
 
-    return SOUT
+    return STD_ERR
 
 
-def get_stdin(command: List[str]) -> Tuple[TextIO, Optional[str]]:
+def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     """
     Returns the stin of the command and pathname of the file if redirection accours 
 
     :returns
-        - The stdin on which read the inut (None if redirected to /dev/null)
+        - The stdin on which read the input (None if redirected to /dev/null)
         - the path to that file 
 
-    :rtype Actually returns a list [TextIO, str | None]
+    :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    SOUT: list[TextIO, Optional[str]]
+    STD_IN: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
-
+    pathname = None
 
     if "<" in command:
         REDIRECT = "<"
         MODE = "rt"
     else:
-        return [sys.stdout, None]
+        return [sys.stdin, None]
 
 
     if command.index(REDIRECT) < len(command) - 1:
@@ -136,54 +135,36 @@ def get_stdin(command: List[str]) -> Tuple[TextIO, Optional[str]]:
             command.remove(REDIRECT)
             command.remove(pathname)
             
-            SOUT = [open(pathname, MODE) if pathname != os.path.join("/", "dev", "null") else None, pathname]
+            STD_IN = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
         
-        except PermissionError:
-            SOUT = [None, pathname]
+        except (PermissionError, OSError):
+            STD_IN = [None, pathname]
         
-        except OSError:
-            SOUT = [None, pathname]
     else:
-        SOUT = [None, pathname]
+        STD_IN = [None, pathname]
 
-    return SOUT
+    return STD_IN
 
 
 
-def manage(command: List[str], info: Info) -> None:
+def manage(command: List[str], info: Info) -> None:        
+    try:
+        exec_command = build(command, info)
+        if exec_command:
+            if exec_command.IS_PROCESS:
+                command.pop(-1)
+                info.processes.add(info, command, exec_command, False)
+            else:
+                call(exec_command)
+        else:
+            print(f"-flux: {command[0]}: command not found\n")
 
-    # Match the command name to the corresponding file in ./cmd/
-    # for further processing and execution
+    except UnboundLocalError as e:
+        if command[0] != "":
+            print(f"-flux: {command[0]}: command not found\n{e}\n")
 
-    from .helpers.commands import CommandInterface
 
-    def execute_script(callable: CommandInterface) -> int:
-        """
-        Execute the loaded script
-
-        `:returns` the command's status code\n
-        `:rtype` int
-        """
-        try:
-            callable.init()
-            callable.setup()
-
-            if callable.parser and callable.parser.exit_execution:
-                callable.close()
-                status = callable.exit()
-                return status
-            
-            callable.run()
-            callable.close()
-            status = callable.exit()
-            
-        except Exception as e:
-            callable.fail_safe(e)
-            status: int = callable.status
-
-        del callable
-        return status
-
+def build(command: List[str], info: Info) -> CommandInterface | None:
     exec_command: CommandInterface
     exec_command_class = CommandInterface
 
@@ -213,15 +194,15 @@ def manage(command: List[str], info: Info) -> None:
 
     if stdout is None:
         print(f"-flux: {out_path}: Permission denied\n")
-        return
+        return None
     
     if stderr is None:
         print(f"-flux: {err_path}: Permission denied\n")
-        return
+        return None
     
     if stdin is None:
         print(f"-flux: {in_path}: Permission denied\n")
-        return
+        return None
     
 
     # Load command
@@ -231,23 +212,46 @@ def manage(command: List[str], info: Info) -> None:
 
     if not exec_command_class:
         print(f"-flux: {command_name}: command not found\n")
-        return
+        return None
+
+    if not CommandInterface._is_subclass(exec_command_class):
+        print(f"-flux: {command_name}: command not found\n")
+        return None
+    
+    is_thread = command[-1].endswith("&") and not command[0].endswith("&")
+    # XXX: Ensure stability on python 3.12 as threads created by flux are not supported (#44)
+    is_thread = is_thread and sys.version_info < (3, 12)
+    exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin)
+
+    del exec_command_class
+    return exec_command
+
+def call(command_instance: CommandInterface) -> int:
+    """
+    Execute the loaded script
+
+    `:returns` the command's status code
+    `:rtype` int
+    `:raises` AssertionError if the command_instance isn't an instance of CommandInterface
+    """
+    assert CommandInterface._is_subclass_instance(command_instance), "argument passed isn't an instance of CommandInterface"
 
     try:
+        command_instance.init()
+        command_instance.setup()
+
+        if command_instance.status == STATUS_ERR or command_instance.parser and command_instance.parser.exit_execution:
+            command_instance.close()
+            return command_instance.exit()
         
-        is_thread = command[-1] == "&"
-        exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin)
+        command_instance.run()
+        command_instance.close()
+        status = command_instance.exit()
+        
+    except Exception as e:
+        command_instance.fail_safe(e)
+        status: int = command_instance.status
 
-        if is_thread:
-            command.pop(-1)
-            info.processes.add(info, command, exec_command, False)
-        else:
-            execute_script(exec_command)
-            
+    del command_instance
+    return (status if isinstance(status, int) else STATUS_ERR)
 
-    except UnboundLocalError as e:
-        if command_name != "":
-            print(f"-flux: {command_name}: command not found\n{e}\n")
-
-    finally:
-        del exec_command_class

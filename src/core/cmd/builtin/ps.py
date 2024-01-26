@@ -23,7 +23,7 @@ class Command(CommandInterface):
         self.args.mode = mapped_modes[self.args.mode.lower()] if self.args.mode in mapped_modes.keys() else self.args.mode
 
 
-        procceses = self.info.processes.list()
+        procceses = self.sysinfo.processes.list()
 
         contents = []
         match self.args.mode:
@@ -54,5 +54,5 @@ class Command(CommandInterface):
                 self.stdout.write(format.create_adaptive_table("ID", "PID", "OWNER", "NAME", "IS RESERVED PROCESS", "TIME ALIVE", contents=contents))
 
             case _:
-                self.error(self.logger.parameter_not_supported(self.args.mode))
+                self.error(self.errors.parameter_not_supported(self.args.mode))
                 

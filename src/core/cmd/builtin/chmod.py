@@ -15,7 +15,7 @@ class Command(CommandInterface):
         
         for f in self.args.FILE:
             if not os.path.exists(f):
-                self.error(self.logger.file_not_found(f))
+                self.error(self.errors.file_not_found(f))
 
 
         mode = self.args.mode

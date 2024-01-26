@@ -20,7 +20,7 @@ class Command(CommandInterface):
         self.parser.add_argument('-m', action='store_true', help='change only the modification time')
 
     def run(self):
-        self.logger.path = self.args.FILE
+        self.errors.path = self.args.FILE
 
         if not os.path.exists(self.args.FILE):
             if not self.args.no_create:
@@ -30,10 +30,10 @@ class Command(CommandInterface):
                     return True
                 
                 except PermissionError:
-                    self.error(self.logger.permission_denied())
+                    self.error(self.errors.permission_denied())
                     return
             else:
-                self.error(self.logger.path_not_found())
+                self.error(self.errors.path_not_found())
                 return
 
 
@@ -50,11 +50,11 @@ class Command(CommandInterface):
             return True
         
         except PermissionError:
-            self.error(self.logger.permission_denied())
+            self.error(self.errors.permission_denied())
             return False
         
         except FileNotFoundError:
-            self.error(self.logger.path_not_found())
+            self.error(self.errors.path_not_found())
             return False         
 
     def modify_modification_time(self):
@@ -62,5 +62,5 @@ class Command(CommandInterface):
             os.utime(self.args.FILE, (os.stat(self.args.FILE).st_atime, time.time()))
             return True
         except PermissionError:
-            self.error(self.logger.permission_denied())
+            self.error(self.errors.permission_denied())
             return False

@@ -53,7 +53,7 @@ class Command(CommandInterface):
                 self.warning("the -I option is available only in linux, switching to default interface")
             
             if self.args.count and not (1 <= self.args.count <= 9223372036854775807):
-                self.error(self.logger.invalid_argument(self.args.count), "1 <= value <= 9223372036854775807")
+                self.error(self.errors.invalid_argument(self.args.count), "1 <= value <= 9223372036854775807")
                 self.parser.exit_execution = True
 
             elif self.args.ttl < 1:
@@ -61,12 +61,12 @@ class Command(CommandInterface):
                 self.parser.exit_execution = True
 
             elif not (0 <= self.args.ttl <= 255):
-                self.error(self.logger.invalid_argument(self.args.ttl,"0 <= value <= 255"))
+                self.error(self.errors.invalid_argument(self.args.ttl,"0 <= value <= 255"))
                 self.parser.exit_execution = True
                 
           
             elif not (0 <= self.args.size <= 2147483647):
-                self.error(self.logger.invalid_argument(self.args.size, "0 <= value <= 2147483647"))
+                self.error(self.errors.invalid_argument(self.args.size, "0 <= value <= 2147483647"))
                 self.parser.exit_execution = True
                 
             
@@ -136,10 +136,8 @@ class Command(CommandInterface):
             pass
     
     def close(self):
-        super().close()
-
         if not self.status == STATUS_ERR:
-            self.print(f"\n--- {self.args.destination} ping statistics---")
+            self.print(f"\n--- {self.args.destination} ping statistics ---")
             self.print(f"{self.stats.counter} packets transmited, {self.stats.p_received} received, {self.stats.loss}% packet loss, time {self.stats.time}ms")
             
             if self.stats.min == float("inf"):
@@ -149,5 +147,6 @@ class Command(CommandInterface):
 
             self.print(f"rtt min/avg/max = {round(self.stats.min, 3)}/{round(self.stats.avg or 0, 3)}/{round(self.stats.max, 3)} ms")
 
+        super().close()
 
  

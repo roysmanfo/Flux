@@ -33,6 +33,7 @@ import json
 import os
 import shutil
 from pathlib import Path
+import sys
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent
@@ -71,7 +72,7 @@ options:
         super().setup()
 
         self.jokes: list[str] = []
-        jpath = os.path.join(self.info.syspaths.LOCAL_FOLDER, "observer", "extensions.json")
+        jpath = os.path.join(self.sysinfo.syspaths.LOCAL_FOLDER, "observer", "extensions.json")
         self.ext_path = jpath
         try:
             with open(jpath) as f:
@@ -84,8 +85,13 @@ options:
                 json.dump(extension_paths, f, indent=4, sort_keys=True)
             
         except PermissionError:
-            self.error(self.logger.permission_denied(jpath))
+            self.error(self.errors.permission_denied(jpath))
             self.parser.exit_execution = True
+        
+        finally: 
+            if sys.version_info >= (3, 12):
+                detected = "%s.%s.%s" % (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
+                self.error("the way this program handles threads is not yet suported after python 3.11 (detected %s)" % detected)
 
     def run(self) -> None:
 
@@ -140,10 +146,10 @@ options:
             self.print(f"filetype '{ext}' removed")
 
         except PermissionError:
-            self.error(self.logger.permission_denied(self.ext_path))
+            self.error(self.errors.permission_denied(self.ext_path))
 
         except FileNotFoundError:
-            self.error(self.logger.file_not_found(self.ext_path))
+            self.error(self.errors.file_not_found(self.ext_path))
 
     def add_filetype(self):
         new_ext, dest = [str(i) for i in self.args.add]
@@ -164,10 +170,10 @@ options:
             self.print(f"filetype '{new_ext}' added")
 
         except PermissionError:
-            self.error(self.logger.permission_denied(self.ext_path))
+            self.error(self.errors.permission_denied(self.ext_path))
 
         except FileNotFoundError:
-            self.error(self.logger.file_not_found(self.ext_path))
+            self.error(self.errors.file_not_found(self.ext_path))
     
     def update_filetype(self):
         ext, dest = [str(i) for i in self.args.update]
@@ -188,19 +194,19 @@ options:
             self.print(f"filetype '{ext}' uptated to point '{dest}'")
 
         except PermissionError:
-            self.error(self.logger.permission_denied(self.ext_path))
+            self.error(self.errors.permission_denied(self.ext_path))
 
         except FileNotFoundError:
-            self.error(self.logger.file_not_found(self.ext_path))
+            self.error(self.errors.file_not_found(self.ext_path))
 
     def show_path(self) -> bool:
-        self.print(f"Bucket:{self.info.user.paths.bucket}")
-        self.print(f"Destination:{self.info.user.paths.bucket_destination}\n")
+        self.print(f"Bucket:{self.sysinfo.user.paths.bucket}")
+        self.print(f"Destination:{self.sysinfo.user.paths.bucket_destination}\n")
         return False
 
     def sort_files(self, forever: bool = False) -> None:
-        watch_path = Path(self.info.user.paths.bucket)
-        destination_root = Path(self.info.user.paths.bucket_destination)
+        watch_path = Path(self.sysinfo.user.paths.bucket)
+        destination_root = Path(self.sysinfo.user.paths.bucket_destination)
 
         try:
             os.makedirs(watch_path)
@@ -213,25 +219,34 @@ options:
             pass
 
         try:
-            event_handler = self.EventHandler(
-                watch_path=watch_path, destination_root=destination_root)
+            event_handler = self.EventHandler(watch_path, destination_root)
 
             observer = Observer()
             observer.schedule(event_handler, f'{watch_path}', recursive=True)
 
-            observer.start()
+            try:
+                if not observer.is_alive():
+                    observer.start()
+                else:
+                    self.warning("observer is already running")
+            except RuntimeError as e:
+                self.error("could not start observer {}".format(e.__str__()))
+                return
+
             event_handler.on_modified(DirModifiedEvent)
 
             # Check if we decided to run the process as a background task
             if self.IS_PROCESS:
 
                 try:
-                    while not self.info.exit:
+                    while not self.sysinfo.exit:
                         time.sleep(.1)
-                        continue
+
                     observer.stop()
-                except KeyboardInterrupt:
+                except Exception as e:
                     observer.stop()
+                    self.warning(e)
+                    return
             else:
                 time.sleep(1)
                 observer.stop()

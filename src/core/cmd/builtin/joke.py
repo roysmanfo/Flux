@@ -14,7 +14,7 @@ class Command(CommandInterface):
     
     def setup(self):
         self.jokes: list[str] = []
-        jpath = os.path.join(self.info.syspaths.LOCAL_FOLDER, "jokes", "jokes.json")
+        jpath = os.path.join(self.sysinfo.syspaths.LOCAL_FOLDER, "jokes", "jokes.json")
         try:
             with open(jpath) as f:
                 jokes_data = json.load(f)
@@ -28,7 +28,7 @@ class Command(CommandInterface):
                 self.jokes = JOKES
             
         except PermissionError:
-            self.error(self.logger.permission_denied(jpath))
+            self.error(self.errors.permission_denied(jpath))
         
 
 
@@ -36,7 +36,7 @@ class Command(CommandInterface):
         """
         This command tells a random programming joke
         """
-        self.info.syspaths.LOCAL_FOLDER
+        self.sysinfo.syspaths.LOCAL_FOLDER
 
 
         self.print(random.choice(self.jokes))

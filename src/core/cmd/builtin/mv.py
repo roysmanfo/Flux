@@ -25,7 +25,7 @@ class Command(CommandInterface):
 
         for i in self.args.source:
             if not os.path.exists(i):
-                self.error(self.logger.file_not_found(i))
+                self.error(self.errors.file_not_found(i))
                 return
 
         # Handle multiple files given as source to copy
@@ -35,7 +35,7 @@ class Command(CommandInterface):
                     os.makedirs(self.args.dest) 
 
                 except PermissionError:
-                    self.error(self.logger.permission_denied(self.args.dest))
+                    self.error(self.errors.permission_denied(self.args.dest))
                     return
                     
 
@@ -70,7 +70,7 @@ class Command(CommandInterface):
                     self.args.source.remove(path)
 
                 except PermissionError:
-                    self.error(self.logger.permission_denied(path))
+                    self.error(self.errors.permission_denied(path))
                     return
                 
 
@@ -116,7 +116,7 @@ class Command(CommandInterface):
                 try:
                     os.remove(final_path)
                 except PermissionError:
-                    self.error(self.logger.permission_denied(final_path))
+                    self.error(self.errors.permission_denied(final_path))
                     return
 
         dest = shutil.move(path, final_path)

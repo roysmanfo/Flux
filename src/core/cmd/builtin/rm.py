@@ -35,7 +35,7 @@ class Command(CommandInterface):
             return
         
         if self.args.dir:
-            folders = os.listdir(self.args.path or self.info.user.paths.terminal)
+            folders = os.listdir(self.args.path or self.sysinfo.user.paths.terminal)
             folders = [os.path.abspath(i) for i in folders if os.path.isdir(i)]
             
             for folder in folders:
