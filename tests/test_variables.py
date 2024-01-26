@@ -8,9 +8,9 @@ class Test_Variables(unittest.TestCase):
         Spelling variable syntax
         """
 
-        from src.core import setup
-        from src.settings.info import Info
-        from src.core.cmd.builtin import export
+        from flux.core import setup
+        from flux.settings.info import Info
+        from flux.core.cmd.builtin import export
 
         INFO: Info = setup.setup()
         cmnd = export.Command(INFO, ['export', 'foo', 'bar'], False)
@@ -23,9 +23,9 @@ class Test_Variables(unittest.TestCase):
         Spelling variable syntax
         """
 
-        from src.core import setup
-        from src.settings.info import Info
-        from src.core.cmd.builtin import export
+        from flux.core import setup
+        from flux.settings.info import Info
+        from flux.core.cmd.builtin import export
 
         INFO: Info = setup.setup()
         cmnd = export.Command(INFO, ['export', '$foo'], False)
@@ -38,9 +38,9 @@ class Test_Variables(unittest.TestCase):
         Spelling variable syntax
         """
 
-        from src.core import setup
-        from src.settings.info import Info
-        from src.core.cmd.builtin import export
+        from flux.core import setup
+        from flux.settings.info import Info
+        from flux.core.cmd.builtin import export
 
         INFO: Info = setup.setup()
         cmnd = export.Command(INFO, ['export', '$$', 'bar'], False)

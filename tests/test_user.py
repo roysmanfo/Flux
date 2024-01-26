@@ -9,8 +9,8 @@ class Test_TestUser(unittest.TestCase):
         """
 
         import os
-        from src.settings.info import Path, SysPaths
-        from src.core import setup
+        from flux.settings.info import Path, SysPaths
+        from flux.core import setup
 
         s_file_exists = os.path.exists(SysPaths.SETTINGS_FILE)
 

@@ -2,9 +2,9 @@ import os
 import sys
 import unittest
 import tempfile
-from src.settings.info import SysPaths
-from src.core import setup, manager
-from src import utils
+from flux.settings.info import SysPaths
+from flux.core import setup, manager
+from flux import utils
 
 TMP = tempfile.gettempdir()
 FILE = os.path.join(TMP, "file.txt")
