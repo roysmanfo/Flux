@@ -26,15 +26,15 @@ class Test_TestShell(unittest.TestCase):
             os.remove(SysPaths.SETTINGS_FILE)
         
         if self.instance:
-            if self.instance.stdout != sys.stdout:
+            if self.instance.stdout and self.instance.stdout != sys.stdout:
                 if not self.instance.stdout.closed:
                     self.instance.stdout.close()
 
-            if self.instance.stderr != sys.stderr:
+            if self.instance.stderr and self.instance.stderr != sys.stderr:
                 if not self.instance.stderr.closed:
                     self.instance.stderr.close()
 
-            if self.instance.stdin != sys.stdin:
+            if self.instance.stdin and self.instance.stdin != sys.stdin:
                 if not self.instance.stdin.closed:
                     self.instance.stdin.close()
             
@@ -83,6 +83,7 @@ class Test_TestShell(unittest.TestCase):
     def test_build_09(self):
         command = utils.transform.string_to_list("ls <")
         self.instance = manager.build(command, info)
+        print(command, self.instance)
         self.assertTrue(self.instance is None)
 
 if __name__ == '__main__':
