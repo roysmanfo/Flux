@@ -30,7 +30,7 @@ def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     STD_OUT: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
-    pathname = None
+    pathname = ""
 
 
     # Append output to file
@@ -79,7 +79,7 @@ def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     STD_ERR: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
-    pathname = None
+    pathname = ""
 
     # Append output to file
     if "&>>" in command:
@@ -126,7 +126,7 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     STD_IN: list[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
-    pathname = None
+    pathname = ""
 
     if "<" in command:
         REDIRECT = "<"
@@ -200,15 +200,15 @@ def build(command: List[str], info: Info) -> CommandInterface | None:
     stderr, err_path = get_stderr(command)
     stdin, in_path = get_stdin(command)
 
-    if stdout is None and out_path:
+    if stdout is None and out_path is not None:
         print(f"-flux: {out_path}: Permission denied\n")
         return None
     
-    if stderr is None and err_path:
+    if stderr is None and err_path is not None:
         print(f"-flux: {err_path}: Permission denied\n")
         return None
     
-    if stdin is None and in_path:
+    if stdin is None and in_path is not None:
         print(f"-flux: {in_path}: Permission denied\n")
         return None
     
