@@ -7,12 +7,14 @@ with the respective command (if existent).
 import sys
 import os
 from typing import List, Optional, TextIO, Tuple
+from pathlib import Path
 
 from flux.settings.info import Info
-from .system import loader
-from .helpers.commands import CommandInterface, STATUS_ERR
+from flux.core.system import loader
+from flux.core.helpers.commands import CommandInterface, STATUS_ERR
 
-NULL_PATH = os.devnull
+# NULL_PATH = os.devnull
+NULL_PATH = [Path(os.path.join("/", "dev", "null")).resolve(), Path(os.devnull).resolve()]
 
 def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     """
@@ -49,7 +51,10 @@ def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             pathname = command[command.index(REDIRECT) + 1]
             command.remove(REDIRECT)
             command.remove(pathname)
-            STD_OUT = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
+
+            pathname = Path(pathname).resolve()
+
+            STD_OUT = [open(pathname, MODE) if pathname not in NULL_PATH else None, pathname if pathname not in NULL_PATH else None]
         
         except (PermissionError, OSError):
             STD_OUT = [None, pathname]
@@ -95,8 +100,9 @@ def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             command.remove(REDIRECT)
             command.remove(pathname)
             
-            STD_ERR = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
-        
+            pathname = Path(pathname).resolve()
+
+            STD_ERR = [open(pathname, MODE) if pathname not in NULL_PATH else None, pathname if pathname not in NULL_PATH else None]
         except (PermissionError, OSError):
             STD_ERR = [None, pathname]
         
@@ -135,7 +141,9 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             command.remove(REDIRECT)
             command.remove(pathname)
             
-            STD_IN = [open(pathname, MODE) if pathname != NULL_PATH else None, pathname if pathname != NULL_PATH else None]
+            pathname = Path(pathname).resolve()
+
+            STD_IN = [open(pathname, MODE) if pathname not in NULL_PATH else None, pathname if pathname not in NULL_PATH else None]
         
         except (PermissionError, OSError):
             STD_IN = [None, pathname]
@@ -192,15 +200,15 @@ def build(command: List[str], info: Info) -> CommandInterface | None:
     stderr, err_path = get_stderr(command)
     stdin, in_path = get_stdin(command)
 
-    if stdout is None:
+    if stdout is None and out_path:
         print(f"-flux: {out_path}: Permission denied\n")
         return None
     
-    if stderr is None:
+    if stderr is None and err_path:
         print(f"-flux: {err_path}: Permission denied\n")
         return None
     
-    if stdin is None:
+    if stdin is None and in_path:
         print(f"-flux: {in_path}: Permission denied\n")
         return None
     
