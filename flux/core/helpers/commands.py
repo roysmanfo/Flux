@@ -170,13 +170,13 @@ class CommandInterface(_ABC):
         This function is used to close open files, like a redirected stdout
         """        
 
-        if self.stdout != _sys.stdout:
+        if self.stdout and self.stdout != _sys.stdout:
             self.stdout.close()
         
-        if self.stderr != _sys.stderr:
+        if self.stderr and self.stderr != _sys.stderr:
             self.stderr.close()
 
-        if self.stdin != _sys.stdin:
+        if self.stdin and self.stdin != _sys.stdin:
             self.stdin.close()
 
 
