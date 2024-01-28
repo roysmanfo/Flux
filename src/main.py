@@ -26,6 +26,7 @@ def listen() -> list[str]:
         return utils.transform.string_to_list(command)
 
     except (KeyboardInterrupt, EOFError):
+        signal.raise_signal(signal.SIGINT)
         print(f"{Fore.RED}^C{Fore.RESET}")
         return []
 
@@ -45,7 +46,7 @@ def run():
                     if cmd[0] != "":
                         manager.manage(cmd, INFO)
         except KeyboardInterrupt:
-            pass
+            signal.raise_signal(signal.SIGINT)
 
 if __name__ == "__main__":
     
@@ -71,7 +72,7 @@ if __name__ == "__main__":
         # add all available interrupts
         for sig in list(signal.Signals):
             try:
-                signal.signal(sig, I_HANDLER.handle_interrupts)
+                signal.signal(sig, I_HANDLER._handle_interrupts)
                 sig_name = sig.__repr__().removeprefix("<Signals.").split(":")[0].upper()
                 I_HANDLER.supported.update({sig_name: int(sig)})
             except ValueError as e:
