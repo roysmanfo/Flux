@@ -5,9 +5,10 @@ as intended.
 import os
 import platform
 from typing import List, Optional
-from flux.settings.info import User, Info, SysPaths
 import subprocess
 
+from flux.settings.info import User, Info, SysPaths
+from flux.utils import environment
 
 def setup() -> Info:
     """
@@ -25,6 +26,12 @@ def setup() -> Info:
     """
     
     OS_NAME = platform.system().lower()
+
+    if not environment.is_in_venv():
+        print("creating venv")
+
+
+
     # if OS_NAME.startswith("win"):
     #     install_windows_requirements()
     
