@@ -24,19 +24,11 @@ def setup() -> Info:
     * `:dtype`   : Info
     * `:raises`  : PermissionError if the folders could not be created
     """
-    
-    OS_NAME = platform.system().lower()
 
     if not environment.is_in_venv():
-        print("creating venv")
-
-
-
-    # if OS_NAME.startswith("win"):
-    #     install_windows_requirements()
-    
-    # elif OS_NAME in ["linux", "darwin"]:
-    #     install_linux_requirements()
+        setup_exec_env()
+        # print("creating venv")
+        
 
 
     # Load user
@@ -126,3 +118,25 @@ def install_linux_requirements() -> None:
         print(p.stderr)
     else:
         print("all requirements installed")
+
+
+def setup_exec_env() -> bool:
+    """
+    set up the system for execution
+    """
+    OS_NAME = platform.system().lower()
+
+    venv_dir = os.path.join(os.path.abspath(".."), "venv")
+
+    # a venv exists?
+    if os.path.exists(venv_dir) and os.path.isdir(venv_dir):
+        if os.path.exists(os.path.join(venv_dir, "pyvenv.cfg")):
+            # move execution in the venv
+            pass
+
+
+    # if OS_NAME.startswith("win"):
+    #     install_windows_requirements()
+    
+    # elif OS_NAME in ["linux", "darwin"]:
+    #     install_linux_requirements()
