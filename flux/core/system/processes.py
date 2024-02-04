@@ -10,7 +10,7 @@ STATUS_WARN = 2  # Exited with warnings
 
 
 class ProcessInfo:
-    def __init__(self, id: int, pid: int, owner: str, name: str, native_id: int, time_alive: str, is_reserved_process: bool, line_args: list[str]) -> None:
+    def __init__(self, id: int, pid: int, owner: str, name: str, native_id: int, time_alive: str, is_reserved_process: bool, line_args: List[str]) -> None:
         self.id = id
         self.pid = pid
         self.owner = owner
@@ -38,7 +38,7 @@ class ProcessInfo:
 
 
 class Process:
-    def __init__(self, id: int, owner: str, command_instance: Union[Callable, object], line_args: list[str], is_reserved_process: bool) -> None:
+    def __init__(self, id: int, owner: str, command_instance: Union[Callable, object], line_args: List[str], is_reserved_process: bool) -> None:
         self.id: int = id
         self.name: str = line_args[0]
         self.owner: str = owner
@@ -138,7 +138,7 @@ class Processes:
         self.processes[-1].run()
         _time.sleep(.1)
 
-    def find(self, id: int) -> Process | None:
+    def find(self, id: int) -> Union[Process, None]:
         for p in self.processes:
             if p.id == id:
                 return p
