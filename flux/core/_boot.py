@@ -17,13 +17,17 @@ class _Report:
         self.warnings: List[_Warning] = []
 
 report = _Report()
+root_dir = os.path.realpath(os.path.join(os.path.realpath(__file__), "..", "..", ".."))
+verbose = False
 
-def boot() -> _Report:
+def boot(dev_mode: bool = False) -> _Report:
     """
     Handles environment and minimum dependencies, and makes 
-    
+    `:param debug_mode`: if set to True, outputs on stdout all output
     `:returns` : A _Report object that determines if the application can start without problems
     """
+    global verbose
+    verbose = dev_mode
 
     if environment.is_in_venv():
         # TODO: check requirements, and install them if necessary
@@ -36,7 +40,7 @@ def boot() -> _Report:
     return report
 
 
-def install_requirements(dep: List[str], verbose: Optional[bool] = None) -> Optional[subprocess.CompletedProcess]:
+def install_requirements(dep: List[str]) -> Optional[subprocess.CompletedProcess]:
     try:
         interp = environment.get_interpreter_command()
         command = [interp, "-m", "pip", "install"]
@@ -51,7 +55,9 @@ def install_requirements(dep: List[str], verbose: Optional[bool] = None) -> Opti
 
 
 def get_minimum_requirements() -> Optional[List[str]]:
-    root_dir = os.path.realpath(os.path.join(os.path.realpath(__file__), "..", "..", ".."))
+    """
+    `:returns` : A list containing all minimum dependencies needed or None in case of error (es. FileNotFound, IOError, ...)   
+    """
     req = os.path.join(root_dir, "requirements.txt")
     
     if os.path.exists(req):
