@@ -23,7 +23,7 @@ $ sudo apt install python3
 On MacOS instead of `apt` you should have `brew`
 
 ### After install
-Make sure that your version is **3.7** or above.  
+Make sure that your version is **3.8** or above.  
 To check your python version, open your terminal and type the following command:
 
 ```sh
