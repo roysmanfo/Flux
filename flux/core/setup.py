@@ -3,7 +3,6 @@ Necessary procedures to prepare the program to work
 as intended.
 """
 import os
-import platform
 from typing import Optional
 import subprocess
 
