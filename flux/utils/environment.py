@@ -1,55 +1,39 @@
-import sys
 import subprocess
-from typing import Optional
+import sys
+from typing import Optional, Tuple
+import os
 
+
+def get_venv() -> Optional[Tuple[str, str]]:
+    """
+    `:returns` : a tuple containing the virtual environment name and type (VENV | CONDA)
+    `:rtype`   : tuple[str, str] | None
+    """
+    if os.getenv("VIRTUAL_ENV"):
+        return os.path.basename(os.getenv("VIRTUAL_ENV")), "VENV"
+    elif os.getenv("CONDA_PREFIX"):
+        return os.path.basename(os.getenv("CONDA_PREFIX")), "CONDA"
+    return None
+
+def get_venv_name() -> Optional[Tuple[str, str]]:
+    venv = get_venv()
+    return None if not venv else venv[0]
 
 def is_in_venv() -> bool:
-    return hasattr(sys, 'real_prefix')
+    return get_venv() is not None
 
-def get_venv_name() -> str | None:
-    return sys.prefix if is_in_venv() else None
-
-def get_interpreter_command() -> Optional[str]:
+def get_interpreter_command() -> str:
     """
     `:returns` : the command to use in order to interact with the python interpreter cli, None if not found
-    `:dtype`   : str or None
+    `:rtype`   : str
     """
 
-    commands = [
-        ("python3", "--version"),
-        ("python", "--version"),
-        
-        # found on Windows
-        ("py", "--version"),
-    ]
+    return os.path.splitext(os.path.basename(sys.executable))[0]
 
-    for c in commands:
-        try:
-            p = subprocess.run(c, capture_output=True)
-            if p and p.stdout:
-                return c[0]
-        except:
-            pass
-
-    return None
-
-def get_pip_command() -> Optional[str]:
+def get_pip_command() -> str:
     """
     `:returns` : the command to use in order to interact with the python pip package manager, None if not found
-    `:dtype`   : str or None
+    `:rtype`   : str
     """
 
-    commands = [
-        ("pip3", "--version"),
-        ("pip", "--version"),        
-    ]
-
-    for c in commands:
-        try:
-            p = subprocess.run(c, capture_output=True)
-            if p and p.stdout:
-                return c[0]
-        except:
-            pass
-
-    return None
+    return os.path.splitext(os.path.basename(sys.executable.replace('python', 'pip')))[0]
