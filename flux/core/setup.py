@@ -23,7 +23,7 @@ def setup() -> Info:
     function in the main file and everything will be handled automaticaly. 
 
     * `:returns` : An object containing system information
-    * `:dtype`   : Info
+    * `:rtype`   : Info
     * `:raises`  : PermissionError if the folders could not be created
     """
 
@@ -54,7 +54,7 @@ def setup() -> Info:
 def get_interpreter_command() -> Optional[str]:
     """
     `:returns` : the command to use in order to interact with the python interpreter cli, None if not found
-    `:dtype`   : str | None
+    `:rtype`   : str | None
     """
 
     commands = [
