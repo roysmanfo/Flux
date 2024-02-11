@@ -2,9 +2,9 @@ import os
 import platform
 import subprocess
 from typing import List, Optional
+import logging
 
 from flux.utils import environment
-
 
 class _Warning:
     def __init__(self, name: str, description: str) -> None:
@@ -21,8 +21,6 @@ class _Report:
 report = _Report()
 root_dir = os.path.realpath(os.path.join(
     os.path.realpath(__file__), "..", "..", ".."))
-verbose = False
-
 
 def boot(dev_mode: bool = False) -> _Report:
     """
@@ -30,10 +28,15 @@ def boot(dev_mode: bool = False) -> _Report:
     `:param dev_mode`: if set to True, outputs on stdout all output
     `:returns` : A _Report object that determines if the application can start without problems
     """
-    global verbose
-    verbose = dev_mode
 
+    if dev_mode:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.WARN)
+
+    logging.debug("checking virtual environment")
     if environment.is_in_venv():
+        logging.debug(f"found virtual environment: {environment.get_venv_name()} ({environment.get_venv_location()})")
         # TODO: check requirements, and install them if necessary
         report.can_start = handle_min_requirements()
         return report
@@ -46,13 +49,11 @@ def install_requirements(dep: List[str]) -> Optional[subprocess.CompletedProcess
         interp = environment.get_interpreter_command()
         pip = environment.get_pip_command()
         command = [interp, "-m", pip, "install"]
-        if not verbose:
-            dep_list = '\n  -  '.join(dep)
-            print(f"installing: {dep_list}")
 
-        subprocess.run(command + ["--upgrade", "--user", "pip"],
-                       capture_output=(not verbose), text=True, check=True)
-        return subprocess.run(command + dep, capture_output=(not verbose), text=True, check=True)
+        logging.info(f"installing: {'\n  -  '.join(dep)}")
+        subprocess.run(command + ["--upgrade", "--user", pip],
+                       capture_output=(logging.root.level > logging.DEBUG), text=True, check=True)
+        return subprocess.run(command + dep, capture_output=(logging.root.level > logging.DEBUG), text=True, check=True)
     except subprocess.CalledProcessError as e:
         report.warnings.append(_Warning(e.__class__.__name__, e.stderr))
 
@@ -122,14 +123,11 @@ def handle_min_requirements() -> bool:
     if not minim:
         return False
 
-    import importlib
+    import importlib.util
     to_install = []
 
     for req in minim:
-        try:
-            m = importlib.import_module(req)
-            del m
-        except ModuleNotFoundError:
+        if (not importlib.util.find_spec(req[:req.index("==")])):
             to_install.append(req)
 
     if to_install:
