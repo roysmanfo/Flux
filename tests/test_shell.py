@@ -83,8 +83,12 @@ class Test_TestShell(unittest.TestCase):
     def test_build_09(self):
         command = utils.transform.string_to_list("ls <")
         self.instance = manager.build(command, info)
-        print(command, self.instance)
         self.assertTrue(self.instance is None)
+    
+    def test_build_10(self):
+        command = utils.transform.string_to_list(f"cat <<{FILE} >> {os.path.join(TMP, "file2.txt")}")
+        self.instance = manager.build(command, info)
+        self.assertFalse(self.instance is None)
 
 if __name__ == '__main__':
     unittest.main()
