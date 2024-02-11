@@ -3,8 +3,6 @@ Necessary procedures to prepare the program to work
 as intended.
 """
 import os
-from typing import Optional
-import subprocess
 
 from flux.settings.info import User, Info, SysPaths
 from flux.utils import environment
