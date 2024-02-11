@@ -15,7 +15,7 @@ def get_venv() -> Optional[Tuple[str, str]]:
         return os.path.basename(os.getenv("CONDA_PREFIX")), "CONDA"
     return None
 
-def get_venv_name() -> Optional[Tuple[str, str]]:
+def get_venv_name() -> Optional[str]:
     venv = get_venv()
     return None if not venv else venv[0]
 
