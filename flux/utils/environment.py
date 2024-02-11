@@ -4,10 +4,12 @@ from typing import Optional, Tuple
 import os
 
 
-def get_venv_location() -> Optional[str]:
+
+
+def get_venv() -> Optional[Tuple[str, str]]:
     """
-    `:returns` : returns the virtual environment location
-    `:rtype`   : str | None
+    `:returns` : a tuple containing the virtual environment location and type (VENV | CONDA)
+    `:rtype`   : tuple[str, str] | None
     """
     if os.getenv("VIRTUAL_ENV"):
         return os.getenv("VIRTUAL_ENV")
@@ -15,22 +17,17 @@ def get_venv_location() -> Optional[str]:
         return os.getenv("CONDA_PREFIX")
     return None
 
-
-def get_venv() -> Optional[Tuple[str, str]]:
+def get_venv_location() -> Optional[str]:
     """
-    `:returns` : a tuple containing the virtual environment name and type (VENV | CONDA)
-    `:rtype`   : tuple[str, str] | None
+    `:returns` : returns the virtual environment location
+    `:rtype`   : str | None
     """
-    if os.getenv("VIRTUAL_ENV"):
-        return os.path.basename(os.getenv("VIRTUAL_ENV")), "VENV"
-    elif os.getenv("CONDA_PREFIX"):
-        return os.path.basename(os.getenv("CONDA_PREFIX")), "CONDA"
-    return None
-
-
-def get_venv_name() -> Optional[str]:
     venv = get_venv()
     return None if not venv else venv[0]
+
+def get_venv_name() -> Optional[str]:
+    venv = get_venv_location()
+    return None if not venv else os.path.basename(venv)
 
 
 def is_in_venv() -> bool:
