@@ -125,10 +125,37 @@ def handle_min_requirements() -> bool:
 
     import importlib.util
     to_install = []
+    wrong_version: list[tuple[str, str]] = []
 
+    try:
+        result = subprocess.run([environment.get_interpreter_command(), "-m", environment.get_pip_command(), "freeze"], text=True)
+        packages = result.stdout.split('\n')
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        packages = None
+        report.warnings.append(_Warning(e.__class__.__name__, e.__str__()))
+    
     for req in minim:
-        if (not importlib.util.find_spec(req[:req.index("==")])):
+        req_parts = req.split("==")
+        if (not importlib.util.find_spec(req_parts[0])):
             to_install.append(req)
+        else:
+            # requirement installed, check version
+            if packages:
+                for package in packages:
+                    # check the name and version
+                    if package.startswith(req_parts[0]) and package.split('==')[-1] != req_parts[-1]:
+                        # wrong version
+                        wrong_version.append((req, package))
+                        report.warnings.append(
+                            _Warning(
+                                "Wrong version",
+                                f"Package {req_parts[0]} found with version {package.split("==")[-1]} instead of {req_parts[-1]}"
+                                )
+                            )
+            else:
+                report.warnings.append(_Warning("Unable to check package version", ""))
+                
+                
 
     if to_install:
         p = install_requirements(to_install)
