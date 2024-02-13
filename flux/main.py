@@ -64,7 +64,10 @@ if __name__ == "__main__":
                     case _: sys.exit(1)
 
         # Setup process
-        INFO: Info = setup.setup()
+        INFO = setup.setup()
+
+        if INFO is None:
+            sys.exit(1)
 
         del setup
         del Info
