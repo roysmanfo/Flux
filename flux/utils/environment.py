@@ -11,9 +11,9 @@ def get_venv() -> Optional[Tuple[str, str]]:
     `:rtype`   : tuple[str, str] | None
     """
     if os.getenv("VIRTUAL_ENV"):
-        return os.getenv("VIRTUAL_ENV")
+        return os.getenv("VIRTUAL_ENV"), "VIRTUAL_ENV"
     elif os.getenv("CONDA_PREFIX"):
-        return os.getenv("CONDA_PREFIX")
+        return os.getenv("CONDA_PREFIX"), "CONDA_PREFIX"
     return None
 
 def get_venv_location() -> Optional[str]:
@@ -52,18 +52,27 @@ def is_in_flux_env() -> bool:
         ])
 
 
-def get_interpreter_command() -> str:
+def get_interpreter_path() -> str:
     """
-    `:returns` : the command to use in order to interact with the python interpreter cli, None if not found
+    `:returns` : the path of th python interpreter in use
     `:rtype`   : str
     """
 
-    return os.path.splitext(os.path.basename(sys.executable))[0]
+    return sys.executable
+
+
+def get_interpreter_command() -> str:
+    """
+    `:returns` : the command to use in order to interact with the python interpreter cli
+    `:rtype`   : str
+    """
+
+    return os.path.splitext(os.path.basename(get_interpreter_path()))[0]
 
 
 def get_pip_command() -> str:
     """
-    `:returns` : the command to use in order to interact with the python pip package manager, None if not found
+    `:returns` : the command to use in order to interact with the python pip package manager
     `:rtype`   : str
     """
 
