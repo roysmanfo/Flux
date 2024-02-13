@@ -3,14 +3,14 @@ Necessary procedures to prepare the program to work
 as intended.
 """
 import os
+from typing import Optional
 
 from flux.settings.info import User, Info, SysPaths
-from flux.utils import environment
 from . import _boot
 
 
 
-def setup() -> Info:
+def setup() -> Optional[Info]:
     """
     ## Setup process
 
@@ -20,23 +20,14 @@ def setup() -> Info:
     This process makes it easier to start Flux as we just need to call this
     function in the main file and everything will be handled automaticaly. 
 
-    * `:returns` : An object containing system information
-    * `:rtype`   : Info
+    * `:returns` : An object containing system information, None in case of error
+    * `:rtype`   : Info | None
     * `:raises`  : PermissionError if the folders could not be created
     """
-
-    if not environment.is_in_venv():
-        import sys
-        print("creating venv", environment.get_venv_name(), sys.prefix)
-        # print(_boot.get_minimum_requirements())
-
-
-    # if OS_NAME.startswith("win"):
-    #     install_windows_requirements()
-    
-    # elif OS_NAME in ["linux", "darwin"]:
-    #     install_linux_requirements()
-
+    # TODO: add parameter to controll dev_mode
+    report = _boot.boot()
+    if not report.can_start:
+        return None
 
     # Load user
     SYS_PATHS = SysPaths()
