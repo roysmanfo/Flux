@@ -30,9 +30,9 @@ def boot(dev_mode: bool = False) -> _Report:
     """
 
     if dev_mode:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
     else:
-        logging.basicConfig(level=logging.WARN)
+        logging.basicConfig(level=logging.WARN, format='%(levelname)s: %(message)s')
 
     logging.debug("checking virtual environment")
     if environment.is_in_venv():
@@ -46,13 +46,13 @@ def boot(dev_mode: bool = False) -> _Report:
 
 def install_requirements(dep: List[str]) -> Optional[subprocess.CompletedProcess]:
     try:
-        interp = environment.get_interpreter_command()
+        interp = environment.get_interpreter_path()
         pip = environment.get_pip_command()
         command = [interp, "-m", pip, "install"]
 
+        logging.info(f"upgrading pip")
+        subprocess.run(command + ["--upgrade", pip], check=True)
         logging.info(f"installing: {'\n  -  '.join(dep)}")
-        subprocess.run(command + ["--upgrade", "--user", pip],
-                       capture_output=(logging.root.level > logging.DEBUG), text=True, check=True)
         return subprocess.run(command + dep, capture_output=(logging.root.level > logging.DEBUG), text=True, check=True)
     except subprocess.CalledProcessError as e:
         report.warnings.append(_Warning(e.__class__.__name__, e.stderr))
@@ -76,7 +76,8 @@ def get_minimum_requirements() -> Optional[List[str]]:
                 elif OS_NAME in ["linux", "darwin"]:
                     requirements += get_linux_requirements()
 
-                return requirements
+                # ensure no duplicates are present (NOTE: this isn't perfect, but works fine)
+                return list(set(requirements)) 
 
         except:
             # error reading file
@@ -123,20 +124,25 @@ def handle_min_requirements() -> bool:
     if not minim:
         return False
 
-    import importlib.util
     to_install = []
     wrong_version: list[tuple[str, str]] = []
 
     try:
-        result = subprocess.run([environment.get_interpreter_command(), "-m", environment.get_pip_command(), "freeze"], text=True)
+        result = subprocess.run([environment.get_interpreter_path(), "-m", environment.get_pip_command(), "freeze"], capture_output=True, text=True)
         packages = result.stdout.split('\n')
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         packages = None
         report.warnings.append(_Warning(e.__class__.__name__, e.__str__()))
-    
+        return False
+
+    package_names = []
+    if packages:
+        package_names = [i.split('==')[0] for i in packages if i != '']
+
     for req in minim:
         req_parts = req.split("==")
-        if (not importlib.util.find_spec(req_parts[0])):
+
+        if (req_parts[0] not in package_names):
             to_install.append(req)
         else:
             # requirement installed, check version
