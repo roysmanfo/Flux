@@ -125,7 +125,7 @@ options:
         self.sort_files()
 
     def list_filetypes(self):
-        self.print(utils.format.create_adaptive_table("extension", "destination", contents=list(extension_paths.items())))
+        self.print(utils.format.create_table("extension", "destination", contents=list(extension_paths.items())))
 
     def remove_filetype(self):
         ext = str(self.args.remove)

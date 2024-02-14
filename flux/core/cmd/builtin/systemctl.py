@@ -77,10 +77,10 @@ class Command(CommandInterface):
                     except KeyError:
                         self.error(f"setting not found")
             else:
-                from flux.utils.format import create_adaptive_table
+                from flux.utils.format import create_table
                 c = [(p, self.sysinfo.user.paths.all_paths[p]) for p in self.sysinfo.user.paths.all_paths.keys()]
                 
-                self.print(create_adaptive_table("Path name", "Value", contents=c))
+                self.print(create_table("Path name", "Value", contents=c))
 
 
         # Command does not exist
