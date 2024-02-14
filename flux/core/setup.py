@@ -26,8 +26,14 @@ def setup(dev_mode: bool = False) -> Optional[Info]:
     """
     # TODO: add parameter to controll dev_mode
     report = _boot.boot(dev_mode)
+    
+    if dev_mode and report.warnings:
+        for w in report.warnings:
+            print(w)
+    
     if not report.can_start:
         return None
+    
 
     # Load user
     SYS_PATHS = SysPaths()

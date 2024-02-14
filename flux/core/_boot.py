@@ -11,6 +11,11 @@ class _Warning:
         self.name = name
         self.description = description
 
+    def __str__(self) -> str:
+
+        if not self.description:
+            return f"[!] {self.name}"
+        return f"[!] {self.name}: {self.description}"
 
 class _Report:
     def __init__(self) -> None:
@@ -154,7 +159,7 @@ def handle_min_requirements() -> bool:
                         wrong_version.append((req, package))
                         report.warnings.append(
                             _Warning(
-                                "Wrong version",
+                                "Wrong version found",
                                 f"Package {req_parts[0]} found with version {package.split("==")[-1]} instead of {req_parts[-1]}"
                                 )
                             )
