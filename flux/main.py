@@ -64,7 +64,12 @@ if __name__ == "__main__":
                     case _: sys.exit(1)
 
         # Setup process
-        INFO = setup.setup()
+        devmode = False
+        if len(sys.argv) > 1 and '--dev-mode' in [i.lower() for i in sys.argv]:
+            devmode = True
+            sys.argv.remove('--dev-mode')
+
+        INFO = setup.setup(devmode)
 
         if INFO is None:
             sys.exit(1)

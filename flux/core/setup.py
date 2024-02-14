@@ -10,7 +10,7 @@ from . import _boot
 
 
 
-def setup() -> Optional[Info]:
+def setup(dev_mode: bool = False) -> Optional[Info]:
     """
     ## Setup process
 
@@ -25,7 +25,7 @@ def setup() -> Optional[Info]:
     * `:raises`  : PermissionError if the folders could not be created
     """
     # TODO: add parameter to controll dev_mode
-    report = _boot.boot()
+    report = _boot.boot(dev_mode)
     if not report.can_start:
         return None
 
