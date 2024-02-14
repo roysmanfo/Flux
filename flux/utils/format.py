@@ -70,7 +70,7 @@ def create_adaptive_table(data: List[str]) -> str:
         start_index = row * num_columns
         end_index = min((row + 1) * num_columns, len(data))
         row_data = data[start_index:end_index]
-        output += "".join(str(item).ljust(longest) for item in row_data) + "\n"
+        output += " ".join(str(item).ljust(longest) for item in row_data) + "\n"
 
     return output
 
