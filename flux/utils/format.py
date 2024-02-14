@@ -1,31 +1,9 @@
+import os
 from typing import Iterator, Any, List, Union
+import re
 
 
-def create_table(collumn1: str, collumn2: str, contents: dict) -> str:
-    """
-    Return a 2 x N table where N rappresents the number of keys in contents
-    """
-
-    keys: list[str] = sorted(list(contents.keys()))
-    values: list[str] = [contents[i] for i in keys]
-    longest_key = 0
-    longest_val = 0
-
-    for k in keys:
-        longest_key = max(longest_key, len(k))
-    for v in values:
-        longest_val = max(longest_val, len(str(v)))
-    output = ""
-    output += f"{collumn1}{' ' * (longest_key - len(collumn1) + 4)}|  {collumn2}\n"
-    output += f"{'⎯' * ((longest_key - len(collumn1)) * 2 + 7 + longest_val)}\n"
-    for k in keys:
-        output += f"{k}{' ' * (longest_key - len(k) + 4)}|  {values[keys.index(k)]}\n"
-    output += "\n"
-
-    return output
-
-
-def create_adaptive_table(*collumns: Union[str, List[str]], contents: Iterator[Iterator[Any]]) -> str:
+def create_table(*collumns: Union[str, List[str]], contents: Iterator[Iterator[Any]]) -> str:
     """
     Return a N x M table where N rappresents the number of columns
     and M rappresents the number of records in contents (+2 rows: 1 for the title and 1 for the underline)
@@ -33,7 +11,7 @@ def create_adaptive_table(*collumns: Union[str, List[str]], contents: Iterator[I
     #### Example
     With this input...
     ```
-    >>> create_adaptive_table("col1", "col2", contents=[(1, 2), (3, 4)])
+    >>> create_table("col1", "col2", contents=[(1, 2), (3, 4)])
     ```
 
     ... we expect the following output
@@ -65,3 +43,44 @@ def create_adaptive_table(*collumns: Union[str, List[str]], contents: Iterator[I
 
     return output
 
+def create_adaptive_table(data: List[str]) -> str:
+    """
+    Return a dynamically sized table based on the terminal size and the length of the data.
+
+    `:param data` : a list of data elements
+    `:returns` : a string representing the formatted table
+    """
+
+    if len(data) == 0:
+        return ""
+    
+    terminal_width = os.get_terminal_size().columns
+    longest = len(data[0])
+
+    for d in data:
+        cell = remove_ansi_escape_sequences(d.__str__())
+        longest = max(longest, len(cell))
+
+    num_columns = max(1, terminal_width // longest)  # Adjust this value based on your preference
+    num_rows = (len(data) + num_columns - 1) // num_columns
+
+    output = ""
+
+    for row in range(num_rows):
+        start_index = row * num_columns
+        end_index = min((row + 1) * num_columns, len(data))
+        row_data = data[start_index:end_index]
+        output += "".join(str(item).ljust(longest) for item in row_data) + "\n"
+
+    return output
+
+
+def remove_ansi_escape_sequences(text: str) -> str:
+    """
+    Remove ANSI escape sequences (color codes and styles) from a given string.
+
+    :param text: Input string containing ANSI escape sequences
+    :return: String with ANSI escape sequences removed
+    """
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', text)
