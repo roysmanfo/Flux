@@ -1,6 +1,6 @@
 import shlex
 from typing import List
-
+import sys as _sys
 
 def string_to_list(string: str) -> List[str]:
     """
@@ -49,5 +49,9 @@ def _separate_redirect_parts(arg: str) -> List[str]:
         if arg.startswith(i):
             if arg == i:
                 return [i]
-            return [i, arg.removeprefix(i)]
+            
+            # python 3.8 does not have removeprefix
+            if _sys.version_info >= (3, 9):
+                return [i, arg.removeprefix(i)]
+            return [i, arg[len(i):]]
     return [arg]
