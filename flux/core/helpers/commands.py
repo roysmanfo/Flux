@@ -7,6 +7,7 @@ from argparse import Namespace as _Namespace
 
 from flux.settings.info import Info
 from flux.core.system.processes import (STATUS_OK, STATUS_ERR, STATUS_WARN)
+from flux.utils import format as _format
 from .arguments import Parser
 
 class CommandInterface(_ABC):
@@ -106,7 +107,7 @@ class CommandInterface(_ABC):
         self.parser: Optional[Parser] = None
         self.args: Optional[_Namespace] = None
         self.errors: Errors = Errors()
-        self.colors = Colors(not (stdout is _sys.stdout))
+        self.colors = Colors()
 
         self.levels = _Levels
         self.log_level = self.levels.NOTSET
@@ -343,7 +344,12 @@ class CommandInterface(_ABC):
         \twhether to forcibly flush the stream.
         """
         if self.stdout:
-            self.stdout.write(f"{sep}".join([ v.__str__() for v in values]))
+            txt = f"{sep}".join([ v.__str__() for v in values])
+
+            if self.stdout is not _sys.stdout:
+                txt = _format.remove_ansi_escape_sequences(txt)
+
+            self.stdout.write(txt)
             self.stdout.write(end)
 
             if flush:
@@ -363,11 +369,16 @@ class CommandInterface(_ABC):
         \twhether to forcibly flush the stream.
         """
         if self.stderr:
-            self.stderr.write(f"{sep}".join([ v.__str__() for v in values]))
+            txt = f"{sep}".join([ v.__str__() for v in values])
+
+            if self.stderr is not _sys.stderr:
+                txt = _format.remove_ansi_escape_sequences(txt)
+
+            self.stderr.write(txt)
             self.stderr.write(end)
 
             if flush:
-                self.stdout.flush()
+                self.stderr.flush()
 
 
 
@@ -502,9 +513,9 @@ class _Levels(_IntEnum):
 
 
 class Colors:
-    def __init__(self, to_file: bool) -> None:
+    def __init__(self) -> None:
         from . import colors
-        self.Fore = colors.Foreground(to_file)
-        self.Back = colors.Background(to_file)
-        self.Style = colors.Styles(to_file)
+        self.Fore = colors.Foreground()
+        self.Back = colors.Background()
+        self.Style = colors.Styles()
 
