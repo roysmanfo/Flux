@@ -1,3 +1,10 @@
+"""
+### Flux Boot (Flux's boot sequence)
+
+These procedures allow flux to run in an isolated environment
+and are necessary to 
+"""
+
 import os
 import platform
 import subprocess
@@ -37,15 +44,35 @@ def boot(dev_mode: bool = False) -> _Report:
     if dev_mode:
         logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
     else:
-        logging.basicConfig(level=logging.WARN, format='%(levelname)s: %(message)s')
+        logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
     logging.debug("checking virtual environment")
     if environment.is_in_venv():
         logging.debug(f"found virtual environment: {environment.get_venv_name()} ({environment.get_venv_location()})")
+        if not environment.is_in_flux_env():
+
+            action = input(f"Environment {environment.get_venv_name()} does not contain a .fluxenv file, create one (y/n):  ").lower()
+            if action == 'y':
+                fluxenv = os.path.join(environment.get_venv_location(), ".fluxenv")
+                logging.debug(f"creating file {fluxenv}")
+                with open(fluxenv,'w') as f:
+                    f.write("# This file was automaticaly created by Flux\n\n")
+
+                logging.debug(f"fluxenv initialization completed")
+            else:
+                report.can_start = False
+                report.warnings.append(_Warning("Not in flux environment", f"the .fluxenv file is missing in {environment.get_venv_location()}"))
+                return report
+        
         # TODO: check requirements, and install them if necessary
+        logging.debug(f"checking requirements in {environment.get_venv_location()}")
         report.can_start = handle_min_requirements()
+        logging.debug(f"fboot completed...    system setup")
         return report
 
+
+    report.can_start = False
+    report.warnings.append(_Warning("Unable to start", f"Flux is unable to complete the setup procedures"))
     return report
 
 
@@ -143,6 +170,8 @@ def handle_min_requirements() -> bool:
     package_names = []
     if packages:
         package_names = [i.split('==')[0] for i in packages if i != '']
+    else:
+        report.warnings.append(_Warning("Unable to check package version", ""))
 
     for req in minim:
         req_parts = req.split("==")
@@ -163,10 +192,6 @@ def handle_min_requirements() -> bool:
                                 f"Package {req_parts[0]} found with version {package.split("==")[-1]} instead of {req_parts[-1]}"
                                 )
                             )
-            else:
-                report.warnings.append(_Warning("Unable to check package version", ""))
-                
-                
 
     if to_install:
         p = install_requirements(to_install)
