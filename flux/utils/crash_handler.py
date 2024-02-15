@@ -5,7 +5,7 @@ from typing import Optional, Tuple, Union
 
 def write_error_log(
         fileprefix: Optional[str] = None,
-        error_log: Optional[Union[str | list[str]]] = None,
+        error_log: Optional[Union[str, list[str]]] = None,
         title: Optional[str] = None) -> Tuple[int, str]:
     """
 
