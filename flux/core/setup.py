@@ -6,7 +6,7 @@ import os
 from typing import Optional
 
 from flux.settings.info import User, Info, SysPaths
-from . import _boot
+from . import fboot
 
 
 
@@ -25,7 +25,7 @@ def setup(dev_mode: bool = False) -> Optional[Info]:
     * `:raises`  : PermissionError if the folders could not be created
     """
     # TODO: add parameter to controll dev_mode
-    report = _boot.boot(dev_mode)
+    report = fboot.boot(dev_mode)
     
     if dev_mode and report.warnings:
         for w in report.warnings:
