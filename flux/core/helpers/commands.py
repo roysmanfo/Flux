@@ -308,7 +308,7 @@ class CommandInterface(_ABC):
     HELPER FUNCIONS
     """
 
-    def input(self, __prompt: object = "") -> str | None:
+    def input(self, __prompt: object = "") -> Optional[str]:
         """
         This function takes an input from the stdin and returns it as a string
 

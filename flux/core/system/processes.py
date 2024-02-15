@@ -1,6 +1,6 @@
 from threading import Thread
 import time as _time
-from typing import List, Callable, Union
+from typing import List, Callable, Optional, Union
 import os as _os
 
 # Process status codes
@@ -45,9 +45,9 @@ class Process:
         self.command_instance: Callable = command_instance
         self.line_args: List[str] = line_args
         self.started: float = _time.time()
-        self.status: int | None = None
+        self.status: Optional[int] = None
         self.thread: Thread = None
-        self.native_id: int | None = None
+        self.native_id: Optional[int] = None
         self.is_reserved_process = is_reserved_process
 
     def get_info(self) -> ProcessInfo:

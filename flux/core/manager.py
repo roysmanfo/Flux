@@ -172,7 +172,7 @@ def manage(command: List[str], info: Info) -> None:
             print(f"-flux: {command[0]}: command not found\n{e}\n")
 
 
-def build(command: List[str], info: Info) -> CommandInterface | None:
+def build(command: List[str], info: Info) -> Optional[CommandInterface]:
     exec_command: CommandInterface
     exec_command_class = CommandInterface
 

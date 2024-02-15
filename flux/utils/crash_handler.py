@@ -1,11 +1,12 @@
 import datetime
 import tempfile
 import traceback
+from typing import Optional, Tuple, Union
 
 def write_error_log(
-        fileprefix: str | None = None,
-        error_log: str | list[str] | None = None,
-        title: str | None = None) -> tuple[int, str]:
+        fileprefix: Optional[str] = None,
+        error_log: Optional[Union[str | list[str]]] = None,
+        title: Optional[str] = None) -> Tuple[int, str]:
     """
 
     Params

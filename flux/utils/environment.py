@@ -6,7 +6,7 @@ from typing import Optional
 def is_in_venv() -> bool:
     return hasattr(sys, 'real_prefix')
 
-def get_venv_name() -> str | None:
+def get_venv_name() -> Optional[str]:
     return sys.prefix if is_in_venv() else None
 
 def get_interpreter_command() -> Optional[str]:
