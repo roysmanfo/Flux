@@ -20,7 +20,7 @@ class Command(CommandInterface):
     def run(self):        
         
         if not os.path.exists(self.args.archive_name):
-            attempts: list[str] = [self.args.archive_name]
+            attempts: List[str] = [self.args.archive_name]
             
             if not self.args.archive_name.endswith(".zip"):
                 self.args.archive_name +=  ".zip"

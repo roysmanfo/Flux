@@ -114,10 +114,10 @@ class Process:
 
 class Processes:
     def __init__(self):
-        self.processes: list[Process] = []
+        self.processes: List[Process] = []
         self.process_counter: int = _os.getpid()
 
-    def list(self) -> list[ProcessInfo]:
+    def list(self) -> List[ProcessInfo]:
         # Avoid returning the system managed list of processes
         # Instead return a copy
         return [p.get_info() for p in self.processes.copy()]

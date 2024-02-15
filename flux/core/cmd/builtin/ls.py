@@ -31,7 +31,7 @@ class Command(CommandInterface):
             self.error(f"cannot access '{self.args.PATH}': No such file or directory")
             return
         
-        dir_contents: list[str] = []
+        dir_contents: List[str] = []
         
         if self.args.directory or os.path.isfile(self.args.PATH) or os.path.islink(self.args.PATH):
             dir_contents = [self.args.PATH] 

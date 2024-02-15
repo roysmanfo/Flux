@@ -1,7 +1,8 @@
 import shlex
+from typing import List
 
 
-def string_to_list(string: str) -> list[str]:
+def string_to_list(string: str) -> List[str]:
     """
     Adapts the list to be used in a shell environment by
     resolving special charachters
@@ -26,7 +27,7 @@ def string_to_list(string: str) -> list[str]:
     return []
 
 
-def _separate_redirect_parts(arg: str) -> list[str]:
+def _separate_redirect_parts(arg: str) -> List[str]:
     """
     This takes as input a string and separates the
     redirect symbol (es. 1> ) from the destination

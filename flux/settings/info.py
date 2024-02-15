@@ -2,6 +2,7 @@ import json
 import os
 import pathlib
 import platform
+from typing import List
 
 from flux.core.system.variables import Variables
 from flux.core.system.processes import Processes
@@ -123,7 +124,7 @@ class User():
                 l.write("")
                 json.dump(settings, l, indent=4, sort_keys=True)
 
-    def set_email(self, info: Info, emails: list[str], reset: bool = False):
+    def set_email(self, info: Info, emails: List[str], reset: bool = False):
         """
         Change the user email to the first valid email address in @param emails
         """

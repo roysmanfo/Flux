@@ -27,7 +27,7 @@ def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    STD_OUT: list[TextIO, Optional[str]]
+    STD_OUT: List[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
     pathname = ""
@@ -76,7 +76,7 @@ def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    STD_ERR: list[TextIO, Optional[str]]
+    STD_ERR: List[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
     pathname = ""
@@ -123,7 +123,7 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    STD_IN: list[TextIO, Optional[str]]
+    STD_IN: List[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
     pathname = ""

@@ -4,6 +4,7 @@
 This command tells a random programming joke
 """
 
+from ast import List
 import json
 import os
 from flux.core.helpers.commands import CommandInterface
@@ -13,7 +14,7 @@ import random
 class Command(CommandInterface):
     
     def setup(self):
-        self.jokes: list[str] = []
+        self.jokes: List[str] = []
         jpath = os.path.join(self.sysinfo.syspaths.LOCAL_FOLDER, "jokes", "jokes.json")
         try:
             with open(jpath) as f:

@@ -25,7 +25,7 @@ def create_table(*collumns: Union[str, List[str]], contents: Iterator[Iterator[A
 
     """
 
-    records: list[list[str]] = contents
+    records: List[List[str]] = contents
 
     n_columns = len(collumns)
 

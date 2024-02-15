@@ -2,6 +2,7 @@
 import sys
 import os
 import signal
+from typing import List
 from colorama import init, Fore
 
 sys.path.append("..")
@@ -12,7 +13,7 @@ from core import setup, manager
 from settings.info import Info
 import utils
 
-def listen() -> list[str]:
+def listen() -> List[str]:
     """
     This function is used to get the command typed by the user preceded by
     a string of text containing the username, the name of the program,

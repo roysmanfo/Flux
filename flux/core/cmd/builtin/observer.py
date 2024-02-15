@@ -35,6 +35,7 @@ import shutil
 from pathlib import Path
 import sys
 import time
+from typing import List
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent
 from flux.core.helpers.arguments import Parser
@@ -71,7 +72,7 @@ options:
         global extension_paths
         super().setup()
 
-        self.jokes: list[str] = []
+        self.jokes: List[str] = []
         jpath = os.path.join(self.sysinfo.syspaths.LOCAL_FOLDER, "observer", "extensions.json")
         self.ext_path = jpath
         try:
