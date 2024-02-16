@@ -2,7 +2,7 @@
 ### Flux Boot (Flux's boot sequence)
 
 These procedures allow flux to run in an isolated environment
-and are necessary to 
+and are necessary to handle missing requirements and ensure that Flux can start without issues
 """
 
 import os
