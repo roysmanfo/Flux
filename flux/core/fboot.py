@@ -169,13 +169,13 @@ def handle_min_requirements() -> bool:
 
     package_names = []
     if packages:
-        package_names = [i.split('==')[0] for i in packages if i != '']
+        package_names = [i.split('==')[0].lower() for i in packages if i != '']
     else:
         report.warnings.append(_Warning("Unable to check package version", ""))
 
     for req in minim:
         req_parts = req.split("==")
-
+        req_parts[0] = req_parts[0].lower()
         if (req_parts[0] not in package_names):
             to_install.append(req)
         else:
