@@ -44,11 +44,12 @@ def is_in_flux_env() -> bool:
     """
     venv_l = get_venv_location()
 
-    list
     return all([
             is_in_venv(),
-            ".fluxenv" in os.listdir(venv_l),
-            venv_l == os.path.expanduser(".flux/venv")
+            os.path.exists(os.path.join(venv_l, ".fluxenv")),
+            
+            # following condition may be added later, for now it will take any activated fluxenv
+            # venv_l == os.path.expanduser(".flux/venv")
         ])
 
 
