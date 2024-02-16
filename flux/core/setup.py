@@ -24,7 +24,13 @@ def setup(dev_mode: bool = False) -> Optional[Info]:
     * `:rtype`   : Info | None
     * `:raises`  : PermissionError if the folders could not be created
     """
-    # TODO: add parameter to controll dev_mode
+
+    if not _boot(dev_mode):
+        return None
+    return _system_setup()
+
+
+def _boot(dev_mode: bool) -> bool:
     report = fboot.boot(dev_mode)
     
     if dev_mode and report.warnings:
@@ -32,9 +38,11 @@ def setup(dev_mode: bool = False) -> Optional[Info]:
             print(w)
     
     if not report.can_start:
-        return None
-    
+        return False
+    return True
 
+
+def _system_setup() -> Info:
     # Load user
     SYS_PATHS = SysPaths()
     SYS_PATHS.create_initial_folders() # May rise an exception
@@ -44,5 +52,3 @@ def setup(dev_mode: bool = False) -> Optional[Info]:
 
     INFO = Info(USER, SYS_PATHS)
     return INFO
-
-
