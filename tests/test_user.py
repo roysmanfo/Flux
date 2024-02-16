@@ -14,7 +14,7 @@ class Test_TestUser(unittest.TestCase):
 
         s_file_exists = os.path.exists(SysPaths.SETTINGS_FILE)
 
-        info = setup.setup()
+        info = setup._system_setup()
         USER = info.user
         types = [
             type(USER.email) == str,

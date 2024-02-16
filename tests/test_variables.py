@@ -12,7 +12,7 @@ class Test_Variables(unittest.TestCase):
         from flux.settings.info import Info
         from flux.core.cmd.builtin import export
 
-        INFO: Info = setup.setup()
+        INFO: Info = setup._system_setup()
         cmnd = export.Command(INFO, ['export', 'foo', 'bar'], False)
         cmnd.run()
         result = INFO.variables.get("foo")
@@ -27,7 +27,7 @@ class Test_Variables(unittest.TestCase):
         from flux.settings.info import Info
         from flux.core.cmd.builtin import export
 
-        INFO: Info = setup.setup()
+        INFO: Info = setup._system_setup()
         cmnd = export.Command(INFO, ['export', '$foo'], False)
         cmnd.run()
         result = INFO.variables.get("foo")
@@ -42,7 +42,7 @@ class Test_Variables(unittest.TestCase):
         from flux.settings.info import Info
         from flux.core.cmd.builtin import export
 
-        INFO: Info = setup.setup()
+        INFO: Info = setup._system_setup()
         cmnd = export.Command(INFO, ['export', '$$', 'bar'], False)
         cmnd.run()
         result = INFO.variables.get("$")

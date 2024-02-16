@@ -13,7 +13,7 @@ FILE = os.path.join(TMP, "file.txt")
 s_file_exists = os.path.exists(SysPaths.SETTINGS_FILE)
 
 # NOTE: tests for setup must be handles elsewhere
-info = setup.setup()
+info = setup._system_setup()
 
 class Test_TestShell(unittest.TestCase):
 
