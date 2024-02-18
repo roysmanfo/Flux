@@ -69,8 +69,17 @@ def boot(dev_mode: bool = False) -> _Report:
         report.can_start = handle_min_requirements()
         logging.debug(f"fboot completed...    system setup")
         return report
-
-
+    
+    # check for an existing fluxenv (default name: venv) 
+    if os.path.exists(os.path.join(root_dir, "venv")):
+        # TODO: check if it is a fluxenv 
+        pass
+    
+    
+    # TODO: check all folders in the root_dir and look for venvs more specificaly fluxenvs 
+    # else
+    # TODO: try to create new fluxenv
+    # if none of the options above worked, give up
     report.can_start = False
     report.warnings.append(_Warning("Unable to start", f"Flux is unable to complete the setup procedures"))
     return report
