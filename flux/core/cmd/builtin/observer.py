@@ -35,7 +35,6 @@ import shutil
 from pathlib import Path
 import sys
 import time
-from typing import List
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent
 from flux.core.helpers.arguments import Parser
@@ -51,6 +50,7 @@ class Command(CommandInterface):
         self.parser.add_argument("-p", "--path", action="store_true")
         self.parser.add_argument("-a", "--add", nargs=2)
         self.parser.add_argument("-l", "--list", action="store_true")
+        self.parser.add_argument("-s", "--sort", action="store_true")
         self.parser.add_argument("-r", "--remove",)
         self.parser.add_argument("-u", "--update", nargs=2)
         self.parser.add_help_message("""Scans the bucket folder and sorts files in the destination folder
@@ -61,6 +61,7 @@ options:
 -h, --help                  show this help message and exit
 -a, --add [.]EXT DEST       add a new filetype
 -l, --list                  list all filetypes controlled
+-s, --sort                  used with -l to sort based on destination
 -r, --remove [.]EXT         remove a filetype from the controlled ones
 -u, --update [.]EXT DEST    update the value of a filetype
 -p, --path                  reveal the bucket's paths:
@@ -72,7 +73,7 @@ options:
         global extension_paths
         super().setup()
 
-        self.jokes: List[str] = []
+        self.jokes: list[str] = []
         jpath = os.path.join(self.sysinfo.syspaths.LOCAL_FOLDER, "observer", "extensions.json")
         self.ext_path = jpath
         try:
@@ -87,12 +88,7 @@ options:
             
         except PermissionError:
             self.error(self.errors.permission_denied(jpath))
-            self.parser.exit_execution = True
-        
-        finally: 
-            if sys.version_info >= (3, 12):
-                detected = "%s.%s.%s" % (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
-                self.error("the way this program handles threads is not yet suported after python 3.11 (detected %s)" % detected)
+            self.parser.exit_execution = True           
 
     def run(self) -> None:
 
@@ -119,14 +115,21 @@ options:
         if self.args.path:
             self.show_path()
             return
-
+        if sys.version_info >= (3, 12):
+            detected = "%s.%s.%s" % (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
+            self.error("the way this program handles threads is not yet suported after python 3.11 (detected %s)" % detected)
+            return
+        
         if self.IS_PROCESS:
             self.print("Running observer in background...\n")
-
+    
         self.sort_files()
 
     def list_filetypes(self):
-        self.print(utils.format.create_table("extension", "destination", contents=list(extension_paths.items())))
+        contents = list(extension_paths.items())
+        if self.args.sort:
+            contents.sort(key=lambda x: x[1])
+        self.print(utils.format.create_adaptive_table("extension", "destination", contents=contents))
 
     def remove_filetype(self):
         ext = str(self.args.remove)
@@ -231,7 +234,7 @@ options:
                 else:
                     self.warning("observer is already running")
             except RuntimeError as e:
-                self.error("could not start observer {}".format(e.__str__()))
+                self.error("could not start observer: {}".format(e.__str__()))
                 return
 
             event_handler.on_modified(DirModifiedEvent)
