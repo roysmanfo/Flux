@@ -1,5 +1,6 @@
+import platform
 import sys
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 import os
 
 
@@ -51,6 +52,50 @@ def is_in_flux_env() -> bool:
             # following condition may be added later, for now it will take any activated fluxenv
             # venv_l == os.path.expanduser(".flux/venv")
         ])
+
+def is_venv(path: str) -> bool:
+    """
+    Check if the path provided points to a 'usable' virtual environment
+    `:returns` : True if the path points to a virtual environment
+    `:rtype`   : bool
+    """
+
+    if not os.path.isdir(path):
+        return False
+    conditions = False
+
+    folder = os.path.abspath(path)
+    if os.path.exists(os.path.join(folder, "pyvenv.cfg")):
+        bins = ""
+        extension = ""
+        plat = platform.system().lower()
+
+        if plat.startswith("win"):
+            bins = "Scripts"
+            extension = '.exe'
+        elif plat in ['linux', 'darwin']:
+            bins = "bin"
+        
+        conditions = all([
+            os.path.exists(os.path.join(folder, bins, "activate")),
+            os.path.exists(os.path.join(folder, bins, f"python{extension}")),
+            os.path.exists(os.path.join(folder, bins, f"pip{extension}")),
+        ])
+    return conditions
+    
+
+def get_all_venvs(path: str) -> List[str]:
+    """
+    Search every folder in `path` for a pyvenv.cfg file
+    `:returns` : a list containing all vintualenv paths detected in a folder
+    `:rtype`   : list[str]
+    """
+    venvs = []
+    if os.path.isdir(path):
+        for folder in os.listdir(path):
+            if is_venv(os.path.join(path, folder)):
+                venvs.append(folder)
+    return venvs
 
 
 def get_interpreter_path() -> str:
