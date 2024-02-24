@@ -93,7 +93,8 @@ def install_requirements(dep: List[str]) -> Optional[subprocess.CompletedProcess
 
         logging.info(f"upgrading pip")
         subprocess.run(command + ["--upgrade", pip], check=True)
-        logging.info(f"installing: {'\n  -  '.join(dep)}")
+        dps = '\n  -  '.join(dep)
+        logging.info(f"installing: {dps}")
         return subprocess.run(command + dep, capture_output=(logging.root.level > logging.DEBUG), text=True, check=True)
     except subprocess.CalledProcessError as e:
         report.warnings.append(_Warning(e.__class__.__name__, e.stderr))
@@ -192,13 +193,14 @@ def handle_min_requirements() -> bool:
             if packages:
                 for package in packages:
                     # check the name and version
-                    if package.startswith(req_parts[0]) and package.split('==')[-1] != req_parts[-1]:
+                    pkg_version = package.split('==')[-1]
+                    if package.startswith(req_parts[0]) and pkg_version != req_parts[-1]:
                         # wrong version
                         wrong_version.append((req, package))
                         report.warnings.append(
                             _Warning(
                                 "Wrong version found",
-                                f"Package {req_parts[0]} found with version {package.split("==")[-1]} instead of {req_parts[-1]}"
+                                f"Package {req_parts[0]} found with version {pkg_version} instead of {req_parts[-1]}"
                                 )
                             )
 
