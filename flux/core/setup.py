@@ -33,7 +33,7 @@ def setup(dev_mode: bool = False) -> Optional[Info]:
 def _boot(dev_mode: bool) -> bool:
     report = fboot.boot(dev_mode)
     
-    if dev_mode and report.warnings:
+    if dev_mode and report.warnings or not report.can_start:
         for w in report.warnings:
             print(w)
     
