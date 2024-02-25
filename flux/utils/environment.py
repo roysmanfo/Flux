@@ -45,13 +45,7 @@ def is_in_flux_env() -> bool:
     """
     venv_l = get_venv_location()
 
-    return all([
-            is_in_venv(),
-            os.path.exists(os.path.join(venv_l, ".fluxenv")),
-            
-            # following condition may be added later, for now it will take any activated fluxenv
-            # venv_l == os.path.expanduser(".flux/venv")
-        ])
+    return is_flux_env(venv_l)
 
 def is_venv(path: str) -> bool:
     """
@@ -82,7 +76,17 @@ def is_venv(path: str) -> bool:
             os.path.exists(os.path.join(folder, bins, f"pip{extension}")),
         ])
     return conditions
-    
+
+def is_flux_env(path: str) -> bool:
+    """
+    `:returns` : True if the provided path points to a Flux virtual environment  
+    `:rtype`   : bool
+    """
+
+    return all([
+            is_venv(path),
+            os.path.exists(os.path.join(path, ".fluxenv")),               
+        ])
 
 def get_all_venvs(path: str) -> List[str]:
     """
@@ -122,4 +126,7 @@ def get_pip_command() -> str:
     `:rtype`   : str
     """
 
-    return os.path.splitext(os.path.basename(sys.executable.replace('python', 'pip')))[0]
+    # well this doesn't always work, so just stick to pip and forget about pip3
+    # return os.path.splitext(os.path.basename(sys.executable.replace('python', 'pip')))[0]
+
+    return "pip"
