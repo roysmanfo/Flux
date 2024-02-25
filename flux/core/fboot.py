@@ -13,6 +13,8 @@ import logging
 
 from flux.utils import environment
 
+OS_NAME = platform.system().lower()
+
 class _Warning:
     def __init__(self, name: str, description: str) -> None:
         self.name = name
@@ -64,16 +66,24 @@ def boot(dev_mode: bool = False) -> _Report:
                 report.warnings.append(_Warning("Not in flux environment", f"the .fluxenv file is missing in {environment.get_venv_location()}"))
                 return report
         
-        # TODO: check requirements, and install them if necessary
+        # check requirements, and install them if necessary
         logging.debug(f"checking requirements in {environment.get_venv_location()}")
         report.can_start = handle_min_requirements()
         logging.debug(f"fboot completed...    system setup")
         return report
     
     # check for an existing fluxenv (default name: venv) 
+    logging.debug("no active environment")
+    logging.debug("searching for default environment path")
+    fenv = os.path.join(root_dir, "venv")
+    logging.debug("looking for: %s" % fenv)
+
     if os.path.exists(os.path.join(root_dir, "venv")):
-        # TODO: check if it is a fluxenv 
-        pass
+        if environment.is_flux_env(fenv):
+            logging.debug(f"found flux environment: {fenv}")
+            logging.debug(f"activating {fenv}")
+
+            activate_environment(fenv)
     
     
     # TODO: check all folders in the root_dir and look for venvs more specificaly fluxenvs 
@@ -110,8 +120,6 @@ def get_minimum_requirements() -> Optional[List[str]]:
         try:
             with open(req) as file:
                 requirements = file.read().splitlines()
-
-                OS_NAME = platform.system().lower()
 
                 if OS_NAME.startswith("win"):
                     requirements += get_windows_requirements()
@@ -209,3 +217,33 @@ def handle_min_requirements() -> bool:
         return p is not None and p.returncode == 0
 
     return True
+
+
+def activate_environment(fenv: str) -> None:
+    """
+    #### UNSTABLE
+    Activates and runs the application from inside a virtual environment
+
+    `:param fenv` the path to the flux virtual environment
+    """
+
+    # !WARNING!: this method is unstable
+
+    shell_command = []
+    if OS_NAME.startswith("win"):
+        shell_command = [os.path.join(fenv, "Scripts", "Activate.ps1")]
+
+        shell_command.append(" ".join(["python", os.path.join(root_dir, "flux", "main.py")]))
+        print(shell_command)
+
+        os.makedirs(os.path.join(root_dir, "boot"), exist_ok=True)
+        with open(os.path.join(root_dir, "boot", "startup.bat")) as f:
+            f.write(";".join(shell_command))
+        
+        subprocess.run(shell_command, shell=True)
+    
+
+    elif OS_NAME in ["linux", "darwin"]:
+        shell_command = ["source", os.path.join(fenv, "bin", "activate")]
+
+
