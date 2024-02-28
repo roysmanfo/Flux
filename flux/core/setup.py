@@ -28,20 +28,10 @@ def setup() -> Info:
     * `:raises`  : PermissionError if the folders could not be created
     """
     
-    OS_NAME = platform.system().lower()
-
     if not environment.is_in_venv():
         import sys
         print("creating venv", environment.get_venv_name(), sys.prefix)
         # print(_boot.get_minimum_requirements())
-
-
-    # if OS_NAME.startswith("win"):
-    #     install_windows_requirements()
-    
-    # elif OS_NAME in ["linux", "darwin"]:
-    #     install_linux_requirements()
-
 
     # Load user
     SYS_PATHS = SysPaths()
