@@ -81,7 +81,7 @@ if __name__ == "__main__":
         def exit_program(signal, frame):
             INFO.exit = True
 
-        signal.signal(signal.SIGINT, exit_program)
+        # signal.signal(signal.SIGINT, exit_program)
 
         # check for line arguments
         if len(sys.argv) > 1:
