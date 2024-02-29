@@ -46,8 +46,8 @@ class InterruptHandler(object):
     def get_available_signal_values(self) -> list[int]:
         return list(self.supported.values())
 
-    def _handle_interrupts(self, signum, frame) -> None:
-        print(signum) # check if everything works
+    def _handle_interrupts(self, signum: int, frame: object) -> None:
+        print(signum, frame) # check if everything works
 
         # TODO: call all appropriate interrupts based on the interrupt type 
 
