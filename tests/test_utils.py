@@ -2,7 +2,7 @@ import unittest
 from flux.utils import transform
 
 
-class Test_TestUtils(unittest.TestCase):
+class Test_Utils(unittest.TestCase):
 
     def test_returns_a_list(self):
         test = "   Hello   World!   "
@@ -14,7 +14,7 @@ class Test_TestUtils(unittest.TestCase):
         formatted = transform.string_to_list(test)
         self.assertTrue(formatted == ["hello", "World!"])
 
-class Test_TestStringToList(unittest.TestCase):
+class Test_StringToList(unittest.TestCase):
 
     def test_01(self):
         cmd = transform.string_to_list("ls")
@@ -47,7 +47,40 @@ class Test_TestStringToList(unittest.TestCase):
     def test_08(self):
         cmd = transform.string_to_list("echo test | ls")
         self.assertTrue(cmd == ["echo", "test", "|", "ls"], cmd)
+    
+    def test_09(self):
+        cmd = transform.string_to_list("echo test ; ls")
+        self.assertTrue(cmd == ["echo", "test", ";", "ls"], cmd)
 
+class Test_CommandSeparator(unittest.TestCase):
+    
+    def test_01(self):
+        cmd = transform.split_commands("echo test ; ls")
+        self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
+    
+    def test_02(self):
+        cmd = transform.split_commands("echo test; ls")
+        self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
+    
+    def test_03(self):
+        cmd = transform.split_commands("echo test;ls")
+        self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
+    
+    def test_04(self):
+        cmd = transform.split_commands("echo test;ls;")
+        self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
+
+    def test_05(self):
+        cmd = transform.split_commands(";echo test;ls;")
+        self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
+
+    def test_06(self):
+        cmd = transform.split_commands("echo test;ls;;")
+        self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
+
+    def test_07(self):
+        cmd = transform.split_commands("echo test;;;;ls;;")
+        self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
 
 if __name__ == '__main__':
     unittest.main()
