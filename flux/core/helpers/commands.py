@@ -122,7 +122,7 @@ class CommandInterface(_ABC):
         return cls_mro == self_mro
 
     @staticmethod
-    def _is_subclass_instance(instance) -> bool:
+    def _is_subclass_instance(instance: object) -> bool:
         if hasattr(instance, "_FLUX_COMMAND"):
             _FLUX_COMMAND = getattr(instance, "_FLUX_COMMAND")
             if type(_FLUX_COMMAND) == bool and _FLUX_COMMAND:
