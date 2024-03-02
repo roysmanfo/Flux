@@ -413,14 +413,14 @@ class CommandInterface(_ABC):
         """
         if true, at least one among stdout, stderr and stdin has been redirected
         """
-        return any([self.is_stdout_red, self.is_stderr_red, self.stdin])
+        return any([self.is_stdout_red, self.is_stderr_red, self.is_stdin_red])
 
     @property
     def is_all_red(self):
         """
         if true, stdout, stderr and stdin have been redirected
         """
-        return all([self.is_stdout_red, self.is_stderr_red, self.stdin])
+        return all([self.is_stdout_red, self.is_stderr_red, self.is_stdin_red])
     
 class Errors():
     """
