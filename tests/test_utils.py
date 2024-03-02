@@ -82,5 +82,13 @@ class Test_CommandSeparator(unittest.TestCase):
         cmd = transform.split_commands("echo test;;;;ls;;")
         self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
 
+    def test_08(self):
+        cmd = transform.split_commands("echo test;ls ..;")
+        self.assertTrue(cmd == [["echo", "test"], ["ls", ".."]], cmd)
+
+    def test_10(self):
+        cmd = transform.split_commands("echo test;ls  ..;echo null")
+        self.assertTrue(cmd == [["echo", "test"], ["ls", ".."], ["echo", "null"]], cmd)
+
 if __name__ == '__main__':
     unittest.main()
