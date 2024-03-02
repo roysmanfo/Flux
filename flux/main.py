@@ -5,7 +5,7 @@ import signal
 from typing import List
 from colorama import init, Fore
 
-sys.path.append("..")
+sys.path.append(os.path.dirname(os.getcwd()))
 init(autoreset=True)
 
 # Flux modules
