@@ -82,10 +82,15 @@ class CommandInterface(_ABC):
     Other usefull methods, NOT called by the terminal.
     If you want to use these methods you need to call them yourself.
 
-    - `input()`     This is similar to python's `input()`, but uses `self.stdin` and doesn't modify `sys.stdin` .
-    - `print()`     This is similar to python's `print()`, but uses `self.stdout` and doesn't modify `sys.stdout` .
-    - `printerr()`  This is similar to `self.print()`, but uses `self.stderr` instead.
-
+    - `input()`             This is similar to python's `input()`, but uses `self.stdin` and doesn't modify `sys.stdin` .
+    - `print()`             This is similar to python's `print()`, but uses `self.stdout` and doesn't modify `sys.stdout` .
+    - `printerr()`          This is similar to `self.print()`, but uses `self.stderr` instead.
+    - `is_stdout_red()`     If true, the stdout has been redirected
+    - `is_stderr_red()`     If true, the stderr has been redirected
+    - `is_stdin_red()`      If true, the stdin has been redirected
+    - `is_output_red()`     If true, the stdout and stderr have been redirected
+    - `is_any_red()`        If true, at least one among stdout, stderr and stdin has been redirected
+    - `is_all_red()`        If true, stdout, stderr and stdin have been redirected
     """
 
     def __init__(self,
