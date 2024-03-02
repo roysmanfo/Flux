@@ -380,8 +380,48 @@ class CommandInterface(_ABC):
             if flush:
                 self.stderr.flush()
 
+    @property
+    def is_stdout_red(self):
+        """
+        if true, the stdout has been redirected
+        """
+        return self.stdout != _sys.stdout
 
+    @property
+    def is_stderr_red(self):
+        """
+        if true, the stderr has been redirected
+        """
+        return self.stderr != _sys.stderr
 
+    @property
+    def is_stdin_red(self):
+        """
+        if true, the stdin has been redirected
+        """
+        return self.stdin != _sys.stdin
+    
+    @property
+    def is_output_red(self):
+        """
+        if true, the stdout and stderr have been redirected
+        """
+        return self.is_stdout_red and self.is_stderr_red
+
+    @property
+    def is_any_red(self):
+        """
+        if true, at least one among stdout, stderr and stdin has been redirected
+        """
+        return any([self.is_stdout_red, self.is_stderr_red, self.stdin])
+
+    @property
+    def is_all_red(self):
+        """
+        if true, stdout, stderr and stdin have been redirected
+        """
+        return all([self.is_stdout_red, self.is_stderr_red, self.stdin])
+    
 class Errors():
     """
     Standardized error/warning messages
