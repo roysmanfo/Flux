@@ -82,15 +82,15 @@ class CommandInterface(_ABC):
     Other usefull methods, NOT called by the terminal.
     If you want to use these methods you need to call them yourself.
 
-    - `input()`             This is similar to python's `input()`, but uses `self.stdin` and doesn't modify `sys.stdin` .
-    - `print()`             This is similar to python's `print()`, but uses `self.stdout` and doesn't modify `sys.stdout` .
-    - `printerr()`          This is similar to `self.print()`, but uses `self.stderr` instead.
-    - `is_stdout_red()`     If true, the stdout has been redirected
-    - `is_stderr_red()`     If true, the stderr has been redirected
-    - `is_stdin_red()`      If true, the stdin has been redirected
-    - `is_output_red()`     If true, the stdout and stderr have been redirected
-    - `is_any_red()`        If true, at least one among stdout, stderr and stdin has been redirected
-    - `is_all_red()`        If true, stdout, stderr and stdin have been redirected
+    - `input()`                 This is similar to python's `input()`, but uses `self.stdin` and doesn't modify `sys.stdin` .
+    - `print()`                 This is similar to python's `print()`, but uses `self.stdout` and doesn't modify `sys.stdout` .
+    - `printerr()`              This is similar to `self.print()`, but uses `self.stderr` instead.
+    - `redirected_stdout()`     True when the stdout has been redirected
+    - `redirected_stderr()`     True when the stderr has been redirected
+    - `redirected_stdin()`      True when the stdin has been redirected
+    - `is_output_red()`         True when the stdout and stderr have been redirected
+    - `is_any_red()`            True when at least one among stdout, stderr and stdin has been redirected
+    - `is_all_red()`            True when stdout, stderr and stdin have been redirected
     """
 
     def __init__(self,
@@ -176,13 +176,13 @@ class CommandInterface(_ABC):
         This function is used to close open files, like a redirected stdout
         """        
 
-        if self.stdout and self.stdout != _sys.stdout:
+        if self.redirected_stdout:
             self.stdout.close()
         
-        if self.stderr and self.stderr != _sys.stderr:
+        if self.redirected_stderr:
             self.stderr.close()
 
-        if self.stdin and self.stdin != _sys.stdin:
+        if self.redirected_stdin:
             self.stdin.close()
 
 
@@ -217,13 +217,13 @@ class CommandInterface(_ABC):
         self.status = STATUS_ERR
 
         # close possibly open files
-        if self.stdout != _sys.stdout:
+        if self.redirected_stdout:
             self.stdout.close()
         
-        if self.stderr != _sys.stderr:
+        if self.redirected_stderr:
             self.stderr.close()
 
-        if self.stdin != _sys.stdin:
+        if self.redirected_stdin:
             self.stdin.close()
 
         
@@ -386,46 +386,46 @@ class CommandInterface(_ABC):
                 self.stderr.flush()
 
     @property
-    def is_stdout_red(self):
+    def redirected_stdout(self):
         """
         if true, the stdout has been redirected
         """
-        return self.stdout != _sys.stdout
+        return not (self.stderr and self.stdout == _sys.stdout)
 
     @property
-    def is_stderr_red(self):
+    def redirected_stderr(self):
         """
         if true, the stderr has been redirected
         """
-        return self.stderr != _sys.stderr
+        return not (self.stderr and self.stderr != _sys.stderr)
 
     @property
-    def is_stdin_red(self):
+    def redirected_stdin(self):
         """
         if true, the stdin has been redirected
         """
-        return self.stdin != _sys.stdin
+        return not (self.stdin and self.stdin != _sys.stdin)
     
     @property
     def is_output_red(self):
         """
         if true, the stdout and stderr have been redirected
         """
-        return self.is_stdout_red and self.is_stderr_red
+        return self.redirected_stdout and self.redirected_stderr
 
     @property
     def is_any_red(self):
         """
         if true, at least one among stdout, stderr and stdin has been redirected
         """
-        return any([self.is_stdout_red, self.is_stderr_red, self.is_stdin_red])
+        return any([self.redirected_stdout, self.redirected_stderr, self.redirected_stdin])
 
     @property
     def is_all_red(self):
         """
         if true, stdout, stderr and stdin have been redirected
         """
-        return all([self.is_stdout_red, self.is_stderr_red, self.is_stdin_red])
+        return all([self.redirected_stdout, self.redirected_stderr, self.redirected_stdin])
     
 class Errors():
     """
