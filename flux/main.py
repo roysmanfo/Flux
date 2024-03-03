@@ -82,6 +82,9 @@ if __name__ == "__main__":
         signal.signal(signal.SIGINT, exit_program)
 
         INFO.processes._add_main_process(INFO, ['flux'], run)
+        INFO.processes.processes[0].thread.join()
+        sys.exit(0)
+
     except Exception as e:
         # Catch all the exceptions related to the whole program.
         # Exeptions in single commands will get handled by the command itself.
@@ -96,5 +99,3 @@ if __name__ == "__main__":
         sys.stderr.write("The full traceback of this error can be found here: \n" + log_path + "\n")
 
         sys.exit(1)
-
-    sys.exit(0)
