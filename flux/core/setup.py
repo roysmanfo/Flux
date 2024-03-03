@@ -28,11 +28,6 @@ def setup() -> Info:
     * `:raises`  : PermissionError if the folders could not be created
     """
     
-    if not environment.is_in_venv():
-        import sys
-        print("creating venv", environment.get_venv_name(), sys.prefix)
-        # print(_boot.get_minimum_requirements())
-
     # Load user
     SYS_PATHS = SysPaths()
     SYS_PATHS.create_initial_folders() # May rise an exception
