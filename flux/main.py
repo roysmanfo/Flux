@@ -1,23 +1,23 @@
-# External Dependencies
 import sys
 import os
 import signal
-from colorama import init, Fore
 
 sys.path.append("..")
-init(autoreset=True)
 
 # Flux modules
-from core import setup, manager
-from settings.info import Info
-import utils
-
 def listen() -> list[str]:
     """
     This function is used to get the command typed by the user preceded by
     a string of text containing the username, the name of the program,
     the version and the location where Flux is oparating on the disk.
     """
+    
+    try:
+        from colorama import init, Fore
+        init(autoreset=True)
+    except ImportError:
+        pass
+
     try:
         print(
             f"{Fore.GREEN}{INFO.user.username}{Fore.CYAN} Flux [{INFO.version}] {Fore.YELLOW}" + str(INFO.user.paths.terminal).lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
@@ -52,6 +52,7 @@ if __name__ == "__main__":
     
     try:
 
+
         # NOTE: temporary solution, to get this message just run the program with "python3 main.py stable"
         if len(sys.argv) > 1 and sys.argv[1].lower() == "stable":
             if sys.version_info >= (3, 12):
@@ -69,10 +70,15 @@ if __name__ == "__main__":
             devmode = True
             sys.argv.remove('--dev-mode')
 
+        from core import setup, manager
+        from settings.info import Info
+        import utils
+
         INFO = setup.setup(devmode)
 
         if INFO is None:
             sys.exit(1)
+
 
         del setup
         del Info
