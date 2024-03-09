@@ -1,6 +1,15 @@
 import shlex
-from typing import List, Tuple, Union
-import sys as _sys
+from typing import List, Union
+
+LONG_REDIRECT = ["1>>", "2>>", "&>>", "<<<"]
+MEDIUM_REDIRECT = [">>", "<<", "1>", "2>", "&>", "|&"]
+SHORT_REDIRECT = [">", "<", "|"]
+COMMAND_SEPARATOR = [';']
+
+LM_REDIRECTS = LONG_REDIRECT + MEDIUM_REDIRECT
+SHORT_SYMBOLS = SHORT_REDIRECT + COMMAND_SEPARATOR
+LOOK_FOR = LM_REDIRECTS + SHORT_SYMBOLS
+
 
 def string_to_list(string: str) -> List[str]:
     """
@@ -20,12 +29,12 @@ def string_to_list(string: str) -> List[str]:
 
         command = []
         for arg in words:
-            command += _separate_redirect_parts(arg)
+            arg = _separate_redirect_parts(arg)
+            command += arg
 
         return command
 
     return []
-
 
 def _separate_redirect_parts(arg: str) -> List[str]:
     """
@@ -37,43 +46,42 @@ def _separate_redirect_parts(arg: str) -> List[str]:
     separate_redirect_parts("/dev/null") -> ["/dev/null"]
     separate_redirect_parts("ls;pwd") -> ["ls;pwd"]
     """
-
-    # This order is NOT random
     
-    LONG_REDIRECT = ["1>>", "2>>", "&>>", "<<<"]
-    MEDIUM_REDIRECT = [">>", "<<", "1>", "2>", "&>", "|&"]
-    SHORT_REDIRECT = [">", "<", "|"]
-    COMMAND_SEPARATOR = [';']
+    res = []
+    string = ""
+    jump = 0
+    for i in arg:
+        if jump > 0:
+            jump -= 1
+            continue
 
-    LOOK_FOR = COMMAND_SEPARATOR + LONG_REDIRECT + MEDIUM_REDIRECT + SHORT_REDIRECT
+        tail = arg[arg.index(i):]
+        lm_red = False # long or medium redirect
 
-    for i in LOOK_FOR:
-        if arg == i:
-            return [i]
-        
-        if i in COMMAND_SEPARATOR and i in arg:  
-            z = arg.split(i)
-            res = []
-            for j in z:
-                res.append(j)
-                if j != z[-1]:# or (len(arg) > 0 and arg[-1] == i):
-                    res.append(i)
+        for r in LM_REDIRECTS:
+            if tail.startswith(r):
+                if string:
+                    res.append(string)
+                string = ""
+                res.append(r)
+                lm_red = True
 
-            return res
-        elif arg.startswith(i):
-            # python 3.8 does not have removeprefix
-            if _sys.version_info >= (3, 9):
-                return [i, arg.removeprefix(i)]
-            return [i, arg[len(i):]]
-        
-        elif arg.endswith(i):
-            # python 3.8 does not have removeprefix
-            if _sys.version_info >= (3, 9):
-                return [arg.removesuffix(i), i]
-            return [-arg[len(i):], i]
-        
-        
-    return [arg] 
+                jump = len(r) - 1
+                break
+            
+        if not lm_red: 
+            if i in SHORT_SYMBOLS:
+                if string:
+                    res.append(string)
+                    string = ""
+                res.append(i)
+            else:
+                string += i
+    
+    if string:
+        res.append(string)
+    
+    return res
 
 
 
