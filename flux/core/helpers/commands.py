@@ -560,7 +560,8 @@ class _Levels(_IntEnum):
 class Colors:
     def __init__(self) -> None:
         from . import colors
-        self.Fore = colors.Foreground()
-        self.Back = colors.Background()
-        self.Style = colors.Styles()
+        self.Fore = colors.Foreground
+        self.Back = colors.Background
+        self.Style = colors.Styles
+
 
