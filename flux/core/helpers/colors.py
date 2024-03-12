@@ -2,7 +2,7 @@ try:
     from enum import StrEnum
 except ImportError:
     from enum import Enum 
-    class Strenum(str, Enum):
+    class StrEnum(str, Enum):
         pass
 
 class Foreground(StrEnum):
