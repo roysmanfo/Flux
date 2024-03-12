@@ -1,4 +1,9 @@
-from enum import StrEnum
+try:
+    from enum import StrEnum
+except ImportError:
+    from enum import Enum 
+    class Strenum(str, Enum):
+        pass
 
 class Foreground(StrEnum):
     RESET           = "\033[0m"   
