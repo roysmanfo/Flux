@@ -397,14 +397,14 @@ class CommandInterface(_ABC):
         """
         if true, the stderr has been redirected
         """
-        return not (self.stderr and self.stderr != _sys.stderr)
+        return not (self.stderr and self.stderr == _sys.stderr)
 
     @property
     def redirected_stdin(self):
         """
         if true, the stdin has been redirected
         """
-        return not (self.stdin and self.stdin != _sys.stdin)
+        return not (self.stdin and self.stdin == _sys.stdin)
     
     @property
     def is_output_red(self):
