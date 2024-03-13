@@ -21,7 +21,7 @@ def listen() -> List[str]:
     """
     try:
         print(
-            f"{Fore.GREEN}{INFO.user.username}{Fore.CYAN} Flux [{INFO.version}] {Fore.YELLOW}" + str(INFO.user.paths.terminal).lower() + f"{Fore.WHITE}{Fore.MAGENTA} $ ", end="")
+            f"{Fore.GREEN}{INFO.user.username}{Fore.CYAN} Flux [{INFO.version}] {Fore.YELLOW}" + str(INFO.user.paths.terminal).lower() + f"{Fore.MAGENTA} $ ", end="")
         command = input()
         print(f"{Fore.WHITE}", end="")
 
