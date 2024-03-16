@@ -388,42 +388,42 @@ class CommandInterface(_ABC):
     @property
     def redirected_stdout(self):
         """
-        if true, the stdout has been redirected
+        returns true if the stdout has been redirected
         """
         return not (self.stderr and self.stdout == _sys.stdout)
 
     @property
     def redirected_stderr(self):
         """
-        if true, the stderr has been redirected
+        returns true if the stderr has been redirected
         """
         return not (self.stderr and self.stderr == _sys.stderr)
 
     @property
     def redirected_stdin(self):
         """
-        if true, the stdin has been redirected
+        returns true if the stdin has been redirected
         """
         return not (self.stdin and self.stdin == _sys.stdin)
     
     @property
     def is_output_red(self):
         """
-        if true, the stdout and stderr have been redirected
+        returns true if the stdout and stderr have been redirected
         """
         return self.redirected_stdout and self.redirected_stderr
 
     @property
     def is_any_red(self):
         """
-        if true, at least one among stdout, stderr and stdin has been redirected
+        returns true if at least one among stdout, stderr and stdin has been redirected
         """
         return any([self.redirected_stdout, self.redirected_stderr, self.redirected_stdin])
 
     @property
     def is_all_red(self):
         """
-        if true, stdout, stderr and stdin have been redirected
+        retuns true if both stdout, stderr and stdin have been redirected
         """
         return all([self.redirected_stdout, self.redirected_stderr, self.redirected_stdin])
     
