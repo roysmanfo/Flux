@@ -351,7 +351,7 @@ class CommandInterface(_ABC):
         if self.stdout:
             txt = f"{sep}".join([ v.__str__() for v in values])
 
-            if self.stdout is not _sys.stdout:
+            if self.redirected_stdout:
                 txt = _format.remove_ansi_escape_sequences(txt)
 
             self.stdout.write(txt)
@@ -376,7 +376,7 @@ class CommandInterface(_ABC):
         if self.stderr:
             txt = f"{sep}".join([ v.__str__() for v in values])
 
-            if self.stderr is not _sys.stderr:
+            if self.redirected_stderr:
                 txt = _format.remove_ansi_escape_sequences(txt)
 
             self.stderr.write(txt)
