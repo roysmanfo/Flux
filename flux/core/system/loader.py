@@ -37,22 +37,18 @@ def load_builtin_script(script_name: str) -> Optional[Callable[[Info, str, bool,
             module = importlib.import_module(f"flux.core.cmd.builtin.{script_name}", "flux")
             os.chdir(cwd)
             try:
-                # TODO: Allow to specify a different name than 'Command' as class name
                 if hasattr(module, "ENTRY_POINT"):
-                    entry_point = getattr(module, "ENTRY_POINT")
-                    if hasattr(module, entry_point):
-                        class_name = getattr(module, entry_point)
-                    else:
-                        class_name = "Command"
+                    class_name = getattr(module, "ENTRY_POINT")
+                    if not hasattr(module, class_name):
+                        class_name = ""
                 else:
                     class_name = "Command"
             except AttributeError:
                 class_name = "Command"
             finally:
-                exec_command_class = getattr(module, class_name)
+                return getattr(module, class_name) if class_name else None
 
-            return exec_command_class
         except (ImportError, AttributeError):
             pass
-    print("none")
+
     return None
