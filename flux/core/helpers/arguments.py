@@ -41,7 +41,7 @@ class Parser(ArgumentParser):
             print()
 
     def exit(self, status: Optional[int] = None, message: Optional[str] = None):
-        # Chack if the help message was displayed
+        # Check if the help message has been shown
         if not message and not status:
             self.exit_execution = True
             return
