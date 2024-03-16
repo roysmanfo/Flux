@@ -335,7 +335,7 @@ class CommandInterface(_ABC):
         except KeyboardInterrupt:
             return None
         
-    def print(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n",  flush: bool = False) -> None :
+    def print(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n", file: Optional[TextIO] = None,  flush: bool = False) -> None :
         """
         Prints the values to self.stdout.
 
@@ -344,22 +344,23 @@ class CommandInterface(_ABC):
 
         - #### end
         \tstring appended after the last value, default a newline.
-
+        
+        - #### file
+        \ta file-like object (stream); defaults to self.stdout
+        
         - #### flush
         \twhether to forcibly flush the stream.
         """
         if self.stdout:
             txt = f"{sep}".join([ v.__str__() for v in values])
+            file = self.stdout if file is None else file
 
             if self.redirected_stdout:
                 txt = _format.remove_ansi_escape_sequences(txt)
+            
+            print(txt, end=end, file=file, flush=flush)
 
-            print(txt, end=end, file=self.stdout)
-
-            if flush:
-                self.stdout.flush()
-
-    def printerr(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n",  flush: bool = False) -> None :
+    def printerr(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n", file: Optional[TextIO] = None,  flush: bool = False) -> None :
         """
         Prints the values to self.stderr.
 
@@ -368,20 +369,21 @@ class CommandInterface(_ABC):
 
         - #### end
         \tstring appended after the last value, default a newline.
+        
+        - #### file
+        \ta file-like object (stream); defaults to self.stderr
 
         - #### flush
         \twhether to forcibly flush the stream.
         """
         if self.stderr:
             txt = f"{sep}".join([ v.__str__() for v in values])
+            file = self.stderr if file is None else file
 
             if self.redirected_stderr:
                 txt = _format.remove_ansi_escape_sequences(txt)
 
-            print(txt, end=end, file=self.stderr)
-
-            if flush:
-                self.stderr.flush()
+            print(txt, end=end, file=file, flush=flush)
 
     @property
     def redirected_stdout(self):
