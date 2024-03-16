@@ -354,8 +354,7 @@ class CommandInterface(_ABC):
             if self.redirected_stdout:
                 txt = _format.remove_ansi_escape_sequences(txt)
 
-            self.stdout.write(txt)
-            self.stdout.write(end)
+            print(txt, end=end, file=self.stdout)
 
             if flush:
                 self.stdout.flush()
@@ -379,8 +378,7 @@ class CommandInterface(_ABC):
             if self.redirected_stderr:
                 txt = _format.remove_ansi_escape_sequences(txt)
 
-            self.stderr.write(txt)
-            self.stderr.write(end)
+            print(txt, end=end, file=self.stderr)
 
             if flush:
                 self.stderr.flush()
