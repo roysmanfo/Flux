@@ -1,7 +1,6 @@
 import os
 import importlib
 from flux.settings.info import Info
-from pathlib import Path
 from typing import Callable, Optional, TextIO
 
 # List of directories to search for custom scripts/extensions
@@ -32,10 +31,7 @@ def load_builtin_script(script_name: str) -> Optional[Callable[[Info, str, bool,
     script_path = os.path.join(dir_name, script_name + ".py")
     if os.path.exists(script_path) and os.path.isfile(script_path):
         try:
-            cwd = os.getcwd()
-            os.chdir(os.path.dirname(os.path.realpath(__file__)))
             module = importlib.import_module(f"flux.core.cmd.builtin.{script_name}", "flux")
-            os.chdir(cwd)
             try:
                 if hasattr(module, "ENTRY_POINT"):
                     class_name = getattr(module, "ENTRY_POINT")
