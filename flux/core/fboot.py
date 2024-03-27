@@ -10,6 +10,7 @@ import platform
 import subprocess
 from typing import List, Optional
 import logging
+from pathlib import Path
 
 from flux.utils import environment
 
@@ -226,24 +227,31 @@ def activate_environment(fenv: str) -> None:
 
     `:param fenv` the path to the flux virtual environment
     """
-
+    global root_dir
     # !WARNING!: this method is unstable
 
     shell_command = []
-    if OS_NAME.startswith("win"):
-        shell_command = [os.path.join(fenv, "Scripts", "Activate.ps1")]
-
-        shell_command.append(" ".join(["python", os.path.join(root_dir, "flux", "main.py")]))
-        print(shell_command)
-
-        os.makedirs(os.path.join(root_dir, "boot"), exist_ok=True)
-        with open(os.path.join(root_dir, "boot", "startup.bat")) as f:
-            f.write(";".join(shell_command))
-        
-        subprocess.run(shell_command, shell=True)
+    cwd = os.getcwd()
+    os.chdir(fenv)
+    if os.name == "nt":
+        activate_script = os.path.join(fenv, "Scripts", "Activate.ps1")
+        python_script = os.path.join(root_dir, "flux", "main.py")
+        shell_command = [
+            "powershell.exe",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            f"& '{activate_script}' ; python '{python_script}'"
+        ]
     
+    else:
+        activate_script = os.path.join(fenv, "bin", "activate")
+        shell_command = [
+            "bash",
+            "-c",
+            f"source '{activate_script}' && python '{python_script}'"
+        ]
 
-    elif OS_NAME in ["linux", "darwin"]:
-        shell_command = ["source", os.path.join(fenv, "bin", "activate")]
 
-
+    print("Running command:", shell_command)
+    subprocess.run(shell_command)
