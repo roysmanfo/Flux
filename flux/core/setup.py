@@ -37,7 +37,11 @@ def _boot(dev_mode: bool) -> bool:
         for w in report.warnings:
             print(w)
     
-    if not report.can_start:
+    if report.already_run:
+        import sys
+        sys.exit(0)
+
+    elif not report.can_start:
         return False
     return True
 

@@ -26,6 +26,7 @@ class _Warning:
 class Report:
     def __init__(self) -> None:
         self.can_start = True
+        self.already_run = False
         self.warnings: List[_Warning] = []
 
 
@@ -81,14 +82,17 @@ def boot(dev_mode: bool = False) -> Report:
             logging.debug(f"activating '{fenv}' and restarting the application")
 
             activate_environment(fenv)
+            report.already_run = True
+            return report
     
     
     # TODO: check all folders in the root_dir and look for venvs more specificaly fluxenvs 
     # else
     # TODO: try to create new fluxenv
     # if none of the options above worked, give up
-    report.can_start = False
-    report.warnings.append(_Warning("Unable to start", f"Flux is unable to complete the setup procedures"))
+    else:
+        report.can_start = False
+        report.warnings.append(_Warning("Unable to start", f"Flux is unable to complete the setup procedures"))
     return report
 
 
