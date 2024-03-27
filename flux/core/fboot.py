@@ -222,17 +222,12 @@ def handle_min_requirements() -> bool:
 
 def activate_environment(fenv: str) -> None:
     """
-    #### UNSTABLE
     Activates and runs the application from inside a virtual environment
 
     `:param fenv` the path to the flux virtual environment
     """
-    global root_dir
-    # !WARNING!: this method is unstable
 
     shell_command = []
-    cwd = os.getcwd()
-    os.chdir(fenv)
     if os.name == "nt":
         activate_script = os.path.join(fenv, "Scripts", "Activate.ps1")
         python_script = os.path.join(root_dir, "flux", "main.py")
