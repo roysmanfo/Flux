@@ -26,17 +26,17 @@ class _Warning:
             return f"[!] {self.name}"
         return f"[!] {self.name}: {self.description}"
 
-class _Report:
+class Report:
     def __init__(self) -> None:
         self.can_start = True
         self.warnings: List[_Warning] = []
 
 
-report = _Report()
+report = Report()
 root_dir = os.path.realpath(os.path.join(
     os.path.realpath(__file__), "..", "..", ".."))
 
-def boot(dev_mode: bool = False) -> _Report:
+def boot(dev_mode: bool = False) -> Report:
     """
     Handles environment and minimum dependencies, and makes 
     `:param dev_mode`: if set to True, outputs on stdout all output
