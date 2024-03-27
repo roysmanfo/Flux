@@ -6,15 +6,11 @@ and are necessary to handle missing requirements and ensure that Flux can start 
 """
 
 import os
-import platform
 import subprocess
 from typing import List, Optional
 import logging
-from pathlib import Path
 
 from flux.utils import environment
-
-OS_NAME = platform.system().lower()
 
 class _Warning:
     def __init__(self, name: str, description: str) -> None:
@@ -82,7 +78,7 @@ def boot(dev_mode: bool = False) -> Report:
     if os.path.exists(os.path.join(root_dir, "venv")):
         if environment.is_flux_env(fenv):
             logging.debug(f"found flux environment: {fenv}")
-            logging.debug(f"activating {fenv}")
+            logging.debug(f"activating '{fenv}' and restarting the application")
 
             activate_environment(fenv)
     
@@ -122,9 +118,9 @@ def get_minimum_requirements() -> Optional[List[str]]:
             with open(req) as file:
                 requirements = file.read().splitlines()
 
-                if OS_NAME.startswith("win"):
+                if os.name == 'nt':
                     requirements += get_windows_requirements()
-                elif OS_NAME in ["linux", "darwin"]:
+                else:
                     requirements += get_linux_requirements()
 
                 # ensure no duplicates are present (NOTE: this isn't perfect, but works fine)
@@ -247,6 +243,4 @@ def activate_environment(fenv: str) -> None:
             f"source '{activate_script}' && python '{python_script}'"
         ]
 
-
-    print("Running command:", shell_command)
     subprocess.run(shell_command)
