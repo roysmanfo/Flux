@@ -88,7 +88,7 @@ def is_flux_env(path: str) -> bool:
             os.path.exists(os.path.join(path, ".fluxenv")),               
         ])
 
-def get_all_venvs(path: str) -> List[str]:
+def list_venvs(path: str) -> List[str]:
     """
     Search every folder in `path` for a pyvenv.cfg file
     `:returns` : a list containing all vintualenv paths detected in a folder
