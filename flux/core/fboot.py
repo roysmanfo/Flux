@@ -38,7 +38,7 @@ def boot(dev_mode: bool = False) -> Report:
     """
     Handles environment and minimum dependencies, and makes 
     `:param dev_mode`: if set to True, outputs on stdout all output
-    `:returns` : A _Report object that determines if the application can start without problems
+    `:returns` : A `Report` object that determines if the application can start without problems
     """
 
     if dev_mode:
@@ -87,12 +87,50 @@ def boot(dev_mode: bool = False) -> Report:
     
     
     # TODO: check all folders in the root_dir and look for venvs more specificaly fluxenvs 
-    # else
-    # TODO: try to create new fluxenv
-    # if none of the options above worked, give up
     else:
-        report.can_start = False
-        report.warnings.append(_Warning("Unable to start", f"Flux is unable to complete the setup procedures"))
+        logging.debug(f"'{fenv}' not found")
+        logging.debug(f"looking for all environments in {root_dir}")
+        allvenvs = environment.list_venvs(root_dir)
+        logging.debug(f"found {len(allvenvs)} venvs in '{root_dir}'")
+        logging.debug(f"scanning results for flux environments...")
+        for v in allvenvs:
+            if environment.is_flux_env(v):
+                fenv = v
+                logging.debug(f"found flux environment: {fenv}")
+                logging.debug(f"activating '{fenv}' and restarting the application")
+                activate_environment(fenv)
+                report.already_run = True
+                return report
+        
+        # TODO: try to create new fluxenv
+        logging.info("no flux environment found")
+        resp = input("create a new flux environment? [y/n]: ").lower()
+
+        if resp == 'y':
+            import venv
+            clear = False
+            fenv = input("insert environment name (default: venv): ").lower().strip()
+            fenv = fenv if fenv else "venv"
+            
+            while os.path.exists(fenv) and os.path.isdir(fenv):            
+                resp = input(f"the directory {fenv} already exists, delete contents? [y/n]: ").lower()
+                if resp == 'y':
+                    clear=True
+                    break
+
+                fenv = input("insert environment name (default: venv): ").lower().strip()
+                fenv = fenv if fenv else "venv"
+            
+            logging.info(f"creating flux environment in '{fenv}'")
+            venv.create(fenv, clear=clear, prompt="fluxenv", with_pip=True)
+            logging.debug(f"activating '{fenv}' and restarting the application\n")
+            activate_environment(fenv)
+            report.already_run = True
+            return report
+        
+    # if none of the options above worked, give up
+    report.can_start = False
+    report.warnings.append(_Warning("Unable to start", f"Flux is unable to complete the setup procedures"))
     return report
 
 
