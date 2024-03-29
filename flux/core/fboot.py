@@ -275,7 +275,7 @@ def activate_environment(fenv: str) -> None:
             "-ExecutionPolicy",
             "Bypass",
             "-Command",
-            f"& '{activate_script}' ; python '{python_script}'{' --dev-mode' if logging.root.level <= 10 else ''}"
+            f"& '{activate_script}' ; python '{python_script}'{' --dev-mode' if logging.root.level <= logging.DEBUG else ''}"
         ]
     
     else:
@@ -283,7 +283,7 @@ def activate_environment(fenv: str) -> None:
         shell_command = [
             "bash",
             "-c",
-            f"source '{activate_script}' && python '{python_script}'"
+            f"source '{activate_script}' && python '{python_script}'{' --dev-mode' if logging.root.level <= logging.DEBUG else ''}"
         ]
 
     subprocess.run(shell_command)
