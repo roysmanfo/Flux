@@ -267,9 +267,10 @@ def activate_environment(fenv: str) -> None:
     """
 
     shell_command = []
+    python_script = os.path.join(root_dir, "flux", "main.py")
+
     if os.name == "nt":
         activate_script = os.path.join(fenv, "Scripts", "Activate.ps1")
-        python_script = os.path.join(root_dir, "flux", "main.py")
         shell_command = [
             "powershell.exe",
             "-ExecutionPolicy",
@@ -277,7 +278,6 @@ def activate_environment(fenv: str) -> None:
             "-Command",
             f"& '{activate_script}' ; python '{python_script}'{' --dev-mode' if logging.root.level <= logging.DEBUG else ''}"
         ]
-    
     else:
         activate_script = os.path.join(fenv, "bin", "activate")
         shell_command = [
