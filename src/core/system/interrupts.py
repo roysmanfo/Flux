@@ -1,5 +1,6 @@
 from typing import Any, Callable, Optional
 from signal import Signals
+from enum import IntEnum, Enum
 
 class Interrupt:
     def __init__(self, signal: int, callback: Callable[[Any], None], exec_once: Optional[bool] = None) -> None:
@@ -12,6 +13,7 @@ class Interrupt:
         """
         Execute the code in the interrupt function
         """
+        
         if self.callback:
             self.callback()
 
@@ -50,4 +52,12 @@ class InterruptHandler(object):
         print(signum, frame) # check if everything works
 
         # TODO: call all appropriate interrupts based on the interrupt type 
+
+class Events(IntEnum):
+    """
+    These interupt values are specific references to internal flux processes 
+    """
+    PROCESS_CREATED: int = 1
+    PROCESS_DELETED: int = 2
+
 

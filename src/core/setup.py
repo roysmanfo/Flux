@@ -7,7 +7,7 @@ import platform
 from typing import List, Optional
 from src.settings.info import User, Info, SysPaths
 import subprocess
-from src.core.system.interrupt import InterruptHandler
+from src.core.system.interrupts import InterruptHandler
 
 def setup() -> Info:
     """
