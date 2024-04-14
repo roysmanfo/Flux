@@ -441,7 +441,7 @@ class Errors():
         self.errors.value = self.args.PATH
     ```
 
-    or by recreating the object in your setup 
+    or by recreating the object in your `setup` 
 
     ```
     def setup(self):
@@ -449,13 +449,23 @@ class Errors():
         self.errors = Errors(PATH)
     ```
 
-    otherwise you will have to provide the path on each call
+    otherwise you will have to provide the value on each call
 
     ```
     try:
         # Some operations
     except PermissionError:
         self.error(self.errors.permission_error(PATH))
+    ```
+
+    If you define `self.value` and set the parameter to a different value,
+    the new parameter will be used instead
+
+    ```
+    self.errors.value = 'value1'
+    self.error(self.errors.permission_error())         # <- will use 'value1'
+    self.error(self.errors.permission_error('value2')) # <- will use 'value2'
+    self.error(self.errors.permission_error())         # <- will use 'value1' again
     ```
     """
 
