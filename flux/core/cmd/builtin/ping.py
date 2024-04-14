@@ -123,7 +123,7 @@ class Command(CommandInterface):
                         self.stats.p_lost += 1
 
 
-                    if not self.args.quiet:
+                    if not self.args.quiet and delay:
                         self.print(f"{self.args.size} bytes from {fqdn} ({dest_addr}): icmp_seq={icmp_seq} ttl={self.args.ttl} time={round(delay, 1)} ms")
 
                     if self.args.count:
