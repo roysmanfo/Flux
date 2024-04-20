@@ -60,12 +60,22 @@ class CommandInterface(_ABC):
             command.close()
             status = command.exit()
                 
-            except Exception as e:
-                command.fail_safe(e)
-                status: int = command.status
+        except Exception as e:
+            try:
+                command_instance.fail_safe(e)
+                status: int = command_instance.status
+            
+            except Exception as ex:
+                # In case the command also overwites the fail_safe 
+                # and the new function contains unhandled exceptions 
+                # (why would you modify fail_safe() anyway?)
 
-            del command
-            return status
+                # **handle error**
+                status = STATUS_ERR
+
+        del command_instance
+        return (status if isinstance(status, int) else STATUS_ERR)
+        
     ```
 
     ### LOGGING FUNCTIONS
