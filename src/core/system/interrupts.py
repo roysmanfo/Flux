@@ -1,10 +1,10 @@
-from typing import Any, List, Mapping, Set, Callable, Optional, Tuple, Union
-from signal import Signals
+import sys
 import signal
-from enum import IntEnum
 import random
 import time
-import sys
+from typing import Any, List, Mapping, Set, Callable, Optional, Tuple, Union
+from signal import Signals
+from enum import IntEnum
 
 
 class UnsupportedSignalError(ValueError):
@@ -91,15 +91,17 @@ def event_name_to_value(event: str) -> Optional[int]:
     except KeyError:
         return None
 
+
 def event_value_to_name(value: int) -> Optional[str]:
     if value not in EventTriggers:
         return None
-    
+
     return _clean_event_name(EventTriggers(value))
 
 
 def _clean_event_name(event_repr: str) -> str:
     return event_repr.__repr__().removeprefix("<EventTriggers.").split(":")[0].upper()
+
 
 class IHandle(int):
     """
@@ -107,7 +109,7 @@ class IHandle(int):
 
     This allows to identify and interact with a specific interrupt
     """
-    
+
     def __str__(self) -> str:
         return f"IHandle<{super().__str__()}>"
 
@@ -139,25 +141,24 @@ class Interrupt:
         alias for self.HANDLE
         """
         return self.HANDLE
-    
+
     @property
     def executed(self):
         return self.exec_count > 0
-    
+
     @property
     def is_dead(self):
-        return self.executed and self.exec_once 
-    
+        return self.executed and self.exec_once
+
     def call(self, signum, frame) -> None:
         """
         Execute the code in the interrupt function
         """
-        
+
         if self.target:
-            self.target(signum,frame, *self.args, *self.kwargs)
+            self.target(signum, frame, *self.args, *self.kwargs)
             self.exec_count += 1
 
-        
 
 class InterruptHandler(object):
     def __init__(self) -> None:
@@ -170,18 +171,17 @@ class InterruptHandler(object):
             try:
                 if event in Signals:
                     signal.signal(event, self._handle_interrupts)
-                
+
                 event_name = event_value_to_name(event)
                 self.supported.update({event_name: int(event)})
             except ValueError:
                 pass
-    
 
-    def register(self, 
-                 event: Union[Signals, EventTriggers], 
-                 target: Callable[[Any], None], 
-                 args: Optional[Tuple[Any]] = (), 
-                 kwargs: Optional[Mapping[str, Any]] = None, 
+    def register(self,
+                 event: Union[Signals, EventTriggers],
+                 target: Callable[[Any], None],
+                 args: Optional[Tuple[Any]] = (),
+                 kwargs: Optional[Mapping[str, Any]] = None,
                  exec_once: Optional[bool] = True
                 ) -> IHandle:
         """
@@ -197,11 +197,12 @@ class InterruptHandler(object):
 
         if not isinstance(event, (Signals, EventTriggers)):
             raise UnsupportedSignalError("You must provide a Signal/Event")
-        
+
         signal_value = event.value if isinstance(event, EventTriggers) else event
-        
+
         if signal_value not in EventTriggers or signal_value not in Signals:
-            raise UnsupportedSignalError("The specified EventTriggers isn't suported")
+            raise UnsupportedSignalError(
+                "The specified EventTriggers isn't suported")
 
         h = IHandle.generate_handle()
 
@@ -215,14 +216,13 @@ class InterruptHandler(object):
         if kwargs and type(kwargs) != dict:
             raise TypeError(f"kwargs should be of type dict and not {type(kwargs)}")
         interrupt = Interrupt(handle, signal_value, target, args, kwargs, exec_once)
-        
+
         if signal_value not in self.interrupts:
             self.interrupts[signal_value] = []
         self.interrupts[signal_value].append(interrupt)
 
         self.interrupt_map[handle] = interrupt
         return handle
-
 
     def unregister(self, handle: IHandle, force: bool = False) -> bool:
         """
@@ -236,7 +236,7 @@ class InterruptHandler(object):
         interrupt = self.interrupt_map.get(handle)
         if not interrupt:
             return True
-        
+
         if interrupt.executed or force:
             # remove from mapping
             self.interrupt_map.pop(handle)
@@ -249,10 +249,10 @@ class InterruptHandler(object):
 
             return True
         return False
-    
+
     def get_supported_signals(self) -> Set[str]:
         return set(self.supported.keys())
-    
+
     def _handle_interrupts(self, signum, frame) -> None:
         # Call all appropriate interrupts based on the interrupt type
         if signum and signum in self.interrupts:
@@ -271,7 +271,7 @@ class InterruptHandler(object):
         """
         vals = self.get_all(event)
         return vals[0] if vals else None
-        
+
     def find(self, handle: IHandle) -> Optional[Interrupt]:
         """
         `:returns` the first interrupt with a specific handle using a linear search, None if not found
@@ -286,7 +286,3 @@ class InterruptHandler(object):
 
     def get_available_signal_values(self) -> list[int]:
         return list(self.supported.values())
-
-from threading import Thread
-
-Thread()
