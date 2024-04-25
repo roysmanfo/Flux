@@ -187,11 +187,12 @@ class InterruptHandler(object):
         """
         Register a new interrupt handler
 
-        `:param` event: can be one of the supported `Signals` or `Events`. Specifies when to execute the interrupt
-        `:param` target: the actual code to execute once the specified event accours  
-        `:param` args: the arguments needed to the target function   
-        `:param` exec_once: if set to False, the interrupt will be executed at each event, as long as the command is stil alive
-        `:returns` an handle to the `Interrupt`, which will be usefull when interacting with it
+        `:param` event: can be one of the supported `Signals` or `EventTriggers`. Specifies when to execute the interrupt
+        `:param` target: the actual code to execute once the specified event occours  
+        `:param` args: the arguments needed by the target function   
+        `:param` kwargs: is a dictionary of keyword arguments for the target invocation. Defaults to {}.   
+        `:param` exec_once: if set to False, the interrupt will be executed at each event, as long as the command is still alive
+        `:returns` an handle to the `Interrupt`, which will be useful when interacting with it
         """
 
         if not isinstance(event, (Signals, EventTriggers)):
@@ -200,7 +201,7 @@ class InterruptHandler(object):
         signal_value = event.value if isinstance(event, EventTriggers) else event
         
         if signal_value not in EventTriggers or signal_value not in Signals:
-            raise UnsupportedSignalError("The specified Event/Signal isn't suported")
+            raise UnsupportedSignalError("The specified EventTriggers isn't suported")
 
         h = IHandle.generate_handle()
 
@@ -286,3 +287,6 @@ class InterruptHandler(object):
     def get_available_signal_values(self) -> list[int]:
         return list(self.supported.values())
 
+from threading import Thread
+
+Thread()
