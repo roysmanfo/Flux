@@ -68,21 +68,6 @@ if __name__ == "__main__":
         I_HANDLER = setup.create_interrupt_handler()
         del setup
 
-        
-        # add all available interrupts
-        for sig in list(signal.Signals):
-            try:
-                signal.signal(sig, I_HANDLER._handle_interrupts)
-                sig_name = sig.__repr__().removeprefix("<Signals.").split(":")[0].upper()
-                I_HANDLER.supported.update({sig_name: int(sig)})
-            except ValueError as e:
-                pass
-
-        def exit_program(signal, frame):
-            INFO.exit = True
-
-        # signal.signal(signal.SIGINT, exit_program)
-
         # check for line arguments
         if len(sys.argv) > 1:
             cmd = sys.argv[1:]

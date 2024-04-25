@@ -1,8 +1,10 @@
 from typing import Any, List, Mapping, Set, Callable, Optional, Tuple, Union
 from signal import Signals
-from enum import IntEnum, auto
+import signal
+from enum import IntEnum
 import random
 import time
+import sys
 
 
 class UnsupportedSignalError(ValueError):
@@ -11,29 +13,93 @@ class UnsupportedSignalError(ValueError):
     """
 
 
-class Events(IntEnum):
+class EventTriggers(IntEnum):
     """
-    These interupt values are specific references to internal flux processes 
+    These are all event the triggers
     """
-    PROCESS_CREATED: int = auto()           # Triggered when a new process is created
-    PROCESS_DELETED: int = auto()           # Triggered when a new process is deleted
-    # available but not yet working
-    COMMAND_EXECUTED: int = auto()          # Triggered after a command is successfully executed
-    COMMAND_FAILED: int = auto()            # Triggered if a command execution fails
-    DIRECTORY_CHANGED: int = auto()         # Triggered when the current working directory is changed
-    FILE_MODIFIED: int = auto()             # Triggered when a file is modified within the current directory
-    SIGNAL_RECEIVED: int = auto()           # Triggered when a signal is received by the terminal
-    TASK_COMPLETED: int = auto()            # Triggered when a long-running task completes
-    TASK_FAILED: int = auto()               # Triggered when a long-running task fails
-    NETWORK_CONNECTED: int = auto()         # Triggered when a network connection is established
-    NETWORK_DISCONNECTED: int = auto()      # Triggered when a network connection is lost
-    USER_LOGIN: int = auto()                # Triggered when a user logs into the system
-    USER_LOGOUT: int = auto()               # Triggered when a user logs out of the system
-    SYSTEM_ERROR: int = auto()              # Triggered when a system error occurs
-    MEMORY_USAGE_HIGH: int = auto()         # Triggered when memory usage exceeds a certain threshold
-    CPU_USAGE_HIGH: int = auto()            # Triggered when CPU usage exceeds a certain threshold
-    BATTERY_LOW: int = auto()               # Triggered when the battery level is low (for portable devices)
+    SIGABRT: int = Signals.SIGABRT.value
+    SIGFPE: int = Signals.SIGFPE.value
+    SIGILL: int = Signals.SIGILL.value
+    SIGINT: int = Signals.SIGINT.value
+    SIGSEGV: int = Signals.SIGSEGV.value
+    SIGTERM: int = Signals.SIGTERM.value
 
+    if sys.platform == "win32":
+        SIGBREAK: int
+        CTRL_C_EVENT: int
+        CTRL_BREAK_EVENT: int
+    else:
+        SIGALRM: int = Signals.SIGALRM.value
+        SIGBUS: int = Signals.SIGBUS.value
+        SIGCHLD: int = Signals.SIGCHLD.value
+        SIGCONT: int = Signals.SIGCONT.value
+        SIGHUP: int = Signals.SIGHUP.value
+        SIGIO: int = Signals.SIGIO.value
+        SIGIOT: int = Signals.SIGIOT.value
+        SIGKILL: int = Signals.SIGKILL.value
+        SIGPIPE: int = Signals.SIGPIPE.value
+        SIGPROF: int = Signals.SIGPROF.value
+        SIGQUIT: int = Signals.SIGQUIT.value
+        SIGSTOP: int = Signals.SIGSTOP.value
+        SIGSYS: int = Signals.SIGSYS.value
+        SIGTRAP: int = Signals.SIGTRAP.value
+        SIGTSTP: int = Signals.SIGTSTP.value
+        SIGTTIN: int = Signals.SIGTTIN.value
+        SIGTTOU: int = Signals.SIGTTOU.value
+        SIGURG: int = Signals.SIGURG.value
+        SIGUSR1: int = Signals.SIGUSR1.value
+        SIGUSR2: int = Signals.SIGUSR2.value
+        SIGVTALRM: int = Signals.SIGVTALRM.value
+        SIGWINCH: int = Signals.SIGWINCH.value
+        SIGXCPU: int = Signals.SIGXCPU.value
+        SIGXFSZ: int = Signals.SIGXFSZ.value
+        if sys.platform != "linux":
+            SIGEMT: int = Signals.SIGEMT.value
+            SIGINFO: int = Signals.SIGINFO.value
+        if sys.platform != "darwin":
+            SIGCLD: int = Signals.SIGCLD.value
+            SIGPOLL: int = Signals.SIGPOLL.value
+            SIGPWR: int = Signals.SIGPWR.value
+            SIGRTMAX: int = Signals.SIGRTMAX.value
+            SIGRTMIN: int = Signals.SIGRTMIN.value
+            if sys.version_info >= (3, 11):
+                SIGSTKFLT: int = Signals.SIGSTKFLT.value
+
+    # these are exclusive to flux
+    PROCESS_CREATED: int = 100           # Triggered when a new process is created
+    PROCESS_DELETED: int = 101           # Triggered when a new process is deleted
+    # available but not yet working
+    COMMAND_EXECUTED: int = 102          # Triggered after a command is successfully executed
+    COMMAND_FAILED: int = 103            # Triggered if a command execution fails
+    DIRECTORY_CHANGED: int = 104         # Triggered when the current working directory is changed
+    FILE_MODIFIED: int = 105             # Triggered when a file is modified within the current directory
+    SIGNAL_RECEIVED: int = 106           # Triggered when a signal is received by the terminal
+    TASK_COMPLETED: int = 107            # Triggered when a long-running task completes
+    TASK_FAILED: int = 108               # Triggered when a long-running task fails
+    NETWORK_CONNECTED: int = 109         # Triggered when a network connection is established
+    NETWORK_DISCONNECTED: int = 110      # Triggered when a network connection is lost
+    USER_LOGIN: int = 111                # Triggered when a user logs into the system
+    USER_LOGOUT: int = 112               # Triggered when a user logs out of the system
+    SYSTEM_ERROR: int = 113              # Triggered when a system error occurs
+    MEMORY_USAGE_HIGH: int = 114         # Triggered when memory usage exceeds a certain threshold
+    CPU_USAGE_HIGH: int = 115            # Triggered when CPU usage exceeds a certain threshold
+    BATTERY_LOW: int = 116               # Triggered when the battery level is low (for portable devices)
+
+def event_name_to_value(event: str) -> Optional[int]:
+    try:
+        return EventTriggers[event]
+    except KeyError:
+        return None
+
+def event_value_to_name(value: int) -> Optional[str]:
+    if value not in EventTriggers:
+        return None
+    
+    return _clean_event_name(EventTriggers(value))
+
+
+def _clean_event_name(event_repr: str) -> str:
+    return event_repr.__repr__().removeprefix("<EventTriggers.").split(":")[0].upper()
 
 class IHandle(int):
     """
@@ -99,8 +165,20 @@ class InterruptHandler(object):
         self.interrupt_map: dict[IHandle, Interrupt] = {}
         self.supported: dict[str, int] = {}
 
+        # add all available interrupts to self
+        for event in list(EventTriggers):
+            try:
+                if event in Signals:
+                    signal.signal(event, self._handle_interrupts)
+                
+                event_name = event_value_to_name(event)
+                self.supported.update({event_name: int(event)})
+            except ValueError:
+                pass
+    
+
     def register(self, 
-                 event: Union[Signals, Events], 
+                 event: Union[Signals, EventTriggers], 
                  target: Callable[[Any], None], 
                  args: Optional[Tuple[Any]] = (), 
                  kwargs: Optional[Mapping[str, Any]] = None, 
@@ -116,12 +194,12 @@ class InterruptHandler(object):
         `:returns` an handle to the `Interrupt`, which will be usefull when interacting with it
         """
 
-        if not isinstance(event, (Signals, Events)):
+        if not isinstance(event, (Signals, EventTriggers)):
             raise UnsupportedSignalError("You must provide a Signal/Event")
         
-        signal_value = event.value if isinstance(event, Events) else event
+        signal_value = event.value if isinstance(event, EventTriggers) else event
         
-        if signal_value not in Events or signal_value not in Signals:
+        if signal_value not in EventTriggers or signal_value not in Signals:
             raise UnsupportedSignalError("The specified Event/Signal isn't suported")
 
         h = IHandle.generate_handle()
@@ -151,7 +229,7 @@ class InterruptHandler(object):
 
         `:param` handle: an handle to the Interrupt to remove
         `:param` force: if True, the interrupt will be removed even if it hasn't been executed yet
-        `:returns` True if the interrupt hase been removed, or has not been found, False otherwise
+        `:returns` True if the interrupt has been removed, or has not been found, False otherwise
         """
 
         interrupt = self.interrupt_map.get(handle)
@@ -180,13 +258,13 @@ class InterruptHandler(object):
             for interrupt in self.interrupts[signum]:
                 interrupt.call(signum, frame)
 
-    def get_all(self, event: Union[Signals, Events]) -> List[Interrupt]:
+    def get_all(self, event: Union[Signals, EventTriggers]) -> List[Interrupt]:
         """
         `:returns` a list of all interupts with a specific trigger event
         """
         return self.interrupts.get(event, [])
 
-    def get(self, event: Union[Signals, Events]) -> Optional[Interrupt]:
+    def get(self, event: Union[Signals, EventTriggers]) -> Optional[Interrupt]:
         """
         `:returns` the first interrupt with a specific trigger event, None if not found
         """
