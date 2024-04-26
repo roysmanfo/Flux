@@ -10,7 +10,6 @@ init(autoreset=True)
 
 # Flux modules
 from core import setup, manager
-from settings.info import Info
 import utils
 
 def listen() -> List[str]:
@@ -28,6 +27,7 @@ def listen() -> List[str]:
         return utils.transform.string_to_list(command)
 
     except (KeyboardInterrupt, EOFError):
+        signal.raise_signal(signal.SIGINT)
         print(f"{Fore.RED}^C{Fore.RESET}")
         return []
 
@@ -47,7 +47,7 @@ def run():
                     if cmd[0] != "":
                         manager.manage(cmd, INFO)
         except KeyboardInterrupt:
-            pass
+            signal.raise_signal(signal.SIGINT)
 
 if __name__ == "__main__":
     
@@ -65,21 +65,15 @@ if __name__ == "__main__":
                     case _: sys.exit(1)
 
         # Setup process
-        INFO: Info = setup.setup()
-
+        INFO = setup.setup()
+        I_HANDLER = setup.create_interrupt_handler()
         del setup
-        del Info
 
+        # check for line arguments
         if len(sys.argv) > 1:
-            
             cmd = sys.argv[1:]
             manager.manage(cmd, INFO)
             sys.exit(0)
-
-        def exit_program(signal, frame):
-            INFO.exit = True
-
-        signal.signal(signal.SIGINT, exit_program)
 
         INFO.processes._add_main_process(INFO, ['flux'], run)
         INFO.processes.processes[0].thread.join()
