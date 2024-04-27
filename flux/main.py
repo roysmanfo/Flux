@@ -76,7 +76,6 @@ if __name__ == "__main__":
             sys.exit(0)
 
         INFO.processes._add_main_process(INFO, ['flux'], run)
-        INFO.processes.processes[0].thread.join()
         sys.exit(0)
 
     except Exception as e:

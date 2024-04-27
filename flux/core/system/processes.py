@@ -79,9 +79,9 @@ class Process:
 
     def run(self, is_main_thread=False):
         if is_main_thread:
-            self.thread = Thread(target=self._run_main, name=self.name)
-            self.thread.start()
-            self.native_id = self.thread.native_id
+            self.thread = self._run_main
+            self.thread()
+            self.native_id = _os.getpid()
             return
 
         self.thread = Thread(target=self._run, name=self.name, daemon=True)
@@ -159,7 +159,8 @@ class Processes:
         """
 
         for p in self.processes:
-            if not p.thread.is_alive():
+            # check that we are not trying to remove the main process 
+            if not p is self.processes[0] and not p.thread.is_alive():
                 self.processes.remove(p)
 
     def copy(self):

@@ -10,6 +10,7 @@ import subprocess
 from flux.settings.info import User, Info, SysPaths
 from flux.utils import environment
 from . import _boot
+from .system.interrupts import InterruptHandler
 
 
 
@@ -63,3 +64,5 @@ def get_interpreter_command() -> Optional[str]:
 
     return None
 
+def create_interrupt_handler() -> InterruptHandler:
+    return InterruptHandler()
