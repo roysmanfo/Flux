@@ -36,7 +36,7 @@ class SysPaths:
         return SysPaths()
             
 
-class Info:
+class Settings:
     ...
 
 
@@ -109,7 +109,7 @@ class User():
             l.write("")
             json.dump(settings, l, indent=4, sort_keys=True)
 
-    def set_username(self, new_username: str, info: Info, reset: bool = False) -> None:
+    def set_username(self, new_username: str, info: Settings, reset: bool = False) -> None:
         """
         Sets the username to new_username
         """
@@ -124,7 +124,7 @@ class User():
                 l.write("")
                 json.dump(settings, l, indent=4, sort_keys=True)
 
-    def set_email(self, info: Info, emails: List[str], reset: bool = False):
+    def set_email(self, info: Settings, emails: List[str], reset: bool = False):
         """
         Change the user email to the first valid email address in @param emails
         """
@@ -294,7 +294,7 @@ class Path:
         return pathlib.Path(os.path.join(os.path.expanduser('~'), "bucket", "files"))
         
 
-    def set_path(self, target: str, new_path: pathlib.Path, info: Info, reset: bool = False) -> None:
+    def set_path(self, target: str, new_path: pathlib.Path, info: Settings, reset: bool = False) -> None:
         """
         Changes the specified path
         """
@@ -337,9 +337,9 @@ class Path:
         print(f"Successfully changed path.{target} to {new_path}\n")
 
 
-class Info:
+class Settings:
     """
-    ### CLASS INFO
+    ### CLASS SETTINGS
 
     This class contains every information a command may need.\n
     It's like a dictionary mapping information like the user instance or the version
@@ -375,5 +375,5 @@ class Info:
         """
         Returns a copy of the current state of Info
         """
-        return Info(self.user.copy(), self.syspaths.copy())
+        return Settings(self.user.copy(), self.syspaths.copy())
 

@@ -9,7 +9,7 @@ import os
 from typing import List, Optional, TextIO, Tuple
 from pathlib import Path
 
-from flux.settings.info import Info
+from flux.settings.settings import Settings
 from flux.core.system import loader
 from flux.core.helpers.commands import CommandInterface, STATUS_ERR
 
@@ -155,7 +155,7 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
 
 
 
-def manage(command: List[str], info: Info) -> None:        
+def manage(command: List[str], info: Settings) -> None:        
     try:
         exec_command = build(command, info)
         if exec_command:
@@ -172,7 +172,7 @@ def manage(command: List[str], info: Info) -> None:
             print(f"-flux: {command[0]}: command not found\n{e}\n")
 
 
-def build(command: List[str], info: Info) -> Optional[CommandInterface]:
+def build(command: List[str], info: Settings) -> Optional[CommandInterface]:
     exec_command: CommandInterface
     exec_command_class = CommandInterface
 

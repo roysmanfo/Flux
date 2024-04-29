@@ -7,14 +7,14 @@ import platform
 from typing import Optional
 import subprocess
 
-from flux.settings.info import User, Info, SysPaths
+from flux.settings.settings import User, Settings, SysPaths
 from flux.utils import environment
 from . import _boot
 from .system.interrupts import InterruptHandler
 
 
 
-def setup() -> Info:
+def setup() -> Settings:
     """
     ## Setup process
 
@@ -36,7 +36,7 @@ def setup() -> Info:
     USER = User()
     os.chdir(USER.paths.terminal)
 
-    INFO = Info(USER, SYS_PATHS)
+    INFO = Settings(USER, SYS_PATHS)
     return INFO
 
 

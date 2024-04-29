@@ -6,7 +6,7 @@ import unittest
 from flux import utils
 from flux.core import manager, setup
 from flux.core.system.variables import Variable
-from flux.settings.info import SysPaths
+from flux.settings.settings import SysPaths
 
 s_file_exists = os.path.exists(SysPaths.SETTINGS_FILE)
 info = setup.setup()

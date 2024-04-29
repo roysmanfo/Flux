@@ -5,7 +5,7 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Any, Optional, TextIO, List, Union
 from argparse import Namespace as _Namespace
 
-from flux.settings.info import Info
+from flux.settings.settings import Settings
 from flux.core.system.processes import (STATUS_OK, STATUS_ERR, STATUS_WARN)
 from flux.utils import format as _format
 from .arguments import Parser
@@ -104,7 +104,7 @@ class CommandInterface(_ABC):
     """
 
     def __init__(self,
-                 info: Info,
+                 info: Settings,
                  command: List[str],
                  is_process: bool,
                  stdout: Optional[TextIO] = _sys.stdout,
@@ -113,7 +113,7 @@ class CommandInterface(_ABC):
                  ) -> None:
 
         self.IS_PROCESS: bool = is_process
-        self.sysinfo: Info = info
+        self.sysinfo: Settings = info
         self.command: List[str] = command
         self.status: Optional[int] = None
         self.stdout = stdout

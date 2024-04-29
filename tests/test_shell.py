@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 import tempfile
-from flux.settings.info import SysPaths
+from flux.settings.settings import SysPaths
 from flux.core import setup, manager
 from flux import utils
 
