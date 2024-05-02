@@ -281,8 +281,8 @@ class InterruptHandler(object):
     def get_available_signals(self) -> dict:
         return self.supported
 
-    def get_available_signals_names(self) -> list[str]:
+    def get_available_signals_names(self) -> List[str]:
         return list(self.supported.keys())
 
-    def get_available_signal_values(self) -> list[int]:
+    def get_available_signal_values(self) -> List[int]:
         return list(self.supported.values())
