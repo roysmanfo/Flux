@@ -2,11 +2,13 @@ from threading import Thread
 import time as _time
 from typing import List, Callable, Optional, Union
 import os as _os
+from enum import IntEnum
 
-# Process status codes
-STATUS_OK = 0  # Exited with no problems
-STATUS_ERR = 1  # An error accoured
-STATUS_WARN = 2  # Exited with warnings
+
+class Status(IntEnum):
+    STATUS_OK = 0  # Exited with no problems
+    STATUS_ERR = 1  # An error accoured
+    STATUS_WARN = 2  # Exited with warnings
 
 
 class ProcessInfo:

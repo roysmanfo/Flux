@@ -6,9 +6,13 @@ from typing import Any, Optional, TextIO, List, Union
 from argparse import Namespace as _Namespace
 
 from flux.settings.settings import Settings
-from flux.core.system.processes import (STATUS_OK, STATUS_ERR, STATUS_WARN)
+from flux.core.system.processes import Status
 from flux.utils import format as _format
 from .arguments import Parser
+
+STATUS_OK = Status.STATUS_OK
+STATUS_ERR = Status.STATUS_ERR
+STATUS_WARN = Status.STATUS_WARN
 
 class CommandInterface(_ABC):
     """
