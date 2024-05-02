@@ -17,73 +17,73 @@ class EventTriggers(IntEnum):
     """
     These are all event the triggers
     """
-    SIGABRT: int = Signals.SIGABRT.value
-    SIGFPE: int = Signals.SIGFPE.value
-    SIGILL: int = Signals.SIGILL.value
-    SIGINT: int = Signals.SIGINT.value
-    SIGSEGV: int = Signals.SIGSEGV.value
-    SIGTERM: int = Signals.SIGTERM.value
+    SIGABRT = Signals.SIGABRT.value
+    SIGFPE = Signals.SIGFPE.value
+    SIGILL = Signals.SIGILL.value
+    SIGINT = Signals.SIGINT.value
+    SIGSEGV = Signals.SIGSEGV.value
+    SIGTERM = Signals.SIGTERM.value
 
     if sys.platform == "win32":
-        SIGBREAK: int = Signals.SIGBREAK.value
-        CTRL_C_EVENT: int = Signals.CTRL_C_EVENT.value
-        CTRL_BREAK_EVENT: int = Signals.CTRL_BREAK_EVENT.value
+        SIGBREAK = Signals.SIGBREAK.value
+        CTRL_C_EVENT = Signals.CTRL_C_EVENT.value
+        CTRL_BREAK_EVENT = Signals.CTRL_BREAK_EVENT.value
     else:
-        SIGALRM: int = Signals.SIGALRM.value
-        SIGBUS: int = Signals.SIGBUS.value
-        SIGCHLD: int = Signals.SIGCHLD.value
-        SIGCONT: int = Signals.SIGCONT.value
-        SIGHUP: int = Signals.SIGHUP.value
-        SIGIO: int = Signals.SIGIO.value
-        SIGIOT: int = Signals.SIGIOT.value
-        SIGKILL: int = Signals.SIGKILL.value
-        SIGPIPE: int = Signals.SIGPIPE.value
-        SIGPROF: int = Signals.SIGPROF.value
-        SIGQUIT: int = Signals.SIGQUIT.value
-        SIGSTOP: int = Signals.SIGSTOP.value
-        SIGSYS: int = Signals.SIGSYS.value
-        SIGTRAP: int = Signals.SIGTRAP.value
-        SIGTSTP: int = Signals.SIGTSTP.value
-        SIGTTIN: int = Signals.SIGTTIN.value
-        SIGTTOU: int = Signals.SIGTTOU.value
-        SIGURG: int = Signals.SIGURG.value
-        SIGUSR1: int = Signals.SIGUSR1.value
-        SIGUSR2: int = Signals.SIGUSR2.value
-        SIGVTALRM: int = Signals.SIGVTALRM.value
-        SIGWINCH: int = Signals.SIGWINCH.value
-        SIGXCPU: int = Signals.SIGXCPU.value
-        SIGXFSZ: int = Signals.SIGXFSZ.value
+        SIGALRM = Signals.SIGALRM.value
+        SIGBUS = Signals.SIGBUS.value
+        SIGCHLD = Signals.SIGCHLD.value
+        SIGCONT = Signals.SIGCONT.value
+        SIGHUP = Signals.SIGHUP.value
+        SIGIO = Signals.SIGIO.value
+        SIGIOT = Signals.SIGIOT.value
+        SIGKILL = Signals.SIGKILL.value
+        SIGPIPE = Signals.SIGPIPE.value
+        SIGPROF = Signals.SIGPROF.value
+        SIGQUIT = Signals.SIGQUIT.value
+        SIGSTOP = Signals.SIGSTOP.value
+        SIGSYS = Signals.SIGSYS.value
+        SIGTRAP = Signals.SIGTRAP.value
+        SIGTSTP = Signals.SIGTSTP.value
+        SIGTTIN = Signals.SIGTTIN.value
+        SIGTTOU = Signals.SIGTTOU.value
+        SIGURG = Signals.SIGURG.value
+        SIGUSR1 = Signals.SIGUSR1.value
+        SIGUSR2 = Signals.SIGUSR2.value
+        SIGVTALRM = Signals.SIGVTALRM.value
+        SIGWINCH = Signals.SIGWINCH.value
+        SIGXCPU = Signals.SIGXCPU.value
+        SIGXFSZ = Signals.SIGXFSZ.value
         if sys.platform != "linux":
-            SIGEMT: int = Signals.SIGEMT.value
-            SIGINFO: int = Signals.SIGINFO.value
+            SIGEMT = Signals.SIGEMT.value
+            SIGINFO = Signals.SIGINFO.value
         if sys.platform != "darwin":
-            SIGCLD: int = Signals.SIGCLD.value
-            SIGPOLL: int = Signals.SIGPOLL.value
-            SIGPWR: int = Signals.SIGPWR.value
-            SIGRTMAX: int = Signals.SIGRTMAX.value
-            SIGRTMIN: int = Signals.SIGRTMIN.value
+            SIGCLD = Signals.SIGCLD.value
+            SIGPOLL = Signals.SIGPOLL.value
+            SIGPWR = Signals.SIGPWR.value
+            SIGRTMAX = Signals.SIGRTMAX.value
+            SIGRTMIN = Signals.SIGRTMIN.value
             if sys.version_info >= (3, 11):
-                SIGSTKFLT: int = Signals.SIGSTKFLT.value
+                SIGSTKFLT = Signals.SIGSTKFLT.value
 
     # these are exclusive to flux
-    PROCESS_CREATED: int = 100           # Triggered when a new process is created
-    PROCESS_DELETED: int = 101           # Triggered when a new process is deleted
+    PROCESS_CREATED = 100           # Triggered when a new process is created
+    PROCESS_DELETED = 101           # Triggered when a new process is deleted
     # available but not yet working
-    COMMAND_EXECUTED: int = 102          # Triggered after a command is successfully executed
-    COMMAND_FAILED: int = 103            # Triggered if a command execution fails
-    DIRECTORY_CHANGED: int = 104         # Triggered when the current working directory is changed
-    FILE_MODIFIED: int = 105             # Triggered when a file is modified within the current directory
-    SIGNAL_RECEIVED: int = 106           # Triggered when a signal is received by the terminal
-    TASK_COMPLETED: int = 107            # Triggered when a long-running task completes
-    TASK_FAILED: int = 108               # Triggered when a long-running task fails
-    NETWORK_CONNECTED: int = 109         # Triggered when a network connection is established
-    NETWORK_DISCONNECTED: int = 110      # Triggered when a network connection is lost
-    USER_LOGIN: int = 111                # Triggered when a user logs into the system
-    USER_LOGOUT: int = 112               # Triggered when a user logs out of the system
-    SYSTEM_ERROR: int = 113              # Triggered when a system error occurs
-    MEMORY_USAGE_HIGH: int = 114         # Triggered when memory usage exceeds a certain threshold
-    CPU_USAGE_HIGH: int = 115            # Triggered when CPU usage exceeds a certain threshold
-    BATTERY_LOW: int = 116               # Triggered when the battery level is low (for portable devices)
+    COMMAND_EXECUTED = 102          # Triggered after a command is successfully executed
+    COMMAND_FAILED = 103            # Triggered if a command execution fails
+    DIRECTORY_CHANGED = 104         # Triggered when the current working directory is changed
+    FILE_MODIFIED = 105             # Triggered when a file is modified within the current directory
+    SIGNAL_RECEIVED = 106           # Triggered when a signal is received by the terminal
+    TASK_COMPLETED = 107            # Triggered when a long-running task completes
+    TASK_FAILED = 108               # Triggered when a long-running task fails
+    NETWORK_CONNECTED = 109         # Triggered when a network connection is established
+    NETWORK_DISCONNECTED = 110      # Triggered when a network connection is lost
+    USER_LOGIN = 111                # Triggered when a user logs into the system
+    USER_LOGOUT = 112               # Triggered when a user logs out of the system
+    SYSTEM_ERROR = 113              # Triggered when a system error occurs
+    MEMORY_USAGE_HIGH = 114         # Triggered when memory usage exceeds a certain threshold
+    CPU_USAGE_HIGH = 115            # Triggered when CPU usage exceeds a certain threshold
+    BATTERY_LOW = 116               # Triggered when the battery level is low (for portable devices)
 
 def event_name_to_value(event: str) -> Optional[int]:
     try:
