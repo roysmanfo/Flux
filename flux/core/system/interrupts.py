@@ -25,9 +25,9 @@ class EventTriggers(IntEnum):
     SIGTERM: int = Signals.SIGTERM.value
 
     if sys.platform == "win32":
-        SIGBREAK: int
-        CTRL_C_EVENT: int
-        CTRL_BREAK_EVENT: int
+        SIGBREAK: int = Signals.SIGBREAK.value
+        CTRL_C_EVENT: int = Signals.CTRL_C_EVENT.value
+        CTRL_BREAK_EVENT: int = Signals.CTRL_BREAK_EVENT.value
     else:
         SIGALRM: int = Signals.SIGALRM.value
         SIGBUS: int = Signals.SIGBUS.value
