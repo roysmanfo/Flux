@@ -2,6 +2,7 @@ from ...helpers.commands import *
 from ...helpers.arguments import Parser
 
 import socket
+from threading import Thread, Event
 
 ENTRY_POINT = "Netcat"
 
@@ -26,10 +27,31 @@ class Netcat(CommandInterface):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             self.args.port = int(self.args.port)
             sock.connect((self.args.destination, self.args.port))
-            sock.send(b"this is some data")
+            event = Event()
+            Thread(target=self.recv_messages, args=(sock, event), daemon=True).start()
 
+            try:
+                while not event.is_set():
+                    msg = self.input()
+                    if msg:
+                        sock.send(msg.encode())
+                    else:
+                        event.set()
 
+            except (KeyboardInterrupt, ConnectionAbortedError):
+                pass
+            finally:
+                event.set()
 
-
-
-
+    def recv_messages(self, sock: socket.socket, event: Event) -> None:
+        try:
+            while not event.is_set():
+                recv = sock.recv(4096)
+                if recv:
+                    self.print(recv.decode(), end="")
+                else:
+                    event.set()
+        except (KeyboardInterrupt, ConnectionAbortedError):
+            pass
+        finally:
+            event.set()
