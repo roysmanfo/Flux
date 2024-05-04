@@ -35,11 +35,13 @@ class SysPaths(_pathlib_class_type, Enum):
 
         `:raises` PermissionError if we do not have permissions to write in a folder
         """
-
-        os.makedirs(SysPaths.CONFIG_FOLDER, exist_ok=True)
-        os.makedirs(SysPaths.SETTINGS_FOLDER, exist_ok=True)
-        os.makedirs(SysPaths.CACHE_FOLDER, exist_ok=True)
-        os.makedirs(SysPaths.LOCAL_FOLDER, exist_ok=True)
+        try:
+            os.makedirs(SysPaths.CONFIG_FOLDER, exist_ok=True)
+            os.makedirs(SysPaths.SETTINGS_FOLDER, exist_ok=True)
+            os.makedirs(SysPaths.CACHE_FOLDER, exist_ok=True)
+            os.makedirs(SysPaths.LOCAL_FOLDER, exist_ok=True)
+        except OSError as e:
+            raise PermissionError(e.__str__()) # raise a more descriptive exception
 
     def copy(self):
         return SysPaths()
