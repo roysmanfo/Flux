@@ -4,6 +4,11 @@ import pathlib
 import platform
 from typing import List
 
+from enum import Enum 
+class PathEnum(pathlib.Path, Enum):
+    def __str__(self):
+        return str(self.value)
+
 from flux.core.system.variables import Variables
 from flux.core.system.processes import Processes
 
@@ -11,14 +16,15 @@ with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), 
     VERSION = version.read()
 
 
-class SysPaths:
-    CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux"))
-    SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json"))
-    SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE))
-    CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache"))
-    LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local"))
+class SysPaths(PathEnum):
+    CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux")).resolve()
+    SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json")).resolve()
+    SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE)).resolve()
+    CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache")).resolve()
+    LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local")).resolve()
 
-    def create_initial_folders(self) -> None:
+    @staticmethod
+    def create_initial_folders() -> None:
         """
         You should check for permission when creatin an object of this class
 
@@ -27,14 +33,13 @@ class SysPaths:
         `:raises` PermissionError if we do not have permissions to write in a folder
         """
 
-        os.makedirs(self.CONFIG_FOLDER, exist_ok=True)
-        os.makedirs(self.SETTINGS_FOLDER, exist_ok=True)
-        os.makedirs(self.CACHE_FOLDER, exist_ok=True)
-        os.makedirs(self.LOCAL_FOLDER, exist_ok=True)
+        os.makedirs(SysPaths.CONFIG_FOLDER, exist_ok=True)
+        os.makedirs(SysPaths.SETTINGS_FOLDER, exist_ok=True)
+        os.makedirs(SysPaths.CACHE_FOLDER, exist_ok=True)
+        os.makedirs(SysPaths.LOCAL_FOLDER, exist_ok=True)
 
     def copy(self):
         return SysPaths()
-            
 
 class Settings:
     ...
@@ -353,10 +358,10 @@ class Settings:
     - exit:                 If true, the program and every single process gets shut down
     """
 
-    def __init__(self, user: User, syspaths: SysPaths):
+    def __init__(self, user: User):
 
         self.user = user
-        self.syspaths = syspaths
+        self.syspaths = SysPaths
         self.version = VERSION
         self.variables: Variables = Variables()
         self.processes: Processes = Processes()

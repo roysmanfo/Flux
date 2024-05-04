@@ -25,18 +25,17 @@ def setup() -> Settings:
     function in the main file and everything will be handled automaticaly. 
 
     * `:returns` : An object containing system information
-    * `:dtype`   : Info
+    * `:dtype`   : Settings
     * `:raises`  : PermissionError if the folders could not be created
     """
     
     # Load user
-    SYS_PATHS = SysPaths()
-    SYS_PATHS.create_initial_folders() # May rise an exception
+    SysPaths.create_initial_folders() # May rise an exception
     
     USER = User()
     os.chdir(USER.paths.terminal)
 
-    INFO = Settings(USER, SYS_PATHS)
+    INFO = Settings(USER)
     return INFO
 
 
