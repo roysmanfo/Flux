@@ -1,3 +1,4 @@
+import os
 import subprocess
 from flux.core.helpers.commands import *
 from flux.core.helpers.arguments import Parser
@@ -33,9 +34,37 @@ class Command(CommandInterface):
     def run(self):
         global p
 
+
         try:
-            p = subprocess.Popen(self.command, stdin=self.stdin, stdout=self.stdout, stderr=self.stderr, text=True)
-            p.wait()
+            # find the executable
+            if os.name == 'nt':
+                process = subprocess.Popen(['where', self.command[0]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            else:
+                process = subprocess.Popen(['which', self.command[0]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
+            stdout, _ = process.communicate()
+
+
+            if process.returncode == 0:
+                command_paths = [i.strip() for i in stdout.decode().strip().split('\n') if i]
+
+                success = False
+                # try each path
+                for path in command_paths:
+                    try:
+                        p = subprocess.Popen([path])
+                        p.wait()
+                        success = True
+                    except:
+                        pass
+
+                if not success:
+                    raise FileNotFoundError()
+
+
+            else:
+               raise FileNotFoundError()
+
         except FileNotFoundError:
             self.error("unable to spawn the specified process (not found)")
             self.status = STATUS_ERR
