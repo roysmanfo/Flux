@@ -3,11 +3,7 @@ import os
 import pathlib
 import platform
 from typing import List
-
 from enum import Enum 
-class PathEnum(pathlib.Path, Enum):
-    def __str__(self):
-        return str(self.value)
 
 from flux.core.system.variables import Variables
 from flux.core.system.processes import Processes
@@ -15,13 +11,20 @@ from flux.core.system.processes import Processes
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
 
+_pathlib_class_type = type(pathlib.Path()) # PosixPath or WindowsPath
 
-class SysPaths(PathEnum):
+class SysPaths(_pathlib_class_type, Enum):
     CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux")).resolve()
     SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json")).resolve()
     SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE)).resolve()
     CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache")).resolve()
     LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local")).resolve()
+    
+    def __str__(self):
+        return str(self.value)
+    
+    def __new__(cls, *pathsegments):
+        return super().__new__(cls, *pathsegments)
 
     @staticmethod
     def create_initial_folders() -> None:
@@ -40,6 +43,7 @@ class SysPaths(PathEnum):
 
     def copy(self):
         return SysPaths()
+
 
 class Settings:
     ...
