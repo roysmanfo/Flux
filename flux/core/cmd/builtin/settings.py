@@ -1,5 +1,5 @@
 """
-# `systemctl`
+# `settings`
 Allows the user to change different settings, such as the username or info.user.path informations
 """
 from pathlib import Path
@@ -8,9 +8,9 @@ from flux.core.helpers.commands import *
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser(prog="systemctl",
+        self.parser = Parser(prog="settings",
                              description="Allows the user to change different settings, such as the username or info.user.path informations")
-        self.parser.add_argument("-s", dest="setting", help="The setting to change")
+        self.parser.add_argument("setting", nargs="?", help="The setting to change")
         self.parser.add_argument("-v", dest="value", nargs="+", help="The new value of the setting to change (used with -s)")
         self.parser.add_argument("-r","--reset", dest="reset", action="store_true", help="Reset the selected setting to it's default value (used with -s)")
         self.parser.add_argument("--reset-all", dest="reset_all", action="store_true", help="Reset all settings")
@@ -23,7 +23,7 @@ class Command(CommandInterface):
         if not self.args.reset_all:
             
             if not self.args.setting:
-                self.error("The following arguments are required: -s")
+                self.error(self.errors.parameter_not_specified("setting"))
                 return
                 
             if self.args.value and self.args.reset:
@@ -43,7 +43,9 @@ class Command(CommandInterface):
             self.sysinfo.user.reset_settings()
             self.print('Restart the shell to apply changes')
             return
-
+        
+        self.args.setting = str(self.args.setting) # this is just for intellisense
+        
         # Change username
         if self.args.setting == "username":
             if self.args.value or self.args.reset:
