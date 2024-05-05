@@ -102,8 +102,7 @@ def event_value_to_name(value: int) -> Optional[str]:
 
 
 def _clean_event_name(event_repr: str) -> str:
-    return event_repr.__repr__().removeprefix("<EventTriggers.").split(":")[0].upper()
-
+    return event_repr.__repr__().split(".")[1].split(":")[0].upper()
 
 class IHandle(int):
     """
