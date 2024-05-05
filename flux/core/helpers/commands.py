@@ -96,19 +96,24 @@ class CommandInterface(_ABC):
     ### HELPER FUNCTIONS
     Other usefull methods, NOT called by the terminal.
     If you want to use these methods you need to call them yourself.
+    (print() and printerr() are not affected by the log_level, but are still to output redirection)
 
-    - `input()`                 This is similar to python's `input()`, but uses `self.stdin` and doesn't modify `sys.stdin` .
-    - `print()`                 This is similar to python's `print()`, but uses `self.stdout` and doesn't modify `sys.stdout` .
+    - `input()`                 This is similar to python's `input()`, but uses `self.stdin` and instead of `sys.stdin` .
+    - `print()`                 This is similar to python's `print()`, but uses `self.stdout` and instead of `sys.stdout` .
     - `printerr()`              This is similar to `self.print()`, but uses `self.stderr` instead.
-    - `redirected_stdout()`     True when the stdout has been redirected
-    - `redirected_stderr()`     True when the stderr has been redirected
-    - `redirected_stdin()`      True when the stdin has been redirected
-    - `is_output_red()`         True when the stdout and stderr have been redirected
-    - `is_any_red()`            True when at least one among stdout, stderr and stdin has been redirected
-    - `is_all_red()`            True when stdout, stderr and stdin have been redirected
-    - `is_alive()`              True from when the commaand gets loaded to after exit() or fail_safe()
-    - `has_high_priv()`         True if the command has been run with high/system privileges
-    - `has_sys_priv()`          True if the command has been run with system privileges
+    
+    ### PROPERTIES
+    Other usefull informations about the state of the command
+
+    - `bool` `redirected_stdout()`     True when the stdout has been redirected
+    - `bool` `redirected_stderr()`     True when the stderr has been redirected
+    - `bool` `redirected_stdin()`      True when the stdin has been redirected
+    - `bool` `is_output_red()`         True when the stdout and stderr have been redirected
+    - `bool` `is_any_red()`            True when at least one among stdout, stderr and stdin has been redirected
+    - `bool` `is_all_red()`            True when stdout, stderr and stdin have been redirected
+    - `bool` `is_alive()`              True from when the commaand gets loaded to after exit() or fail_safe()
+    - `bool` `has_high_priv()`         True if the command has been run with high/system privileges
+    - `bool` `has_sys_priv()`          True if the command has been run with system privileges
 
     """
 
