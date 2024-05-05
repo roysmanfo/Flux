@@ -5,7 +5,7 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Any, Optional, TextIO, List, Union
 from argparse import Namespace as _Namespace
 
-from flux.core.system.system import Privileges, high_privileges
+from flux.core.system.privileges import Privileges
 from flux.settings.settings import Settings
 from flux.core.system.processes import Status
 from flux.utils import format as _format
