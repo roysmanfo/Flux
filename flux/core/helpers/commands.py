@@ -5,6 +5,7 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Any, Optional, TextIO, List, Union
 from argparse import Namespace as _Namespace
 
+from flux.core.system.system import Privileges, high_privileges
 from flux.settings.settings import Settings
 from flux.core.system.processes import Status
 from flux.utils import format as _format
@@ -114,8 +115,10 @@ class CommandInterface(_ABC):
                  stdout: Optional[TextIO] = _sys.stdout,
                  stderr: Optional[TextIO] = _sys.stdout,
                  stdin: Optional[TextIO] = _sys.stdin
+                #  privileges
                  ) -> None:
-
+        
+        self.PERMISSIONS = Privileges.LOW
         self.IS_PROCESS: bool = is_process
         self.sysinfo: Settings = info
         self.command: List[str] = command
@@ -130,6 +133,10 @@ class CommandInterface(_ABC):
 
         self.levels = _Levels
         self.log_level = self.levels.NOTSET
+
+        self._is_alive = True
+
+
 
     def __init_subclass__(cls) -> None:
         cls._FLUX_COMMAND = True
@@ -206,6 +213,7 @@ class CommandInterface(_ABC):
         This is the last function that gets called.\n
         This function should be used to define what status code to return
         """
+        self._is_alive = False
         return self.status if self.status else STATUS_OK
 
     def fail_safe(self, exception: Exception):
@@ -240,7 +248,16 @@ class CommandInterface(_ABC):
         if self.redirected_stdin:
             self.stdin.close()
 
-        
+        self._is_alive = False
+
+    @high_privileges
+    def syscall(self):
+        print("syscall")
+
+
+    @property
+    def is_alive(self):
+        return self._is_alive
 
     """
     LOGGING FUNCTIONS
