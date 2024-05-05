@@ -106,6 +106,10 @@ class CommandInterface(_ABC):
     - `is_output_red()`         True when the stdout and stderr have been redirected
     - `is_any_red()`            True when at least one among stdout, stderr and stdin has been redirected
     - `is_all_red()`            True when stdout, stderr and stdin have been redirected
+    - `is_alive()`              True from when the commaand gets loaded to after exit() or fail_safe()
+    - `has_high_priv()`         True if the command has been run with high/system privileges
+    - `has_sys_priv()`          True if the command has been run with system privileges
+
     """
 
     def __init__(self,
@@ -114,11 +118,11 @@ class CommandInterface(_ABC):
                  is_process: bool,
                  stdout: Optional[TextIO] = _sys.stdout,
                  stderr: Optional[TextIO] = _sys.stdout,
-                 stdin: Optional[TextIO] = _sys.stdin
-                #  privileges
+                 stdin: Optional[TextIO] = _sys.stdin,
+                 privileges: int = Privileges.LOW
                  ) -> None:
         
-        self.PERMISSIONS = Privileges.LOW
+        self.PRIVILEGES = privileges
         self.IS_PROCESS: bool = is_process
         self.sysinfo: Settings = info
         self.command: List[str] = command
@@ -249,15 +253,6 @@ class CommandInterface(_ABC):
             self.stdin.close()
 
         self._is_alive = False
-
-    @high_privileges
-    def syscall(self):
-        print("syscall")
-
-
-    @property
-    def is_alive(self):
-        return self._is_alive
 
     """
     LOGGING FUNCTIONS
@@ -457,7 +452,28 @@ class CommandInterface(_ABC):
         retuns true if both stdout, stderr and stdin have been redirected
         """
         return all([self.redirected_stdout, self.redirected_stderr, self.redirected_stdin])
+
+    @property
+    def is_alive(self):
+        """
+        retuns true from when the commaand gets loaded to after exit() or fail_safe()
+        """
+        return self._is_alive
     
+    @property
+    def has_high_priv(self):
+        """
+        retuns true if the command has been run with high/system privileges
+        """
+        return self.PRIVILEGES >= Privileges.HIGH
+
+    @property
+    def has_sys_priv(self):
+        """
+        retuns true if the command has been run with system privileges
+        """
+        return self.PRIVILEGES >= Privileges.SYSTEM
+
 class Errors():
     """
     Standardized error/warning messages
