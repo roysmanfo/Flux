@@ -120,9 +120,7 @@ class Processes:
         self.process_counter: int = _os.getpid()
 
     def list(self) -> List[ProcessInfo]:
-        # Avoid returning the system managed list of processes
-        # Instead return a copy
-        return [p.get_info() for p in self.processes.copy()]
+        return [p.get_info() for p in self.processes]
 
     def _generate_pid(self) -> int:
         self.process_counter += 1
