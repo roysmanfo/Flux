@@ -4,6 +4,8 @@ from typing import List, Callable, Optional, Union
 import os as _os
 from enum import IntEnum
 
+from flux.core.system.interrupts import EventTriggers, InterruptHandler
+
 
 class Status(IntEnum):
     STATUS_OK = 0  # Exited with no problems
@@ -116,9 +118,10 @@ class Process:
 
 
 class Processes:
-    def __init__(self):
+    def __init__(self, i_handler: InterruptHandler):
         self.processes: List[Process] = []
         self.process_counter: int = _os.getpid()
+        self.i_handler = i_handler
 
     def list(self) -> List[ProcessInfo]:
         return [p.get_info() for p in self.processes]
@@ -136,6 +139,7 @@ class Processes:
         self.processes.append(Process(id=self._generate_pid(), owner=system.settings.user.username,
                               command_instance=command_instance, line_args=line_args, is_reserved_process=is_reserved))
         print(f"[{self.processes[-1].id}] {line_args[0]}")
+        self.i_handler.raise_interrupt(EventTriggers.PROCESS_CREATED)
         self.processes[-1].run()
         _time.sleep(.1)
 
@@ -163,6 +167,8 @@ class Processes:
             # check that we are not trying to remove the main process 
             if not p is self.processes[0] and not p.thread.is_alive():
                 self.processes.remove(p)
+
+        self.i_handler.raise_interrupt(EventTriggers.PROCESS_DELETED)
 
     def copy(self):
         processes = Processes()

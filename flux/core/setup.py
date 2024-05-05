@@ -3,15 +3,11 @@ Necessary procedures to prepare the program to work
 as intended.
 """
 import os
-import platform
 from typing import Optional
 import subprocess
 
 from flux.core.system.system import System
 from flux.settings.settings import User, Settings, SysPaths
-from flux.utils import environment
-from . import _boot
-from .system.interrupts import InterruptHandler
 
 
 
@@ -66,5 +62,3 @@ def get_interpreter_command() -> Optional[str]:
 
     return None
 
-def create_interrupt_handler() -> InterruptHandler:
-    return InterruptHandler()

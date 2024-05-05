@@ -2,9 +2,11 @@ import sys
 import signal
 import random
 import time
-from typing import Any, List, Mapping, Set, Callable, Optional, Tuple, Union
+import inspect
 from signal import Signals
 from enum import IntEnum
+from typing import Any, List, Mapping, Set, Callable, Optional, Tuple, Union
+from types import FrameType
 
 
 class UnsupportedSignalError(ValueError):
@@ -156,8 +158,8 @@ class Interrupt:
         """
 
         if self.target:
-            self.target(signum, frame, *self.args, *self.kwargs)
             self.exec_count += 1
+            self.target(signum, frame, *self.args, *self.kwargs)
 
 
 class InterruptHandler(object):
@@ -195,12 +197,12 @@ class InterruptHandler(object):
         `:returns` an handle to the `Interrupt`, which will be useful when interacting with it
         """
 
-        if not isinstance(event, (Signals, EventTriggers)):
+        if not isinstance(event, (EventTriggers, Signals, int)):
             raise UnsupportedSignalError("You must provide a Signal/Event")
 
         signal_value = event.value if isinstance(event, EventTriggers) else event
 
-        if signal_value not in EventTriggers or signal_value not in Signals:
+        if signal_value not in EventTriggers and signal_value not in Signals:
             raise UnsupportedSignalError(
                 "The specified EventTriggers isn't suported")
 
@@ -250,10 +252,26 @@ class InterruptHandler(object):
             return True
         return False
 
+
+    def raise_interrupt(self, event: EventTriggers) -> None:
+        
+        if not isinstance(event, (Signals, EventTriggers, int)):
+            raise UnsupportedSignalError("You must provide a Signal/Event")
+
+        if event not in self.supported.values():
+            raise UnsupportedSignalError("The specified EventTriggers isn't suported")
+
+        frame = inspect.currentframe()
+        if frame:
+            frame = frame.f_back
+
+        self._handle_interrupts(event, frame)
+
+
     def get_supported_signals(self) -> Set[str]:
         return set(self.supported.keys())
 
-    def _handle_interrupts(self, signum, frame) -> None:
+    def _handle_interrupts(self, signum: EventTriggers, frame: Optional[FrameType]) -> None:
         # Call all appropriate interrupts based on the interrupt type
         if signum and signum in self.interrupts:
             for interrupt in self.interrupts[signum]:

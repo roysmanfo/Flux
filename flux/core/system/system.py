@@ -1,4 +1,5 @@
 import os
+from flux.core.system.interrupts import InterruptHandler
 from flux.core.system.processes import Processes
 from flux.core.system.variables import Variables
 from flux.settings.settings import Settings, VERSION
@@ -17,8 +18,9 @@ class System():
         self.settings = settings
         self.version = VERSION
         self.privileges = Privileges
+        self.interrupt_handler: InterruptHandler = InterruptHandler()
         self.variables: Variables = Variables()
-        self.processes: Processes = Processes()
+        self.processes: Processes = Processes(self.interrupt_handler)
         
         self._init_reserved_variables()
         

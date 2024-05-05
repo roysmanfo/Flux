@@ -66,7 +66,6 @@ if __name__ == "__main__":
 
         # Setup process
         SYSTEM = setup.setup()
-        I_HANDLER = setup.create_interrupt_handler()
         del setup
 
         # check for line arguments
