@@ -356,31 +356,13 @@ class Settings:
     It's like a dictionary mapping information like the user instance or the version
 
     - user:                 The user instance
-    - settings_file:        The settings file path
-    - settings_folder:      the settings folder path
-    - version:              The software version number
-    - variables:            All env variables are stored here
-    - processes:            A list of every single process running in the app
-    - exit:                 If true, the program and every single process gets shut down
+    - syspaths:             A collection of paths reserved to flux and flux commands
     """
 
     def __init__(self, user: User):
 
         self.user = user
         self.syspaths = SysPaths
-        self.version = VERSION
-        self.variables: Variables = Variables()
-        self.processes: Processes = Processes()
-        self.exit: bool = False
-
-        self.init_reserved_variables()
-
-    def init_reserved_variables(self) -> None:
-
-        self.variables.add("$ALL", "$ALL:$HOME:$PATH:$PWD", True)
-        self.variables.add("$HOME", str(self.user.paths.terminal), True)
-        self.variables.add("$PATH", os.environ.get("PATH", ""), True)
-        self.variables.add("$PWD", str(self.user.paths.terminal), True)
 
     def copy(self):
         """

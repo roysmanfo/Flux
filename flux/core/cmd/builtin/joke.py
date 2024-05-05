@@ -15,7 +15,7 @@ class Command(CommandInterface):
     
     def setup(self):
         self.jokes: List[str] = []
-        jpath = os.path.join(self.sysinfo.syspaths.LOCAL_FOLDER, "jokes", "jokes.json")
+        jpath = os.path.join(self.settings.syspaths.LOCAL_FOLDER, "jokes", "jokes.json")
         try:
             with open(jpath) as f:
                 jokes_data = json.load(f)
@@ -37,7 +37,7 @@ class Command(CommandInterface):
         """
         This command tells a random programming joke
         """
-        self.sysinfo.syspaths.LOCAL_FOLDER
+        self.settings.syspaths.LOCAL_FOLDER
 
 
         self.print(random.choice(self.jokes))

@@ -9,7 +9,7 @@ import os
 from typing import List, Optional, TextIO, Tuple
 from pathlib import Path
 
-from flux.settings.settings import Settings
+from flux.core.system.system import System
 from flux.core.system import loader
 from flux.core.helpers.commands import CommandInterface, STATUS_ERR
 
@@ -155,13 +155,13 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
 
 
 
-def manage(command: List[str], info: Settings) -> None:        
+def manage(command: List[str], system: System) -> None:        
     try:
-        exec_command = build(command, info)
+        exec_command = build(command, system)
         if exec_command:
             if exec_command.IS_PROCESS:
                 command.pop(-1)
-                info.processes.add(info, command, exec_command, False)
+                system.processes.add(system, command, exec_command, False)
             else:
                 call(exec_command)
         else:
@@ -172,16 +172,16 @@ def manage(command: List[str], info: Settings) -> None:
             print(f"-flux: {command[0]}: command not found\n{e}\n")
 
 
-def build(command: List[str], info: Settings) -> Optional[CommandInterface]:
+def build(command: List[str], system: System) -> Optional[CommandInterface]:
     exec_command: CommandInterface
     exec_command_class = CommandInterface
 
     # Remove completed Processes
-    info.processes.clean()
+    system.processes.clean()
 
     # Check for variables
-    if info.variables.exists(command[0]):
-        command_name = info.variables.get(command[0]).value
+    if system.variables.exists(command[0]):
+        command_name = system.variables.get(command[0]).value
     else:
         command_name = command[0]
 
@@ -229,7 +229,7 @@ def build(command: List[str], info: Settings) -> Optional[CommandInterface]:
     is_thread = command[-1].endswith("&") and not command[0].endswith("&")
     # XXX: Ensure stability on python 3.12 as threads created by flux are not supported (#44)
     is_thread = is_thread and sys.version_info < (3, 12)
-    exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin)
+    exec_command = exec_command_class(system, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin, privileges=system.privileges.LOW)
 
     del exec_command_class
     return exec_command

@@ -128,13 +128,13 @@ class Processes:
         self.process_counter += 1
         return self.process_counter
 
-    def _add_main_process(self, info: object, prog_name: str, callable: Callable):
-        self.processes.append(Process(id=self._generate_pid(), owner=info.user.username,
+    def _add_main_process(self, system: object, prog_name: str, callable: Callable):
+        self.processes.append(Process(id=self._generate_pid(), owner=system.settings.user.username,
                               command_instance=callable, line_args=prog_name, is_reserved_process=True))
         self.processes[-1].run(is_main_thread=True)
 
-    def add(self, info: object, line_args: List[str], command_instance: object, is_reserved: bool):
-        self.processes.append(Process(id=self._generate_pid(), owner=info.user.username,
+    def add(self, system: object, line_args: List[str], command_instance: object, is_reserved: bool):
+        self.processes.append(Process(id=self._generate_pid(), owner=system.settings.info.user.username,
                               command_instance=command_instance, line_args=line_args, is_reserved_process=is_reserved))
         print(f"[{self.processes[-1].id}] {line_args[0]}")
         self.processes[-1].run()

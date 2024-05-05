@@ -23,7 +23,7 @@ class Command(CommandInterface):
         self.args.mode = mapped_modes[self.args.mode.lower()] if self.args.mode in mapped_modes.keys() else self.args.mode
 
 
-        procceses = self.sysinfo.processes.list()
+        procceses = self.system.processes.list()
 
         contents = []
         match self.args.mode:

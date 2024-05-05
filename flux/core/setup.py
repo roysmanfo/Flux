@@ -7,6 +7,7 @@ import platform
 from typing import Optional
 import subprocess
 
+from flux.core.system.system import System
 from flux.settings.settings import User, Settings, SysPaths
 from flux.utils import environment
 from . import _boot
@@ -14,7 +15,7 @@ from .system.interrupts import InterruptHandler
 
 
 
-def setup() -> Settings:
+def setup() -> System:
     """
     ## Setup process
 
@@ -32,11 +33,13 @@ def setup() -> Settings:
     # Load user
     SysPaths.create_initial_folders() # May rise an exception
     
-    USER = User()
-    os.chdir(USER.paths.terminal)
+    user = User()
+    os.chdir(user.paths.terminal)
 
-    INFO = Settings(USER)
-    return INFO
+    settings = Settings(user)
+    system = System(settings)
+    
+    return system
 
 
 def get_interpreter_command() -> Optional[str]:

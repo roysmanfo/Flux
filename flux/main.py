@@ -20,7 +20,7 @@ def listen() -> List[str]:
     """
     try:
         print(
-            f"{Fore.GREEN}{INFO.user.username}{Fore.CYAN} Flux [{INFO.version}] {Fore.YELLOW}" + str(INFO.user.paths.terminal).lower() + f"{Fore.MAGENTA} $ ", end="")
+            f"{Fore.GREEN}{SYSTEM.settings.user.username}{Fore.CYAN} Flux [{SYSTEM.version}] {Fore.YELLOW}" + str(SYSTEM.settings.user.paths.terminal).lower() + f"{Fore.MAGENTA} $ ", end="")
         command = input()
         print(f"{Fore.WHITE}", end="")
 
@@ -33,19 +33,19 @@ def listen() -> List[str]:
 
 
 def run():
-    while not INFO.exit:
-        os.chdir(INFO.user.paths.terminal)
+    while not SYSTEM.exit:
+        os.chdir(SYSTEM.settings.user.paths.terminal)
         try:
             cmd = listen()
 
             if cmd:
                 if cmd[0] == "exit":
-                    INFO.exit = True
+                    SYSTEM.exit = True
 
                 # Pass the command to the manager
                 else:
                     if cmd[0] != "":
-                        manager.manage(cmd, INFO)
+                        manager.manage(cmd, SYSTEM)
         except KeyboardInterrupt:
             signal.raise_signal(signal.SIGINT)
 
@@ -65,17 +65,17 @@ if __name__ == "__main__":
                     case _: sys.exit(1)
 
         # Setup process
-        INFO = setup.setup()
+        SYSTEM = setup.setup()
         I_HANDLER = setup.create_interrupt_handler()
         del setup
 
         # check for line arguments
         if len(sys.argv) > 1:
             cmd = sys.argv[1:]
-            manager.manage(cmd, INFO)
+            manager.manage(cmd, SYSTEM)
             sys.exit(0)
 
-        INFO.processes._add_main_process(INFO, ['flux'], run)
+        SYSTEM.processes._add_main_process(SYSTEM, ['flux'], run)
         sys.exit(0)
 
     except Exception as e:

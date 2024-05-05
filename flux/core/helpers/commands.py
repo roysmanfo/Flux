@@ -6,6 +6,7 @@ from typing import Any, Optional, TextIO, List, Union
 from argparse import Namespace as _Namespace
 
 from flux.core.system.privileges import Privileges
+from flux.core.system.system import System
 from flux.settings.settings import Settings
 from flux.core.system.processes import Status
 from flux.utils import format as _format
@@ -118,7 +119,7 @@ class CommandInterface(_ABC):
     """
 
     def __init__(self,
-                 info: Settings,
+                 system: System,
                  command: List[str],
                  is_process: bool,
                  stdout: Optional[TextIO] = _sys.stdout,
@@ -129,7 +130,8 @@ class CommandInterface(_ABC):
         
         self.PRIVILEGES = privileges
         self.IS_PROCESS: bool = is_process
-        self.sysinfo: Settings = info
+        self.system: System = system
+        self.settings: Settings = self.system.settings
         self.command: List[str] = command
         self.status: Optional[int] = None
         self.stdout = stdout

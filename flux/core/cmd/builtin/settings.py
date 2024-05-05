@@ -40,7 +40,7 @@ class Command(CommandInterface):
 
         # Reset all user vareables
         if self.args.reset_all:
-            self.sysinfo.user.reset_settings()
+            self.settings.user.reset_settings()
             self.print('Restart the shell to apply changes')
             return
         
@@ -50,19 +50,19 @@ class Command(CommandInterface):
         if self.args.setting == "username":
             if self.args.value or self.args.reset:
                 if len(self.args.value[0].strip()) > 1:
-                    self.sysinfo.user.set_username("default" if self.args.reset else " ".join(self.args.value), self.sysinfo, self.args.reset)
+                    self.settings.user.set_username("default" if self.args.reset else " ".join(self.args.value), self.settings, self.args.reset)
                 else:
                     self.stderr.write("The username provided is too short\n")
             else:
-                self.print(f"{self.sysinfo.user.username}\n")
+                self.print(f"{self.settings.user.username}\n")
 
         # Set/ change an email
         # if muliple emails given, set as email the first valid one
         elif self.args.setting == "email":
             if self.args.value or self.args.reset:
-                self.sysinfo.user.set_email(self.sysinfo, self.args.value, self.args.reset)
+                self.settings.user.set_email(self.settings, self.args.value, self.args.reset)
             else:
-                self.print(f"'{self.sysinfo.user.email}'\n")
+                self.print(f"'{self.settings.user.email}'\n")
 
         # change a Path
         elif self.args.setting.startswith("path"):
@@ -70,17 +70,17 @@ class Command(CommandInterface):
                 target = self.args.setting.split(".")[1]
                 if self.args.value or self.args.reset:
                     if self.args.value[0] and Path(self.args.value[0]).exists():
-                        self.sysinfo.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.sysinfo, self.args.reset)
+                        self.settings.user.paths.set_path(target, Path("" if self.args.reset else self.args.value[0]), self.settings, self.args.reset)
                     else:
                         self.error(self.errors.file_not_found(self.args.value[0]))
                 else:
                     try:
-                        self.print(f"{self.sysinfo.user.paths.all()[target]}\n")
+                        self.print(f"{self.settings.user.paths.all()[target]}\n")
                     except KeyError:
                         self.error(f"setting not found")
             else:
                 from flux.utils.format import create_table
-                c = [(p, self.sysinfo.user.paths.all_paths[p]) for p in self.sysinfo.user.paths.all_paths.keys()]
+                c = [(p, self.settings.user.paths.all_paths[p]) for p in self.settings.user.paths.all_paths.keys()]
                 
                 self.print(create_table("Path name", "Value", contents=c))
 
