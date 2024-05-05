@@ -17,7 +17,7 @@ def high_privileges(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
     Decorator for methods that can only be executed with high/system privileges
     """
     def wrapper(self, *args, **kwargs):
-        if self.PERMISSIONS < Privileges.HIGH:
+        if self.PRIVILEGES < Privileges.HIGH:
             raise PrivilegeError("Invalid permissions to execute method")
         return func(self, *args, **kwargs)
     return wrapper
@@ -27,7 +27,7 @@ def system_privileges(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
     Decorator for methods that can only be executed with high privileges
     """
     def wrapper(self, *args, **kwargs):
-        if self.PERMISSIONS < Privileges.SYSTEM:
+        if self.PRIVILEGES < Privileges.SYSTEM:
             raise PrivilegeError("This method can only be executed by the system")
         return func(self, *args, **kwargs)
     return wrapper
@@ -44,6 +44,7 @@ class System():
         self.exit = False
         self.sysinfo = sysinfo
         self.version = VERSION
+        self.privileges = Privileges
         
 
     def get_info(self) -> Settings:
