@@ -82,12 +82,13 @@ class Process:
     def run(self, is_main_thread=False):
         if is_main_thread:
             self.thread = self._run_main
-            self.thread()
             self.native_id = _os.getpid()
+            self.thread()
             return
 
         self.thread = Thread(target=self._run, name=self.name, daemon=True)
         self.thread.start()
+        self.native_id = self.thread.native_id
 
     def _run_main(self):
         self.command_instance()
@@ -132,7 +133,7 @@ class Processes:
         self.processes[-1].run(is_main_thread=True)
 
     def add(self, system: object, line_args: List[str], command_instance: object, is_reserved: bool):
-        self.processes.append(Process(id=self._generate_pid(), owner=system.settings.info.user.username,
+        self.processes.append(Process(id=self._generate_pid(), owner=system.settings.user.username,
                               command_instance=command_instance, line_args=line_args, is_reserved_process=is_reserved))
         print(f"[{self.processes[-1].id}] {line_args[0]}")
         self.processes[-1].run()

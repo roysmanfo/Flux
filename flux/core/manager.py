@@ -227,8 +227,6 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
         return None
     
     is_thread = command[-1].endswith("&") and not command[0].endswith("&")
-    # XXX: Ensure stability on python 3.12 as threads created by flux are not supported (#44)
-    is_thread = is_thread and sys.version_info < (3, 12)
     exec_command = exec_command_class(system, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin, privileges=system.privileges.LOW)
 
     del exec_command_class

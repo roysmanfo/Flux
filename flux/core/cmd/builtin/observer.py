@@ -115,14 +115,10 @@ options:
         if self.args.path:
             self.show_path()
             return
-        if sys.version_info >= (3, 12):
-            detected = "%s.%s.%s" % (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
-            self.error("the way this program handles threads is not yet suported after python 3.11 (detected %s)" % detected)
-            return
         
         if self.IS_PROCESS:
             self.print("Running observer in background...\n")
-    
+
         self.sort_files()
 
     def list_filetypes(self):
@@ -243,7 +239,7 @@ options:
             if self.IS_PROCESS:
 
                 try:
-                    while not self.settings.exit:
+                    while not self.system.exit:
                         time.sleep(.1)
 
                     observer.stop()
