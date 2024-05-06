@@ -178,7 +178,7 @@ class InterruptHandler(object):
             except ValueError:
                 pass
 
-    def register(self,
+    def _register(self,
                  event: Union[Signals, EventTriggers],
                  target: Callable[[Any], None],
                  args: Optional[Tuple[Any]] = (),
@@ -225,7 +225,7 @@ class InterruptHandler(object):
         self.interrupt_map[handle] = interrupt
         return handle
 
-    def unregister(self, handle: IHandle, force: bool = False) -> bool:
+    def _unregister(self, handle: IHandle, force: bool = False) -> bool:
         """
         Unregister an interrupt handler
 

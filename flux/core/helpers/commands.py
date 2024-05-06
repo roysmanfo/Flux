@@ -2,9 +2,10 @@ from enum import IntEnum as _IntEnum
 import sys as _sys
 import os as _os
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from typing import Any, Optional, TextIO, List, Union
+from typing import Any, Callable, Mapping, Optional, TextIO, List, Tuple, Union
 from argparse import Namespace as _Namespace
 
+from flux.core.system.interrupts import EventTriggers, IHandle
 from flux.core.system.privileges import Privileges
 from flux.core.system.system import System
 from flux.settings.settings import Settings
@@ -146,6 +147,7 @@ class CommandInterface(_ABC):
         self.log_level = self.levels.NOTSET
 
         self._is_alive = True
+        self._stored_ihandles: set[IHandle] = set()
 
 
 
@@ -217,6 +219,8 @@ class CommandInterface(_ABC):
         if self.redirected_stdin:
             self.stdin.close()
 
+        for h in self._stored_ihandles:
+            self.unregister_interrupt(h, force=True)
 
 
     def exit(self):
@@ -480,6 +484,42 @@ class CommandInterface(_ABC):
         retuns true if the command has been run with system privileges
         """
         return self.PRIVILEGES >= Privileges.SYSTEM
+
+
+    def register_interrupt(self,
+                         event: EventTriggers,
+                         target: Callable[[Any], None],
+                         args: Optional[Tuple[Any]]= (),
+                         kwargs: Optional[Mapping[str, Any]] = None,
+                         exec_once: Optional[bool] = True) -> IHandle:
+        """
+        Register a new interrupt handler
+
+        :param event: can be one of the supported Signals or EventTriggers. Specifies when to execute the interrupt
+        :param target: the actual code to execute once the specified event occours
+        :param args: the arguments needed by the target function
+        :param kwargs: is a dictionary of keyword arguments for the target invocation. Defaults to {}.
+        :param exec_once: if set to False, the interrupt will be executed at each event, as long as the command is still alive
+        :returns an handle to the Interrupt, which will be useful when interacting with it
+        """
+        ihandle = self.system.interrupt_handler._register(event, target, args, kwargs, exec_once)
+        self._stored_ihandles.add(ihandle)
+        return ihandle
+    
+
+    def unregister_interrupt(self, handle: IHandle, force: bool = False) -> bool:
+        """
+        Unregister an interrupt handler
+
+        :param handle: an handle to the Interrupt to remove
+        :param force: if True, the interrupt will be removed even if it hasn't been executed yet
+        :returns True if the interrupt has been removed, or has not been found, False otherwise
+        """
+        res = self.system.interrupt_handler._unregister(handle, force)
+
+        if res:
+            self._stored_ihandles.discard(handle)
+        return res
 
 class Errors():
     """
