@@ -103,6 +103,9 @@ class CommandInterface(_ABC):
     - `input()`                 This is similar to python's `input()`, but uses `self.stdin` and instead of `sys.stdin` .
     - `print()`                 This is similar to python's `print()`, but uses `self.stdout` and instead of `sys.stdout` .
     - `printerr()`              This is similar to `self.print()`, but uses `self.stderr` instead.
+    - `register_interrupt()`    Register a new interrupt handler
+    - `unregister_interrupt()`  Unregister an interrupt handler
+    - `clear_interrupts()`      Unregisters all interrupts
     
     ### PROPERTIES
     Other usefull informations about the state of the command
@@ -116,6 +119,7 @@ class CommandInterface(_ABC):
     - `bool` `is_alive()`              True from when the commaand gets loaded to after exit() or fail_safe()
     - `bool` `has_high_priv()`         True if the command has been run with high/system privileges
     - `bool` `has_sys_priv()`          True if the command has been run with system privileges
+    - `bool` `ihandles()`              Retuns a set of all interrupt handles
 
     """
 
@@ -219,8 +223,7 @@ class CommandInterface(_ABC):
         if self.redirected_stdin:
             self.stdin.close()
 
-        for h in self._stored_ihandles:
-            self.unregister_interrupt(h, force=True)
+        self.clear_interrupts(force=True)
 
 
     def exit(self):
@@ -264,6 +267,7 @@ class CommandInterface(_ABC):
             self.stdin.close()
 
         self._is_alive = False
+        self.clear_interrupts(force=True)
 
     """
     LOGGING FUNCTIONS
@@ -485,6 +489,23 @@ class CommandInterface(_ABC):
         """
         return self.PRIVILEGES >= Privileges.SYSTEM
 
+    @property
+    def ihandles(self):
+        """
+        retuns a set of all interrupt handles
+        """
+        return self._stored_ihandles
+
+    
+
+    def clear_interrupts(self, force: bool = True) -> None:
+        """
+        Unregisters all interrupts
+
+        `:param force` when set to false the interrupt will be removed only if it has been executed at least once
+        """
+        for h in self._stored_ihandles:
+            self.unregister_interrupt(h, force=force)
 
     def register_interrupt(self,
                          event: EventTriggers,

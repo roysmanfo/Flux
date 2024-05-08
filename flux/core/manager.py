@@ -262,6 +262,7 @@ def call(command_instance: CommandInterface) -> int:
         except Exception as ex:
             # In case the command also overwites the fail_safe 
             # and the new function contains unhandled exceptions 
+            command_instance.clear_interrupts(force=True)
 
             from flux.utils.crash_handler import write_error_log      
             tmp = write_error_log()[1]
