@@ -1,15 +1,15 @@
-from enum import IntEnum as _IntEnum
 import sys as _sys
 import os as _os
+from enum import IntEnum as _IntEnum
+from argparse import Namespace as _Namespace
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Any, Callable, Mapping, Optional, TextIO, List, Tuple, Union
-from argparse import Namespace as _Namespace
 
 from flux.core.system.interrupts import EventTriggers, IHandle
 from flux.core.system.privileges import Privileges
+from flux.core.system.processes import Status
 from flux.core.system.system import System
 from flux.settings.settings import Settings
-from flux.core.system.processes import Status
 from flux.utils import format as _format
 from .arguments import Parser
 
@@ -122,7 +122,6 @@ class CommandInterface(_ABC):
     - `bool` `ihandles()`              Retuns a set of all interrupt handles
 
     """
-
     def __init__(self,
                  system: System,
                  command: List[str],
@@ -154,6 +153,16 @@ class CommandInterface(_ABC):
         self._stored_ihandles: set[IHandle] = set()
 
 
+    def __new__(cls, *args, **kwargs):
+        # override of these methods is not allowed
+        NAMES = {"__init__", "__new__"}
+
+        instance = super().__new__(cls)
+        for name, method in cls.__dict__.items():
+            if callable(method) and name in NAMES:
+                if hasattr(CommandInterface, name) and getattr(CommandInterface, name) is not method:
+                    raise RuntimeError(f"Method '{name}' is overridden in subclass.")
+        return instance
 
     def __init_subclass__(cls) -> None:
         cls._FLUX_COMMAND = True
