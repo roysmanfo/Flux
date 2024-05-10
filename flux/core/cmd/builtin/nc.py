@@ -46,27 +46,11 @@ class Netcat(CommandInterface):
 
         with socket.socket(family, socket.SOCK_STREAM) as sock:
             self.args.port = int(self.args.port)
-            event = Event()
-
 
             if self.args.l:
                 self.host_as_server(sock)
             else:
                 self.host_as_client(sock)
-                Thread(target=self.recv_messages, args=(sock, event), daemon=True).start()
-
-                try:
-                    while not event.is_set():
-                        msg = self.input()
-                        if msg:
-                            sock.send(msg.encode())
-                        else:
-                            event.set()
-
-                except (KeyboardInterrupt, ConnectionAbortedError):
-                    pass
-                finally:
-                    event.set()
 
     def host_as_server(self, sock: socket.socket) -> None:
         event = Event()
