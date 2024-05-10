@@ -5,9 +5,6 @@ import platform
 from typing import List
 from enum import Enum 
 
-from flux.core.system.variables import Variables
-from flux.core.system.processes import Processes
-
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
 
@@ -23,9 +20,6 @@ class SysPaths(_pathlib_class_type, Enum):
     def __str__(self):
         return str(self.value)
     
-    def __new__(cls, *pathsegments):
-        return super().__new__(cls, *pathsegments)
-
     @staticmethod
     def create_initial_folders() -> None:
         """
