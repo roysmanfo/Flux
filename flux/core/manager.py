@@ -255,21 +255,8 @@ def call(command_instance: CommandInterface) -> int:
         status = command_instance.exit()
         
     except Exception as e:
-        try:
-            command_instance.fail_safe(e)
-            status: int = command_instance.status
-
-        except Exception as ex:
-            # In case the command also overwites the fail_safe 
-            # and the new function contains unhandled exceptions 
-            command_instance.clear_interrupts(force=True)
-
-            from flux.utils.crash_handler import write_error_log      
-            tmp = write_error_log()[1]
-
-            sys.stderr.write(f"An error accoured while trying to error log ({type(e).__name__})\n")
-            sys.stderr.write(f"The full error log can be found here: \n{tmp}\n\n")
-            status = STATUS_ERR
+        command_instance.fail_safe(e)
+        status: int = command_instance.status
 
     del command_instance
     return (status if isinstance(status, int) else STATUS_ERR)

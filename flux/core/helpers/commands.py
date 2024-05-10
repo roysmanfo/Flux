@@ -68,17 +68,8 @@ class CommandInterface(_ABC):
             status = command.exit()
                 
         except Exception as e:
-            try:
-                command_instance.fail_safe(e)
-                status: int = command_instance.status
-            
-            except Exception as ex:
-                # In case the command also overwites the fail_safe 
-                # and the new function contains unhandled exceptions 
-                # (why would you modify fail_safe() anyway?)
-
-                # **handle error**
-                status = STATUS_ERR
+            command_instance.fail_safe(e)
+            status: int = command_instance.status
 
         del command_instance
         return (status if isinstance(status, int) else STATUS_ERR)
@@ -155,13 +146,13 @@ class CommandInterface(_ABC):
 
     def __new__(cls, *args, **kwargs):
         # override of these methods is not allowed
-        NAMES = {"__init__", "__new__"}
+        NAMES = {"__init__", "__new__", "fail_safe"}
 
         instance = super().__new__(cls)
         for name, method in cls.__dict__.items():
             if callable(method) and name in NAMES:
                 if hasattr(CommandInterface, name) and getattr(CommandInterface, name) is not method:
-                    raise RuntimeError(f"Method '{name}' is overridden in subclass.")
+                    raise RuntimeError(f"Method '{name}' can't be overrided in subclass.")
         return instance
 
     def __init_subclass__(cls) -> None:
