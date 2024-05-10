@@ -214,13 +214,13 @@ class CommandInterface(_ABC):
         This function is used to close open files, like a redirected stdout
         """        
 
-        if self.redirected_stdout:
+        if self.stdout and self.redirected_stdout:
             self.stdout.close()
         
-        if self.redirected_stderr:
+        if self.stderr and self.redirected_stderr:
             self.stderr.close()
 
-        if self.redirected_stdin:
+        if self.stdin and self.redirected_stdin:
             self.stdin.close()
 
         self.clear_interrupts(force=True)
@@ -257,13 +257,13 @@ class CommandInterface(_ABC):
         self.status = STATUS_ERR
 
         # close possibly open files
-        if self.redirected_stdout:
+        if self.stdout and self.redirected_stdout:
             self.stdout.close()
         
-        if self.redirected_stderr:
+        if self.stderr and self.redirected_stderr:
             self.stderr.close()
 
-        if self.redirected_stdin:
+        if self.stdin and self.redirected_stdin:
             self.stdin.close()
 
         self._is_alive = False
