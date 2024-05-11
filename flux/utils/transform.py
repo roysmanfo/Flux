@@ -88,7 +88,7 @@ def _separate_redirect_parts(arg: str) -> List[str]:
 def split_commands(args: Union[str, List[str]]) -> List[List[str]]:
     """
     This takes as input a string or list of strings and separates the
-    diferent commands when a separator is found semicolon is found
+    diferent commands when a semicolon is found
 
     ```py
     split_commands('echo test; ls') -> [["echo", "test"], ["ls"]]
@@ -117,3 +117,35 @@ def split_commands(args: Union[str, List[str]]) -> List[List[str]]:
 
     return res
 
+
+def split_pipe(args: Union[str, List[str]]) -> List[List[str]] :
+    """
+    This takes as input a string or list of strings and separates the
+    diferent commands when a pipe is found
+
+    ```py
+    split_commands('echo test| wc') -> [["echo", "test"], ["wc"]]
+    split_commands(["echo", "test", "|", "wc"]) -> [["echo", "test"], ["wc"]]
+    ```
+
+    Note: this currently works better with a string as input
+    """
+
+    if isinstance(args, str):
+        args = string_to_list(args)
+
+    res = []
+    push = []
+    for i in args:
+        if i == '|':
+            if push:
+                res.append(push)
+                push = []
+        else:
+            if i:
+                push.append(i)
+
+    if push:
+        res.append(push)
+
+    return res

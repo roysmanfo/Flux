@@ -102,5 +102,21 @@ class Test_CommandSeparator(unittest.TestCase):
         cmd = transform.split_commands("echo test |cat;ls ..")
         self.assertTrue(cmd == [["echo", "test", "|", "cat"], ["ls", ".."]], cmd)
 
+
+class Test_PipeSeparator(unittest.TestCase):
+    def test_01(self):
+        cmd = transform.split_pipe("echo test | ls")
+        self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
+    
+    def test_02(self):
+        cmd = transform.split_pipe("echo test| ls")
+        self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
+    
+    def test_03(self):
+        cmd = transform.split_pipe("echo test|ls")
+        self.assertTrue(cmd == [["echo", "test"], ["ls"]], cmd)
+
+
+
 if __name__ == '__main__':
     unittest.main()
