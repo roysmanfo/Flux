@@ -263,8 +263,12 @@ class InterruptHandler(object):
         frame = inspect.currentframe()
         if frame:
             frame = frame.f_back
-
-        self._handle_interrupts(event, frame)
+        
+        # trigger also signal handlers registered using signal.signal
+        if event in Signals:
+            signal.raise_signal(event)
+        else:
+            self._handle_interrupts(event, frame)
 
 
     def get_supported_signals(self) -> Set[str]:
