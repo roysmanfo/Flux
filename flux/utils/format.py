@@ -1,9 +1,9 @@
 import os
-from typing import Iterator, Any, List, Union
+from typing import Iterable, Any, List, Union
 import re
 
 
-def create_table(*collumns: Union[str, List[str]], contents: Iterator[Iterator[Any]]) -> str:
+def create_table(*collumns: Union[str, List[str]], contents: Iterable[Iterable[Any]]) -> str:
     """
     Return a N x M table where N rappresents the number of columns
     and M rappresents the number of records in contents (+2 rows: 1 for the title and 1 for the underline)
