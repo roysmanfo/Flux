@@ -6,12 +6,14 @@ with the respective command (if existent).
 """
 import sys
 import os
+import tempfile
 from typing import List, Optional, TextIO, Tuple
 from pathlib import Path
 
 from flux.core.system.system import System
 from flux.core.system import loader
 from flux.core.helpers.commands import CommandInterface, STATUS_ERR
+from flux.utils import transform
 
 # NULL_PATH = os.devnull
 NULL_PATH = [Path(os.path.join("/", "dev", "null")).resolve(), Path(os.devnull).resolve()]
@@ -153,24 +155,47 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
 
     return STD_IN
 
+def is_output_piped(command: List[str]) -> bool:
+    return "|" in command
+
+def manage(command: List[str], system: System) -> None:
+    commands = transform.split_commands(command)
+    # num_pipes_left = command.count("|")
+    # pipe = None
+
+    # for each comand separated by semicolon
+    for command in commands:
+        # piping_detected = is_output_piped(command)
+        try:
+            # if piping_detected:
+            #     piped_commands = transform.split_pipe(command)
 
 
-def manage(command: List[str], system: System) -> None:        
-    try:
-        exec_command = build(command, system)
-        if exec_command:
-            if exec_command.IS_PROCESS:
-                command.pop(-1)
-                system.processes.add(system, command, exec_command, False)
-            else:
-                call(exec_command)
-        else:
-            return
+            exec_command = build(command, system)
+            if exec_command:
+                # if num_pipes_left > 0:
+                #     if pipe:
+                #         exec_command.stdin = pipe
+                #         exec_command.stdout = pipe
+                #         num_pipes_left -= 1
+                #     else:
+                #         pipe = exec_command.stdout
+            
+                if exec_command.IS_PROCESS:
+                    command.pop(-1)
+                    system.processes.add(system, command, exec_command, False)
+                else:
+                    call(exec_command)
 
-    except (UnboundLocalError, AssertionError) as e:
-        if command[0] != "":
-            print(f"-flux: {command[0]}: command not found\n{e}\n")
 
+        except (UnboundLocalError, AssertionError) as e:
+            if command[0] != "":
+                print(f"-flux: {command[0]}: command not found\n{e}\n")
+
+def create_pipe() -> TextIO:
+    temp_name = tempfile.mkstemp(prefix="flux_pipe_")[1]
+    pipe = open(temp_name, "wt")
+    return pipe
 
 def build(command: List[str], system: System) -> Optional[CommandInterface]:
     exec_command: CommandInterface
@@ -211,7 +236,10 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
     if stdin is None and in_path is not None:
         print(f"-flux: {in_path}: Permission denied\n")
         return None
-    
+
+    # look for piping    
+    if stdout is sys.stdout and is_output_piped(command):
+        stdout = create_pipe()
 
     # Load command
     exec_command_class = loader.load_builtin_script(command_name)
