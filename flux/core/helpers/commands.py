@@ -111,6 +111,8 @@ class CommandInterface(_ABC):
     - `bool` `has_high_priv()`         True if the command has been run with high/system privileges
     - `bool` `has_sys_priv()`          True if the command has been run with system privileges
     - `bool` `ihandles()`              Retuns a set of all interrupt handles
+    - `bool` `recv_from_pipe()`        True if `self.stdin` is pointing to a `pipe`
+    - `bool` `send_to_pipe()`          True if `self.stdout` is pointing to a `pipe`
 
     """
     def __init__(self,
@@ -136,10 +138,11 @@ class CommandInterface(_ABC):
         self.args: Optional[_Namespace] = None
         self.errors: Errors = Errors()
         self.colors = Colors()
-
         self.levels = _Levels
         self.log_level = self.levels.NOTSET
 
+        self._recv_from_pipe = False
+        self._send_to_pipe = False
         self._is_alive = True
         self._stored_ihandles: set[IHandle] = set()
 
@@ -496,6 +499,19 @@ class CommandInterface(_ABC):
         """
         return self._stored_ihandles
 
+    @property
+    def recv_from_pipe(self):
+        """
+        returns true if `self.stdin` is pointing to a `pipe`
+        """
+        return self._recv_from_pipe
+    
+    @property
+    def send_to_pipe(self):
+        """
+        returns true if `self.stdout` is pointing to a `pipe`
+        """
+        return self._send_to_pipe
     
 
     def clear_interrupts(self, force: bool = True) -> None:
