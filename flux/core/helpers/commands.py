@@ -520,7 +520,8 @@ class CommandInterface(_ABC):
 
         `:param force` when set to false the interrupt will be removed only if it has been executed at least once
         """
-        for h in self._stored_ihandles:
+        ihandles = [i for i in self._stored_ihandles]
+        for h in ihandles:
             self.unregister_interrupt(h, force=force)
 
     def register_interrupt(self,

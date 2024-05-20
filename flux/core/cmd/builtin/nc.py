@@ -1,5 +1,8 @@
+import signal
 from ...helpers.commands import *
 from ...helpers.arguments import Parser
+from flux.core.system.interrupts import EventTriggers
+
 
 import socket
 from threading import Thread, Event
@@ -36,7 +39,14 @@ class Netcat(CommandInterface):
                 return
 
             self.args.port = self.args.PORT
-            
+
+        self.ihandle = self.register_interrupt(EventTriggers.SIGINT, target=self.close_connections)
+        self.event = Event()
+
+    def close_connections(self, signum, frame):
+        self.event.set()
+        # print on the stdout
+        print("^C")
 
     def run(self):
 
@@ -53,26 +63,39 @@ class Netcat(CommandInterface):
                 self.host_as_client(sock)
 
     def host_as_server(self, sock: socket.socket) -> None:
-        event = Event()
         bind_ip = "0.0.0.0" if not self.args.ipv6 else "::"
         
         sock.bind((bind_ip, self.args.port))
         sock.listen(5)
 
-        self.debug(f"Listening on {bind_ip} {self.args.port}")
-        client, addr = sock.accept()
+        if self.args.verbose:
+            # print on the stdout
+            print(f"Listening on {bind_ip} {self.args.port}")
+        sock.settimeout(.1)
+
+        while True:
+            if self.event.is_set():
+                return
+            
+            try:
+                client, addr = sock.accept()
+                break
+            except TimeoutError:
+                pass
+
+
 
         try:
             addr = socket.getnameinfo(addr, 0) if not self.args.no_name_resolution else addr
         except socket.gaierror:
             pass
-
-        self.debug(f"Connection received on {addr[0]} {addr[1]}")
-        Thread(target=self.recv_messages, args=(client, event), daemon=True).start()
-        self.send_messages(client, event)
+        if self.args.verbose:
+            # print on the stdout
+            print(f"Connection received on {addr[0]} {addr[1]}")
+        Thread(target=self.recv_messages, args=(client, self.event), daemon=True).start()
+        self.send_messages(client, self.event)
 
     def host_as_client(self, sock: socket.socket) -> None:
-        event = Event()
         try:
             sock.connect((self.args.destination, self.args.port))
 
@@ -81,8 +104,8 @@ class Netcat(CommandInterface):
             self.status = STATUS_ERR
             return
 
-        Thread(target=self.recv_messages, args=(sock, event), daemon=True).start()
-        self.send_messages(sock, event)
+        Thread(target=self.recv_messages, args=(sock, self.event), daemon=True).start()
+        self.send_messages(sock, self.event)
 
     def send_messages(self, sock: socket.socket, event: Event) -> None:
         try:
@@ -107,7 +130,7 @@ class Netcat(CommandInterface):
                     self.print(recv.decode(), end="")
                 else:
                     event.set()
-        except (KeyboardInterrupt, ConnectionAbortedError, OSError):
+        except (KeyboardInterrupt, ConnectionAbortedError, OSError, ValueError):
             pass
         finally:
             event.set()
