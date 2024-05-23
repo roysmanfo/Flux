@@ -12,7 +12,6 @@ class Status(IntEnum):
     STATUS_ERR = 1  # An error accoured
     STATUS_WARN = 2  # Exited with warnings
 
-
 class ProcessInfo:
     def __init__(self, id: int, pid: int, owner: str, name: str, native_id: int, time_alive: str, is_reserved_process: bool, line_args: List[str]) -> None:
         self.id = id
@@ -48,7 +47,7 @@ class Process:
         self.owner: str = owner
         self.command_instance: Callable = command_instance
         self.line_args: List[str] = line_args
-        self.started: float = _time.time()
+        self.started_time: float = _time.time()
         self.status: Optional[int] = None
         self.thread: Thread = None
         self.native_id: Optional[int] = None
@@ -60,7 +59,7 @@ class Process:
                            self.owner,
                            self.name,
                            self.native_id,
-                           self._calculate_time(_time.time() - self.started),
+                           self._calculate_time(_time.time() - self.started_time),
                            self.is_reserved_process,
                            self.line_args
                            )
@@ -117,44 +116,54 @@ class Process:
         print(f"[{self.id}] {self.name} stopped")
 
 
+_main_process: Process
+
 class Processes:
     def __init__(self, i_handler: InterruptHandler):
-        self.processes: List[Process] = []
+        self.processes: dict[int, Process] = {}
         self.process_counter: int = _os.getpid()
         self.i_handler = i_handler
 
     def list(self) -> List[ProcessInfo]:
-        return [p.get_info() for p in self.processes]
+        return [p.get_info() for p in self.processes.values()]
 
     def _generate_pid(self) -> int:
         self.process_counter += 1
         return self.process_counter
 
     def _add_main_process(self, system: object, prog_name: str, callable: Callable):
-        self.processes.append(Process(id=self._generate_pid(), owner=system.settings.user.username,
-                              command_instance=callable, line_args=prog_name, is_reserved_process=True))
-        self.processes[-1].run(is_main_thread=True)
+        global _main_process
+
+        pid = self._generate_pid()
+        p = Process(id=pid, owner=system.settings.user.username, 
+                    command_instance=callable, line_args=prog_name, is_reserved_process=True)
+        _main_process = p
+        self.processes.update({pid: p})
+        self.processes[pid].run(is_main_thread=True)
 
     def add(self, system: object, line_args: List[str], command_instance: object, is_reserved: bool):
-        self.processes.append(Process(id=self._generate_pid(), owner=system.settings.user.username,
-                              command_instance=command_instance, line_args=line_args, is_reserved_process=is_reserved))
-        print(f"[{self.processes[-1].id}] {line_args[0]}")
+        pid = self._generate_pid()
+        self.processes.update({pid: Process(id=pid, owner=system.settings.user.username,
+                              command_instance=command_instance, line_args=line_args, is_reserved_process=is_reserved)})
+        print(f"[{pid}] {line_args[0]}")
         self.i_handler.raise_interrupt(EventTriggers.PROCESS_CREATED)
-        self.processes[-1].run()
+        self.processes[pid].run()
         _time.sleep(.1)
 
-    def find(self, id: int) -> Union[Process, None]:
-        for p in self.processes:
-            if p.id == id:
-                return p
-        return None
+    def find(self, id: int) -> Optional[Process]:            
+        return self.processes.get(id)
 
-    def remove(self, id: int) -> Process:
-        for p in self.processes:
-            if p.id == id:
-                self.processes.remove(p)
-                return p
-        return None
+    def remove(self, id: int) -> Optional[Process]:
+        """
+        Returns the removed process if found, None otherwise
+        """
+        try:
+            if id == _main_process.id:
+                return None
+            
+            return self.processes.pop(id)
+        except KeyError:
+            return None
 
     def clean(self) -> None:
         """
@@ -163,9 +172,9 @@ class Processes:
         This function is automaticaly called each time the manager handles a command
         """
 
-        for p in self.processes:
+        for p in self.processes.values():
             # check that we are not trying to remove the main process 
-            if not p is self.processes[0] and not p.thread.is_alive():
+            if not p is _main_process and not p.thread.is_alive():
                 self.processes.remove(p)
 
         self.i_handler.raise_interrupt(EventTriggers.PROCESS_DELETED)
