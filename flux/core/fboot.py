@@ -124,8 +124,13 @@ def boot(dev_mode: bool = False) -> Report:
             fenv = os.path.join(root_dir, fenv) # TODO: check if the path provided is a valid one first (fenv is a valid directory name)
             logging.info(f"creating flux environment in '{fenv}'")
             venv.create(fenv, clear=clear, prompt="fluxenv", with_pip=True)
-            logging.debug(f"activating '{fenv}' and restarting the application\n")
+            fluxenv = os.path.join(fenv, ".fluxenv")
+            logging.debug(f"creating file {fluxenv}")
+            with open(fluxenv,'w') as f:
+                f.write("# This file was automaticaly created by Flux\n\n")
+            logging.debug(f"activating '{fenv}'")
             activate_environment(fenv)
+            logging.debug(f"restarting the application\n")
             report.already_run = True
             return report
         
