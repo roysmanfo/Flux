@@ -129,8 +129,8 @@ def boot(dev_mode: bool = False) -> Report:
             with open(fluxenv,'w') as f:
                 f.write("# This file was automaticaly created by Flux\n\n")
             logging.debug(f"activating '{fenv}'")
-            activate_environment(fenv)
             logging.debug(f"restarting the application\n")
+            activate_environment(fenv)
             report.already_run = True
             return report
         
