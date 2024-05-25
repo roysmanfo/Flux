@@ -1,4 +1,3 @@
-import signal
 from ...helpers.commands import *
 from ...helpers.arguments import Parser
 from flux.core.system.interrupts import EventTriggers
@@ -65,6 +64,7 @@ class Netcat(CommandInterface):
     def host_as_server(self, sock: socket.socket) -> None:
         bind_ip = "0.0.0.0" if not self.args.ipv6 else "::"
         
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((bind_ip, self.args.port))
         sock.listen(5)
 
