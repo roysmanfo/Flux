@@ -1,10 +1,6 @@
-import colorama
-from colorama import Fore
 import random
 from flux.core.helpers.commands import CommandInterface
 from flux.core.helpers.arguments import Parser
-colorama.init(autoreset=True)
-
 
 class Command(CommandInterface):
 
@@ -19,16 +15,18 @@ class Command(CommandInterface):
 
 
     def description(self, flip: bool = False):
-        emotes = ["(╯°□°)╯︵ ┻━┻", "(ノಠ益ಠ)ノ彡┻━┻", "┬─┬ノ( º _ ºノ)", "¯\_(ツ)_/¯"]
+        emotes = [r"(╯°□°)╯︵ ┻━┻", r"(ノಠ益ಠ)ノ彡┻━┻", r"┬─┬ノ( º _ ºノ)", r"¯\_(ツ)_/¯"]
         emote = random.choice(emotes) if flip else ""
-        title = Fore.LIGHTBLACK_EX + """
-    {:^27}
-     _____ __    __ __  __  __ 
-    |   __|  |  |  |  |\  \/  /
-    |   _]|  |__|  |  | |    | 
-    |__|  |_____\_____//__/\__\ 
-            
-    {:^27}
-    
-    """.format(emote, "By @RoysManfo")
-        self.print(title + Fore.RESET)
+        title = self.colors.Fore.LIGHTBLACK_EX + r"""
+        {:^27}
+         _____ __    __ __  __  __ 
+        |   __|  |  |  |  |\  \/  /
+        |   _]|  |__|  |  | |    | 
+        |__|  |_____\_____//__/\__\ 
+                
+        {:^27}
+        
+        """.format(emote, "By @roysmanfo")
+        self.print(title + self.colors.Fore.RESET)
+
+
