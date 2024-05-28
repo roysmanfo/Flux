@@ -28,7 +28,7 @@ def listen() -> List[str]:
 
     except (KeyboardInterrupt, EOFError):
         signal.raise_signal(signal.SIGINT)
-        print(f"{Fore.RED}^C{Fore.RESET}")
+        print(f"{Fore.RED}^C{Fore.RESET}", file=sys.stderr)
         return []
 
 
