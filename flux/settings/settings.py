@@ -30,10 +30,10 @@ class SysPaths(_pathlib_class_type, Enum):
         `:raises` PermissionError if we do not have permissions to write in a folder
         """
         try:
-            os.makedirs(SysPaths.CONFIG_FOLDER, exist_ok=True)
-            os.makedirs(SysPaths.SETTINGS_FOLDER, exist_ok=True)
-            os.makedirs(SysPaths.CACHE_FOLDER, exist_ok=True)
-            os.makedirs(SysPaths.LOCAL_FOLDER, exist_ok=True)
+            for i in SysPaths:
+                if i._name_.upper().endswith("FOLDER"):
+                    os.makedirs(i.value, exist_ok=True)
+            
         except OSError as e:
             raise PermissionError(e.__str__()) # raise a more descriptive exception
 
