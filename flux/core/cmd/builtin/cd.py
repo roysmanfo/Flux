@@ -25,7 +25,6 @@ class Command(CommandInterface):
                 if new_dir.startswith("$"):
                     new_dir = self.system.variables.get(new_dir).value or new_dir
                 os.chdir(f"{new_dir}")
-                self.system.variables.set("$PWD", new_dir)
 
             except FileNotFoundError:
                 self.error(self.errors.path_not_found(new_dir))
@@ -36,10 +35,10 @@ class Command(CommandInterface):
             except OSError:
                 self.error(self.errors.cannot_read_fod(new_dir))
 
-            self.settings.user.paths.terminal = os.getcwd()
-            self.settings.user.paths.terminal.replace("\\", "/")
+            self.settings.user.paths.terminal = os.getcwd().replace("\\", "/")
 
         else:
             os.chdir(self.system.variables.get("$HOME").value)
             self.settings.user.paths.terminal = self.system.variables.get("$HOME").value
-            self.system.variables.set("$PWD", self.settings.user.paths.terminal)
+        
+        self.system.variables.set("$PWD", self.settings.user.paths.terminal)
