@@ -85,16 +85,19 @@ class Variables:
                 return True
         return False
 
-    def get(self, name: str, default: Any = None) -> Optional[Variable]:
+    def get(self, name: str, default: Any = None, *, copy: bool = True) -> Optional[Variable]:
         """
         Gets a variable based on its name
+
+        `:param` copy: create a copy of the variable if found
 
         Returns it's value if the variable has been remove found, otherwise returns default
         """
 
         for var in self._variables:
             if var == name:
-                return self._variables.get(var).copy()
+                v = self._variables.get(var)
+                return v.copy() if copy else v
 
         return default
 
@@ -103,7 +106,7 @@ class Variables:
         Update the value of a variable
         """
 
-        var = self.get(name)
+        var = self.get(name, copy=False)
 
         if not var:
             raise ValueError("invalid key %s" % name)
