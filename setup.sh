@@ -8,37 +8,36 @@
 # 2. activate venv
 # 3. install requirements
 
-
 SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
-SCRIPT_NAME=$(echo $0 | tr "/" "\n" | tail -n 1)
-SCRIPT_PATH=$(echo $SCRIPT_DIR/$SCRIPT_NAME)
+SCRIPT_NAME=$(basename "$0")
+SCRIPT_PATH="$SCRIPT_DIR/$SCRIPT_NAME"
 
 MAIN="$SCRIPT_DIR/flux/main.py"
 VENV="$SCRIPT_DIR/venv"
-REQIREMENTS="$SCRIPT_DIR/linux-requirements.txt"
+REQUIREMENTS="$SCRIPT_DIR/linux-requirements.txt"
 
 if [[ ! -d $VENV ]]; then
-    
     echo creating virtual environment in \'$VENV\'
-    mkdir $VENV -p 2>/dev/null
-    python3 -m venv --prompt flux $VENV
+    python3 -m venv --prompt flux "$VENV"
     echo -e "# This file has been automatically created by flux\n" > "$VENV/.fluxenv"
-    source $(echo $VENV/bin/activate)
+    source "$VENV/bin/activate"
     echo installing requirements
-    python3 -m pip install -r $REQIREMENTS
-
-else
-    source $VENV/bin/activate
-
+    python3 -m pip install -r "$REQUIREMENTS"
+else 
+    source "$VENV/bin/activate" 2>/dev/null
+    
     if [[ $? != 0 ]]; then
-        echo error in activation of \'$VENV\'
-        exit 1
+        # ? maybe this is windows
+        source "$VENV/Scripts/activate" 2>/dev/null
+
+        if [[ $? != 0 ]]; then
+            echo error in activation of \'$VENV\'
+            exit 1
+        fi
     fi
 fi
 
 if [[ $1 == "run" ]]; then
     cd flux
-    python3 $MAIN
+    python3 "$MAIN"
 fi
-
-
