@@ -29,5 +29,5 @@ class Command(CommandInterface):
     def run(self):
         
         if self.args.list:
-            from flux.utils.format import create_adaptive_table
-            self.print(create_adaptive_table("Name", "Description", contents=COMMAND_DESC))
+            from flux.utils.format import create_table
+            self.print(create_table("Name", "Description", contents=COMMAND_DESC))

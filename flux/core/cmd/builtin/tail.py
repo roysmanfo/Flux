@@ -15,8 +15,6 @@ class Command(CommandInterface):
         self.parser.add_argument("-z", "--zero-terminated", action="store_true", help="line delimiter is NUL, not newline")
 
     def run(self):
-        self.args.file: list[str]
-
         if len(self.args.file) == 0:
             content = ""
             inp = ""
@@ -63,7 +61,7 @@ class Command(CommandInterface):
                     
 
         
-    def format_str(self, content: str) -> list[str] : 
+    def format_str(self, content: str) -> List[str] : 
         if self.args.bytes:
             content = content[::-1][:self.args.bytes][::-1]
             content = content.splitlines(keepends=True)
@@ -78,7 +76,7 @@ class Command(CommandInterface):
         return content
     
 
-    def display(self, content: list[str]) -> None:
+    def display(self, content: List[str]) -> None:
         for i in content:
             # You may be asking yourself why did I add NUL in the first place
             # Well, idk man

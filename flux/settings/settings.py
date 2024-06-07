@@ -2,22 +2,26 @@ import json
 import os
 import pathlib
 import platform
-
-from flux.core.system.variables import Variables
-from flux.core.system.processes import Processes
+from typing import List
+from enum import Enum 
 
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
 
+_pathlib_class_type = type(pathlib.Path()) # PosixPath or WindowsPath
 
-class SysPaths:
-    CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux"))
-    SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json"))
-    SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE))
-    CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache"))
-    LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local"))
-
-    def create_initial_folders(self) -> None:
+class SysPaths(_pathlib_class_type, Enum):
+    CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux")).resolve()
+    SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json")).resolve()
+    SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE)).resolve()
+    CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache")).resolve()
+    LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local")).resolve()
+    
+    def __str__(self):
+        return str(self.value)
+    
+    @staticmethod
+    def create_initial_folders() -> None:
         """
         You should check for permission when creatin an object of this class
 
@@ -25,17 +29,19 @@ class SysPaths:
 
         `:raises` PermissionError if we do not have permissions to write in a folder
         """
-
-        os.makedirs(self.CONFIG_FOLDER, exist_ok=True)
-        os.makedirs(self.SETTINGS_FOLDER, exist_ok=True)
-        os.makedirs(self.CACHE_FOLDER, exist_ok=True)
-        os.makedirs(self.LOCAL_FOLDER, exist_ok=True)
+        try:
+            for i in SysPaths:
+                if i._name_.upper().endswith("FOLDER"):
+                    os.makedirs(i.value, exist_ok=True)
+            
+        except OSError as e:
+            raise PermissionError(e.__str__()) # raise a more descriptive exception
 
     def copy(self):
         return SysPaths()
-            
 
-class Info:
+
+class Settings:
     ...
 
 
@@ -108,7 +114,7 @@ class User():
             l.write("")
             json.dump(settings, l, indent=4, sort_keys=True)
 
-    def set_username(self, new_username: str, info: Info, reset: bool = False) -> None:
+    def set_username(self, new_username: str, info: Settings, reset: bool = False) -> None:
         """
         Sets the username to new_username
         """
@@ -123,7 +129,7 @@ class User():
                 l.write("")
                 json.dump(settings, l, indent=4, sort_keys=True)
 
-    def set_email(self, info: Info, emails: list[str], reset: bool = False):
+    def set_email(self, info: Settings, emails: List[str], reset: bool = False):
         """
         Change the user email to the first valid email address in @param emails
         """
@@ -293,7 +299,7 @@ class Path:
         return pathlib.Path(os.path.join(os.path.expanduser('~'), "bucket", "files"))
         
 
-    def set_path(self, target: str, new_path: pathlib.Path, info: Info, reset: bool = False) -> None:
+    def set_path(self, target: str, new_path: pathlib.Path, info: Settings, reset: bool = False) -> None:
         """
         Changes the specified path
         """
@@ -336,43 +342,25 @@ class Path:
         print(f"Successfully changed path.{target} to {new_path}\n")
 
 
-class Info:
+class Settings:
     """
-    ### CLASS INFO
+    ### CLASS SETTINGS
 
     This class contains every information a command may need.\n
     It's like a dictionary mapping information like the user instance or the version
 
     - user:                 The user instance
-    - settings_file:        The settings file path
-    - settings_folder:      the settings folder path
-    - version:              The software version number
-    - variables:            All env variables are stored here
-    - processes:            A list of every single process running in the app
-    - exit:                 If true, the program and every single process gets shut down
+    - syspaths:             A collection of paths reserved to flux and flux commands
     """
 
-    def __init__(self, user: User, syspaths: SysPaths):
+    def __init__(self, user: User):
 
         self.user = user
-        self.syspaths = syspaths
-        self.version = VERSION
-        self.variables: Variables = Variables()
-        self.processes: Processes = Processes()
-        self.exit: bool = False
-
-        self.init_reserved_variables()
-
-    def init_reserved_variables(self) -> None:
-
-        self.variables.add("$ALL", "$ALL:$HOME:$PATH:$PWD", True)
-        self.variables.add("$HOME", str(self.user.paths.terminal), True)
-        self.variables.add("$PATH", os.environ.get("PATH", ""), True)
-        self.variables.add("$PWD", str(self.user.paths.terminal), True)
+        self.syspaths = SysPaths
 
     def copy(self):
         """
         Returns a copy of the current state of Info
         """
-        return Info(self.user.copy(), self.syspaths.copy())
+        return Settings(self.user.copy(), self.syspaths.copy())
 

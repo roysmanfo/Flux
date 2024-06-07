@@ -1,5 +1,6 @@
 from argparse import HelpFormatter, ArgumentParser
 import sys as _sys
+from typing import Optional
 
 
 class Parser(ArgumentParser):
@@ -39,8 +40,8 @@ class Parser(ArgumentParser):
             self.exit_execution = True
             print()
 
-    def exit(self, status: int | None = None, message: str | None = None):
-        # Chack if the help message was displayed
+    def exit(self, status: Optional[int] = None, message: Optional[str] = None):
+        # Check if the help message has been shown
         if not message and not status:
             self.exit_execution = True
             return
@@ -52,6 +53,6 @@ class Parser(ArgumentParser):
     def add_help_message(self, message: str):
         self.help_message = message.strip()
 
-    def help(self, message: str | None = None):
+    def help(self, message: Optional[str] = None):
         print(message) if message else print(self.help_message)
         print()

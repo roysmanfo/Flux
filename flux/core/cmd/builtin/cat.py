@@ -51,7 +51,7 @@ class Command(CommandInterface):
 
 
             if file == '-':
-                lines: list[str] = []
+                lines: List[str] = []
                 inp = ''
                 while not inp is None:
                     inp = self.input()

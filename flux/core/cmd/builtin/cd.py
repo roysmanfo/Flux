@@ -16,16 +16,16 @@ class Command(CommandInterface):
         elif len(self.args.dir) == 1:
             self.args.dir = self.args.dir[0]
         else:
-            self.args.dir = self.sysinfo.variables.get("$HOME").value
+            self.args.dir = self.system.variables.get("$HOME").value
 
     def run(self):
         if self.args.dir:
             try:
                 new_dir: str = "" + self.args.dir.strip('"').strip("'")
                 if new_dir.startswith("$"):
-                    new_dir = self.sysinfo.variables.get(new_dir).value or new_dir
+                    new_dir = self.system.variables.get(new_dir).value or new_dir
                 os.chdir(f"{new_dir}")
-                self.sysinfo.variables.set("$PWD", new_dir)
+                self.system.variables.set("$PWD", new_dir)
 
             except FileNotFoundError:
                 self.error(self.errors.path_not_found(new_dir))
@@ -36,10 +36,10 @@ class Command(CommandInterface):
             except OSError:
                 self.error(self.errors.cannot_read_fod(new_dir))
 
-            self.sysinfo.user.paths.terminal = os.getcwd()
-            self.sysinfo.user.paths.terminal.replace("\\", "/")
+            self.settings.user.paths.terminal = os.getcwd()
+            self.settings.user.paths.terminal.replace("\\", "/")
 
         else:
-            os.chdir(self.sysinfo.variables.get("$HOME").value)
-            self.sysinfo.user.paths.terminal = self.sysinfo.variables.get("$HOME").value
-            self.sysinfo.variables.set("$PWD", self.sysinfo.user.paths.terminal)
+            os.chdir(self.system.variables.get("$HOME").value)
+            self.settings.user.paths.terminal = self.system.variables.get("$HOME").value
+            self.system.variables.set("$PWD", self.settings.user.paths.terminal)

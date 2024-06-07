@@ -5,12 +5,12 @@ as intended.
 import os
 from typing import Optional
 
-from flux.settings.info import User, Info, SysPaths
-from . import fboot
+from flux.core.system.system import System
+from flux.settings.settings import User, Settings, SysPaths
 
 
 
-def setup(dev_mode: bool = False) -> Optional[Info]:
+def setup() -> System:
     """
     ## Setup process
 
@@ -20,39 +20,44 @@ def setup(dev_mode: bool = False) -> Optional[Info]:
     This process makes it easier to start Flux as we just need to call this
     function in the main file and everything will be handled automaticaly. 
 
-    * `:returns` : An object containing system information, None in case of error
-    * `:rtype`   : Info | None
+    * `:returns` : An object containing system information
+    * `:dtype`   : Settings
     * `:raises`  : PermissionError if the folders could not be created
     """
-
-    if not _boot(dev_mode):
-        return None
-    return _system_setup()
-
-
-def _boot(dev_mode: bool) -> bool:
-    report = fboot.boot(dev_mode)
     
-    if dev_mode and report.warnings or not report.can_start:
-        for w in report.warnings:
-            print(w)
-    
-    if report.already_run:
-        import sys
-        sys.exit(0)
-
-    elif not report.can_start:
-        return False
-    return True
-
-
-def _system_setup() -> Info:
     # Load user
-    SYS_PATHS = SysPaths()
-    SYS_PATHS.create_initial_folders() # May rise an exception
+    SysPaths.create_initial_folders() # May rise an exception
     
-    USER = User()
-    os.chdir(USER.paths.terminal)
+    user = User()
+    os.chdir(user.paths.terminal)
 
-    INFO = Info(USER, SYS_PATHS)
-    return INFO
+    settings = Settings(user)
+    system = System(settings)
+    
+    return system
+
+
+def get_interpreter_command() -> Optional[str]:
+    """
+    `:returns` : the command to use in order to interact with the python interpreter cli, None if not found
+    `:dtype`   : str | None
+    """
+
+    commands = [
+        ("python3", "--version"),
+        ("python", "--version"),
+        
+        # found on Windows
+        ("py", "--version"),
+    ]
+
+    for c in commands:
+        try:
+            p = subprocess.run(c, capture_output=True)
+            if p and p.stdout:
+                return c[0]
+        except:
+            pass
+
+    return None
+

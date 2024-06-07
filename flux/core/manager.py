@@ -6,12 +6,14 @@ with the respective command (if existent).
 """
 import sys
 import os
+import tempfile
 from typing import List, Optional, TextIO, Tuple
 from pathlib import Path
 
-from flux.settings.info import Info
+from flux.core.system.system import System
 from flux.core.system import loader
 from flux.core.helpers.commands import CommandInterface, STATUS_ERR
+from flux.utils import transform
 
 # NULL_PATH = os.devnull
 NULL_PATH = [Path(os.path.join("/", "dev", "null")).resolve(), Path(os.devnull).resolve()]
@@ -27,7 +29,7 @@ def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    STD_OUT: list[TextIO, Optional[str]]
+    STD_OUT: List[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
     pathname = ""
@@ -76,7 +78,7 @@ def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    STD_ERR: list[TextIO, Optional[str]]
+    STD_ERR: List[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
     pathname = ""
@@ -123,7 +125,7 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     :rtype Actually returns a list [TextIO | None, str | None]
     """
     
-    STD_IN: list[TextIO, Optional[str]]
+    STD_IN: List[TextIO, Optional[str]]
     REDIRECT: str
     MODE: str
     pathname = ""
@@ -153,35 +155,58 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
 
     return STD_IN
 
+def is_output_piped(command: List[str]) -> bool:
+    return "|" in command
+
+def manage(command: List[str], system: System) -> None:
+    commands = transform.split_commands(command)
+    # num_pipes_left = command.count("|")
+    # pipe = None
+
+    # for each comand separated by semicolon
+    for command in commands:
+        # piping_detected = is_output_piped(command)
+        try:
+            # if piping_detected:
+            #     piped_commands = transform.split_pipe(command)
 
 
-def manage(command: List[str], info: Info) -> None:        
-    try:
-        exec_command = build(command, info)
-        if exec_command:
-            if exec_command.IS_PROCESS:
-                command.pop(-1)
-                info.processes.add(info, command, exec_command, False)
-            else:
-                call(exec_command)
-        else:
-            return
+            exec_command = build(command, system)
+            if exec_command:
+                # if num_pipes_left > 0:
+                #     if pipe:
+                #         exec_command.stdin = pipe
+                #         exec_command.stdout = pipe
+                #         num_pipes_left -= 1
+                #     else:
+                #         pipe = exec_command.stdout
+            
+                if exec_command.IS_PROCESS:
+                    command.pop(-1)
+                    system.processes.add(system, command, exec_command, False)
+                else:
+                    call(exec_command)
 
-    except (UnboundLocalError, AssertionError) as e:
-        if command[0] != "":
-            print(f"-flux: {command[0]}: command not found\n{e}\n")
 
+        except (UnboundLocalError, AssertionError) as e:
+            if command[0] != "":
+                print(f"-flux: {command[0]}: command not found\n{e}\n")
 
-def build(command: List[str], info: Info) -> CommandInterface | None:
+def create_pipe() -> TextIO:
+    temp_name = tempfile.mkstemp(prefix="flux_pipe_")[1]
+    pipe = open(temp_name, "wt")
+    return pipe
+
+def build(command: List[str], system: System) -> Optional[CommandInterface]:
     exec_command: CommandInterface
     exec_command_class = CommandInterface
 
     # Remove completed Processes
-    info.processes.clean()
+    system.processes.clean()
 
     # Check for variables
-    if info.variables.exists(command[0]):
-        command_name = info.variables.get(command[0]).value
+    if system.variables.exists(command[0]):
+        command_name = system.variables.get(command[0]).value
     else:
         command_name = command[0]
 
@@ -211,7 +236,10 @@ def build(command: List[str], info: Info) -> CommandInterface | None:
     if stdin is None and in_path is not None:
         print(f"-flux: {in_path}: Permission denied\n")
         return None
-    
+
+    # look for piping    
+    if stdout is sys.stdout and is_output_piped(command):
+        stdout = create_pipe()
 
     # Load command
     exec_command_class = loader.load_builtin_script(command_name)
@@ -227,9 +255,7 @@ def build(command: List[str], info: Info) -> CommandInterface | None:
         return None
     
     is_thread = command[-1].endswith("&") and not command[0].endswith("&")
-    # XXX: Ensure stability on python 3.12 as threads created by flux are not supported (#44)
-    is_thread = is_thread and sys.version_info < (3, 12)
-    exec_command = exec_command_class(info, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin)
+    exec_command = exec_command_class(system, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin, privileges=system.privileges.LOW)
 
     del exec_command_class
     return exec_command
@@ -257,20 +283,8 @@ def call(command_instance: CommandInterface) -> int:
         status = command_instance.exit()
         
     except Exception as e:
-        try:
-            command_instance.fail_safe(e)
-            status: int = command_instance.status
-
-        except Exception as ex:
-            # In case the command also overwites the fail_safe 
-            # and the new function contains unhandled exceptions 
-
-            from flux.utils.crash_handler import write_error_log      
-            tmp = write_error_log()[1]
-
-            sys.stderr.write(f"An error accoured while trying to error log ({type(e).__name__})\n")
-            sys.stderr.write(f"The full error log can be found here: \n{tmp}\n\n")
-            status = STATUS_ERR
+        command_instance.fail_safe(e)
+        status: int = command_instance.status
 
     del command_instance
     return (status if isinstance(status, int) else STATUS_ERR)

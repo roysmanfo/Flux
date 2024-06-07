@@ -6,6 +6,7 @@ List information about the FILEs (the current directory by default).
 
 from flux.core.helpers.commands import *
 from flux.core.helpers.arguments import Parser
+from flux.utils import format
 
 import sys
 import os
@@ -30,7 +31,7 @@ class Command(CommandInterface):
             self.error(f"cannot access '{self.args.PATH}': No such file or directory")
             return
         
-        dir_contents: list[str] = []
+        dir_contents: List[str] = []
         
         if self.args.directory or os.path.isfile(self.args.PATH) or os.path.islink(self.args.PATH):
             dir_contents = [self.args.PATH] 
@@ -91,18 +92,16 @@ class Command(CommandInterface):
             else:
                 output.append(f"{self.colors.Fore.LIGHTGREEN_EX}{content}{self.colors.Fore.RESET}")
 
-        max_line_length = os.get_terminal_size().columns // 4 * 3
-        linelenght = 0
-        for content in output:
-            if linelenght + len(content) + 2 < (max_line_length):
-                self.print(f"{content}  ", end="")
-                linelenght += len(content) + 2
-            else:
-                linelenght = len(content) + 2
-                self.print(f"\n{content}  ", end="")
-
-        self.print("\n")
-    
+        # max_line_length = os.get_terminal_size().columns // 4 * 3
+        # linelenght = 0
+        # for content in output:
+        #     if linelenght + len(content) + 2 < (max_line_length):
+        #         self.print(f"{content}  ", end="")
+        #         linelenght += len(content) + 2
+        #     else:
+        #         linelenght = len(content) + 2
+        #         self.print(f"\n{content}  ", end="")
+        self.print(format.create_adaptive_table(output))    
     
     def long_listing_format(self, file_path: str) -> str:
         def get_permissions_string(mode):

@@ -51,7 +51,7 @@ class Command(CommandInterface):
 
         self.print(info + "\n")
 
-    def file_info(self, filepath: str | Path) -> str:
+    def file_info(self, filepath: Union[str, Path]) -> str:
         """
         Gets file information
         """
@@ -75,7 +75,7 @@ class Command(CommandInterface):
 
         return f"{filepath}: {file_type}{f', {mime_type}' if mime_type else ''}, {oct(os.stat(filepath).st_mode)[-3:]}, {file_size} bytes"
 
-    def get_metadata(self, path, keys: list = []) -> str | None:
+    def get_metadata(self, path, keys: list = []) -> Optional[str]:
         """
         Retrieve metadata from a file
 

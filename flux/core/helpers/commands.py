@@ -1,13 +1,21 @@
-from enum import IntEnum as _IntEnum
 import sys as _sys
 import os as _os
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from typing import Any, Optional, TextIO, List, Union
+from enum import IntEnum as _IntEnum
 from argparse import Namespace as _Namespace
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from typing import Any, Callable, Mapping, Optional, TextIO, List, Tuple, Union
 
-from flux.settings.info import Info
-from flux.core.system.processes import (STATUS_OK, STATUS_ERR, STATUS_WARN)
+from flux.core.system.interrupts import EventTriggers, IHandle
+from flux.core.system.privileges import Privileges
+from flux.core.system.processes import Status
+from flux.core.system.system import System
+from flux.settings.settings import Settings
+from flux.utils import format as _format
 from .arguments import Parser
+
+STATUS_OK = Status.STATUS_OK
+STATUS_ERR = Status.STATUS_ERR
+STATUS_WARN = Status.STATUS_WARN
 
 class CommandInterface(_ABC):
     """
@@ -59,12 +67,13 @@ class CommandInterface(_ABC):
             command.close()
             status = command.exit()
                 
-            except Exception as e:
-                command.fail_safe(e)
-                status: int = command.status
+        except Exception as e:
+            command_instance.fail_safe(e)
+            status: int = command_instance.status
 
-            del command
-            return status
+        del command_instance
+        return (status if isinstance(status, int) else STATUS_ERR)
+        
     ```
 
     ### LOGGING FUNCTIONS
@@ -80,24 +89,46 @@ class CommandInterface(_ABC):
     ### HELPER FUNCTIONS
     Other usefull methods, NOT called by the terminal.
     If you want to use these methods you need to call them yourself.
+    (print() and printerr() are not affected by the log_level, but are still to output redirection)
 
-    - `input()`     This is similar to python's `input()`, but uses `self.stdin` and doesn't modify `sys.stdin` .
-    - `print()`     This is similar to python's `print()`, but uses `self.stdout` and doesn't modify `sys.stdout` .
-    - `printerr()`  This is similar to `self.print()`, but uses `self.stderr` instead.
+    - `input()`                 This is similar to python's `input()`, but uses `self.stdin` and instead of `sys.stdin` .
+    - `print()`                 This is similar to python's `print()`, but uses `self.stdout` and instead of `sys.stdout` .
+    - `printerr()`              This is similar to `self.print()`, but uses `self.stderr` instead.
+    - `register_interrupt()`    Register a new interrupt handler
+    - `unregister_interrupt()`  Unregister an interrupt handler
+    - `clear_interrupts()`      Unregisters all interrupts
+    
+    ### PROPERTIES
+    Other usefull informations about the state of the command
+
+    - `bool` `redirected_stdout()`     True when the stdout has been redirected
+    - `bool` `redirected_stderr()`     True when the stderr has been redirected
+    - `bool` `redirected_stdin()`      True when the stdin has been redirected
+    - `bool` `is_output_red()`         True when the stdout and stderr have been redirected
+    - `bool` `is_any_red()`            True when at least one among stdout, stderr and stdin has been redirected
+    - `bool` `is_all_red()`            True when stdout, stderr and stdin have been redirected
+    - `bool` `is_alive()`              True from when the commaand gets loaded to after exit() or fail_safe()
+    - `bool` `has_high_priv()`         True if the command has been run with high/system privileges
+    - `bool` `has_sys_priv()`          True if the command has been run with system privileges
+    - `bool` `ihandles()`              Retuns a set of all interrupt handles
+    - `bool` `recv_from_pipe()`        True if `self.stdin` is pointing to a `pipe`
+    - `bool` `send_to_pipe()`          True if `self.stdout` is pointing to a `pipe`
 
     """
-
     def __init__(self,
-                 info: Info,
+                 system: System,
                  command: List[str],
                  is_process: bool,
                  stdout: Optional[TextIO] = _sys.stdout,
                  stderr: Optional[TextIO] = _sys.stdout,
-                 stdin: Optional[TextIO] = _sys.stdin
+                 stdin: Optional[TextIO] = _sys.stdin,
+                 privileges: int = Privileges.LOW
                  ) -> None:
-
+        
+        self.PRIVILEGES = privileges
         self.IS_PROCESS: bool = is_process
-        self.sysinfo: Info = info
+        self.system: System = system
+        self.settings: Settings = self.system.settings
         self.command: List[str] = command
         self.status: Optional[int] = None
         self.stdout = stdout
@@ -106,10 +137,26 @@ class CommandInterface(_ABC):
         self.parser: Optional[Parser] = None
         self.args: Optional[_Namespace] = None
         self.errors: Errors = Errors()
-        self.colors = Colors(not (stdout is _sys.stdout))
-
+        self.colors = Colors()
         self.levels = _Levels
         self.log_level = self.levels.NOTSET
+
+        self._recv_from_pipe = False
+        self._send_to_pipe = False
+        self._is_alive = True
+        self._stored_ihandles: set[IHandle] = set()
+
+
+    def __new__(cls, *args, **kwargs):
+        # override of these methods is not allowed
+        NAMES = {"__init__", "__new__", "fail_safe"}
+
+        instance = super().__new__(cls)
+        for name, method in cls.__dict__.items():
+            if callable(method) and name in NAMES:
+                if hasattr(CommandInterface, name) and getattr(CommandInterface, name) is not method:
+                    raise RuntimeError(f"Method '{name}' can't be overrided in subclass.")
+        return instance
 
     def __init_subclass__(cls) -> None:
         cls._FLUX_COMMAND = True
@@ -121,7 +168,7 @@ class CommandInterface(_ABC):
         return cls_mro == self_mro
 
     @staticmethod
-    def _is_subclass_instance(instance) -> bool:
+    def _is_subclass_instance(instance: object) -> bool:
         if hasattr(instance, "_FLUX_COMMAND"):
             _FLUX_COMMAND = getattr(instance, "_FLUX_COMMAND")
             if type(_FLUX_COMMAND) == bool and _FLUX_COMMAND:
@@ -170,15 +217,16 @@ class CommandInterface(_ABC):
         This function is used to close open files, like a redirected stdout
         """        
 
-        if self.stdout and self.stdout != _sys.stdout:
+        if self.stdout and self.redirected_stdout:
             self.stdout.close()
         
-        if self.stderr and self.stderr != _sys.stderr:
+        if self.stderr and self.redirected_stderr:
             self.stderr.close()
 
-        if self.stdin and self.stdin != _sys.stdin:
+        if self.stdin and self.redirected_stdin:
             self.stdin.close()
 
+        self.clear_interrupts(force=True)
 
 
     def exit(self):
@@ -186,6 +234,7 @@ class CommandInterface(_ABC):
         This is the last function that gets called.\n
         This function should be used to define what status code to return
         """
+        self._is_alive = False
         return self.status if self.status else STATUS_OK
 
     def fail_safe(self, exception: Exception):
@@ -211,16 +260,17 @@ class CommandInterface(_ABC):
         self.status = STATUS_ERR
 
         # close possibly open files
-        if self.stdout != _sys.stdout:
+        if self.stdout and self.redirected_stdout:
             self.stdout.close()
         
-        if self.stderr != _sys.stderr:
+        if self.stderr and self.redirected_stderr:
             self.stderr.close()
 
-        if self.stdin != _sys.stdin:
+        if self.stdin and self.redirected_stdin:
             self.stdin.close()
 
-        
+        self._is_alive = False
+        self.clear_interrupts(force=True)
 
     """
     LOGGING FUNCTIONS
@@ -307,7 +357,7 @@ class CommandInterface(_ABC):
     HELPER FUNCIONS
     """
 
-    def input(self, __prompt: object = "") -> str | None:
+    def input(self, __prompt: object = "") -> Optional[str]:
         """
         This function takes an input from the stdin and returns it as a string
 
@@ -329,7 +379,7 @@ class CommandInterface(_ABC):
         except KeyboardInterrupt:
             return None
         
-    def print(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n",  flush: bool = False) -> None :
+    def print(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n", file: Optional[TextIO] = None,  flush: bool = False) -> None :
         """
         Prints the values to self.stdout.
 
@@ -338,18 +388,23 @@ class CommandInterface(_ABC):
 
         - #### end
         \tstring appended after the last value, default a newline.
-
+        
+        - #### file
+        \ta file-like object (stream); defaults to self.stdout
+        
         - #### flush
         \twhether to forcibly flush the stream.
         """
         if self.stdout:
-            self.stdout.write(f"{sep}".join([ v.__str__() for v in values]))
-            self.stdout.write(end)
+            txt = f"{sep}".join([ str(v) for v in values])
+            file = self.stdout if file is None else file
 
-            if flush:
-                self.stdout.flush()
+            if self.redirected_stdout:
+                txt = _format.remove_ansi_escape_sequences(txt)
+            
+            print(txt, end=end, file=file, flush=flush)
 
-    def printerr(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n",  flush: bool = False) -> None :
+    def printerr(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n", file: Optional[TextIO] = None,  flush: bool = False) -> None :
         """
         Prints the values to self.stderr.
 
@@ -358,18 +413,151 @@ class CommandInterface(_ABC):
 
         - #### end
         \tstring appended after the last value, default a newline.
+        
+        - #### file
+        \ta file-like object (stream); defaults to self.stderr
 
         - #### flush
         \twhether to forcibly flush the stream.
         """
         if self.stderr:
-            self.stderr.write(f"{sep}".join([ v.__str__() for v in values]))
-            self.stderr.write(end)
+            txt = f"{sep}".join([ str(v) for v in values])
+            file = self.stderr if file is None else file
 
-            if flush:
-                self.stdout.flush()
+            if self.redirected_stderr:
+                txt = _format.remove_ansi_escape_sequences(txt)
 
+            print(txt, end=end, file=file, flush=flush)
 
+    @property
+    def redirected_stdout(self):
+        """
+        returns true if the stdout has been redirected
+        """
+        return not (self.stderr and self.stdout == _sys.stdout)
+
+    @property
+    def redirected_stderr(self):
+        """
+        returns true if the stderr has been redirected
+        """
+        return not (self.stderr and self.stderr == _sys.stderr)
+
+    @property
+    def redirected_stdin(self):
+        """
+        returns true if the stdin has been redirected
+        """
+        return not (self.stdin and self.stdin == _sys.stdin)
+    
+    @property
+    def is_output_red(self):
+        """
+        returns true if the stdout and stderr have been redirected
+        """
+        return self.redirected_stdout and self.redirected_stderr
+
+    @property
+    def is_any_red(self):
+        """
+        returns true if at least one among stdout, stderr and stdin has been redirected
+        """
+        return any([self.redirected_stdout, self.redirected_stderr, self.redirected_stdin])
+
+    @property
+    def is_all_red(self):
+        """
+        retuns true if both stdout, stderr and stdin have been redirected
+        """
+        return all([self.redirected_stdout, self.redirected_stderr, self.redirected_stdin])
+
+    @property
+    def is_alive(self):
+        """
+        retuns true from when the commaand gets loaded to after exit() or fail_safe()
+        """
+        return self._is_alive
+    
+    @property
+    def has_high_priv(self):
+        """
+        retuns true if the command has been run with high/system privileges
+        """
+        return self.PRIVILEGES >= Privileges.HIGH
+
+    @property
+    def has_sys_priv(self):
+        """
+        retuns true if the command has been run with system privileges
+        """
+        return self.PRIVILEGES >= Privileges.SYSTEM
+
+    @property
+    def ihandles(self):
+        """
+        retuns a set of all interrupt handles
+        """
+        return self._stored_ihandles
+
+    @property
+    def recv_from_pipe(self):
+        """
+        returns true if `self.stdin` is pointing to a `pipe`
+        """
+        return self._recv_from_pipe
+    
+    @property
+    def send_to_pipe(self):
+        """
+        returns true if `self.stdout` is pointing to a `pipe`
+        """
+        return self._send_to_pipe
+    
+
+    def clear_interrupts(self, force: bool = True) -> None:
+        """
+        Unregisters all interrupts
+
+        `:param force` when set to false the interrupt will be removed only if it has been executed at least once
+        """
+        ihandles = [i for i in self._stored_ihandles]
+        for h in ihandles:
+            self.unregister_interrupt(h, force=force)
+
+    def register_interrupt(self,
+                         event: EventTriggers,
+                         target: Callable[[Any], None],
+                         args: Optional[Tuple[Any]]= (),
+                         kwargs: Optional[Mapping[str, Any]] = None,
+                         exec_once: Optional[bool] = True) -> IHandle:
+        """
+        Register a new interrupt handler
+
+        :param event: can be one of the supported Signals or EventTriggers. Specifies when to execute the interrupt
+        :param target: the actual code to execute once the specified event occours
+        :param args: the arguments needed by the target function
+        :param kwargs: is a dictionary of keyword arguments for the target invocation. Defaults to {}.
+        :param exec_once: if set to False, the interrupt will be executed at each event, as long as the command is still alive
+        :returns an handle to the Interrupt, which will be useful when interacting with it
+        """
+        ihandle = self.system.interrupt_handler._register(event, target, args, kwargs, exec_once)
+        self._stored_ihandles.add(ihandle)
+        return ihandle
+    
+
+    def unregister_interrupt(self, handle: IHandle, force: bool = False) -> bool:
+        """
+        Unregister an interrupt handler
+
+        :param handle: an handle to the Interrupt to remove
+        :param force: if True, the interrupt will be removed even if it hasn't been executed yet
+        :returns True if the interrupt has been removed, or has not been found, False otherwise
+        """
+        res = self.system.interrupt_handler._unregister(handle, force)
+
+        if res:
+            self._stored_ihandles.discard(handle)
+        return res
 
 class Errors():
     """
@@ -385,7 +573,7 @@ class Errors():
         self.errors.value = self.args.PATH
     ```
 
-    or by recreating the object in your setup 
+    or by recreating the object in your `setup` 
 
     ```
     def setup(self):
@@ -393,13 +581,23 @@ class Errors():
         self.errors = Errors(PATH)
     ```
 
-    otherwise you will have to provide the path on each call
+    otherwise you will have to provide the value on each call
 
     ```
     try:
         # Some operations
     except PermissionError:
         self.error(self.errors.permission_error(PATH))
+    ```
+
+    If you define `self.value` and set the parameter to a different value,
+    the new parameter will be used instead
+
+    ```
+    self.errors.value = 'value1'
+    self.error(self.errors.permission_error())         # <- will use 'value1'
+    self.error(self.errors.permission_error('value2')) # <- will use 'value2'
+    self.error(self.errors.permission_error())         # <- will use 'value1' again
     ```
     """
 
@@ -502,9 +700,10 @@ class _Levels(_IntEnum):
 
 
 class Colors:
-    def __init__(self, to_file: bool) -> None:
+    def __init__(self) -> None:
         from . import colors
-        self.Fore = colors.Foreground(to_file)
-        self.Back = colors.Background(to_file)
-        self.Style = colors.Styles(to_file)
+        self.Fore = colors.Foreground
+        self.Back = colors.Background
+        self.Style = colors.Styles
+
 

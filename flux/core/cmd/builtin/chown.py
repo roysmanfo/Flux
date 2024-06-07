@@ -20,7 +20,7 @@ class Command(CommandInterface):
 
         for file in self.args.file:
             file: str
-            owner: list[str] = [i for i in self.args.owner.split(":") if i]
+            owner: List[str] = [i for i in self.args.owner.split(":") if i]
             group = None
             
             if len(owner) > 2:

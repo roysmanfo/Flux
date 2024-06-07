@@ -9,12 +9,12 @@ class Test_TestUser(unittest.TestCase):
         """
 
         import os
-        from flux.settings.info import Path, SysPaths
+        from flux.settings.settings import Path, SysPaths
         from flux.core import setup
 
         s_file_exists = os.path.exists(SysPaths.SETTINGS_FILE)
 
-        info = setup._system_setup()
+        info = setup.setup()
         USER = info.user
         types = [
             type(USER.email) == str,
