@@ -10,7 +10,7 @@ class Command(CommandInterface):
                       "the signal named by SIGSPEC or SIGNUM. " \
                       "If neither SIGSPEC nor SIGNUM is present, then SIGTERM is assumed."
         self.parser = Parser("kill", description=description)
-        self.parser.add_argument("pid", nargs="?", help="the pid of the process")
+        self.parser.add_argument("pid", nargs="?", type=int, help="the pid of the process")
         self.parser.add_argument("-s", dest="sigspec", help="sigspec is a signal name")
         self.parser.add_argument("-n", dest="signum", type=int,  help="signum is a signal number")
         self.parser.add_argument("-l", dest="sigspec", nargs="?", type=int, help="list the signal names;if arguments follow `-l' they are assumed to be signal numbers for which names should be listed")
@@ -56,9 +56,10 @@ class Command(CommandInterface):
         if not signum:
             self.error(f"{signum}: invalid signal specification")
             return
-
-        if self.system.processes.find(self.args.pid):
-            pass
+        
+        if not self.system.processes.find(self.args.pid):
+            self.error(self.parser.format_usage().rstrip("\n"))
+            return
         
         proc = self.system.processes.remove(self.args.pid)
         print(proc)
