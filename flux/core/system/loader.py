@@ -1,12 +1,18 @@
 import os
 import importlib
-from flux.core.system.system import System
+from functools import lru_cache as _lru_cache
 from typing import Callable, Optional, TextIO
+from flux.core.system.system import System
 
 # List of directories to search for custom scripts/extensions
 custom_script_dirs = ["fpm"]
 manager_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
+# store up to 50 commands in the cache
+max_cache_size = 50
+
+
+@_lru_cache(maxsize=max_cache_size, typed=False)
 def load_custom_script(script_name: str) -> Optional[Callable[[System, str, bool, TextIO, TextIO, TextIO, int], None]]:
     """
     Load an external command installed on the machine
@@ -23,6 +29,7 @@ def load_custom_script(script_name: str) -> Optional[Callable[[System, str, bool
                 pass
     return None
 
+@_lru_cache(maxsize=max_cache_size, typed=False)
 def load_builtin_script(script_name: str) -> Optional[Callable[[System, str, bool, TextIO, TextIO, TextIO, int], None]]:
     """
     Load an internal command installed on the machine
