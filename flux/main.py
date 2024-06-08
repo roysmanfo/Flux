@@ -20,7 +20,7 @@ def listen() -> List[str]:
     """
     try:
         print(
-            f"{Fore.GREEN}{SYSTEM.settings.user.username}{Fore.CYAN} Flux [{SYSTEM.version}] {Fore.YELLOW}" + str(SYSTEM.settings.user.paths.terminal).lower() + f"{Fore.MAGENTA} $ ", end="")
+            f"{Fore.GREEN}{SYSTEM.settings.user.username}{Fore.CYAN} Flux [{SYSTEM.version}] {Fore.YELLOW}" + SYSTEM.variables.get("$PWD").value.lower() + f"{Fore.MAGENTA} $ ", end="")
         command = input()
         print(f"{Fore.WHITE}", end="")
 

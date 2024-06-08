@@ -27,9 +27,9 @@ class System():
     def _init_reserved_variables(self) -> None:
 
         self.variables.add("$ALL", "$ALL:$HOME:$PATH:$PWD", True)
-        self.variables.add("$HOME", str(self.settings.user.paths.terminal), True)
+        self.variables.add("$HOME", str(self.settings.user.paths.terminal).replace("\\", "/"), True)
         self.variables.add("$PATH", os.environ.get("PATH", ""), True)
-        self.variables.add("$PWD", str(self.settings.user.paths.terminal), True)
+        self.variables.add("$PWD", str(self.settings.user.paths.terminal).replace("\\", "/"), True)
 
     def get_settings(self) -> Settings:
         return self.settings.copy()

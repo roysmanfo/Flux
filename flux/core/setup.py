@@ -30,11 +30,11 @@ def setup() -> System:
     SysPaths.create_initial_folders() # May rise an exception
     
     user = User()
-    os.chdir(user.paths.terminal)
 
     settings = Settings(user)
     system = System(settings)
     
+    os.chdir(system.variables.get("$HOME").value)
     return system
 
 
