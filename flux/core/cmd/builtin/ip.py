@@ -68,7 +68,7 @@ class Command(CommandInterface):
                     print(f"    link/ether {address.address} brd ff:ff:ff:ff:ff:ff")   
                 else:
 
-                    out = "   "
+                    out = "   " + " " * (len(str(counter)) - 1)
 
                     match address.family:
                         case socket.AF_INET: out += f"inet"
