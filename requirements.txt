@@ -1,9 +1,13 @@
 autopep8==2.0.0
 chardet==5.1.0
 colorama==0.4.6
+iniconfig==2.0.0
 install==1.3.5
-Pillow==10.2.0
+packaging==24.0
+pillow==10.2.0
 ping3==4.0.4
+pluggy==1.5.0
+psutil==5.9.8
 pycodestyle==2.9.1
 pydub==0.25.1
 pypdf==3.17.2
