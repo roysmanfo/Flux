@@ -9,14 +9,17 @@ class Command(CommandInterface):
     def init(self):
         self.parser = Parser("curl", description=" transfer a URL", usage="curl [options...] <url>")
         self.parser.add_argument("url", help="the page to visit")
-        self.parser.add_argument("-A", "--user-agent", dest="agent", default="curl", help="Send User-Agent <name> to server")
+        self.parser.add_argument("-A", "--user-agent", dest="agent", metavar="name", default="curl", help="Send User-Agent <name> to server")
         self.parser.add_argument("-H", "--header", action="append", dest="header", help="Extra header to include in information sent")
+        self.parser.add_argument("-L", "--location", action="store_true", help="Follow redirects")
+        self.parser.add_argument("--max-redirs", metavar="num", type=int, default=50, help="Maximum number of redirects allowed")
         self.parser.add_argument("-v", "--verbose", action="store_true", help="Make the operation more talkative")
 
         self.log_level = self.levels.INFO
 
     def run(self):
-        
+        session = requests.Session()
+        session.max_redirects = self.args.max_redirs
 
         HTTPConnection._http_vsn_str = 'HTTP/1.0'
         if self.args.verbose:
@@ -38,10 +41,10 @@ class Command(CommandInterface):
         self.debug()
 
         try:
-            res = requests.get(
+            res = session.get(
                 url=url,
                 headers=headers,
-                allow_redirects=False
+                allow_redirects=self.args.location,
             )
 
 
@@ -49,8 +52,11 @@ class Command(CommandInterface):
             self.print_headers(res.headers, is_response=True)
 
             self.print(res.text)
-        except requests.exceptions.ConnectionError as e:
+        except requests.exceptions.ConnectionError:
             self.fatal(f"(7) Failed to connect to {self.args.url}: Connection refused")
+
+        except requests.exceptions.TooManyRedirects:
+            self.fatal(f"(7) Failed to connect to {self.args.url}: Too Many Redirects")
 
 
     def format_headers(self) -> dict[str, str]:
