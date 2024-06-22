@@ -396,7 +396,7 @@ class CommandInterface(_ABC):
         \twhether to forcibly flush the stream.
         """
         if self.stdout:
-            txt = f"{sep}".join([ str(v) for v in values])
+            txt = f"{sep}".join([ str(v) for v in values if v])
             file = self.stdout if file is None else file
 
             if self.redirected_stdout:
@@ -421,7 +421,7 @@ class CommandInterface(_ABC):
         \twhether to forcibly flush the stream.
         """
         if self.stderr:
-            txt = f"{sep}".join([ str(v) for v in values])
+            txt = f"{sep}".join([ str(v) for v in values if v])
             file = self.stderr if file is None else file
 
             if self.redirected_stderr:
