@@ -159,38 +159,57 @@ def is_output_piped(command: List[str]) -> bool:
     return "|" in command
 
 def manage(command: List[str], system: System) -> None:
+    global pipe
+    global num_pipes_left
+
+
     commands = transform.split_commands(command)
-    # num_pipes_left = command.count("|")
-    # pipe = None
-
+    remainning_commands = len(commands)
+    num_pipes_left, tot_pipes = 0, 0
+    pipe = None
+    
     # for each comand separated by semicolon
-    for command in commands:
-        # piping_detected = is_output_piped(command)
-        try:
-            # if piping_detected:
-            #     piped_commands = transform.split_pipe(command)
+    while remainning_commands > 0:
+        command = commands.pop(0)
+        piping_detected = is_output_piped(command)
 
+        try:
+            if piping_detected:
+                num_pipes_left += command.count("|")
+                tot_pipes += command.count("|")
+                piped_commands = transform.split_pipe(command)
+                commands = piped_commands + commands
+                command = commands.pop(0)
+                remainning_commands += len(piped_commands) - 1
 
             exec_command = build(command, system)
-            if exec_command:
-                # if num_pipes_left > 0:
-                #     if pipe:
-                #         exec_command.stdin = pipe
-                #         exec_command.stdout = pipe
-                #         num_pipes_left -= 1
-                #     else:
-                #         pipe = exec_command.stdout
             
+            if exec_command:
+                if num_pipes_left < tot_pipes:
+                    exec_command.stdin = pipe
+                    exec_command._recv_from_pipe = True
+
+                if num_pipes_left > 0:
+                    pipe = create_pipe()
+                    exec_command.stdout = pipe
+                    exec_command._send_to_pipe = True
+                    num_pipes_left -= 1
+                
+                exec_command._init_pipe()
                 if exec_command.IS_PROCESS:
                     command.pop(-1)
                     system.processes.add(system, command, exec_command, False)
                 else:
                     call(exec_command)
+           
 
 
         except (UnboundLocalError, AssertionError) as e:
             if command[0] != "":
                 print(f"-flux: {command[0]}: command not found\n{e}\n")
+        finally:
+            remainning_commands -= 1
+
 
 def create_pipe() -> TextIO:
     temp_name = tempfile.mkstemp(prefix="flux_pipe_")[1]
