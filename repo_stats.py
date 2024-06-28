@@ -20,9 +20,9 @@ exclude_dirs = {
     '.git',
     '.github',
     ".pytest_cache",
+    ".venv",
     ".vscode",
     "docs",
-    "venv",
     "img",
     }
 exclude_ext = { ".pyc" }
