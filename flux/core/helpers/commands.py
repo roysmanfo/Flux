@@ -144,8 +144,11 @@ class CommandInterface(_ABC):
         self._recv_from_pipe = False
         self._send_to_pipe = False
         self._is_alive = True
-        self._stored_ihandles: set[IHandle] = set()
+        self._stored_ihandles: set[IHandle] = set()    
 
+    def _init_pipe(self) -> None:
+        if self.recv_from_pipe:
+            self.stdin = open(self.stdin.name, "r")
 
     def __new__(cls, *args, **kwargs):
         # override of these methods is not allowed
