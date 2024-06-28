@@ -4,6 +4,7 @@ __pycache__
 ignore_*.*
 
 # Virtual environment
+.venv/
 venv/
 
 # Virtual environment stuff
