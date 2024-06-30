@@ -36,7 +36,7 @@ class Parser(ArgumentParser):
         if not add_help:
             self.add_argument("-h", "--help", action="store_true")
 
-    def parse_args(self, args: Sequence[str] | None = None, namespace: None = None) -> Namespace:
+    def parse_args(self, args: Optional[Sequence[str]] = None, namespace: None = None) -> Namespace:
         nspace = super().parse_args(args, namespace)
         self.__parsed = True
 
