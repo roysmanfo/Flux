@@ -60,7 +60,11 @@ class Command(CommandInterface):
 
 
     def format_headers(self) -> dict[str, str]:
-        headers = {"User-Agent": self.args.agent}        
+        headers = {"User-Agent": self.args.agent}
+
+        if not self.args.header:
+            return headers
+             
         for h in self.args.header:
             try:
                 h: str
