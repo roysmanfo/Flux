@@ -1,6 +1,6 @@
-from argparse import HelpFormatter, ArgumentParser
+from argparse import HelpFormatter, ArgumentParser, Namespace
 import sys as _sys
-from typing import Optional
+from typing import Optional, Sequence
 
 
 class Parser(ArgumentParser):
@@ -31,8 +31,28 @@ class Parser(ArgumentParser):
         self.exit_execution = False
         self.help_message = ""
         self.ignored = []
+        self._no_args = False
+        self.__parsed = False
         if not add_help:
             self.add_argument("-h", "--help", action="store_true")
+
+    def parse_args(self, args: Sequence[str] | None = None, namespace: None = None) -> Namespace:
+        nspace = super().parse_args(args, namespace)
+        self.__parsed = True
+        
+        if len(args) == 0:
+            self._no_args = True
+
+        return nspace
+
+
+    @property
+    def no_args(self):
+        if not self.__parsed:
+            raise RuntimeError("the method 'parse_args()' must be parsed before")
+
+        return self._no_args
+    
 
     def error(self, message):
         if message and message not in self.ignored:
