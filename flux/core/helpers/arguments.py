@@ -39,8 +39,8 @@ class Parser(ArgumentParser):
     def parse_args(self, args: Sequence[str] | None = None, namespace: None = None) -> Namespace:
         nspace = super().parse_args(args, namespace)
         self.__parsed = True
-        
-        if len(args) == 0:
+
+        if len([i for i in args if i.startswith(self.prefix_chars)]) == 0:
             self._no_args = True
 
         return nspace
