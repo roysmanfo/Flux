@@ -25,6 +25,8 @@ def create_table(*collumns: Union[str, List[str]], contents: Iterable[Iterable[A
 
     """
 
+    if collumns and isinstance(collumns[0], (list, tuple, set)):
+        collumns = collumns[0]
     records: List[List[str]] = contents
 
     n_columns = len(collumns)
