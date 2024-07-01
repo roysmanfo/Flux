@@ -3,7 +3,7 @@ from typing import Iterable, Any, List, Union
 import re
 
 
-def create_table(*collumns: Union[str, List[str]], contents: Iterable[Iterable[Any]]) -> str:
+def create_table(*collumns: Union[str, List[str]], contents: Iterable[Iterable[Any]], show_headers: bool = True) -> str:
     """
     Return a N x M table where N rappresents the number of columns
     and M rappresents the number of records in contents (+2 rows: 1 for the title and 1 for the underline)
@@ -33,8 +33,9 @@ def create_table(*collumns: Union[str, List[str]], contents: Iterable[Iterable[A
     column_widths = [max(len(collumn), width) + 2 for collumn, width in zip(collumns, column_widths)]
 
     output = ""
-    output += "   ".join(f"{collumn}{' ' * (width - len(collumn))}" for collumn, width in zip(collumns, column_widths)) + "\n"
-    output += "     ".join("-" * (width - 2) for width in column_widths) + "\n"
+    if show_headers:
+        output += "   ".join(f"{collumn}{' ' * (width - len(collumn))}" for collumn, width in zip(collumns, column_widths)) + "\n"
+        output += "     ".join("-" * (width - 2) for width in column_widths) + "\n"
 
     for record in records:
         output += "   ".join(f"{str(record[i])}{' ' * (width - len(str(record[i])))}" for i, width in enumerate(column_widths)) + "\n"
@@ -43,11 +44,11 @@ def create_table(*collumns: Union[str, List[str]], contents: Iterable[Iterable[A
 
     return output
 
-def create_adaptive_table(data: List[str]) -> str:
+def create_adaptive_table(data: Iterable[str]) -> str:
     """
     Return a dynamically sized table based on the terminal size and the length of the data.
 
-    `:param data` : a list of data elements
+    `:param data` : an iterable object containing some kind of informations
     `:returns` : a string representing the formatted table
     """
 
