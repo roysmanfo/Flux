@@ -122,7 +122,7 @@ class CommandInterface(_ABC):
                  stdout: Optional[TextIO] = _sys.stdout,
                  stderr: Optional[TextIO] = _sys.stdout,
                  stdin: Optional[TextIO] = _sys.stdin,
-                 privileges: int = Privileges.LOW
+                 privileges: Privileges = Privileges.LOW
                  ) -> None:
         
         self.PRIVILEGES = privileges
@@ -130,7 +130,7 @@ class CommandInterface(_ABC):
         self.system: System = system
         self.settings: Settings = self.system.settings
         self.command: List[str] = command
-        self.status: Optional[int] = None
+        self.status: Optional[Status] = None
         self.stdout = stdout
         self.stderr = stderr
         self.stdin = stdin
