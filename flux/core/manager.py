@@ -16,7 +16,10 @@ from flux.core.helpers.commands import CommandInterface, STATUS_ERR
 from flux.utils import transform
 
 # NULL_PATH = os.devnull
-NULL_PATH = [Path(os.path.join("/", "dev", "null")).resolve(), Path("nul"), Path(os.devnull)]
+NULL_PATH = [
+    Path(os.path.join("/", "dev", "null")).resolve(),
+    Path(os.devnull).resolve() if os.name != "nt" else Path(os.devnull)
+]
 
 def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     """
