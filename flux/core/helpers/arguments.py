@@ -40,7 +40,14 @@ class Parser(ArgumentParser):
         nspace = super().parse_args(args, namespace)
         self.__parsed = True
 
-        if len([i for i in args if i.startswith(self.prefix_chars)]) == 0:
+        filt = list(filter(
+            lambda arg:
+                arg.startswith(self.prefix_chars) and
+                len(arg) > len(self.prefix_chars) and
+                len(arg.split()) == 1,
+            args))
+
+        if len(filt) == 0:
             self._no_args = True
 
         return nspace
