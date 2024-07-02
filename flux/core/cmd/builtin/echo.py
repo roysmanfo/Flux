@@ -1,7 +1,6 @@
 from flux.core.helpers.commands import (
     CommandInterface,
-    Parser,
-    Status
+    Parser
 )
 
 
