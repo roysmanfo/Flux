@@ -13,15 +13,13 @@ class Command(CommandInterface):
 
     def run(self):
         outputs: list[str] = []
-        add_filename = len(self.args.files) > 1
+        add_filename = len(self.args.files) > 0
+        add_total = len(self.args.files) > 1
         
         for file in self.args.files:
             outputs.append(self.create_output_for_file(file, add_filename=add_filename))
         
-        
-        if add_filename:
-            # add a total
-            
+        if add_total:
             total = [0 for _ in range(len(outputs[0]) - 1)]
             for file in outputs:
                 for index, value in enumerate(file[:-1]):
@@ -29,8 +27,11 @@ class Command(CommandInterface):
 
             total.append("total")
             outputs.append(tuple(total))
-        self.print(format.create_table(["" for _ in range(len(outputs[0]))], contents=outputs, show_headers=False).rstrip("\n"))
-        
+
+        cols = ["" for _ in range(len(outputs[0]))]
+        table = format.create_table(cols, contents=outputs, show_headers=False)
+        self.print(table.rstrip("\n"))
+
     
     def create_output_for_file(self, file_path: str, add_filename: bool = False) -> Tuple[str]:
         if file_path:
@@ -45,7 +46,18 @@ class Command(CommandInterface):
                 raise RuntimeError(self.errors.cannot_read_dir())
 
         file = open(file_path, 'r') if file_path else self.stdin
-        contents = file.read().strip().strip("\n")
+
+        if file_path:
+            contents = file.read()
+        else:
+            if not self.recv_from_pipe:
+                file_path = "stdin"
+            contents = ""
+
+            while (inp := self.input()) != None:
+                contents += inp
+        contents = contents.strip().strip("\n")
+        
         output = []
         if self.parser.no_args:
             self.args.lines = True
@@ -64,9 +76,9 @@ class Command(CommandInterface):
         if self.args.chars:
             output.append(len(contents))
 
-        if file and add_filename:
+        if file and add_filename and file_path:
             output.append(file_path)
-        
+
         return tuple(output)
 
 
