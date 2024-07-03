@@ -65,7 +65,7 @@ def get_stdout(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             STD_OUT = [None, pathname]
         
     else:
-        STD_OUT = [None, pathname]
+        raise RuntimeError("syntax error near unexpected token `newline'")
 
     return STD_OUT
 
@@ -112,7 +112,7 @@ def get_stderr(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             STD_ERR = [None, pathname]
         
     else:
-        STD_ERR = [None, pathname]
+        raise RuntimeError("syntax error near unexpected token `newline'")
 
     return STD_ERR
 
@@ -130,15 +130,17 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
     
     STD_IN: List[TextIO, Optional[str]]
     REDIRECT: str
-    MODE: str
+    MODE: str = "rt"
     pathname = ""
 
-    if "<" in command:
+    if "<<<" in command:
+        REDIRECT = "<<<"
+    elif "<<" in command:
+        REDIRECT = "<<"
+    elif "<" in command:
         REDIRECT = "<"
-        MODE = "rt"
     else:
         return [sys.stdin, None]
-
 
     if command.index(REDIRECT) < len(command) - 1:
         try:
@@ -154,7 +156,7 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
             STD_IN = [None, pathname]
         
     else:
-        STD_IN = [None, pathname]
+        raise RuntimeError("syntax error near unexpected token `newline'")
 
     return STD_IN
 
@@ -243,10 +245,14 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
 
 
     # Check for stdout redirect
-    stdout, out_path = get_stdout(command)
-    stderr, err_path = get_stderr(command)
-    stdin, in_path = get_stdin(command)
-
+    try:
+        stdout, out_path = get_stdout(command)
+        stderr, err_path = get_stderr(command)
+        stdin, in_path = get_stdin(command)
+    except RuntimeError as e:
+        print(f"-flux: {e}\n", file=sys.stderr)
+        return None
+    
     if stdout is None and out_path is not None:
         print(f"-flux: {out_path}: Permission denied\n", file=sys.stderr)
         return None
