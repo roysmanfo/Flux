@@ -209,7 +209,7 @@ def manage(command: List[str], system: System) -> None:
 
         except (UnboundLocalError, AssertionError) as e:
             if command[0] != "":
-                print(f"-flux: {command[0]}: command not found\n{e}\n")
+                print(f"-flux: {command[0]}: command not found\n{e}\n", file=sys.stderr)
         finally:
             remainning_commands -= 1
 
@@ -248,15 +248,15 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
     stdin, in_path = get_stdin(command)
 
     if stdout is None and out_path is not None:
-        print(f"-flux: {out_path}: Permission denied\n")
+        print(f"-flux: {out_path}: Permission denied\n", file=sys.stderr)
         return None
     
     if stderr is None and err_path is not None:
-        print(f"-flux: {err_path}: Permission denied\n")
+        print(f"-flux: {err_path}: Permission denied\n", file=sys.stderr)
         return None
     
     if stdin is None and in_path is not None:
-        print(f"-flux: {in_path}: Permission denied\n")
+        print(f"-flux: {in_path}: Permission denied\n", file=sys.stderr)
         return None
 
     # look for piping    
@@ -269,11 +269,11 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
         exec_command_class = loader.load_custom_script(command_name)
 
     if not exec_command_class:
-        print(f"-flux: {command_name}: command not found\n")
+        print(f"-flux: {command_name}: command not found\n", file=sys.stderr)
         return None
 
     if not CommandInterface._is_subclass(exec_command_class):
-        print(f"-flux: {command_name}: command not found\n")
+        print(f"-flux: {command_name}: command not found\n", file=sys.stderr)
         return None
     
     is_thread = command[-1].endswith("&") and not command[0].endswith("&")
