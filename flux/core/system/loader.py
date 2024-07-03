@@ -51,7 +51,9 @@ def load_builtin_script(script_name: str) -> Optional[Callable[[System, str, boo
             finally:
                 return getattr(module, class_name) if class_name else None
 
-        except (ImportError, AttributeError):
-            pass
+        except (ImportError, AttributeError) as e:
+            print(e)
+    else:
+        print("file not found")
 
     return None
