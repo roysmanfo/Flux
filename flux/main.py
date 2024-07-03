@@ -47,7 +47,7 @@ def run():
                     if cmd[0] != "":
                         manager.manage(cmd, SYSTEM)
         except KeyboardInterrupt:
-            signal.raise_signal(signal.SIGINT)
+            print()
 
 if __name__ == "__main__":
     
