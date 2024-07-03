@@ -6,8 +6,8 @@ import chardet
 
 class Command(CommandInterface):
     def init(self):
-        self.parser = Parser("cat", description="Concatenate FILE(s) to standard output")
-        self.parser.add_argument("files", nargs="+", help="the files to read (when is -, read standard input)")
+        self.parser = Parser("cat", description="Concatenate FILE(s) to standard output", usage="cat [OPTION]... [FILE]...")
+        self.parser.add_argument("files", nargs="*", help="the files to read (with no FILE, or when FILE is -, read standard input)")
         self.parser.add_argument("-A", "--show-all", action="store_true", help="equivalent to -vET")
         self.parser.add_argument("-b", action="store_true", help="number nonempty output lines, overrides -n")
         self.parser.add_argument("-e", action="store_true", help="equivalent to -vE")
@@ -20,6 +20,8 @@ class Command(CommandInterface):
 
     def setup(self):
         super().setup()
+        if not self.args.files:
+            self.args.files = ["-"]
 
         if self.args.show_all:
             self.args.e = True
