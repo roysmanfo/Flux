@@ -7,7 +7,7 @@ with the respective command (if existent).
 import sys
 import os
 import tempfile
-from typing import List, Optional, TextIO, Tuple
+from typing import Iterable, List, Optional, TextIO, Tuple
 from pathlib import Path
 
 from flux.core.system.system import System
@@ -163,6 +163,24 @@ def get_stdin(command: List[str]) -> Tuple[Optional[TextIO], Optional[str]]:
 def is_output_piped(command: List[str]) -> bool:
     return "|" in command
 
+def delete_used_pipes(pipe_files: Iterable[TextIO]) -> None:
+    # NOTE: would be usefull to know in some logs
+    #       if one of these is used as pipe (shouldn't happen, but what if ...)
+    ignored_files = {sys.stdin.name, sys.stdout.name, sys.stderr.name}
+    
+    for pipe in pipe_files:
+        if pipe.name not in ignored_files:
+            try:
+                if not pipe.closed:
+                    pipe.flush()
+                    pipe.close()
+                os.remove(pipe.name)
+            except:
+                # NOTE: again it would be better to know when this appends 
+                #       for debug and bug fixing
+                pass  
+    
+
 def manage(command: List[str], system: System) -> None:
     global pipe
     global num_pipes_left
@@ -171,6 +189,7 @@ def manage(command: List[str], system: System) -> None:
     commands = transform.split_commands(command)
     remainning_commands = len(commands)
     num_pipes_left, tot_pipes = 0, 0
+    created_pipes: list[TextIO] = []
     pipe = None
     
     # for each comand separated by semicolon
@@ -196,6 +215,7 @@ def manage(command: List[str], system: System) -> None:
 
                 if num_pipes_left > 0:
                     pipe = create_pipe()
+                    created_pipes.append(pipe)
                     exec_command.stdout = pipe
                     exec_command._send_to_pipe = True
                     num_pipes_left -= 1
@@ -214,6 +234,7 @@ def manage(command: List[str], system: System) -> None:
                 print(f"-flux: {command[0]}: command not found\n{e}\n", file=sys.stderr)
         finally:
             remainning_commands -= 1
+    delete_used_pipes(created_pipes)
 
 
 def create_pipe() -> TextIO:
