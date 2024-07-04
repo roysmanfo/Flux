@@ -12,7 +12,7 @@ from pathlib import Path
 
 from flux.core.system.system import System
 from flux.core.system import loader
-from flux.core.helpers.commands import CommandInterface, STATUS_ERR
+from flux.core.helpers.commands import CommandInterface, Status
 from flux.utils import transform
 
 # NULL_PATH = os.devnull
@@ -309,7 +309,7 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
     del exec_command_class
     return exec_command
 
-def call(command_instance: CommandInterface) -> int:
+def call(command_instance: CommandInterface) -> Status:
     """
     Execute the loaded script
 
@@ -323,10 +323,14 @@ def call(command_instance: CommandInterface) -> int:
         command_instance.init()
         command_instance.setup()
 
-        if command_instance.status == STATUS_ERR or command_instance.parser and command_instance.parser.exit_execution:
+        if (command_instance.status == Status.STATUS_ERR or
+                (command_instance.parser and command_instance.parser.exit_execution)):
+
             command_instance.close()
-            return command_instance.exit()
-        
+            status = command_instance.exit()
+            del command_instance
+            return status
+
         command_instance.run()
         command_instance.close()
         status = command_instance.exit()
@@ -336,5 +340,5 @@ def call(command_instance: CommandInterface) -> int:
         status: int = command_instance.status
 
     del command_instance
-    return (status if isinstance(status, int) else STATUS_ERR)
+    return (status if isinstance(status, int) else Status.STATUS_ERR)
 
