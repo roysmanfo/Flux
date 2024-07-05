@@ -48,6 +48,9 @@ def run():
                         manager.manage(cmd, SYSTEM)
         except KeyboardInterrupt:
             print()
+        except ValueError as e:
+            print(f"-flux: {e}\n", file=sys.stderr)
+
 
 if __name__ == "__main__":
     

@@ -22,8 +22,12 @@ def string_to_list(string: str) -> List[str]:
     string_to_list("FIST WORD ALWAYS LOWERCASE") -> ["first", "WORD", "ALWAYS", "LOWERCASE"]
     ```
     """
+    try:
+        words = shlex.split(string, comments=True, posix=True)
+    except ValueError:
+        raise
+        
 
-    words = shlex.split(string)
     if len(words) > 0:
         words[0] = words[0].lower() if not words[0].startswith("$") else words[0]
 
