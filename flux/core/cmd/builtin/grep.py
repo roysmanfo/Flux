@@ -37,11 +37,11 @@ class Command(CommandInterface):
         while line := file.readline().strip().strip('\n'):
             compared_line = line.lower() if self.args.ignore_case else line
             matches = list(re.compile(self.args.pattern).finditer(compared_line))
-
-            if matches and mark_matches:
-                for match in matches:
-                    start, end = match.span()
-                    line = line[:start] + self.colors.Fore.RED + line[start:end] + self.colors.Fore.RESET + line[end:]
+            if matches:
+                if mark_matches:
+                    for match in matches[::-1]:
+                        start, end = match.span()
+                        line = line[:start] + self.colors.Fore.RED + line[start:end] + self.colors.Fore.RESET + line[end:]
 
                 yield line
 
