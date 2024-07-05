@@ -182,9 +182,6 @@ def delete_used_pipes(pipe_files: Iterable[TextIO]) -> None:
     
 
 def manage(command: List[str], system: System) -> None:
-    global pipe
-    global num_pipes_left
-
 
     commands = transform.split_commands(command)
     remainning_commands = len(commands)
