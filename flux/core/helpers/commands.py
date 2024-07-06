@@ -195,7 +195,7 @@ class CommandInterface(_ABC):
         This is method is called right before run().\n
         This method is used to parse arguments and exit on parsing errors
 
-        NOTE: Always remember to call `super().setup()` when overwiring this
+        NOTE: Always remember to call `super().setup()` when overwriting this method
         """
         try:
             self.args = self.parser.parse_args(self.command[1:])
@@ -223,7 +223,7 @@ class CommandInterface(_ABC):
         This is the method that gets called after we run the command.\n
         This method is used to close open files, like a redirected stdout
 
-        NOTE: Always remember to call `super().close()` when overwiring this
+        NOTE: Always remember to call `super().close()` when overwriting this method
         """        
 
         if self.stdout and self.redirected_stdout:
@@ -243,7 +243,7 @@ class CommandInterface(_ABC):
         This is the last method that gets called.\n
         This method should be used to define what status code to return
 
-        NOTE: Always remember to call `super().exit()` when overwiring this
+        NOTE: Always remember to call `super().exit()` when overwriting this method
         """
         self._is_alive = False
         return self.status if self.status else STATUS_OK
