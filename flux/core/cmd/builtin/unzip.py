@@ -108,7 +108,7 @@ class Command(CommandInterface):
                 
                 
                 # ignore this file if it is in xlist
-                if item in self.args.xlist:
+                if self.args.xlist and item in self.args.xlist:
                     continue
 
                 # Check if the item is a directory
