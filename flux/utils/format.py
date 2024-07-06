@@ -64,8 +64,7 @@ def create_table(
 
     # add all rows (ignores a row's column if there is no header for it)
     for record in records:
-        output += "   ".join(f"{str(record[i]) if i < len(record) else fill_value}{' ' * (width - len(str(
-            record[i]) if i < len(record) else fill_value))}" for i, width in enumerate(column_widths)) + "\n"
+        output += "   ".join(f"{str(record[i]) if i < len(record) else fill_value}{' ' * (width - len(str(record[i]) if i < len(record) else fill_value))}" for i, width in enumerate(column_widths)) + "\n"
     
     # manage footer
     if add_bottom_line:
