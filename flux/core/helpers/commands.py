@@ -46,7 +46,7 @@ class CommandInterface(_ABC):
 
     - `init()`          This function is called on start of execution.
     - `setup()`         This is function is called right before run().
-    - `run()`           This is the entry method for the command.
+    - `run()`           This is the core method for the command.
     - `close()`         This is the method that gets called right after run() the command.
     - `exit()`          This is the last method that gets called.
     - `fail_safe()`     This function gets called to capture unhandled exception.
@@ -76,17 +76,17 @@ class CommandInterface(_ABC):
         
     ```
 
-    ### LOGGING FUNCTIONS
-    These functions work like in the logging module, where only logs with a certain severity are displayed (log_level)
+    ### LOGGING METHODS
+    These methods work like in the logging module, where only logs with a certain severity are displayed (log_level)
 
-    - `critical()`  This function should be called once a critical error accoures.
-    - `fatal()`     This function should be called once a fatal error accoures.
-    - `error()`     This function should be called once an error accoures.
-    - `warning()`   This function should be called to issue warnings.
-    - `info()`      This function should be called for providing the end user with some info.
-    - `debug()`     This function should be called for debugging.
+    - `critical()`  This mathod should be called once a critical error accoures.
+    - `fatal()`     This mathod should be called once a fatal error accoures.
+    - `error()`     This mathod should be called once an error accoures.
+    - `warning()`   This mathod should be called to issue warnings.
+    - `info()`      This mathod should be called for providing the end user with some info.
+    - `debug()`     This mathod should be called for debugging.
 
-    ### HELPER FUNCTIONS
+    ### HELPER METHODS
     Other usefull methods, NOT called by the terminal.
     If you want to use these methods you need to call them yourself.
     (print() and printerr() are not affected by the log_level, but are still to output redirection)
@@ -183,17 +183,19 @@ class CommandInterface(_ABC):
     AUTOMATIC CALLS
     """
 
-    def init(self):
+    def init(self) -> None:
         """
-        This function is called on start of execution.\n
-        This function should be used to do setup operations (like create the Parser)
+        This method is called on start of execution.\n
+        This method should be used to do setup operations (like create the Parser)
         """
         ...
 
-    def setup(self):
+    def setup(self) -> None:
         """
-        This is function is called right before run().\n
-        This function is used to parse arguments and exit on parsing errors
+        This is method is called right before run().\n
+        This method is used to parse arguments and exit on parsing errors
+
+        NOTE: Always remember to call `super().setup()` when overwiring this
         """
         try:
             self.args = self.parser.parse_args(self.command[1:])
@@ -207,17 +209,20 @@ class CommandInterface(_ABC):
     
     # ! This method MUST be overwritten
     @_abstractmethod
-    def run(self):
+    def run(self) -> None:
         """
-        This is the entry function for the command.\n
-        This function should be used to manage arguments and adapt command execution.
+        This is the core method for the command.\n
+        This method should be used to do all the main operations of the command.
+        If this method has not been implemented, the command will NOT be executed.
         """
         ...
 
-    def close(self):
+    def close(self) -> None:
         """
-        This is the function that gets called after we run the command.\n
-        This function is used to close open files, like a redirected stdout
+        This is the method that gets called after we run the command.\n
+        This method is used to close open files, like a redirected stdout
+
+        NOTE: Always remember to call `super().close()` when overwiring this
         """        
 
         if self.stdout and self.redirected_stdout:
@@ -232,19 +237,21 @@ class CommandInterface(_ABC):
         self.clear_interrupts(force=True)
 
 
-    def exit(self):
+    def exit(self) -> Status:
         """
-        This is the last function that gets called.\n
-        This function should be used to define what status code to return
+        This is the last method that gets called.\n
+        This method should be used to define what status code to return
+
+        NOTE: Always remember to call `super().exit()` when overwiring this
         """
         self._is_alive = False
         return self.status if self.status else STATUS_OK
 
-    def fail_safe(self, exception: Exception):
+    def fail_safe(self, exception: Exception) -> None:
         """
-        This function gets called to capture unhandled exception.\n
-        This function may be called at any time, and once called command execution will be terminated without
-        `self.close()` or `self.exit()`
+        This method gets called to capture unhandled exception.\n
+        This method may be called at any time, and once called command execution will be terminated without
+        calling `self.close()` or `self.exit()`
 
         By default creates a crash report as a temp file for the user to see with all the Traceback informations
         and sets `self.status` to `STATUS_ERR`
@@ -276,13 +283,13 @@ class CommandInterface(_ABC):
         self.clear_interrupts(force=True)
 
     """
-    LOGGING FUNCTIONS
+    LOGGING METHODS
     """
     
     def critical(self, msg: Optional[str] = None, use_color: bool = False):
         """
-        This function should be called once a critical error accoures.\n
-        This function should be called to handle errors.
+        This method should be called once a critical error accoures.\n
+        This method should be called to handle errors.
 
         Also sets the status to STATUS_ERR.
         """
@@ -295,8 +302,8 @@ class CommandInterface(_ABC):
 
     def fatal(self, msg: Optional[str] = None, use_color: bool = False):
         """
-        This function should be called once a fatal error accoures.\n
-        This function should be called to handle errors.
+        This method should be called once a fatal error accoures.\n
+        This method should be called to handle errors.
 
         Also sets the status to STATUS_ERR.
         """
@@ -309,8 +316,8 @@ class CommandInterface(_ABC):
 
     def error(self, msg: Optional[str] = None, use_color: bool = False):
         """
-        This function should be called once an error accoures.\n
-        This function should be called to handle errors.
+        This method should be called once an error accoures.\n
+        This method should be called to handle errors.
 
         Also sets the status to STATUS_ERR.
         """
@@ -323,8 +330,8 @@ class CommandInterface(_ABC):
 
     def warning(self, msg: Optional[str] = None, use_color: bool = False, to_stdout: bool = True):
         """
-        This function should be called to issue warnings.\n
-        This function should be called to handle warnings (by default writes to stdout).
+        This method should be called to issue warnings.\n
+        This method should be called to handle warnings (by default writes to stdout).
 
         Also sets the status to STATUS_WARN.
         """
@@ -344,25 +351,25 @@ class CommandInterface(_ABC):
 
     def info(self, msg: Optional[str] = None):
         """
-        This function should be called for providing the end user with some info.
+        This method should be called for providing the end user with some info.
         """
         if self.log_level <= self.levels.INFO:
             self.print(msg)
     
     def debug(self, msg: Optional[str] = None):
         """
-        This function should be called for debugging.
+        This method should be called for debugging.
         """
         if self.log_level <= _Levels.DEBUG:
             self.print(msg)
 
     """
-    HELPER FUNCIONS
+    HELPER METHODS
     """
 
     def input(self, __prompt: object = "") -> Optional[str]:
         """
-        This function takes an input from the stdin and returns it as a string
+        This method takes an input from the stdin and returns it as a string
 
         If a Ctrl-c is detected, returns None.
         """
