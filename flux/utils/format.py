@@ -7,7 +7,7 @@ def create_table(
         *collumns: Union[str, List[str]],
         contents: Iterable[Iterable[Any]],
         show_headers: bool = True,
-        fill_value: Optional[Any] = "",
+        fill_value: Optional[Any] = '',
         separator: str = "-",
         add_top_line: bool = True,
         add_bottom_line: bool = False,
@@ -39,7 +39,7 @@ def create_table(
         collumns = collumns[0]
 
     records: List[List[str]] = contents
-    fill_value = str(fill_value or "")
+    fill_value = str(fill_value or '')
 
     n_columns = len(collumns)
     
