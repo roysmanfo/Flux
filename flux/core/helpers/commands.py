@@ -213,7 +213,8 @@ class CommandInterface(_ABC):
         """
         This is the core method for the command.\n
         This method should be used to do all the main operations of the command.
-        If this method has not been implemented, the command will NOT be executed.
+
+        NOTE: If this method has not been implemented, the command will NOT be executed.
         """
         ...
 
