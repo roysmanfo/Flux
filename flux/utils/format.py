@@ -7,15 +7,25 @@ def create_table(
         *collumns: Union[str, List[str]],
         contents: Iterable[Iterable[Any]],
         show_headers: bool = True,
-        fill_value: Optional[Any] = '',
+        fill_value: Optional[Any] = '-',
         separator: str = "-",
         add_top_line: bool = True,
         add_bottom_line: bool = False,
         last_is_footer: bool = False,
     ) -> str:
     """
-    Return a N x M table where N rappresents the number of columns
-    and M rappresents the number of records in contents (+2 rows: 1 for the title and 1 for the underline)
+    Return a N x M table where N rappresents the number of `columns`
+    and M rappresents the number of rows in `contents`
+
+    ## Parameters
+    `:param` collumns:           all the collumn titles
+    `:param` contents:           the data tu popu;ate the table (list of rows)
+    `:param` show_headers:       when set tu false the titles will be discarded in the table
+    `:param` fill_value:         value tu use if there is nothing in that row for this column
+    `:param` separator:          a character to use to create divisor lines
+    `:param` add_top_line:       when set to false the line that separates the title from the contents will be omited
+    `:param` add_bottom_line:    when set to true a line at the end of the table will be added
+    `:param` last_is_footer:     if set to true, separates the last line from the rest of the table with a divisor 
 
     #### Example
     With this input...
