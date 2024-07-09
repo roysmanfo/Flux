@@ -211,7 +211,7 @@ def manage(command: List[str], system: System) -> None:
                     exec_command._recv_from_pipe = True
 
                 if num_pipes_left > 0:
-                    pipe = create_pipe()
+                    pipe = create_pipe(system.settings.syspaths.PIPES_FOLDER)
                     created_pipes.append(pipe)
                     exec_command.stdout = pipe
                     exec_command._send_to_pipe = True
@@ -234,8 +234,8 @@ def manage(command: List[str], system: System) -> None:
     delete_used_pipes(created_pipes)
 
 
-def create_pipe() -> TextIO:
-    temp_name = tempfile.mkstemp(prefix="flux_pipe_")[1]
+def create_pipe(dir_path: str) -> TextIO:
+    temp_name = tempfile.mkstemp(prefix="flux_pipe_", dir=dir_path)[1]
     pipe = open(temp_name, "wt")
     return pipe
 
@@ -285,7 +285,7 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
 
     # look for piping    
     if stdout is sys.stdout and is_output_piped(command):
-        stdout = create_pipe()
+        stdout = create_pipe(system.settings.syspaths.PIPES_FOLDER)
 
     # Load command
     exec_command_class = loader.load_builtin_script(command_name)
