@@ -78,6 +78,7 @@ class Variables:
                 f"Variable ${name} can't be deleted because it is a reserved variable")
             return False
         self._variables.pop(name)
+        self._variables.update({"$ALL": Variable("$ALL", ":".join(sorted(self._variables.keys())), True)})
         return True
 
     def exists(self, name: str) -> bool:
@@ -123,9 +124,7 @@ class Variables:
         """
 
         v = Variables()
-        vars = {}
-
-        for var in v:
-            vars.update({var.name: var.copy()})
+        for var in self:
+            v._variables.update({var.name: var.copy()})
         return v
     
