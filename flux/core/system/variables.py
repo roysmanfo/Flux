@@ -29,6 +29,8 @@ class Variables:
     def __init__(self):
         self._variables: Dict[str, Variable] = {}
 
+        self.add("$ALL", "$ALL", True)
+
     def __iter__(self) -> Iterator[Variable]:
         for v in self._variables:
             yield self._variables.get(v)
@@ -44,17 +46,19 @@ class Variables:
         Creates a new variable
 
         `:returns` True if the variable was created, False otherwise (name already taken)
+        `:raises` AssertionError if the name provided is not of type str (value instead will be converted in `str(value)`)
         """
 
         # In case they are provided with the wrong type
-        name = str(name)
+        assert isinstance(name, str), "'name' must be of type str "
         value = str(value)
-
         if self.get(name):
             return False
         
         self._variables.update({name.upper(): Variable(name.upper(), value, is_reserved)})
-        return False
+        self._variables.update({"$ALL": Variable("$ALL", ":".join(sorted(self._variables.keys())), True)})
+
+        return True
 
 
     def remove(self, name: str) -> bool:
