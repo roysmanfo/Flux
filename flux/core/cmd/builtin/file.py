@@ -29,9 +29,11 @@ class Command(CommandInterface):
         self.parser.add_argument("-k", "--keys", help="Used combined with `-m`, allows filtering keys (can be used multiple times)", action="append")
 
     def run(self):
+        self.errors.value = self.args.PATH
+
 
         if not os.path.exists(self.args.PATH):
-            self.error(f"cannot open `{self.args.PATH}` (No such file or directory)")
+            self.error(self.errors.file_not_found())
             return
 
         self.args.PATH = Path(self.args.PATH)
@@ -42,7 +44,7 @@ class Command(CommandInterface):
             try:
                 info = self.file_info(self.args.PATH)
             except PermissionError:
-                self.error(f"cannot open `{self.args.PATH}` (permission denied)")
+                self.error(self.errors.permission_denied())
                 return
 
         if info is None:
