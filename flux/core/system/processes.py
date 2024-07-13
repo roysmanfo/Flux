@@ -161,7 +161,9 @@ class Processes:
             if id == _main_process.id:
                 return None
             
-            return self.processes.pop(id)
+            proc = self.processes.pop(id)
+            self.i_handler.raise_interrupt(EventTriggers.PROCESS_DELETED)
+            return proc
         except KeyError:
             return None
 
