@@ -158,14 +158,14 @@ class Interrupt:
 
         if self.target:
             self.exec_count += 1
-            self.target(signum, frame, *self.args, *self.kwargs)
+            self.target(signum, frame, *self.args, **self.kwargs)
 
 
 class InterruptHandler(object):
     def __init__(self) -> None:
-        self.interrupts: dict[int, list[Interrupt]] = {}
-        self.interrupt_map: dict[IHandle, Interrupt] = {}
-        self.supported: dict[str, int] = {}
+        self.interrupts: dict[int, list[Interrupt]] = {}        # signum -> [Interrupt, ...]
+        self.interrupt_map: dict[IHandle, Interrupt] = {}       # ihandle -> Interrupt
+        self.supported: dict[str, int] = {}                     # event_name -> signum
 
         # add all available interrupts to self
         for event in list(EventTriggers):
