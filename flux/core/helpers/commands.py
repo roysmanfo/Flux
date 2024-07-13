@@ -17,6 +17,8 @@ STATUS_OK = Status.STATUS_OK
 STATUS_ERR = Status.STATUS_ERR
 STATUS_WARN = Status.STATUS_WARN
 
+class _Levels(_IntEnum): ...
+
 class CommandInterface(_ABC):
     """
     Interface class for commands
@@ -28,7 +30,9 @@ class CommandInterface(_ABC):
     Attributes shared by commands
 
     - `IS_PROCESS (const, bool)`        Whether or not the command is being runned as a background thread
-    - `sysinfo (variable, Info)`        A reference to the instance of the Info class, containing process information
+    - `PRIVILEGES (const, Privileges)`  The privileges given to the user to execute the current command [LOW / HIGH / SYSTEM]
+    - `system (variable, System)`       A reference to the instance of the System class, containing all the most important informations about flux
+    - `settings (variable, Settings)`   A reference to the instance of the Settings class, containing user settings and system paths (SysPaths)
     - `command (variable, list[str])`   The full command typed by the user (also contains the command name, es. ['ls', 'some_path'])
     - `status (variable, int)`          The return code of the command (default statuses follow the following convention 'STATUS_[err/ok/warn]' )
     - `stdout (variable, TextIO)`       The stdout of the command
@@ -94,6 +98,8 @@ class CommandInterface(_ABC):
     - `input()`                 This is similar to python's `input()`, but uses `self.stdin` and instead of `sys.stdin` .
     - `print()`                 This is similar to python's `print()`, but uses `self.stdout` and instead of `sys.stdout` .
     - `printerr()`              This is similar to `self.print()`, but uses `self.stderr` instead.
+    - `get_level_name()`        Returns the level's name based on value
+    - `get_level_val()`         Returns the level's value based on it's name    
     - `register_interrupt()`    Register a new interrupt handler
     - `unregister_interrupt()`  Unregister an interrupt handler
     - `clear_interrupts()`      Unregisters all interrupts
@@ -523,8 +529,19 @@ class CommandInterface(_ABC):
         returns true if `self.stdout` is pointing to a `pipe`
         """
         return self._send_to_pipe
-    
 
+    def get_level_name(self, level_val: _Levels) -> Optional[str]:
+        """
+        returns the level's name based on value
+        """
+        return _lvl_val_to_name.get(level_val, None)
+
+    def get_level_val(self, level_name: str) -> Optional[_Levels]:
+        """
+        returns the level's value based on it's name
+        """
+        return _lvl_name_to_val.get(level_name, None)
+    
     def clear_interrupts(self, force: bool = True) -> None:
         """
         Unregisters all interrupts
@@ -709,6 +726,27 @@ class _Levels(_IntEnum):
     DEBUG = 10
     NOTSET = 0
 
+_lvl_name_to_val = {
+    "CRITICAL": _Levels.CRITICAL,
+    "FATAL": _Levels.FATAL,
+    "ERROR": _Levels.ERROR,
+    "WARNING": _Levels.WARNING,
+    "WARN": _Levels.WARN,
+    "INFO": _Levels.INFO,
+    "DEBUG": _Levels.DEBUG,
+    "NOTSET": _Levels.NOTSET,
+}
+
+_lvl_val_to_name = {
+    _Levels.CRITICAL: "CRITICAL",
+    _Levels.FATAL: "FATAL",
+    _Levels.ERROR: "ERROR",
+    _Levels.WARNING: "WARNING",
+    _Levels.WARN: "WARN",
+    _Levels.INFO: "INFO",
+    _Levels.DEBUG: "DEBUG",
+    _Levels.NOTSET: "NOTSET",
+}
 
 class Colors:
     def __init__(self) -> None:
