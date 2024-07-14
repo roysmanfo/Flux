@@ -1,2 +1,2 @@
 -r requirements.txt
-pyhton-magic==0.4.27
+python-magic==0.4.27
