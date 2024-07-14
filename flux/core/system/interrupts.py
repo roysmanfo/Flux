@@ -296,7 +296,7 @@ class InterruptHandler(object):
 
     def find(self, handle: IHandle) -> Optional[Interrupt]:
         """
-        `:returns` the first interrupt with a specific handle using a linear search, None if not found
+        `:returns` the first interrupt with a specific handle, None if not found
         """
         return self.interrupt_map.get(handle, None)
 
