@@ -7,11 +7,12 @@ with the respective command (if existent).
 import sys
 import os
 import tempfile
-from typing import Iterable, List, Optional, TextIO, Tuple
+from typing import Iterable, List, Optional, TextIO
 from pathlib import Path
 
 from flux.core.system.system import System
 from flux.core.system import loader
+from flux.core.system.interrupts import EventTriggers
 from flux.core.helpers.commands import CommandInterface, Status
 from flux.utils import transform
 
@@ -184,8 +185,13 @@ def manage(command: List[str], system: System) -> None:
                     command.pop(-1)
                     system.processes.add(system, command, exec_command, False)
                 else:
-                    call(exec_command)
-           
+                    status = call(exec_command)
+                    if status == Status.STATUS_ERR:
+                        system.interrupt_handler.raise_interrupt(EventTriggers.COMMAND_FAILED)
+                    elif status in [Status.STATUS_OK, Status.STATUS_WARN]:
+                        system.interrupt_handler.raise_interrupt(EventTriggers.COMMAND_EXECUTED)
+
+                    
 
 
         except (UnboundLocalError, AssertionError) as e:

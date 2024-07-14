@@ -173,13 +173,28 @@ class Processes:
 
         This function is automaticaly called each time the manager handles a command
         """
-
+        status_dict: dict[Status, bool] = {
+            Status.STATUS_ERR: False,
+            Status.STATUS_OK: False,
+            Status.STATUS_WARN: False,
+        }
         for p in self.processes.values():
             # check that we are not trying to remove the main process 
             if not p is _main_process and not p.thread.is_alive():
-                self.processes.remove(p)
+                self.processes.pop(p.id)
+                try:
+                    status_dict[p.status] = True
+                except:
+                    # a non valid status was received (probably some other data type),
+                    # ignore it as we don't know what does it mean
+                    pass
 
         self.i_handler.raise_interrupt(EventTriggers.PROCESS_DELETED)
+        
+        if status_dict[Status.STATUS_ERR]:
+            self.i_handler.raise_interrupt(EventTriggers.COMMAND_FAILED)
+        elif status_dict[Status.STATUS_OK] or status_dict[Status.STATUS_WARN]:
+            self.i_handler.raise_interrupt(EventTriggers.COMMAND_FAILED)
 
     def copy(self):
         processes = Processes()

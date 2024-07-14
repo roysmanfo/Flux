@@ -70,9 +70,9 @@ class EventTriggers(IntEnum):
     # these are exclusive to flux
     PROCESS_CREATED = 100           # Triggered when a new process is created
     PROCESS_DELETED = 101           # Triggered when a new process is deleted
-    # available but not yet working
     COMMAND_EXECUTED = 102          # Triggered after a command is successfully executed
     COMMAND_FAILED = 103            # Triggered if a command execution fails
+    # available but not yet working
     DIRECTORY_CHANGED = 104         # Triggered when the current working directory is changed
     FILE_MODIFIED = 105             # Triggered when a file is modified within the current directory
     SIGNAL_RECEIVED = 106           # Triggered when a signal is received by the terminal
