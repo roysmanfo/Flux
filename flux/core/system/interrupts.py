@@ -175,7 +175,8 @@ class InterruptHandler(object):
 
                 event_name = event_value_to_name(event)
                 self.supported.update({event_name: int(event)})
-            except ValueError:
+            except (ValueError, OSError):
+                # this event is not supported on this system
                 pass
 
     def _register(self,
