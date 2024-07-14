@@ -5,7 +5,7 @@ import time
 import inspect
 from signal import Signals
 from enum import IntEnum
-from typing import Any, List, Mapping, Set, Callable, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Set, Callable, Optional, Tuple, Union
 from types import FrameType
 
 
@@ -300,7 +300,7 @@ class InterruptHandler(object):
         """
         return self.interrupt_map.get(handle, None)
 
-    def get_available_signals(self) -> dict:
+    def get_available_signals(self) -> Dict[str, int]:
         return self.supported
 
     def get_available_signals_names(self) -> List[str]:
