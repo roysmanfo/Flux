@@ -58,8 +58,9 @@ if __name__ == "__main__":
         del setup
 
         # check for line arguments
+        # if present, pass them to the `flux` command
         if len(sys.argv) > 1:
-            cmd = sys.argv[1:]
+            cmd = ["flux"] + sys.argv[1:]
             manager.manage(cmd, SYSTEM)
             sys.exit(0)
 
