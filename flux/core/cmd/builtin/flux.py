@@ -7,17 +7,21 @@ class Command(CommandInterface):
     def init(self):
         self.parser = Parser("flux")
 
+    def setup(self):
+        if "-h" in self.command or "--help" in self.command:
+            self.banner(random.choice([0, 1]))
+        super().setup()
+
 
     def run(self):
+        if self.parser.no_args:
+            self.print(self.banner)
 
-        if len(self.command) == 1 or self.args.help:
-            self.description(random.choice([0, 1]))
-
-
-    def description(self, flip: bool = False):
+    @property
+    def banner(self):
         emotes = [r"(╯°□°)╯︵ ┻━┻", r"(ノಠ益ಠ)ノ彡┻━┻", r"┬─┬ノ( º _ ºノ)", r"¯\_(ツ)_/¯"]
-        emote = random.choice(emotes) if flip else ""
-        title = self.colors.Fore.LIGHTBLACK_EX + r"""
+        emote = random.choice(emotes) if random.choice([0, 1]) else ""
+        banner = self.colors.Fore.LIGHTBLACK_EX + r"""
         {:^27}
          _____ __    __ __  __  __ 
         |   __|  |  |  |  |\  \/  /
@@ -27,6 +31,6 @@ class Command(CommandInterface):
         {:^27}
         
         """.format(emote, "By @roysmanfo")
-        self.print(title + self.colors.Fore.RESET)
+        return banner + self.colors.Fore.RESET
 
 
