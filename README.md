@@ -6,11 +6,10 @@ Flux is an extensible and cross-platform Unix-like terminal written in python th
 To run flux you will need to have python installed (at least version 3.8, but a version >=3.10 is prefered)
 
 ### setup (only the first time)
-If you are using linux you can setup the system simply by executing `setup.sh`.
 
+**Linux**  
+If you are using linux you can setup the system simply by executing `setup.sh`.  
 You can decide to execute the commands manually, then here are the commands for setting up the system in both  and 
-
-**Linux**
 ```sh
 pip install virtualenv
 python3 -m venv --prompt venv .venv
