@@ -13,28 +13,32 @@ You can decide to execute the commands manually, then here are the commands for 
 ```sh
 pip install virtualenv
 python3 -m venv --prompt venv .venv
+source ./.venv/bin/activate
 pip install -r linux-requirements.txt
 ```
 **Windows**
 ```bash
 pip install virtualenv
 python -m venv --prompt venv .venv
+./.venv/Scripts/activate
 pip install -r win-requirements.txt
 ```
 
 ### run
 
-to run flux now you will need to activate the
-created virtual environment and then move into the `flux` folder
-to execute `main.py`
+to run flux now you will need to move into the `flux` folder
+and execute `main.py`
 
+>   **NOTE**: Each time you will need to activate the virtual environment to execute `main.py`,
+>   otherwise you will not have access to the dependencies you just installed 
+    
 **Linux**
 ```
-source ./.venv/bin/activate && cd flux && python3 main.py
+cd flux && python3 main.py
 ```
 **Windows**
 ```
-./.venv/Scripts/activate; cd flux; python main.py
+cd flux; python main.py
 ```
 
 ## Contributing
