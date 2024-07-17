@@ -451,7 +451,7 @@ class CommandInterface(_ABC):
         """
         returns true if the stdout has been redirected
         """
-        return not (self.stderr and self.stdout == _sys.stdout)
+        return not (self.stdout and self.stdout == _sys.stdout)
 
     @property
     def redirected_stderr(self):
