@@ -21,6 +21,14 @@ class Command(CommandInterface):
         self.parser.add_argument('-d', '--dir',action="store_true", help="remove empty directories")
         self.parser.add_argument('-v', '--verbose', action="store_true", help="explain what is being done")
 
+    def setup(self):
+        super().setup()
+
+        if self.args.verbose:
+            self.log_level = self.levels.INFO
+        else:
+            self.log_level = self.levels.WARN
+
 
     def run(self):
         if not self.args.path:
@@ -45,8 +53,7 @@ class Command(CommandInterface):
                     if len(os.listdir(folder)) == 0:
                         try:
                             os.rmdir(folder)
-                            if self.args.verbose:
-                                self.print(f"removing: {folder}")
+                            self.info(f"removing: {folder}")
                         except PermissionError:
                             self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
                 self.print()
@@ -58,8 +65,7 @@ class Command(CommandInterface):
 
                 if os.path.isfile(self.args.path):
                     try:
-                        if self.args.verbose:
-                            self.print(f"collecting: {self.args.path}")
+                        self.info(f"collecting: {self.args.path}")
                         os.remove(self.args.path)
                     except PermissionError:
                         self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
@@ -67,13 +73,11 @@ class Command(CommandInterface):
                     # Just to show what shutil.rmtree is doing
                     for _, _, file in os.walk(self.args.path):
                         files.extend(file)
-                        if self.args.verbose:
-                            for f in file:
-                                self.print(f"collecting: {f}")
+                        for f in file:
+                            self.info(f"collecting: {f}")
 
                     try:
-                        if self.args.verbose:
-                            self.print(f"deleting {len(files)} files...")
+                        self.info(f"deleting {len(files)} files...")
                         shutil.rmtree(os.path.abspath(self.args.path))
                     except PermissionError:
                         self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
