@@ -1,5 +1,7 @@
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 
 from pathlib import Path
 import os 

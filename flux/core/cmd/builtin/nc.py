@@ -1,7 +1,9 @@
-from ...helpers.commands import *
-from ...helpers.arguments import Parser
-from flux.core.system.interrupts import EventTriggers
-
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser,
+    Status,
+    EventTriggers
+)
 
 import socket
 from threading import Thread, Event
@@ -27,7 +29,7 @@ class Netcat(CommandInterface):
     def setup(self):
         super().setup()
 
-        if self.status == STATUS_ERR:
+        if self.status == Status.STATUS_ERR:
             return
         
         self.log_level = self.levels.DEBUG if self.args.verbose else self.levels.INFO
@@ -101,7 +103,7 @@ class Netcat(CommandInterface):
 
         except TimeoutError:
             print() # helps in understanding that the command did run
-            self.status = STATUS_ERR
+            self.status = Status.STATUS_ERR
             return
 
         Thread(target=self.recv_messages, args=(sock, self.event), daemon=True).start()

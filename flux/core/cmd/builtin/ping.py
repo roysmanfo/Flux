@@ -1,5 +1,8 @@
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser,
+    Status
+)
 import ping3
 import socket
 import time
@@ -44,7 +47,7 @@ class Command(CommandInterface):
 
     def setup(self):
         super().setup()
-        if not self.status == STATUS_ERR:
+        if not self.status == Status.STATUS_ERR:
 
             # check if the values provided make sense
 
@@ -136,7 +139,7 @@ class Command(CommandInterface):
             pass
     
     def close(self):
-        if not self.status == STATUS_ERR:
+        if not self.status == Status.STATUS_ERR:
             self.print(f"\n--- {self.args.destination} ping statistics ---")
             self.print(f"{self.stats.counter} packets transmited, {self.stats.p_received} received, {self.stats.loss}% packet loss, time {self.stats.time}ms")
             

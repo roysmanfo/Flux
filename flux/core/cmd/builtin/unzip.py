@@ -3,12 +3,15 @@
 Decompress files from zip archives.
 """
 
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 from flux.utils import format
 
 import os
 import zipfile
+from typing import List
 
 class Command(CommandInterface):
     def init(self):
@@ -53,8 +56,8 @@ class Command(CommandInterface):
                 return False
 
         if not os.path.exists(path) or not try_to_open(path):
-            attempts: List[str] = [path]
             
+            attempts: List[str] = [path]
             if not path.endswith(".zip"):
                 path +=  ".zip"
 

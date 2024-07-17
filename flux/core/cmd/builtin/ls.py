@@ -4,8 +4,12 @@
 List information about the FILEs (the current directory by default).
 """
 
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from typing import List
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser,
+    Status
+)
 from flux.utils import format
 
 import sys
@@ -150,5 +154,5 @@ class Command(CommandInterface):
 
             return formatted_info
         self.printerr(self.errors.cannot_read_fod(file_path.rstrip("\n")))
-        self.status = STATUS_ERR
+        self.status = Status.STATUS_ERR
         return ""

@@ -3,8 +3,11 @@
 Remove files and directories
 """
 
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser,
+    Status
+)
 
 import os
 import shutil
@@ -82,7 +85,7 @@ class Command(CommandInterface):
             try:
                 os.remove(self.args.path)
             except PermissionError:
-                if self.status != STATUS_WARN:
+                if self.status != Status.STATUS_WARN:
                     self.warning(f"cannot open '{self.args.path}': (permission denied)", to_stdout=False)
 
 

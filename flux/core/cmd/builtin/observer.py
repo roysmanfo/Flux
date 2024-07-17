@@ -33,12 +33,13 @@ import json
 import os
 import shutil
 from pathlib import Path
-import sys
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent
-from flux.core.helpers.arguments import Parser
-from flux.core.helpers.commands import CommandInterface
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 from flux import utils
 
 

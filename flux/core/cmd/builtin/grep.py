@@ -1,4 +1,7 @@
-from flux.core.helpers.commands import CommandInterface, Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 
 import re
 from io import TextIOWrapper

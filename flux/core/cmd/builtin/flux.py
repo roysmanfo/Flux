@@ -1,6 +1,8 @@
 import random
-from flux.core.helpers.commands import CommandInterface
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 
 class Command(CommandInterface):
 
