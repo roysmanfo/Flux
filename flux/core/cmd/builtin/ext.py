@@ -1,7 +1,10 @@
 import os
 import subprocess
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser,
+    Status
+)
 
 
 p: subprocess.Popen = None
@@ -63,8 +66,8 @@ class Command(CommandInterface):
 
         except FileNotFoundError:
             self.error("unable to spawn the specified process (not found)")
-            self.status = STATUS_ERR
+            self.status = Status.STATUS_ERR
 
     def close(self):
         if not self.status:
-            self.status = p.returncode if p else STATUS_ERR
+            self.status = p.returncode if p else Status.STATUS_ERR

@@ -3,8 +3,10 @@
 Allows to view running Flux processes
 """
 
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 from flux.utils import format
 
 class Command(CommandInterface):

@@ -8,8 +8,11 @@ Opions:
     -k key, --keys key          Used combined with `-m`, allows to specify a key (can be used multiple times)
 ```
 """
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
+from typing import Optional, Union
 import os
 import chardet
 from PIL import Image

@@ -3,8 +3,10 @@
 Zip stores files in zip archives.
 """
 
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 
 import zipfile
 import os

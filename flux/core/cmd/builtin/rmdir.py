@@ -1,7 +1,12 @@
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
 
 import os
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
+
+
+
 class Command(CommandInterface):
     def init(self):
         self.parser = Parser("rmdir", description="Remove the DIRECTORY(ies), if they are empty")

@@ -1,4 +1,8 @@
-from flux.core.helpers.commands import *
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser,
+    Status
+)
 
 import os
 import psutil, socket
@@ -19,7 +23,7 @@ class Command(CommandInterface):
     def setup(self):
         super().setup()
 
-        if not self.status == STATUS_ERR:
+        if not self.status == Status.STATUS_ERR:
             for command in available_commands:
                 if command.startswith(self.args.command):
                     self.choosed_command = command
