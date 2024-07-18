@@ -200,11 +200,11 @@ class InterruptHandler(object):
         if not isinstance(event, (EventTriggers, Signals, int)):
             raise UnsupportedSignalError("You must provide a Signal/Event")
 
-        signal_value = event.value if isinstance(event, EventTriggers) else event
+        signal_value = event.value if isinstance(event, (EventTriggers, Signals)) else event
 
-        if signal_value not in EventTriggers and signal_value not in Signals:
+        if signal_value not in self.get_available_signal_values():
             raise UnsupportedSignalError(
-                "The specified EventTriggers isn't suported")
+                "The specified EventTrigger isn't suported")
 
         h = IHandle.generate_handle()
 
