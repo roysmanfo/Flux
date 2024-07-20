@@ -56,7 +56,7 @@ print("num lines:", n_lines)
 print("\nlanguages:")
 
 for ext, num in sorted(c_files.items(), key=lambda x: x[0]):
-    lang = f'{ext or 'no_extension'} ({num})'
+    lang = f"{ext or 'no_extension'} ({num})"
     print(f" - {lang:30}{round(num / n_files * 100)}%")
 
 print()
