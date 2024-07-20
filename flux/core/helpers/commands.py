@@ -2,7 +2,7 @@ import sys as _sys
 import os as _os
 from enum import IntEnum as _IntEnum
 from argparse import Namespace as _Namespace
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from abc import ABC as _ABC, ABCMeta, abstractmethod as _abstractmethod
 from typing import Any, Callable, Mapping, Optional, TextIO, List, Tuple, Union
 
 from flux.core.system.interrupts import EventTriggers, IHandle
@@ -178,11 +178,8 @@ class CommandInterface(_ABC):
 
     @staticmethod
     def _is_subclass_instance(instance: object) -> bool:
-        if hasattr(instance, "_FLUX_COMMAND"):
-            _FLUX_COMMAND = getattr(instance, "_FLUX_COMMAND")
-            if type(_FLUX_COMMAND) == bool and _FLUX_COMMAND:
-                return True
-        return False
+        _FLUX_COMMAND = getattr(instance, "_FLUX_COMMAND", None)
+        return _FLUX_COMMAND and isinstance(_FLUX_COMMAND, bool)
 
 
     """
