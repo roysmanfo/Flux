@@ -213,9 +213,9 @@ class InterruptHandler(object):
             h = IHandle.generate_handle()
 
         handle = IHandle(h)
-        if type(args) != tuple:
+        if isinstance(args, tuple):
             args = (args,)
-        if kwargs and type(kwargs) != dict:
+        if kwargs and isinstance(kwargs, dict):
             raise TypeError(f"kwargs should be of type dict and not {type(kwargs)}")
         interrupt = Interrupt(handle, signal_value, target, args, kwargs, exec_once)
 
