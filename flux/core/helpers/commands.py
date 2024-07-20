@@ -19,6 +19,9 @@ STATUS_WARN = Status.STATUS_WARN
 
 class _Levels(_IntEnum): ...
 
+class OperationNotPermitted(RuntimeError): ...
+
+
 class CommandInterface(_ABC):
     """
     Interface class for commands
@@ -155,10 +158,17 @@ class CommandInterface(_ABC):
     def _init_pipe(self) -> None:
         if self.recv_from_pipe:
             self.stdin = open(self.stdin.name, "r")
+    
+    def __delattr__(self, name: str) -> None:
+        PRIVATE = {"PRIVILEGES"}
+        if name in PRIVATE:
+            raise OperationNotPermitted("Unable to delete specified variable %s" % name)
+        return super().__delattr__(name)
+
 
     def __new__(cls, *args, **kwargs):
         # override of these methods is not allowed
-        NAMES = {"__init__", "__new__", "fail_safe"}
+        NAMES = {"__init__", "__new__", "__delattr__", "fail_safe"}
 
         instance = super().__new__(cls)
         for name, method in cls.__dict__.items():
