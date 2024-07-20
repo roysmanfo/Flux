@@ -38,9 +38,9 @@ class Command(CommandInterface):
             case "all":
                 contents = []
                 for p in procceses:
-                    contents.append([p.id, p.pid, p.owner, p.name, p.native_id, p.time_alive, p.is_reserved_process, " ".join(p.line_args)])
+                    contents.append([p.id, p.ppid, p.owner, p.name, p.native_id, p.time_alive, p.is_reserved_process, " ".join(p.line_args)])
                 self.print()
-                self.print(format.create_table("ID", "PID", "OWNER", "NAME", "NATIVE ID", "TIME ALIVE", "IS RESERVED PROCESS", "ARGS", contents=contents), end="")
+                self.print(format.create_table("ID", "PPID", "OWNER", "NAME", "NATIVE ID", "TIME ALIVE", "IS RESERVED PROCESS", "ARGS", contents=contents), end="")
 
             case "threads":
                 contents = []
@@ -51,9 +51,9 @@ class Command(CommandInterface):
 
             case "misc":
                 for p in procceses:
-                    contents.append([p.id, p.pid, p.owner, p.name, p.is_reserved_process, p.time_alive])
+                    contents.append([p.id, p.ppid, p.owner, p.name, p.is_reserved_process, p.time_alive])
 
-                self.stdout.write(format.create_table("ID", "PID", "OWNER", "NAME", "IS RESERVED PROCESS", "TIME ALIVE", contents=contents))
+                self.stdout.write(format.create_table("ID", "PPID", "OWNER", "NAME", "IS RESERVED PROCESS", "TIME ALIVE", contents=contents))
 
             case _:
                 self.error(self.errors.parameter_not_supported(self.args.mode))
