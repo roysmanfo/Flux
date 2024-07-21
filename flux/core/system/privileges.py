@@ -24,7 +24,7 @@ def high_privileges(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
 
 def system_privileges(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
     """
-    Decorator for methods that can only be executed with high privileges
+    Decorator for methods that can only be executed with system privileges
     """
     def wrapper(self, *args, **kwargs):
         if self.PRIVILEGES < Privileges.SYSTEM:
