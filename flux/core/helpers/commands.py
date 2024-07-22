@@ -555,14 +555,17 @@ class CommandInterface(_ABC):
 
         `:param force` when set to false the interrupt will be removed only if it has been executed at least once
         """
-        ihandles = [i for i in self._stored_ihandles]
-        for h in ihandles:
-            self.unregister_interrupt(h, force=force)
 
+        res = map(lambda h: self.unregister_interrupt(h, force=force), self._stored_ihandles)
+        if not all(res):
+            # unable to unregister some interrupts 
+            # NOTE: might be usefull to store this error in some log file
+            pass
+        
     def register_interrupt(self,
                          event: EventTriggers,
                          target: Callable[[Any], None],
-                         args: Optional[Tuple[Any]]= (),
+                         args: Optional[Tuple[Any]] = (),
                          kwargs: Optional[Mapping[str, Any]] = None,
                          exec_once: Optional[bool] = True) -> IHandle:
         """
