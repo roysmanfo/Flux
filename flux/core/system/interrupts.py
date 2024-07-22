@@ -206,10 +206,8 @@ class InterruptHandler(object):
             raise UnsupportedSignalError(
                 "The specified EventTrigger isn't suported")
 
-        h = IHandle.generate_handle()
-
         # avoid shared handles
-        while h in self.interrupt_map:
+        while (h := IHandle.generate_handle()) in self.interrupt_map:
             h = IHandle.generate_handle()
 
         handle = IHandle(h)
