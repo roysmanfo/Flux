@@ -41,6 +41,13 @@ class Netcat(CommandInterface):
 
             self.args.port = self.args.PORT
 
+        if self.redirected_stdout:
+            # reopen file in binary mode as we are
+            # probably doing some sort of file transfer
+            file = self.stdout.name
+            self.stdout.close()
+            self.stdout = open(file, "wb")
+
         self.ihandle = self.register_interrupt(EventTriggers.SIGINT, target=self.close_connections)
         self.event = Event()
 
@@ -123,13 +130,12 @@ class Netcat(CommandInterface):
         finally:
             event.set()
 
-
     def recv_messages(self, sock: socket.socket, event: Event) -> None:
         try:
             while not event.is_set():
-                recv = sock.recv(self.args.length)
-                if recv:
-                    self.print(recv.decode(), end="")
+                if (recv := sock.recv(self.args.length)):
+                    self.print(
+                        recv if self.redirected_stdout else recv.decode(), end="")
                 else:
                     event.set()
         except (KeyboardInterrupt, ConnectionAbortedError, OSError, ValueError):

@@ -1,3 +1,4 @@
+from io import BufferedWriter
 import sys as _sys
 import os as _os
 from enum import IntEnum as _IntEnum
@@ -403,7 +404,7 @@ class CommandInterface(_ABC):
         except KeyboardInterrupt:
             return None
         
-    def print(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n", file: Optional[TextIO] = None,  flush: bool = False) -> None :
+    def print(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n", file: Optional[TextIO] = None, flush: bool = False) -> None:
         """
         Prints the values to self.stdout.
 
@@ -420,12 +421,17 @@ class CommandInterface(_ABC):
         \twhether to forcibly flush the stream.
         """
         if self.stdout:
-            txt = f"{sep}".join([ str(v) for v in values if v])
+            txt = f"{sep}".join([str(v) for v in values if v])
             file = self.stdout if file is None else file
 
             if self.redirected_stdout:
                 txt = _format.remove_ansi_escape_sequences(txt)
-            
+
+            if "b" in file.mode:
+                file.write(txt + end.encode())
+                if flush:
+                    file.flush()
+                return
             print(txt, end=end, file=file, flush=flush)
 
     def printerr(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n", file: Optional[TextIO] = None,  flush: bool = False) -> None :
@@ -450,6 +456,12 @@ class CommandInterface(_ABC):
 
             if self.redirected_stderr:
                 txt = _format.remove_ansi_escape_sequences(txt)
+
+            if "b" in file.mode:
+                file.write(txt + end.encode())
+                if flush:
+                    file.flush()
+                return
 
             print(txt, end=end, file=file, flush=flush)
 
