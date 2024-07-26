@@ -37,7 +37,7 @@ class CommandInterface(_ABC):
     - `PRIVILEGES (const, Privileges)`  The privileges given to the user to execute the current command [LOW / HIGH / SYSTEM]
     - `system (variable, System)`       A reference to the instance of the System class, containing all the most important informations about flux
     - `settings (variable, Settings)`   A reference to the instance of the Settings class, containing user settings and system paths (SysPaths)
-    - `command (variable, list[str])`   The full command typed by the user (also contains the command name, es. ['ls', 'some_path'])
+    - `line_args (variable, list[str])` The full command typed by the user (also contains the command name, es. ['ls', 'some_path'])
     - `status (variable, int)`          The return code of the command (default statuses follow the following convention 'STATUS_[err/ok/warn]' )
     - `stdout (variable, TextIO)`       The stdout of the command
     - `stderr (variable, TextIO)`       The stderr of the command
@@ -139,7 +139,7 @@ class CommandInterface(_ABC):
         self.IS_PROCESS: bool = is_process
         self.system: System = system
         self.settings: Settings = self.system.settings
-        self.command: List[str] = command
+        self.line_args: List[str] = command
         self.status: Optional[Status] = None
         self.stdout = stdout
         self.stderr = stderr
@@ -212,7 +212,7 @@ class CommandInterface(_ABC):
         NOTE: Always remember to call `super().setup()` when overwriting this method
         """
         try:
-            self.args = self.parser.parse_args(self.command[1:])
+            self.args = self.parser.parse_args(self.line_args[1:])
 
             if self.parser.exit_execution:
                 self.status = STATUS_ERR
@@ -272,7 +272,7 @@ class CommandInterface(_ABC):
         and sets `self.status` to `STATUS_ERR`
         """
         from flux.utils.crash_handler import write_error_log
-        prefx = self.parser.prog if self.parser else self.command[0] if self.command else ""
+        prefx = self.parser.prog if self.parser else self.line_args[0] if self.line_args else ""
         prefx += '_'
         
         if prefx == '_':
