@@ -39,7 +39,7 @@ class Command(CommandInterface):
             i = ['-i', '--interactive']
             n = ['-n', '--no-clobber']
 
-            for arg in self.command[::-1]:
+            for arg in self.line_args[::-1]:
                 if arg in i + n:
                     a = arg
                     break

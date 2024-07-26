@@ -34,8 +34,8 @@ class Command(CommandInterface):
         self.parser.add_argument("-l", dest="list", action="store_true",  help="List available commands")
     
     def setup(self):
-        if len(self.command) == 1:
-            self.command.append("-h")
+        if len(self.line_args) == 1:
+            self.line_args.append("-h")
         super().setup()
     
     def run(self):

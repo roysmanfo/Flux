@@ -23,8 +23,8 @@ class Netcat(CommandInterface):
         self.parser.add_argument("-I", dest="length", default=4094, type=int, help="TCP receive buffer length")
         self.parser.add_argument("-v", dest="verbose", action="store_true", help="Verbose")
 
-        if not self.command[1:]:
-            self.command.append("-h")
+        if not self.line_args[1:]:
+            self.line_args.append("-h")
 
     def setup(self):
         super().setup()

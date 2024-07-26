@@ -25,12 +25,12 @@ class Command(CommandInterface):
 
         # Create a temporary variable if it doesn't already exist
         # else update it
-        if len(self.command) > 2 and self.command[1].startswith("$") and len(self.command[1]) > 0:
+        if len(self.line_args) > 2 and self.line_args[1].startswith("$") and len(self.line_args[1]) > 0:
             self.set_variable()
 
     def set_variable(self) -> None:
-        name: str = self.command[1]        
-        value = str(self.command[2])
+        name: str = self.line_args[1]        
+        value = str(self.line_args[2])
         if self.system.variables.exists(name):
             self.system.variables.set(name, value.removeprefix("\"").removesuffix("\""))
         else:

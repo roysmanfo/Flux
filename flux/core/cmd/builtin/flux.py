@@ -12,7 +12,7 @@ class Command(CommandInterface):
 
     def run(self):
 
-        if len(self.command) == 1 or self.args.help:
+        if len(self.line_args) == 1 or self.args.help:
             self.description(random.choice([0, 1]))
 
 
