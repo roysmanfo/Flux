@@ -3,6 +3,7 @@ certifi==2024.6.2
 chardet==5.1.0
 charset-normalizer==3.3.2
 colorama==0.4.6
+cryptography==43.0.0
 idna==3.7
 iniconfig==2.0.0
 packaging==24.0
