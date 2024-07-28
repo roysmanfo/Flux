@@ -1,9 +1,20 @@
+import base64
+import hashlib
+import os
 import random
-from flux.core.helpers.commands import (
-    CommandInterface,
-    Parser
-)
+import shutil
+from typing import Optional
 
+import requests
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
+
+from flux.core.helpers.commands import CommandInterface, Parser
+from flux.utils import paths
+
+ENTRY_POINT = "Flux"
 EMOTES = [
     r"(ง ͠° ͟ل͜ ͡°)ง",
     r"(╯°□°)╯︵ ┻━┻",
@@ -20,22 +31,25 @@ EMOTES = [
     r"(ノಠ益ಠ)ノ彡┻━┻ ლ(ಠ益ಠლ)",
 ]
 
-class Command(CommandInterface):
+
+class Flux(CommandInterface):
 
     def init(self):
-        self.parser = Parser("flux")
+        self.parser = Parser("flux", usage="flux [command] [options]")
+        subparsers = self.parser.add_subparsers(title="commands", dest="command")
+        update_parser = subparsers.add_parser("update", usage="flux [command] [options]", help="update flux to the most recent version")
+        update_parser.add_argument("--from", help="use the specified URI to update flux (can also point to a file on disk)")
 
     def setup(self) -> None:
 
-        if any(map(lambda x: x in self.line_args, ("-h", "--help"))):
+        if len(self.line_args) == 1 or any(map(lambda x: x in self.line_args, ("-h", "--help"))):
             self.print(self.banner())
         super().setup()
 
     def run(self):
-
-        if len(self.line_args) == 1:
-            self.print(self.banner())
-
+        match self.args.command:
+            case "update":
+                self.flux_update()
 
     def banner(self):
         emote = random.choice(EMOTES)
@@ -55,4 +69,131 @@ class Command(CommandInterface):
         """
         return self.colors.Fore.LIGHTBLACK_EX + title + self.colors.Fore.RESET
 
+    def flux_update(self):
+        """
+        update the flux application based on the version
+        """
 
+        update_manager = UpdateManager()
+        update_manager.check_for_update(self.system.version)
+
+
+class UpdateManager:
+
+    def __init__(self, update_uri: Optional[str] = None):
+        self.update_uri = update_uri
+        self.latest_version: str = None
+        self.download_url: str = None
+        self.signature_url: str = None
+
+    def _compute_hash(self, file_path: str) -> bytes:
+        """
+        Compute the SHA-256 hash of the given file.
+        """
+        sha256 = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256.update(chunk)
+        return sha256.digest()
+
+    def verify_signature(self, file_path: str, signature_path: str, public_key_path: str) -> bool:
+        """
+        Verify the signature of the given file using the provided public key.
+
+        `:returns` true if the signature verification passes, false otherwise
+        `:raises` an error if unable to verify the signature
+        """
+
+        file_hash = self._compute_hash(file_path)
+
+        # Write the computed hash to a temporary file
+        hash_file_path = file_path + ".hash"
+        with open(hash_file_path, "wb") as hash_file:
+            hash_file.write(file_hash)
+
+        with open(public_key_path, 'rb') as f:
+            public_key = load_pem_public_key(f.read(), default_backend())
+
+        with open(signature_path, 'rb') as f:
+            # * the signature is base64 encoded
+            signature = base64.b64decode(f.read())
+
+        # verify the sigature
+        try:
+            res = public_key.verify(
+                signature,
+                file_hash,
+                padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA256()),
+                    salt_length=padding.PSS.MAX_LENGTH,
+                ),
+                hashes.SHA256(),
+            )
+
+            return res or True
+        except Exception:
+            raise
+        finally:
+            os.remove(hash_file_path)
+
+    def check_for_update(self, current_version: Optional[str] = None, update_url: Optional[str] = None) -> bool:
+        """
+        check the latest avaliable version of flux to determine if an update is available
+
+        `:params` current_version: the current version of flux
+        `:params` update_url: the path (url or local) used to determine if a newer version exists (if None, the default path will be used)
+        `:returns` True if a possible update (or downgrade) has been detected
+        `:raises` RuntimeError if it is not possible to update from the specified location
+        """
+        if not update_url:
+            update_url = "https://api.github.com/repos/roysmanfo/flux/releases/latest"
+        try:
+            if paths.is_local_path(update_url):
+                pass
+            else:
+                response = requests.get(update_url)
+
+                if "api.github.com" in update_url:
+                    latest_release: dict = response.json()
+                    self.latest_version = latest_release["tag_name"]
+                    if self.latest_version != current_version:
+                        self.download_url = latest_release["assets"][0]["browser_download_url"]
+                        self.signature_url: str = self.download_url + ".sig"
+                        return True
+                else:
+                    raise RuntimeError("unable to ")
+        except KeyError:
+            raise
+
+        return False
+
+    def get_update_info(self):
+        """
+        `:returns` a tuple containing (latest_version, download_url, signature_url)
+        """
+
+        return (self.latest_version, self.download_url, self.signature_url)
+
+    def download_file(self, url: str, save_path: str) -> None:
+        response = requests.get(url, stream=True)
+        with open(save_path, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+
+    def uninstall_old_version(self, install_path: str) -> None:
+        if os.path.exists(real_path := os.path.realpath(install_path)):
+            if real_path == os.path.realpath("/"):
+                shutil.rmtree(real_path)
+            else:
+                # do not remove the root dir
+                pass
+
+    def install_new_version(self, archive_path: str, install_path: str, *, uninstall_first: bool = True) -> None:
+        if uninstall_first:
+            self.uninstall_old_version(install_path)
+        try:
+            shutil.unpack_archive(filename=archive_path,
+                                  extract_dir=install_path)
+        except ValueError:
+            # this file format is not unpackable (not supported)
+            raise
