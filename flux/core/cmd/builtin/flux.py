@@ -10,6 +10,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
+import urllib3.util
 
 from flux.core.helpers.commands import CommandInterface, Parser
 from flux.utils import paths
@@ -54,7 +55,7 @@ class Flux(CommandInterface):
         match self.args.command:
             case "update":
                 self.flux_update()
-
+    
     def banner(self):
         emote = random.choice(EMOTES)
         banner_width = 38
@@ -79,7 +80,7 @@ class Flux(CommandInterface):
         """
 
         update_manager = UpdateManager()
-        update_manager.check_for_update(self.system.version)
+        update_manager.check_for_update(current_version=self.system.version, update_url=self.args.url)
 
 
 class UpdateManager:
@@ -151,23 +152,35 @@ class UpdateManager:
         """
         if not update_url:
             update_url = "https://api.github.com/repos/roysmanfo/flux/releases/latest"
+        
+        parsed_url = urllib3.util.parse_url(update_url)
         try:
             if paths.is_local_path(update_url):
                 pass
             else:
                 response = requests.get(update_url)
 
-                if "api.github.com" in update_url:
-                    latest_release: dict = response.json()
-                    self.latest_version = latest_release["tag_name"]
-                    if self.latest_version != current_version:
-                        self.download_url = latest_release["assets"][0]["browser_download_url"]
-                        self.signature_url: str = self.download_url + ".sig"
-                        return True
-                else:
-                    raise RuntimeError("unable to ")
-        except KeyError:
-            raise
+                if parsed_url.scheme.lower() not in  ("http://", "https://"):
+                    raise RuntimeError("scheme '%s' is not supported for updates" % parsed_url.scheme)
+
+                if parsed_url.host != "api.github.com":
+                    raise RuntimeError("host '%s' is not supported for updates" % parsed_url.host)
+
+                latest_release: dict = response.json()
+                self.latest_version = latest_release["tag_name"]
+                if self.latest_version != current_version:
+                    self.download_url = latest_release["assets"][0]["browser_download_url"]
+                    self.signature_url: str = self.download_url + ".sig"
+                    return True
+    
+        except KeyError as e:
+            raise KeyError(f"unable to retreave some informations: {e}" ) from e
+
+        except requests.ConnectTimeout:
+            raise TimeoutError(f"'{parsed_url.path}' does not seem respond in time: {e}" )
+
+        except requests.ConnectionError as e:
+            raise ConnectionError(f"unable to retreave some informations: {type(e)}" ) from e
 
         return False
 
@@ -186,11 +199,12 @@ class UpdateManager:
 
     def uninstall_old_version(self, install_path: str) -> None:
         if os.path.exists(real_path := os.path.realpath(install_path)):
-            if real_path == os.path.realpath("/"):
-                shutil.rmtree(real_path)
-            else:
-                # do not remove the root dir
-                pass
+            # do not remove the root dir
+            if real_path != os.path.realpath("/"):
+                try:
+                    shutil.rmtree(real_path)
+                except PermissionError as e:
+                    raise PermissionError("unable to uninstall old version in location '%s'" % real_path) from e
 
     def install_new_version(self, archive_path: str, install_path: str, *, uninstall_first: bool = True) -> None:
         if uninstall_first:
@@ -198,6 +212,5 @@ class UpdateManager:
         try:
             shutil.unpack_archive(filename=archive_path,
                                   extract_dir=install_path)
-        except ValueError:
-            # this file format is not unpackable (not supported)
-            raise
+        except ValueError as e:
+            raise ValueError("this file format is not unpackable (not supported)") from e
