@@ -9,7 +9,7 @@ import requests
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
+from cryptography.hazmat.primitives.serialization import load_pem_public_key 
 import urllib3.util
 
 from flux.core.helpers.commands import CommandInterface, Parser
@@ -80,7 +80,10 @@ class Flux(CommandInterface):
         """
 
         update_manager = UpdateManager()
-        update_manager.check_for_update(current_version=self.system.version, update_url=self.args.url)
+        # update_manager.check_for_update(current_version=self.system.version, update_url=self.args.url)
+        update_manager.verify_signature(file_path=r"C:\Users\manfo\Repo\Flux\setup.sh",
+                                              signature_path=r"C:\Users\manfo\Repo\Flux\signature.sig",
+                                              public_key_path=r"C:\Users\manfo\Repo\Flux\public.pem")
 
 
 class UpdateManager:
@@ -111,11 +114,6 @@ class UpdateManager:
 
         file_hash = self._compute_hash(file_path)
 
-        # Write the computed hash to a temporary file
-        hash_file_path = file_path + ".hash"
-        with open(hash_file_path, "wb") as hash_file:
-            hash_file.write(file_hash)
-
         with open(public_key_path, 'rb') as f:
             public_key = load_pem_public_key(f.read(), default_backend())
 
@@ -123,9 +121,9 @@ class UpdateManager:
             # * the signature is base64 encoded
             signature = base64.b64decode(f.read())
 
-        # verify the sigature
+        # verify the signature
         try:
-            res = public_key.verify(
+            public_key.verify(
                 signature,
                 file_hash,
                 padding.PSS(
@@ -134,12 +132,9 @@ class UpdateManager:
                 ),
                 hashes.SHA256(),
             )
-
-            return res or True
-        except Exception:
-            raise
-        finally:
-            os.remove(hash_file_path)
+            return True
+        except:
+            return False
 
     def check_for_update(self, current_version: Optional[str] = None, update_url: Optional[str] = None) -> bool:
         """
