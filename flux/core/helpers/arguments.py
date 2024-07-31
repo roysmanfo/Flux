@@ -56,7 +56,7 @@ class Parser(ArgumentParser):
     @property
     def no_args(self):
         if not self.__parsed:
-            raise RuntimeError("the method 'parse_args()' must be parsed before")
+            raise RuntimeError("the method 'parse_args()' must be parsed first")
 
         return self._no_args
     
