@@ -37,7 +37,7 @@ class Flux(CommandInterface):
     def init(self):
         self.parser = Parser("flux", usage="flux [command] [options]")
         subparsers = self.parser.add_subparsers(title="commands", dest="command")
-        update_parser = subparsers.add_parser("update", usage="flux [command] [options]", help="update flux to the most recent version")
+        update_parser = subparsers.add_parser("update", usage="flux update [options]", help="update flux to the most recent version")
         update_parser.add_argument("--from", help="use the specified URI to update flux (can also point to a file on disk)")
 
     def setup(self) -> None:
