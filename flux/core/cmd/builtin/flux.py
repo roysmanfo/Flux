@@ -151,6 +151,8 @@ class UpdateManager:
         `:raises` RuntimeError if it is not possible to update from the specified location
         """
         if not update_url:
+            # this hardcoded value is just temporary,
+            # a nicer way of handling this will be implemeted in the future
             update_url = "https://api.github.com/repos/roysmanfo/flux/releases/latest"
         
         parsed_url = urllib3.util.parse_url(update_url)
