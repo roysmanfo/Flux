@@ -9,7 +9,7 @@ def get_scheme(path: str) -> Optional[str]:
     `:returns` the scheme of the path, or None if the path is a local file.
     """
     path = fr"{path}".lower().replace("file://", "")
-    return urllib3.util.parse_url(path)
+    return urllib3.util.parse_url(path).scheme
 
 def is_local_path(path: str) -> bool:
     """
