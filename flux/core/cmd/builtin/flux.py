@@ -45,8 +45,9 @@ class Flux(CommandInterface):
         if len(self.line_args) == 1:
             self.line_args.append("-h")
 
-        if any(map(lambda x: x in self.line_args, ("-h", "--help"))):
+        if any(map(lambda x: x in self.line_args, ("-h", "--help"))):        
             self.print(self.banner())
+
         super().setup()
 
     def run(self):
