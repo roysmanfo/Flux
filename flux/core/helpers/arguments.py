@@ -50,6 +50,9 @@ class Parser(ArgumentParser):
         if len(filt) == 0:
             self._no_args = True
 
+        if "-h" in args or "--help" in args:
+            self.exit_execution = True
+        
         return nspace
 
 
