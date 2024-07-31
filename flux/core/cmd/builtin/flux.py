@@ -95,6 +95,7 @@ class UpdateManager:
         """
         Compute the SHA-256 hash of the given file.
         """
+        hashes.SHA256()
         sha256 = hashlib.sha256()
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
@@ -188,18 +189,46 @@ class UpdateManager:
 
     def get_update_info(self):
         """
+        this method retutns some informations abount the fetched update 
+        - the latest version available in the provided url to `check_for_update()`
+        - the the actual download url to that version 
+        - the path to the signature file of that version
+        
+        #### NOTE: call this AFTER `check_for_update()` or all values will default to None
+        
         `:returns` a tuple containing (latest_version, download_url, signature_url)
         """
 
         return (self.latest_version, self.download_url, self.signature_url)
 
-    def download_file(self, url: str, save_path: str) -> None:
-        response = requests.get(url, stream=True)
-        with open(save_path, 'wb') as file:
-            for chunk in response.iter_content(chunk_size=8192):
-                file.write(chunk)
+    def download_update(self, save_path: str) -> None:
+        """
+        downaload and save the update file(s)
+
+        `:param` save_path: the path where the download will be saved
+        `:raises` PermissionError if download_path or save_path are reserved paths (permission denied by the OS)
+        """
+        if not self.download_url:
+            raise RuntimeError("self.download_url has not been set. Have you called `check_for_update()` first?")
+
+        # may raise a PermissionError if a reserved path has been chosen
+        if paths.is_local_path(self.download_url):
+            shutil.copy(self.download_url, save_path)
+        else:
+            response = requests.get(self.download_url, stream=True)
+            # may raise a PermissionError if a reserved path has been chosen
+            with open(save_path, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+
 
     def uninstall_old_version(self, install_path: str) -> None:
+        """
+        removes the files of the old version from the system
+
+        `:param` install_path: the location of the older version to remove 
+        `:raises` PermissionError if unable to uninstrall the old version 
+        """
         if os.path.exists(real_path := os.path.realpath(install_path)):
             # do not remove the root dir
             if real_path != os.path.realpath("/"):
@@ -209,6 +238,14 @@ class UpdateManager:
                     raise PermissionError("unable to uninstall old version in location '%s'" % real_path) from e
 
     def install_new_version(self, archive_path: str, install_path: str, *, uninstall_first: bool = True) -> None:
+        """
+        saves the new version on the system
+
+        `:param` archive_path: the location of the file downloaded with `download_update()`
+        `:param` install_path: the location of the old version (where to install the new version)
+        `:param` uninstall_first: before starting to install the new version, remove the old one (reccomended)
+        `:raises` ValueError if unable to unpack the new version (archive format not supported)
+        """
         if uninstall_first:
             self.uninstall_old_version(install_path)
         try:
