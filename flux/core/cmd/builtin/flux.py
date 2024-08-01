@@ -108,7 +108,12 @@ class UpdateManager:
         """
         Verify the signature of the given file using the provided public key.
 
+        - `:param` file_path: the location of the file to analize
+        - `:param` signature_path: the signature created with the private key
+        - `:param` public_key_path: the location of the public key
+
         `:returns` true if the signature verification passes, false otherwise
+        
         `:raises` an error if unable to verify the signature
         """
 
@@ -140,9 +145,15 @@ class UpdateManager:
         """
         check the latest avaliable version of flux to determine if an update is available
 
-        `:params` current_version: the current version of flux
-        `:params` update_url: the path (url or local) used to determine if a newer version exists (if None, the default path will be used)
-        `:returns` True if a possible update (or downgrade) has been detected
+        - `:params` current_version: the current version of flux
+        - `:params` update_url: the path (url or local) used to determine if a newer version exists (if None, the default path will be used)
+        
+
+        `:raises` RuntimeError if a specific host or scheme is not supported (currently supported: http, https)  
+        `:raises` KeyError if the response from the host does not contain some expected informations  
+        `:raises` TimeoutError if the host does not respond in time  
+        `:raises` ConnectionError for any other connection problem  
+
         `:raises` RuntimeError if it is not possible to update from the specified location
         """
         if not update_url:
@@ -199,7 +210,9 @@ class UpdateManager:
         """
         downaload and save the update file(s)
 
-        `:param` save_path: the path where the download will be saved
+        - `:param` save_path: the path where the download will be saved
+        
+        `:raises` RuntimeError `check_for_update()` has not been called or if `self.download_url` is None  
         `:raises` PermissionError if download_path or save_path are reserved paths (permission denied by the OS)
         """
         if not self.download_url:
@@ -220,7 +233,8 @@ class UpdateManager:
         """
         removes the files of the old version from the system
 
-        `:param` install_path: the location of the older version to remove 
+        - `:param` install_path: the location of the older version to remove 
+        
         `:raises` PermissionError if unable to uninstrall the old version 
         """
         if os.path.exists(real_path := os.path.realpath(install_path)):
@@ -235,9 +249,10 @@ class UpdateManager:
         """
         saves the new version on the system
 
-        `:param` archive_path: the location of the file downloaded with `download_update()`
-        `:param` install_path: the location of the old version (where to install the new version)
-        `:param` uninstall_first: before starting to install the new version, remove the old one (reccomended)
+        - `:param` archive_path: the location of the file downloaded with `download_update()`
+        - `:param` install_path: the location of the old version (where to install the new version)
+        - `:param` uninstall_first: before starting to install the new version, remove the old one (reccomended)
+        
         `:raises` ValueError if unable to unpack the new version (archive format not supported)
         """
         if uninstall_first:
