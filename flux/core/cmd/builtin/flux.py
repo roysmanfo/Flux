@@ -170,6 +170,12 @@ class UpdateManager:
                 if not parsed_url.scheme:
                     parsed_url.scheme = "https"
                 
+                if parsed_url.scheme.lower() not in  ("http", "https"):
+                    raise RuntimeError("scheme '%s' is not supported for updates" % parsed_url.scheme)
+
+                if parsed_url.host != "api.github.com":
+                    raise RuntimeError("host '%s' is not supported for updates" % parsed_url.host)
+                
                 try:
                     response = requests.get(parsed_url.url)
                 except requests.ConnectionError:
