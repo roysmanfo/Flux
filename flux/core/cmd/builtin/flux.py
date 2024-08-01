@@ -185,12 +185,6 @@ class UpdateManager:
                     # let possible errors be caught by the surrounding try-except block
                     response = requests.get(parsed_url.url)
 
-                if parsed_url.scheme.lower() not in  ("http", "https"):
-                    raise RuntimeError("scheme '%s' is not supported for updates" % parsed_url.scheme)
-
-                if parsed_url.host != "api.github.com":
-                    raise RuntimeError("host '%s' is not supported for updates" % parsed_url.host)
-
                 latest_release: dict = response.json()
                 self.latest_version = latest_release["tag_name"]
                 if self.latest_version != current_version:
