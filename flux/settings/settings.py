@@ -6,12 +6,20 @@ import tempfile
 from typing import List
 from enum import Enum 
 
-with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
+# this file's folder
+_file_dir_path = os.path.dirname(os.path.realpath(__file__))
+
+# where the app root directory is 
+_flux_root = os.path.dirname(os.path.dirname(_file_dir_path))
+
+# version
+with open(os.path.join(_file_dir_path, 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
 
 _pathlib_class_type = type(pathlib.Path()) # PosixPath or WindowsPath
 
 class SysPaths(_pathlib_class_type, Enum):
+    INSTALL_FOLDER = pathlib.Path(_flux_root).resolve()
     CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux")).resolve()
     SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json")).resolve()
     SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE)).resolve()
