@@ -113,8 +113,6 @@ class UpdateManager:
         - `:param` public_key_path: the location of the public key
 
         `:returns` true if the signature verification passes, false otherwise
-        
-        `:raises` an error if unable to verify the signature
         """
 
         file_hash = self._compute_hash(file_path)
@@ -151,13 +149,12 @@ class UpdateManager:
         - `:params` current_version: the current version of flux
         - `:params` update_url: the path (url or local) used to determine if a newer version exists (if None, the default path will be used)
         
+        `:returns` True if a possible update (or downgrade) has been detected
 
         `:raises` RuntimeError if a specific host or scheme is not supported (currently supported: http, https)  
         `:raises` KeyError if the response from the host does not contain some expected informations  
         `:raises` TimeoutError if the host does not respond in time  
         `:raises` ConnectionError for any other connection problem  
-
-        `:raises` RuntimeError if it is not possible to update from the specified location
         """
         if not update_url:
             # this hardcoded value is just temporary,
