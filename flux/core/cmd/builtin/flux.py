@@ -10,7 +10,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_public_key 
-import urllib3.util
+
 
 from flux.core.helpers.commands import CommandInterface, Parser
 from flux.utils import paths
@@ -161,12 +161,23 @@ class UpdateManager:
             # a nicer way of handling this will be implemeted in the future
             update_url = "https://api.github.com/repos/roysmanfo/flux/releases/latest"
         
-        parsed_url = urllib3.util.parse_url(update_url)
+        parsed_url = paths.parse_url(update_url)
+
         try:
             if paths.is_local_path(update_url):
                 pass
             else:
-                response = requests.get(update_url)
+                if not parsed_url.scheme:
+                    parsed_url.scheme = "https"
+                
+                try:
+                    response = requests.get(parsed_url.url)
+                except requests.ConnectionError:
+                    # possible SSL verification error, retry as a normal http request 
+                    parsed_url.scheme = "http"
+                    
+                    # let possible errors be caught by the surrounding try-except block
+                    response = requests.get(parsed_url.url)
 
                 if parsed_url.scheme.lower() not in  ("http://", "https://"):
                     raise RuntimeError("scheme '%s' is not supported for updates" % parsed_url.scheme)
