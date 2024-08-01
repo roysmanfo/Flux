@@ -123,8 +123,11 @@ class UpdateManager:
             public_key = load_pem_public_key(f.read(), default_backend())
 
         with open(signature_path, 'rb') as f:
-            # * the signature is base64 encoded
-            signature = base64.b64decode(f.read())
+            signature = f.read()
+
+            # ? is the signature base64 encoded (.sig) or not (.bin)
+            if signature.endswith(".sig"):
+                signature = base64.b64decode(signature)
 
         # verify the signature
         try:
