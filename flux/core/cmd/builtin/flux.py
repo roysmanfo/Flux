@@ -179,7 +179,7 @@ class UpdateManager:
                     # let possible errors be caught by the surrounding try-except block
                     response = requests.get(parsed_url.url)
 
-                if parsed_url.scheme.lower() not in  ("http://", "https://"):
+                if parsed_url.scheme.lower() not in  ("http", "https"):
                     raise RuntimeError("scheme '%s' is not supported for updates" % parsed_url.scheme)
 
                 if parsed_url.host != "api.github.com":
