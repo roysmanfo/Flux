@@ -118,8 +118,45 @@ class UpdateManager:
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 sha256.update(chunk)
-        return sha256.digest()
+        return sha256.digest()      
 
+    def _compare_versions(self, v1: str, v2: str) -> str:
+        """
+        Takes 2 flux versions as input and returns the most recent one
+        """
+
+        def _format_version(v: str):
+            for segm in v.split('.'):
+                if segm.isnumeric():
+                    yield int(segm)
+                else:
+                    # may be something like x.y.z-dev
+                    for i in segm.split('-'):
+                        if i.isnumeric():
+                            yield int(i)
+
+        if (v1 := v1.strip()) == (v2 := v2.strip()):
+            # same version
+            return v1
+        
+        v1 = _format_version(v1)
+        v2 = _format_version(v2)
+
+        for i1, i2 in zip(v1, v2):
+            if i1 > i2:
+                return v1    
+            elif i1 < i2:
+                return v2
+
+        # reaching here means that the 2 version are not homogeneus (ie. x.y and x.y.z)
+        # they have same major (x) and minor (y) version, check for eventual micro version (z)
+
+        if len(v1) > len(v2):
+            return v1
+        return v2
+
+
+            
     def verify_signature(self, file_path: str, signature_path: str, public_key_path: str) -> bool:
         """
         Verify the signature of the given file using the provided public key.
