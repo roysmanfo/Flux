@@ -3,6 +3,10 @@ import hashlib
 import os
 import random
 import shutil
+import asyncio
+import re
+import tarfile
+import lzma
 from typing import Optional
 
 import requests
@@ -79,17 +83,29 @@ class Flux(CommandInterface):
         update the flux application based on the version
         """
 
-        update_manager = UpdateManager()
-        # update_manager.check_for_update(current_version=self.system.version, update_url=self.args.url)
-        update_manager.verify_signature(file_path=r"C:\Users\manfo\Repo\Flux\setup.sh",
-                                              signature_path=r"C:\Users\manfo\Repo\Flux\signature.sig",
-                                              public_key_path=r"C:\Users\manfo\Repo\Flux\public.pem")
+        # needed for the backup before the update
+        # backups are stored as: $HOME/.flux/.local/flux/backups/flux-{version}.tar.xz
+        old_version_path = os.path.join(
+            self.settings.syspaths.LOCAL_FOLDER,
+            "flux",
+            "backups",
+            f"flux-{self.system.version}.tar.xz"
+        )
+        update_manager = UpdateManager(old_version_path=old_version_path)
+        update_needed = update_manager.check_for_update(current_version=self.system.version, update_url=self.args.url)
+        
+        if update_needed:
+            update_manager.install_new_version("", self.settings.syspaths.INSTALL_FOLDER, uninstall_first=True)
+        else:
+            asyncio.run(update_manager.install_new_version("", self.settings.syspaths.INSTALL_FOLDER, uninstall_first=True))
+            # self.print("already up to date")
 
 
 class UpdateManager:
 
-    def __init__(self, update_uri: Optional[str] = None):
+    def __init__(self, update_uri: Optional[str] = None, *, old_version_path: str):
         self.update_uri = update_uri
+        self.old_version_path = old_version_path
         self.latest_version: str = None
         self.download_url: str = None
         self.signature_url: str = None
@@ -217,7 +233,7 @@ class UpdateManager:
 
         return (self.latest_version, self.download_url, self.signature_url)
 
-    def download_update(self, save_path: str) -> None:
+    async def download_update(self, save_path: str) -> None:
         """
         downaload and save the update file(s)
 
@@ -256,7 +272,7 @@ class UpdateManager:
                 except PermissionError as e:
                     raise PermissionError("unable to uninstall old version in location '%s'" % real_path) from e
 
-    def install_new_version(self, archive_path: str, install_path: str, *, uninstall_first: bool = True) -> None:
+    async def install_new_version(self, archive_path: str, install_path: str, *, uninstall_first: bool = True) -> None:
         """
         saves the new version on the system
 
@@ -267,9 +283,9 @@ class UpdateManager:
         `:raises` ValueError if unable to unpack the new version (archive format not supported)
         """
         if uninstall_first:
-            self.uninstall_old_version(install_path)
-        try:
-            shutil.unpack_archive(filename=archive_path,
-                                  extract_dir=install_path)
-        except ValueError as e:
-            raise ValueError("this file format is not unpackable (not supported)") from e
+            await asyncio.gather(self.uninstall_old_version(install_path))
+        # try:
+        #     shutil.unpack_archive(filename=archive_path,
+        #                           extract_dir=install_path)
+        # except ValueError as e:
+        #     raise ValueError("this file format is not unpackable (not supported)") from e
