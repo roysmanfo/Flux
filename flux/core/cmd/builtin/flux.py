@@ -256,7 +256,20 @@ class UpdateManager:
                     file.write(chunk)
 
 
-    def uninstall_old_version(self, install_path: str) -> None:
+    def _create_backup(self, install_path: str) -> str:
+        def _file_filter(tarinfo: tarfile.TarInfo) -> Optional[tarfile.TarInfo]:
+            rule = re.compile(r".*(\.pyc$|__pycache__|tmp_.*)")
+            if re.search(rule, tarinfo.name):
+                return None
+            return tarinfo
+
+        with lzma.LZMAFile(self.old_version_path, mode='w') as xz_file:
+            with tarfile.open(mode='w', fileobj=xz_file) as tar_xz_file:
+                tar_xz_file.add(install_path, filter=_file_filter)
+        
+
+
+    async def uninstall_old_version(self, install_path: str) -> None:
         """
         removes the files of the old version from the system
 
@@ -268,7 +281,24 @@ class UpdateManager:
             # do not remove the root dir
             if real_path != os.path.realpath("/"):
                 try:
-                    shutil.rmtree(real_path)
+                    
+                    # take the old version and compress it
+                    # (just to have a backup in case of errors)
+                    
+                    if os.path.exists(self.old_version_path):
+
+                        # remove old backup to replace it with a new one
+                        if os.path.isdir(self.old_version_path):
+                            shutil.rmtree(self.old_version_path)                   
+                        else:
+                            os.remove(self.old_version_path)
+                    else:
+                        os.makedirs(os.path.dirname(self.old_version_path), exist_ok=True)
+
+                    self._create_backup(real_path)
+                    # shutil.rmtree(real_path) <- un-comment once update is fully working
+                    print(f"{self.old_version_path=}")
+                    print(f"{real_path=}")
                 except PermissionError as e:
                     raise PermissionError("unable to uninstall old version in location '%s'" % real_path) from e
 
