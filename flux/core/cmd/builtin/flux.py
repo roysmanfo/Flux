@@ -1,13 +1,15 @@
 import base64
 import hashlib
 import os
+from pathlib import Path
 import random
 import shutil
 import asyncio
 import re
 import tarfile
 import lzma
-from typing import Optional
+import math
+from typing import Literal, Optional
 
 import requests
 from cryptography.hazmat.backends import default_backend
@@ -18,6 +20,9 @@ from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 from flux.core.helpers.commands import CommandInterface, Parser
 from flux.utils import paths
+
+PathOrStr = Path | str
+
 
 ENTRY_POINT = "Flux"
 EMOTES = [
@@ -59,8 +64,8 @@ class Flux(CommandInterface):
     def run(self):
         match self.args.command:
             case "update":
-                self.flux_update()
-    
+                asyncio.run(self.flux_update())
+
     def banner(self):
         emote = random.choice(EMOTES)
         banner_width = 38
@@ -79,7 +84,7 @@ class Flux(CommandInterface):
         """
         return self.colors.Fore.LIGHTBLACK_EX + title + self.colors.Fore.RESET
 
-    def flux_update(self):
+    async def flux_update(self):
         """
         update the flux application based on the version
         """
@@ -95,11 +100,39 @@ class Flux(CommandInterface):
         update_manager = UpdateManager(old_version_path=old_version_path)
         update_needed = update_manager.check_for_update(current_version=self.system.version, update_url=self.args.url)
         
+        install_path = self.settings.syspaths.INSTALL_FOLDER
+        
+        # updates are (temp) stored in: $HOME/.flux/.cache/flux/updates/{update_file}
+        archive_path = os.path.join(
+            self.settings.syspaths.CACHE_FOLDER,
+            "flux",
+            "updates"
+        )
+
         if update_needed:
-            update_manager.install_new_version("", self.settings.syspaths.INSTALL_FOLDER, uninstall_first=True)
+            futures_res = await asyncio.gather(
+                update_manager.download_update(archive_path),
+                update_manager._create_backup(install_path),
+                return_exceptions=True
+            )
+    
+            if futures_res and (err := futures_res[0] or futures_res[1]):
+                self.fatal(err)
+                return
+
+            # verify the update signature
+            public_key = self.settings.syspaths.PUBLIC_KEY_FILE
+            if not self.args.skip_validation and not update_manager.verify_signature(install_path, signature_path := "", public_key):
+                self.warning("update signature verification failed (the signature ensures that updates are legit)")
+                if self.input("update anyway? (y/N): ").lower() != "y":
+                    self.warning("cancelling update...")
+                    return
+            
+            await update_manager.install_new_version(archive_path, install_path, uninstall_first=True)
+
         else:
             asyncio.run(update_manager.install_new_version("", self.settings.syspaths.INSTALL_FOLDER, uninstall_first=True))
-            # self.print("already up to date")
+            # self.print("already up to date") <- uncoment once all test over here have been done
 
 
 class UpdateManager:
@@ -109,6 +142,7 @@ class UpdateManager:
         self.old_version_path = old_version_path
         self.latest_version: str = None
         self.download_url: str = None
+        self.download_size: int = None
         self.signature_url: str = None
 
     def _compute_hash(self, file_path: str) -> bytes:
@@ -239,35 +273,66 @@ class UpdateManager:
             # this hardcoded value is just temporary,
             # a nicer way of handling this will be implemeted in the future
             update_url = "https://api.github.com/repos/roysmanfo/flux/releases/latest"
-        
+
         parsed_url = paths.parse_url(update_url)
 
         try:
             if paths.is_local_path(update_url):
-                pass
+                self.download_url = update_url
+                if not os.path.exists(update_url):
+                    raise FileNotFoundError(update_url)
+                self.download_size = os.path.getsize(update_url) if os.path.isfile(update_url) else 0
+                self.signature_url: str = self.download_url + ".sig"
             else:
                 if not parsed_url.scheme:
                     parsed_url.scheme = "https"
                 
-                if parsed_url.scheme.lower() not in  ("http", "https"):
+                if parsed_url.scheme not in  ("http", "https"):
                     raise RuntimeError("scheme '%s' is not supported for updates" % parsed_url.scheme)
 
                 if parsed_url.host != "api.github.com":
                     raise RuntimeError("host '%s' is not supported for updates" % parsed_url.host)
                 
                 try:
-                    response = requests.get(parsed_url.url)
+                    accept = "application/json"
+                    if "github.com" in parsed_url.host: 
+                        accept = "application/vnd.github+json"
+
+                    headers = {
+                        "Accept": accept
+                    }
+                    verify_tsl = parsed_url.scheme == "https"
+                    response = requests.get(parsed_url.url, headers=headers, timeout=3, verify=verify_tsl)
+                    print(response.status_code, response.content)
                 except requests.ConnectionError:
                     # possible SSL verification error, retry as a normal http request 
                     parsed_url.scheme = "http"
                     
                     # let possible errors be caught by the surrounding try-except block
-                    response = requests.get(parsed_url.url)
+                    response = requests.get(parsed_url.url, headers=headers, timeout=3, verify=verify_tsl)
+
+                if response.status_code < 200 or response.status_code >= 400:
+                    raise RuntimeError(f"{response.status_code} {response.reason}")
 
                 latest_release: dict = response.json()
                 self.latest_version = latest_release["tag_name"]
                 if self.latest_version != current_version:
-                    self.download_url = latest_release["assets"][0]["browser_download_url"]
+                    
+                    # get the new release download url
+                    assets = latest_release["assets"]
+                    asset = assets[0] if assets else None
+                    
+                    if asset is None:
+                        raise RuntimeError("no download url found")
+                    
+                    for a in assets:
+                        if a != asset:
+                            d_url: str = a["browser_download_url"]
+                            if d_url.endswith('.tar.xz'):
+                                asset = a
+
+                    self.download_url = asset["browser_download_url"]
+                    self.download_size = asset["size"]
                     self.signature_url: str = self.download_url + ".sig"
                     return True
     
@@ -279,6 +344,9 @@ class UpdateManager:
 
         except requests.ConnectionError as e:
             raise ConnectionError(f"unable to retreave some informations: {type(e)}" ) from e
+
+        except requests.JSONDecodeError as e:
+            raise requests.JSONDecodeError(f"unable to retreave some informations: {e}" ) from e
 
         return False
 
@@ -296,7 +364,7 @@ class UpdateManager:
 
         return (self.latest_version, self.download_url, self.signature_url)
 
-    async def download_update(self, save_path: str) -> None:
+    async def download_update(self, save_path: PathOrStr) -> None:
         """
         downaload and save the update file(s)
 
@@ -310,7 +378,15 @@ class UpdateManager:
 
         # may raise a PermissionError if a reserved path has been chosen
         if paths.is_local_path(self.download_url):
-            shutil.copy(self.download_url, save_path)
+            if not os.path.isdir(save_path):
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            else:
+                os.makedirs(save_path, exist_ok=True)
+            try:
+                shutil.copy(self.download_url, save_path)
+            except shutil.SameFileError:
+                # just use that file
+                pass
         else:
             response = requests.get(self.download_url, stream=True)
             # may raise a PermissionError if a reserved path has been chosen
@@ -319,7 +395,7 @@ class UpdateManager:
                     file.write(chunk)
 
 
-    def _create_backup(self, install_path: str) -> str:
+    async def _create_backup(self, install_path: PathOrStr) -> None:
         def _file_filter(tarinfo: tarfile.TarInfo) -> Optional[tarfile.TarInfo]:
             rule = re.compile(r".*(\.pyc$|__pycache__|tmp_.*)")
             if re.search(rule, tarinfo.name):
@@ -332,7 +408,7 @@ class UpdateManager:
         
 
 
-    async def uninstall_old_version(self, install_path: str) -> None:
+    async def uninstall_old_version(self, install_path: PathOrStr) -> None:
         """
         removes the files of the old version from the system
 
@@ -358,14 +434,13 @@ class UpdateManager:
                     else:
                         os.makedirs(os.path.dirname(self.old_version_path), exist_ok=True)
 
-                    self._create_backup(real_path)
                     # shutil.rmtree(real_path) <- un-comment once update is fully working
                     print(f"{self.old_version_path=}")
                     print(f"{real_path=}")
                 except PermissionError as e:
                     raise PermissionError("unable to uninstall old version in location '%s'" % real_path) from e
 
-    async def install_new_version(self, archive_path: str, install_path: str, *, uninstall_first: bool = True) -> None:
+    async def install_new_version(self, archive_path: PathOrStr, install_path: PathOrStr, *, uninstall_first: bool = False) -> None:
         """
         saves the new version on the system
 
