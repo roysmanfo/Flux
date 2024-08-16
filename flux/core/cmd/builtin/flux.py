@@ -155,7 +155,32 @@ class UpdateManager:
             return v1
         return v2
 
+    def _convert_size(self, size_bytes: int, system: Literal["si", "iec"] = "iec") -> str:
+        """
+        Takes as input a number of bytes and converts them in the 
+        most appropriate rappresentation (B, kiB, MiB or GiB)
+        
+        :param system: can be either "si" (kB = 1000 B) or (by default) "iec" (kB = 1024 B)
+        """
+        
+        if size_bytes < 0:
+            raise ValueError("byte number cannot be negative")
+        if size_bytes == 0:
+            return "0B"
 
+        if system not in ("iec", "si"):
+            raise ValueError("system `%s` is not supported" % system)
+                
+        size_name_si = ("B", "kB", "MB", "GB")
+        size_name_iec = ("B", "kiB", "MiB", "GiB")
+ 
+        unit = 1024 if system == "iec" else 1000
+        size_name = size_name_iec if system == "iec" else size_name_si
+        
+        i = min(int(math.floor(math.log(size_bytes, unit))), len(size_name) - 1)
+        p = math.pow(unit, i)
+        s = round(size_bytes / p, 2)
+        return "%s %s" % (s, size_name[i])
             
     def verify_signature(self, file_path: str, signature_path: str, public_key_path: str) -> bool:
         """
