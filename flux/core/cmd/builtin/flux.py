@@ -237,7 +237,7 @@ class UpdateManager:
             signature = f.read()
 
             # ? is the signature base64 encoded (.sig) or not (.bin)
-            if signature.endswith(".sig"):
+            if signature_path.endswith(".sig"):
                 signature = base64.b64decode(signature)
 
         # verify the signature
