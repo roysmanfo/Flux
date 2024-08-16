@@ -20,6 +20,7 @@ _pathlib_class_type = type(pathlib.Path()) # PosixPath or WindowsPath
 
 class SysPaths(_pathlib_class_type, Enum):
     INSTALL_FOLDER = pathlib.Path(_flux_root).resolve()
+    PUBLIC_KEY_FILE = pathlib.Path(_flux_root, "security", "public.pem").resolve()
     CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux")).resolve()
     SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json")).resolve()
     SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE)).resolve()
