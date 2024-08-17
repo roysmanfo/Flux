@@ -1,6 +1,7 @@
 import os
 from flux.core.system.interrupts import InterruptHandler
 from flux.core.system.processes import Processes
+from flux.core.system.service_manager import Servicemanager
 from flux.core.system.variables import Variables
 from flux.settings.settings import Settings, VERSION
 from .privileges import Privileges
@@ -21,13 +22,18 @@ class System():
         self.interrupt_handler: InterruptHandler = InterruptHandler()
         self.variables: Variables = Variables()
         self.processes: Processes = Processes(self.interrupt_handler)
+        self.service_manager: Servicemanager = Servicemanager(settings.syspaths.SERVICES_FILE)
         
         self._init_reserved_variables()
+        self._init_service_manager()
         
     def _init_reserved_variables(self) -> None:
         self.variables.add("$HOME", str(self.settings.user.paths.terminal).replace("\\", "/"), True)
         self.variables.add("$PATH", os.environ.get("PATH", ""), True)
         self.variables.add("$PWD", str(self.settings.user.paths.terminal).replace("\\", "/"), True)
+
+    def _init_service_manager(self) -> None:
+        self.service_manager.system = self
 
     def get_settings(self) -> Settings:
         return self.settings.copy()
