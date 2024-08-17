@@ -294,7 +294,7 @@ class UpdateManager:
                     raise RuntimeError("host '%s' is not supported for updates" % parsed_url.host)
                 
                 try:
-                    accept = "application/json"
+                    accept = "application/json, text/plain"
                     if "github.com" in parsed_url.host: 
                         accept = "application/vnd.github+json"
 
