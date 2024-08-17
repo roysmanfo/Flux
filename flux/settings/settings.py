@@ -14,6 +14,7 @@ _pathlib_class_type = type(pathlib.Path()) # PosixPath or WindowsPath
 class SysPaths(_pathlib_class_type, Enum):
     CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux")).resolve()
     SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json")).resolve()
+    SERVICES_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "services.json")).resolve()
     SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE)).resolve()
     CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache")).resolve()
     LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local")).resolve()
