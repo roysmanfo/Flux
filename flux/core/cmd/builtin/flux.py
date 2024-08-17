@@ -49,7 +49,12 @@ class Flux(CommandInterface):
         subparsers = self.parser.add_subparsers(title="commands", dest="command")
         update_parser = subparsers.add_parser("update", usage="flux update [options]", help="update flux to the most recent version")
         update_parser.add_argument("--from", dest="url", help="use the specified URI to update flux (can also point to a file on disk)")
+        update_parser.add_argument("--allow-unoficial", action="store_true", help="allow updates from any host (even localhost)")
         update_parser.add_argument("--skip-validation", action="store_true", help="do not verify the signature of the update (default: false)")
+        update_parser.add_argument("-v", "--verbose", action="store_true", help="show more output")
+
+        self.log_level = self.levels.INFO
+
 
     def setup(self) -> None:
 
@@ -64,6 +69,8 @@ class Flux(CommandInterface):
     def run(self):
         match self.args.command:
             case "update":
+                if self.args.verbose:
+                    self.log_level = self.levels.DEBUG
                 asyncio.run(self.flux_update())
 
     def banner(self):
@@ -98,6 +105,8 @@ class Flux(CommandInterface):
             f"flux-{self.system.version}.tar.xz"
         )
         update_manager = UpdateManager(old_version_path=old_version_path)
+        update_manager.allow_unoficial = self.args.allow_unoficial
+        update_manager.logger = self
         update_needed = update_manager.check_for_update(current_version=self.system.version, update_url=self.args.url)
         
         install_path = self.settings.syspaths.INSTALL_FOLDER
@@ -110,6 +119,7 @@ class Flux(CommandInterface):
         )
 
         if update_needed:
+            self.info("downloading update new version ...")
             futures_res = await asyncio.gather(
                 update_manager.download_update(archive_path),
                 update_manager._create_backup(install_path),
@@ -119,6 +129,8 @@ class Flux(CommandInterface):
             if futures_res and (err := futures_res[0] or futures_res[1]):
                 self.fatal(err)
                 return
+            
+            self.debug("backup created in %s" % old_version_path)
 
             # verify the update signature
             public_key = self.settings.syspaths.PUBLIC_KEY_FILE
@@ -131,8 +143,8 @@ class Flux(CommandInterface):
             await update_manager.install_new_version(archive_path, install_path, uninstall_first=True)
 
         else:
-            asyncio.run(update_manager.install_new_version("", self.settings.syspaths.INSTALL_FOLDER, uninstall_first=True))
-            # self.print("already up to date") <- uncoment once all test over here have been done
+            # asyncio.run(update_manager.install_new_version("", self.settings.syspaths.INSTALL_FOLDER, uninstall_first=True))
+            self.print("already up to date") # <- uncoment once all test over here have been done
 
 
 class UpdateManager:
@@ -144,6 +156,10 @@ class UpdateManager:
         self.download_url: str = None
         self.download_size: int = None
         self.signature_url: str = None
+        self.allow_unoficial: str = False
+        
+        # use the command class as Logger
+        self.logger: Flux = None
 
     def _compute_hash(self, file_path: str) -> bytes:
         """
@@ -278,6 +294,7 @@ class UpdateManager:
 
         try:
             if paths.is_local_path(update_url):
+                self.logger.debug("detected local path %s" % update_url)
                 self.download_url = update_url
                 if not os.path.exists(update_url):
                     raise FileNotFoundError(update_url)
@@ -285,14 +302,19 @@ class UpdateManager:
                 self.signature_url: str = self.download_url + ".sig"
             else:
                 if not parsed_url.scheme:
-                    parsed_url.scheme = "https"
+                    self.logger.debug("no scheme provided, defaulting to https")
+                    parsed_url = paths.parse_url("https://" + parsed_url.url)
                 
                 if parsed_url.scheme not in  ("http", "https"):
                     raise RuntimeError("scheme '%s' is not supported for updates" % parsed_url.scheme)
 
                 if parsed_url.host != "api.github.com":
-                    raise RuntimeError("host '%s' is not supported for updates" % parsed_url.host)
-                
+                    # updates from other servers are supported as long as the server provides
+                    # the espected output (the one from api.github.com)
+                    # This is usualy used for testing purposes (because it is unsafe)
+                    if not self.allow_unoficial:
+                        raise RuntimeError("host '%s' is not supported for updates" % parsed_url.host)
+                    self.logger.debug("using unoficial host %s (be careful)" % parsed_url.host)
                 try:
                     accept = "application/json, text/plain"
                     if "github.com" in parsed_url.host: 
@@ -302,21 +324,26 @@ class UpdateManager:
                         "Accept": accept
                     }
                     verify_tsl = parsed_url.scheme == "https"
+                    self.logger.info("requesting data from %s" % parsed_url.url)
                     response = requests.get(parsed_url.url, headers=headers, timeout=3, verify=verify_tsl)
-                    print(response.status_code, response.content)
                 except requests.ConnectionError:
                     # possible SSL verification error, retry as a normal http request 
-                    parsed_url.scheme = "http"
+                    parsed_url = paths.parse_url(parsed_url.url.replace("https", "http"))
+                    self.logger.error("unable to connect using https, falling back to simple http")
                     
                     # let possible errors be caught by the surrounding try-except block
+                    self.logger.info("requesting data from %s" % parsed_url.url)
                     response = requests.get(parsed_url.url, headers=headers, timeout=3, verify=verify_tsl)
 
                 if response.status_code < 200 or response.status_code >= 400:
                     raise RuntimeError(f"{response.status_code} {response.reason}")
 
+                self.logger.debug("received update data [%d %s]" % (response.status_code, response.reason))
+                self.logger.debug("extracting update informations")
                 latest_release: dict = response.json()
                 self.latest_version = latest_release["tag_name"]
                 if self.latest_version != current_version:
+                    self.logger.info("a newer version is available")
                     
                     # get the new release download url
                     assets = latest_release["assets"]
@@ -334,6 +361,7 @@ class UpdateManager:
                     self.download_url = asset["browser_download_url"]
                     self.download_size = asset["size"]
                     self.signature_url: str = self.download_url + ".sig"
+                    self.logger.debug("update url: %s (%s)" % (self.download_url, self._convert_size(self.download_size)))
                     return True
     
         except KeyError as e:
@@ -373,27 +401,38 @@ class UpdateManager:
         `:raises` RuntimeError `check_for_update()` has not been called or if `self.download_url` is None  
         `:raises` PermissionError if download_path or save_path are reserved paths (permission denied by the OS)
         """
+
         if not self.download_url:
             raise RuntimeError("self.download_url has not been set. Have you called `check_for_update()` first?")
 
+        os.makedirs(save_path, exist_ok=True)
+
         # may raise a PermissionError if a reserved path has been chosen
         if paths.is_local_path(self.download_url):
-            if not os.path.isdir(save_path):
-                os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            else:
-                os.makedirs(save_path, exist_ok=True)
             try:
                 shutil.copy(self.download_url, save_path)
             except shutil.SameFileError:
                 # just use that file
                 pass
         else:
-            response = requests.get(self.download_url, stream=True)
+            file_name = os.path.basename(self.download_url)
+            self.logger.debug("requesting file %s" % self.download_url)
+            response = requests.get(self.download_url, stream=True, verify=self.download_url.startswith("https"))
+
+            if response.status_code >= 400:
+                # there has been some kind of error
+                self.logger.fatal("unable to download update: %d %s" % (response.status_code, response.reason))
+                return
+
+            if not os.path.isfile(save_path):
+                save_path = os.path.join(save_path, file_name)
+
+            self.logger.debug(f"update file will be saved in {save_path}")
+
             # may raise a PermissionError if a reserved path has been chosen
             with open(save_path, 'wb') as file:
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
-
 
     async def _create_backup(self, install_path: PathOrStr) -> None:
         def _file_filter(tarinfo: tarfile.TarInfo) -> Optional[tarfile.TarInfo]:
@@ -405,8 +444,6 @@ class UpdateManager:
         with lzma.LZMAFile(self.old_version_path, mode='w') as xz_file:
             with tarfile.open(mode='w', fileobj=xz_file) as tar_xz_file:
                 tar_xz_file.add(install_path, filter=_file_filter)
-        
-
 
     async def uninstall_old_version(self, install_path: PathOrStr) -> None:
         """
@@ -433,10 +470,8 @@ class UpdateManager:
                             os.remove(self.old_version_path)
                     else:
                         os.makedirs(os.path.dirname(self.old_version_path), exist_ok=True)
-
-                    # shutil.rmtree(real_path) <- un-comment once update is fully working
-                    print(f"{self.old_version_path=}")
-                    print(f"{real_path=}")
+                    self.logger.info("uninstalling old version")
+                    shutil.rmtree(real_path) #<- un-comment once update is fully working
                 except PermissionError as e:
                     raise PermissionError("unable to uninstall old version in location '%s'" % real_path) from e
 
