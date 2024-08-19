@@ -119,7 +119,7 @@ class Flux(CommandInterface):
         )
 
         if update_needed:
-            self.info("downloading update new version ...")
+            self.info(f"downloading new version ({update_manager.latest_version}) ...")
             futures_res = await asyncio.gather(
                 update_manager.download_update(archive_path),
                 update_manager._create_backup(install_path),
