@@ -132,9 +132,11 @@ class Flux(CommandInterface):
             
             self.debug("backup created in %s" % old_version_path)
 
-            # verify the update signature
+            #region verify the update signature
+            download_filename = os.path.join(archive_path, os.path.basename(update_manager.download_url))
+            signature_filename = download_filename + ".sig"
             public_key = self.settings.syspaths.PUBLIC_KEY_FILE
-            if not self.args.skip_validation and not update_manager.verify_signature(install_path, signature_path := "", public_key):
+            if not self.args.skip_validation and not update_manager.verify_signature(download_filename, signature_filename, public_key):
                 self.warning("update signature verification failed (the signature ensures that updates are legit)")
                 if self.input("update anyway? (y/N): ").lower() != "y":
                     self.warning("cancelling update...")
@@ -160,6 +162,8 @@ class UpdateManager:
         
         # use the command class as Logger
         self.logger: Flux = None
+
+        os.makedirs(os.path.dirname(old_version_path), exist_ok=True)
 
     def _compute_hash(self, file_path: str) -> bytes:
         """
