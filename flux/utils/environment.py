@@ -11,8 +11,8 @@ def get_venv_name() -> Optional[str]:
 
 def get_interpreter_command() -> Optional[str]:
     """
-    `:returns` : the command to use in order to interact with the python interpreter cli, None if not found
-    `:dtype`   : str or None
+    :returns: the command to use in order to interact with the python interpreter cli, None if not found
+    :rtype: str or None
     """
 
     commands = [

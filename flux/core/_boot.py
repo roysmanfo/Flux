@@ -22,9 +22,10 @@ verbose = False
 
 def boot(dev_mode: bool = False) -> _Report:
     """
-    Handles environment and minimum dependencies, and makes 
-    `:param debug_mode`: if set to True, outputs on stdout all output
-    `:returns` : A _Report object that determines if the application can start without problems
+    Handles environment and minimum dependencies 
+    
+    :param debug_mode: if set to True, outputs on stdout all output
+    :returns: A _Report object that determines if the application can start without problems
     """
     global verbose
     verbose = dev_mode
@@ -56,7 +57,8 @@ def install_requirements(dep: List[str]) -> Optional[subprocess.CompletedProcess
 
 def get_minimum_requirements() -> Optional[List[str]]:
     """
-    `:returns` : A list containing all minimum dependencies needed or None in case of error (es. FileNotFound, IOError, ...)   
+    :returns requirements:  A list containing all minimum dependencies
+                            needed or None in case of error (es. FileNotFound, IOError, ...)   
     """
     req = os.path.join(root_dir, "requirements.txt")
     

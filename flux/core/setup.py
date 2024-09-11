@@ -21,9 +21,8 @@ def setup() -> System:
     This process makes it easier to start Flux as we just need to call this
     function in the main file and everything will be handled automaticaly. 
 
-    * `:returns` : An object containing system information
-    * `:dtype`   : Settings
-    * `:raises`  : PermissionError if the folders could not be created
+    :returns System: An object containing system information
+    :raises PermissionError: if the folders could not be created
     """
     
     # Load user
@@ -40,8 +39,7 @@ def setup() -> System:
 
 def get_interpreter_command() -> Optional[str]:
     """
-    `:returns` : the command to use in order to interact with the python interpreter cli, None if not found
-    `:dtype`   : str | None
+    :returns str | None: the command to use in order to interact with the python interpreter cli, None if not found
     """
 
     commands = [
