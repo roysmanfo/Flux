@@ -9,19 +9,29 @@ Docs
 
 
 
-#### User guides
-- How to use Flux
-    - How to run commands
-    - I/O redirection 
-    - Execute external commands
+#### **User guides** - *How to use Flux*
 
-#### Developer guides
-- Learn about the Flux api
+- How to run commands
+- I/O redirection 
+- Execute external commands
 
+#### **Developer guides** - *How to develop your own scripts*
 
-#### Contributor guides
-- Learn how flux executes your commands
+- [Flux API](api/flux_api.md)
+- Create your first command 
 
+#### **Contributor guides** - *How Flux works under the hood*
+- How commands are loaded and executed
+    - User input
+    - Load, Build and Call a command
+        - Load a command
+            - builtin commands 
+            - custom commands 
+        - Build process
+            - get I/O streams
+        - Call the command
+            - Normal Commands
+            - Processes
 
 
 
