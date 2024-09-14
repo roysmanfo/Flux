@@ -65,13 +65,13 @@ class Servicemanager:
         :param service_name: the name of the service to register
         :returns: True if the service has been found and added
         """
-
+        from ..helpers.services import ServiceInterface
         exec_service_class = loader.load_service(service_name)
-        if not exec_service_class or not object._is_subclass(exec_service_class):
+        if not exec_service_class or not ServiceInterface._is_subclass(exec_service_class):
             return False
         service = exec_service_class(self.system)
 
-        if isinstance(service, object):
+        if isinstance(service, ServiceInterface):
             self.service_table.update({service.name: service})
         
 
