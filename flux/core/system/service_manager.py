@@ -12,14 +12,17 @@ class Servicemanager:
         # maps the service name to the corresponding object
         self.service_table: dict[str, object] = {}
         self.service_db_path = service_db_path
-        self.service_db: dict[str, dict[str, str | bool]] = {}
+        self.service_db: dict[str, str | bool] = {}
         self.system: object = None
 
-        if not os.path.exists(service_db_path):
-            with open(service_db_path, "wt") as services_db:
+        self._load_service_db()
+
+    def _load_service_db(self):
+        if not os.path.exists(self.service_db_path):
+            with open(self.service_db_path, "wt") as services_db:
                 self.service_db = self._get_default_services()
                 json.dump(self.service_db, services_db, sort_keys=True, indent=4)
-        elif not os.path.isfile(service_db_path):
+        elif not os.path.isfile(self.service_db_path):
             # **please** do not create conflicts with paths
             # otherwise each time you will startwith the default
             # services and default configurations
@@ -28,10 +31,10 @@ class Servicemanager:
             self.service_db = self._get_default_services()
         else:
             try:
-                with open(service_db_path, "rt") as services_db:
+                with open(self.service_db_path, "rt") as services_db:
                     self.service_db = json.load(services_db)   
             except json.JSONDecodeError as e:
-                print(f"an error accoured when reading '{service_db_path}' ({type(e)})", file=sys.stderr)
+                print(f"an error accoured when reading '{self.service_db_path}' ({type(e)})", file=sys.stderr)
                 _, log_path = crash_handler.write_error_log()
                 print(f"The full traceback of this error can be found here: \n{log_path}\n", file=sys.stderr)
 
@@ -40,22 +43,22 @@ class Servicemanager:
                     sys.exit(1)
                 
                 try:
-                    os.remove(service_db_path)
+                    os.remove(self.service_db_path)
                 except Exception as e:
                     # this is mainly for PermissionError,
                     # but other exceptions caused by race conditions can't be predicted
-                    print(f"unable to remove '{service_db_path}' ({type(e)})", file=sys.stderr)
+                    print(f"unable to remove '{self.service_db_path}' ({type(e)})", file=sys.stderr)
                     _, log_path = crash_handler.write_error_log()
                     print(f"The full traceback of this error can be found here: \n{log_path}\n", file=sys.stderr)
                     print("Aborting...", file=sys.stderr)
                     sys.exit(1)
 
-                with open(service_db_path, "wt") as services_db:
+                with open(self.service_db_path, "wt") as services_db:
                     self.service_db = self._get_default_services()
                     json.dump(self.service_db, services_db, sort_keys=True, indent=4)
 
-    def _get_default_services(self) -> dict[str, dict[str, str | bool]]:
-        return {"services": {}}
+    def _get_default_services(self) -> dict[str, str | bool]:
+        return {}
 
 
     def register_service(self, service_name: str) -> bool:
