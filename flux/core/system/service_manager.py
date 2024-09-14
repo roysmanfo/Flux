@@ -74,8 +74,11 @@ class Servicemanager:
             return False
         service = exec_service_class(self.system)
 
-        if isinstance(service, ServiceInterface):
-            self.service_table.update({service.name: service})
+        # make sure the service is *actually a Service* 
+        if not isinstance(service, ServiceInterface):
+            return False
+        
+        self.service_table.update({service.name: service})
         
 
 
