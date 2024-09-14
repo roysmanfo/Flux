@@ -6,9 +6,11 @@ from flux.core.system.system import System
 
 
 def service_info_manager(func: Callable[[], None]):
+    is_running = func.__name__ == "start"
+
     def wrapper(self, *args, **kwargs):
-        self._running = True
-        return func(*args, **kwargs)
+        self._running = is_running
+        return func(self, *args, **kwargs)
     
     return wrapper
 
@@ -25,11 +27,17 @@ class ServiceInterface(metaclass=_ABCMeta):
                  name: Optional[str] = None,
                 ) -> None:
 
+        self.system: System = system
+        self._name: str = name or os.path.splitext(os.path.basename(__file__))[0]
+        
+        # informations about the service
+        self.metadata = {
+            "name": self._name,
+            "description":"",
+        }
+
         self._running: bool = False
         self._enabled: bool = False
-        self.system: System = system
-        self.name: str = name or os.path.splitext(os.path.basename(__file__))[0]
-
 
 
     def __init_subclass__(cls) -> None:
@@ -37,8 +45,8 @@ class ServiceInterface(metaclass=_ABCMeta):
 
     @staticmethod
     def _is_subclass(cls) -> bool:
-        cls_mro = [i.__name__ for i in cls.mro()[-3:]]
         self_mro = [i.__name__ for i in ServiceInterface.mro()]
+        cls_mro = [i.__name__ for i in cls.mro()[-len(self_mro):]]
         return cls_mro == self_mro
 
     @staticmethod
@@ -46,21 +54,39 @@ class ServiceInterface(metaclass=_ABCMeta):
         _FLUX_SERVICE = getattr(instance, "_FLUX_SERVICE", None)
         return _FLUX_SERVICE and isinstance(_FLUX_SERVICE, bool)
 
-    @_abstractmethod
     @service_info_manager
     def start(self) -> None:
         """
-        Operations to perform when the current service gets started 
+        Start the service by calling `update()` 
+        """
+        try:
+            self.awake()
+            while self.running:
+                self.update()
+        except Exception:
+            pass
+        self.stop()
+        
+    
+    def awake(self) -> None:
+        """
+        Called once as soon as the service gets started
         """
         ... 
 
     @_abstractmethod
+    def update(self) -> None:
+        """
+        Operations to perform when the current service gets started
+        """
+        ... 
+
     @service_info_manager
     def stop(self):
         """
         Operations to perform when the current service gets stopped 
         """
-        ...
+        self._running = False
 
     @property
     def running(self) -> bool:
