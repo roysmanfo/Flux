@@ -3,6 +3,7 @@ import psutil
 import time
 
 from flux.core.helpers.services import ServiceInterface
+from flux.core.system.interrupts import EventTriggers
 
 class Service(ServiceInterface):
 
@@ -19,16 +20,16 @@ class Service(ServiceInterface):
 
     def update(self) -> None:
         try:
-            if (usage := self.get_cpu_usage()) > self.threshold_cpu:
+            if self.get_cpu_usage() > self.threshold_cpu:
                 if not self.above_threshold:
-                    # in the future this will raise an interrupt
-                    print(f"[!] high cpu usage: {usage*100}%") 
+                    # in the future this will also be logged
+                    self.system.interrupt_handler.raise_interrupt(EventTriggers.CPU_USAGE_HIGH)
                     self.above_threshold = True
             
-            elif (usage := self.get_ram_usage()) > self.threshold_ram:
+            elif self.get_ram_usage() > self.threshold_ram:
                 if not self.above_threshold:
-                    # in the future this will raise an interrupt
-                    print(f"[!] high ram usage: {usage}%") 
+                    # in the future this will also be logged
+                    self.system.interrupt_handler.raise_interrupt(EventTriggers.MEMORY_USAGE_HIGH)
                     self.above_threshold = True
             else:
                 self.above_threshold = False
