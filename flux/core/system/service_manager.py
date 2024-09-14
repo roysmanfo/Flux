@@ -79,6 +79,8 @@ class Servicemanager:
             return False
         
         self.service_table.update({service.name: service})
+
+        return True
         
 
 
