@@ -100,6 +100,12 @@ class Servicemanager:
         if service:
             service._enabled = True
 
+    def disable(self, name: str) -> bool:
+        service = self.service_table.get(name, None)
+
+        if service:
+            service._enabled = False
+
 
 
     
