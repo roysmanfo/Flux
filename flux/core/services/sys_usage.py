@@ -1,5 +1,6 @@
 import os
 import psutil
+import time
 
 from flux.core.helpers.services import ServiceInterface
 
@@ -33,6 +34,11 @@ class Service(ServiceInterface):
                 self.above_threshold = False
         except:
             pass
+
+        # these are heavy operations, add a pause
+        # to not slow down the rest of Flux
+        time.sleep(1)
+
 
     def get_ram_usage(self):
         try:
