@@ -1,6 +1,7 @@
 from abc import ABCMeta as _ABCMeta, abstractmethod as _abstractmethod
 import os
-from typing import Callable, Optional
+import time
+from typing import Callable, Optional, final
 
 from flux.core.system.system import System
 
@@ -18,8 +19,31 @@ def service_info_manager(func: Callable[[], None]):
 class ServiceInterface(metaclass=_ABCMeta):
     """
     A service is a background program that is allowed to run as soon as the
-    program starts 
+    program starts
+
+    ### GENERAL ATTRIBUTES
+    Helpful data and context for the service
+
+    - `system (variable, System)`               A reference to the instance of the System class, containing all the most important informations about flux
+    - `metadata (variable, dict[str, str])`     A dictionary containing the keys 'name' and 'description' of the service
+    - `cooldown (variable, float)`              Time in seconds to wait before executing `update()` again
+    - `skip_cooldown (variable, bool)`          When set to True, the cooldown will be ignored (may cause a slow down of the rest of Flux)
     
+    ### MAIN METHODS
+    Methods that get called regardless by the terminal and
+    are the core of the service execution
+    
+    - `start()`             Activates the current service by calling `run()` and setting the `running` flag 
+    - `stop()`              Stops the current service by unsetting the `running` flag 
+    - `awake()`             Gets called once as soon as the service gets started
+    - `update()`            Operations to perform when the current service gets started (called repetedly)
+
+
+    ### PROPERTIES
+    Other usefull informations about the state of the service
+
+    - `bool` `running()`     True when the service is running
+    - `bool` `enabled()`     True when the service is allowed to run automatically as soon as the terminal is spawned
     """
 
     def __init__(self,
@@ -43,6 +67,8 @@ class ServiceInterface(metaclass=_ABCMeta):
             "description":"",
         }
 
+
+        # service flags
         self._running: bool = False
         self._enabled: bool = False
 
