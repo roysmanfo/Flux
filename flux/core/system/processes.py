@@ -13,9 +13,9 @@ class Status(IntEnum):
     STATUS_WARN = 2  # Exited with warnings
 
 class ProcessInfo:
-    def __init__(self, id: int, pid: int, owner: str, name: str, native_id: int, time_alive: str, is_reserved_process: bool, line_args: List[str]) -> None:
+    def __init__(self, id: int, ppid: int, owner: str, name: str, native_id: int, time_alive: str, is_reserved_process: bool, line_args: List[str]) -> None:
         self.id = id
-        self.pid = pid
+        self.ppid = ppid
         self.owner = owner
         self.name = name
         self.native_id = native_id
@@ -26,7 +26,7 @@ class ProcessInfo:
     def __str__(self) -> str:
         s = "ProcessInfo("
         s += f"id={self.id}, "
-        s += f"pid={self.pid}, "
+        s += f"ppid={self.ppid}, "
         s += f"owner={self.owner}, "
         s += f"name={self.name}, "
         s += f"native_id={self.native_id}, "
@@ -52,6 +52,10 @@ class Process:
         self.thread: Thread = None
         self.native_id: Optional[int] = None
         self.is_reserved_process = is_reserved_process
+
+
+        if command_instance and hasattr(command_instance, "parser") and hasattr(command_instance.parser, "prog"):
+            self.name = command_instance.parser.prog or self.name 
 
     def get_info(self) -> ProcessInfo:
         return ProcessInfo(self.id,
@@ -153,6 +157,36 @@ class Processes:
     def find(self, id: int) -> Optional[Process]:            
         return self.processes.get(id)
 
+    def select(self,
+               *,
+               id: Optional[int] = None,
+               name: Optional[str] = None,
+               owner: Optional[str] = None,
+               reserved: Optional[bool] = None,
+               ) -> List[Process]:
+        """
+        Search a group of processes that match the rule
+        
+        `:param` id: the pid of the process to search (if you have this, results are faster with the `find()` method)
+        `:param` name: the name of the process to search
+        `:param` owner: the owner of the process
+        `:param` reserved: get only reserved processes
+        """
+
+        def _filter(p: Process) -> bool:
+            if id and p.id != id:
+                return False
+            if name and p.name != name:
+                return False
+            if owner and p.owner != owner:
+                return False
+            if reserved and not p.is_reserved_process:
+                return False
+            return True
+        
+        return list(filter(_filter, self.processes.values()))
+
+
     def remove(self, id: int) -> Optional[Process]:
         """
         Returns the removed process if found, None otherwise
@@ -161,7 +195,9 @@ class Processes:
             if id == _main_process.id:
                 return None
             
-            return self.processes.pop(id)
+            proc = self.processes.pop(id)
+            self.i_handler.raise_interrupt(EventTriggers.PROCESS_DELETED)
+            return proc
         except KeyError:
             return None
 
@@ -171,13 +207,28 @@ class Processes:
 
         This function is automaticaly called each time the manager handles a command
         """
-
+        status_dict: dict[Status, bool] = {
+            Status.STATUS_ERR: False,
+            Status.STATUS_OK: False,
+            Status.STATUS_WARN: False,
+        }
         for p in self.processes.values():
             # check that we are not trying to remove the main process 
             if not p is _main_process and not p.thread.is_alive():
-                self.processes.remove(p)
+                self.processes.pop(p.id)
+                try:
+                    status_dict[p.status] = True
+                except:
+                    # a non valid status was received (probably some other data type),
+                    # ignore it as we don't know what does it mean
+                    pass
 
         self.i_handler.raise_interrupt(EventTriggers.PROCESS_DELETED)
+        
+        if status_dict[Status.STATUS_ERR]:
+            self.i_handler.raise_interrupt(EventTriggers.COMMAND_FAILED)
+        elif status_dict[Status.STATUS_OK] or status_dict[Status.STATUS_WARN]:
+            self.i_handler.raise_interrupt(EventTriggers.COMMAND_FAILED)
 
     def copy(self):
         processes = Processes()

@@ -16,14 +16,18 @@ def string_to_list(string: str) -> List[str]:
     Adapts the list to be used in a shell environment by
     resolving special charachters
 
-    ```py
+    ```
     string_to_list("some text") -> ["some", "text"]
     string_to_list("some 'text in another format'") -> ["some", "text in another format"]
     string_to_list("FIST WORD ALWAYS LOWERCASE") -> ["first", "WORD", "ALWAYS", "LOWERCASE"]
     ```
     """
+    try:
+        words = shlex.split(string, comments=True, posix=True)
+    except ValueError:
+        raise
+        
 
-    words = shlex.split(string)
     if len(words) > 0:
         words[0] = words[0].lower() if not words[0].startswith("$") else words[0]
 
@@ -41,7 +45,7 @@ def _separate_redirect_parts(arg: str) -> List[str]:
     This takes as input a string and separates the
     redirect symbol (es. 1> ) from the destination
 
-    ```py
+    ```
     separate_redirect_parts("2>/dev/null") -> ["2>", "/dev/null"]
     separate_redirect_parts("/dev/null") -> ["/dev/null"]
     separate_redirect_parts("ls;pwd") -> ["ls;pwd"]
@@ -90,7 +94,7 @@ def split_commands(args: Union[str, List[str]]) -> List[List[str]]:
     This takes as input a string or list of strings and separates the
     diferent commands when a semicolon is found
 
-    ```py
+    ```
     split_commands('echo test; ls') -> [["echo", "test"], ["ls"]]
     split_commands(["echo", "test", ";", "ls"]) -> [["echo", "test"], ["ls"]]
     ```
@@ -123,7 +127,7 @@ def split_pipe(args: Union[str, List[str]]) -> List[List[str]] :
     This takes as input a string or list of strings and separates the
     diferent commands when a pipe is found
 
-    ```py
+    ```
     split_commands('echo test| wc') -> [["echo", "test"], ["wc"]]
     split_commands(["echo", "test", "|", "wc"]) -> [["echo", "test"], ["wc"]]
     ```

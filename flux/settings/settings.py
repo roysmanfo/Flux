@@ -2,6 +2,7 @@ import json
 import os
 import pathlib
 import platform
+import tempfile
 from typing import List
 from enum import Enum 
 
@@ -16,10 +17,13 @@ class SysPaths(_pathlib_class_type, Enum):
     SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE)).resolve()
     CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache")).resolve()
     LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local")).resolve()
+    FLUX_TEMP_FOLDER = pathlib.Path(os.path.join(tempfile.gettempdir(), "flux-temp")).resolve()
+    LOGS_FOLDER = pathlib.Path(os.path.join(FLUX_TEMP_FOLDER, "logs")).resolve()
+    PIPES_FOLDER = pathlib.Path(os.path.join(FLUX_TEMP_FOLDER, "pipes")).resolve()
     
     def __str__(self):
         return str(self.value)
-    
+
     @staticmethod
     def create_initial_folders() -> None:
         """
@@ -27,12 +31,12 @@ class SysPaths(_pathlib_class_type, Enum):
 
         It is not to take for granted that we have write permission on `~`
 
-        `:raises` PermissionError if we do not have permissions to write in a folder
+        :raises PermissionError: if we do not have permissions to write in a folder
         """
         try:
             for i in SysPaths:
                 if i._name_.upper().endswith("FOLDER"):
-                    os.makedirs(i.value, exist_ok=True)
+                    os.makedirs(i, exist_ok=True)
             
         except OSError as e:
             raise PermissionError(e.__str__()) # raise a more descriptive exception
@@ -190,7 +194,7 @@ class Path:
     The class Path contains all different infornamtion about where to find many
     different things, like where to put files, or where to look for them
 
-    @param load_data : If set to False, the object will not have any path loaded
+    :param load_data: If set to False, the object will not have any path loaded
     """
 
     def __init__(self, load_data: bool = True):

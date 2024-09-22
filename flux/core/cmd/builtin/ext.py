@@ -1,7 +1,10 @@
 import os
 import subprocess
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser,
+    Status
+)
 
 
 p: subprocess.Popen = None
@@ -16,30 +19,30 @@ class Command(CommandInterface):
             "command", action="append", help="the command to run")
 
     def setup(self):
-        if "-h" in self.command and self.command.index("-h") == 1:
+        if "-h" in self.line_args and self.line_args.index("-h") == 1:
             super().setup()
 
-        elif "--help" in self.command and self.command.index("--help") == 1:
+        elif "--help" in self.line_args and self.line_args.index("--help") == 1:
             super().setup()
 
-        elif len(self.command) < 2:
+        elif len(self.line_args) < 2:
             # print an help message
-            self.command.append("-h")
+            self.line_args.append("-h")
             super().setup()
 
-        elif len(self.command[1:]) == 0:
+        elif len(self.line_args[1:]) == 0:
             self.error(self.errors.parameter_not_specified("command"))
             self.parser.exit_execution = True
             return
 
-        self.command = self.command[1:]
+        self.line_args = self.line_args[1:]
 
     def run(self):
         global p
 
         try:
             # find the executable
-            process = subprocess.Popen(['where' if os.name == 'nt' else "which",self.command[0]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(['where' if os.name == 'nt' else "which",self.line_args[0]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, _ = process.communicate()
 
             if process.returncode == 0:
@@ -63,8 +66,8 @@ class Command(CommandInterface):
 
         except FileNotFoundError:
             self.error("unable to spawn the specified process (not found)")
-            self.status = STATUS_ERR
+            self.status = Status.STATUS_ERR
 
     def close(self):
         if not self.status:
-            self.status = p.returncode if p else STATUS_ERR
+            self.status = p.returncode if p else Status.STATUS_ERR

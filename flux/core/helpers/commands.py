@@ -1,3 +1,4 @@
+from io import BufferedWriter
 import sys as _sys
 import os as _os
 from enum import IntEnum as _IntEnum
@@ -17,6 +18,11 @@ STATUS_OK = Status.STATUS_OK
 STATUS_ERR = Status.STATUS_ERR
 STATUS_WARN = Status.STATUS_WARN
 
+class _Levels(_IntEnum): ...
+
+class OperationNotPermitted(RuntimeError): ...
+
+
 class CommandInterface(_ABC):
     """
     Interface class for commands
@@ -28,8 +34,10 @@ class CommandInterface(_ABC):
     Attributes shared by commands
 
     - `IS_PROCESS (const, bool)`        Whether or not the command is being runned as a background thread
-    - `sysinfo (variable, Info)`        A reference to the instance of the Info class, containing process information
-    - `command (variable, list[str])`   The full command typed by the user (also contains the command name, es. ['ls', 'some_path'])
+    - `PRIVILEGES (const, Privileges)`  The privileges given to the user to execute the current command [LOW / HIGH / SYSTEM]
+    - `system (variable, System)`       A reference to the instance of the System class, containing all the most important informations about flux
+    - `settings (variable, Settings)`   A reference to the instance of the Settings class, containing user settings and system paths (SysPaths)
+    - `line_args (variable, list[str])` The full command typed by the user (also contains the command name, es. ['ls', 'some_path'])
     - `status (variable, int)`          The return code of the command (default statuses follow the following convention 'STATUS_[err/ok/warn]' )
     - `stdout (variable, TextIO)`       The stdout of the command
     - `stderr (variable, TextIO)`       The stderr of the command
@@ -46,7 +54,7 @@ class CommandInterface(_ABC):
 
     - `init()`          This function is called on start of execution.
     - `setup()`         This is function is called right before run().
-    - `run()`           This is the entry method for the command.
+    - `run()`           This is the core method for the command.
     - `close()`         This is the method that gets called right after run() the command.
     - `exit()`          This is the last method that gets called.
     - `fail_safe()`     This function gets called to capture unhandled exception.
@@ -76,17 +84,17 @@ class CommandInterface(_ABC):
         
     ```
 
-    ### LOGGING FUNCTIONS
-    These functions work like in the logging module, where only logs with a certain severity are displayed (log_level)
+    ### LOGGING METHODS
+    These methods work like in the logging module, where only logs with a certain severity are displayed (log_level)
 
-    - `critical()`  This function should be called once a critical error accoures.
-    - `fatal()`     This function should be called once a fatal error accoures.
-    - `error()`     This function should be called once an error accoures.
-    - `warning()`   This function should be called to issue warnings.
-    - `info()`      This function should be called for providing the end user with some info.
-    - `debug()`     This function should be called for debugging.
+    - `critical()`  This mathod should be called once a critical error accoures.
+    - `fatal()`     This mathod should be called once a fatal error accoures.
+    - `error()`     This mathod should be called once an error accoures.
+    - `warning()`   This mathod should be called to issue warnings.
+    - `info()`      This mathod should be called for providing the end user with some info.
+    - `debug()`     This mathod should be called for debugging.
 
-    ### HELPER FUNCTIONS
+    ### HELPER METHODS
     Other usefull methods, NOT called by the terminal.
     If you want to use these methods you need to call them yourself.
     (print() and printerr() are not affected by the log_level, but are still to output redirection)
@@ -94,6 +102,8 @@ class CommandInterface(_ABC):
     - `input()`                 This is similar to python's `input()`, but uses `self.stdin` and instead of `sys.stdin` .
     - `print()`                 This is similar to python's `print()`, but uses `self.stdout` and instead of `sys.stdout` .
     - `printerr()`              This is similar to `self.print()`, but uses `self.stderr` instead.
+    - `get_level_name()`        Returns the level's name based on value
+    - `get_level_val()`         Returns the level's value based on it's name    
     - `register_interrupt()`    Register a new interrupt handler
     - `unregister_interrupt()`  Unregister an interrupt handler
     - `clear_interrupts()`      Unregisters all interrupts
@@ -129,7 +139,7 @@ class CommandInterface(_ABC):
         self.IS_PROCESS: bool = is_process
         self.system: System = system
         self.settings: Settings = self.system.settings
-        self.command: List[str] = command
+        self.line_args: List[str] = command
         self.status: Optional[Status] = None
         self.stdout = stdout
         self.stderr = stderr
@@ -149,10 +159,17 @@ class CommandInterface(_ABC):
     def _init_pipe(self) -> None:
         if self.recv_from_pipe:
             self.stdin = open(self.stdin.name, "r")
+    
+    def __delattr__(self, name: str) -> None:
+        PRIVATE = {"PRIVILEGES"}
+        if name in PRIVATE:
+            raise OperationNotPermitted("Unable to delete specified variable %s" % name)
+        return super().__delattr__(name)
+
 
     def __new__(cls, *args, **kwargs):
         # override of these methods is not allowed
-        NAMES = {"__init__", "__new__", "fail_safe"}
+        NAMES = {"__init__", "__new__", "__delattr__", "fail_safe"}
 
         instance = super().__new__(cls)
         for name, method in cls.__dict__.items():
@@ -172,31 +189,30 @@ class CommandInterface(_ABC):
 
     @staticmethod
     def _is_subclass_instance(instance: object) -> bool:
-        if hasattr(instance, "_FLUX_COMMAND"):
-            _FLUX_COMMAND = getattr(instance, "_FLUX_COMMAND")
-            if type(_FLUX_COMMAND) == bool and _FLUX_COMMAND:
-                return True
-        return False
+        _FLUX_COMMAND = getattr(instance, "_FLUX_COMMAND", None)
+        return _FLUX_COMMAND and isinstance(_FLUX_COMMAND, bool)
 
 
     """
     AUTOMATIC CALLS
     """
 
-    def init(self):
+    def init(self) -> None:
         """
-        This function is called on start of execution.\n
-        This function should be used to do setup operations (like create the Parser)
+        This method is called on start of execution.\n
+        This method should be used to do setup operations (like create the Parser)
         """
         ...
 
-    def setup(self):
+    def setup(self) -> None:
         """
-        This is function is called right before run().\n
-        This function is used to parse arguments and exit on parsing errors
+        This is method is called right before run().\n
+        This method is used to parse arguments and exit on parsing errors
+
+        NOTE: Always remember to call `super().setup()` when overwriting this method
         """
         try:
-            self.args = self.parser.parse_args(self.command[1:])
+            self.args = self.parser.parse_args(self.line_args[1:])
 
             if self.parser.exit_execution:
                 self.status = STATUS_ERR
@@ -207,17 +223,21 @@ class CommandInterface(_ABC):
     
     # ! This method MUST be overwritten
     @_abstractmethod
-    def run(self):
+    def run(self) -> None:
         """
-        This is the entry function for the command.\n
-        This function should be used to manage arguments and adapt command execution.
+        This is the core method for the command.\n
+        This method should be used to do all the main operations of the command.
+
+        NOTE: If this method has not been implemented, the command will NOT be executed.
         """
         ...
 
-    def close(self):
+    def close(self) -> None:
         """
-        This is the function that gets called after we run the command.\n
-        This function is used to close open files, like a redirected stdout
+        This is the method that gets called after we run the command.\n
+        This method is used to close open files, like a redirected stdout
+
+        NOTE: Always remember to call `super().close()` when overwriting this method
         """        
 
         if self.stdout and self.redirected_stdout:
@@ -232,25 +252,27 @@ class CommandInterface(_ABC):
         self.clear_interrupts(force=True)
 
 
-    def exit(self):
+    def exit(self) -> Status:
         """
-        This is the last function that gets called.\n
-        This function should be used to define what status code to return
+        This is the last method that gets called.\n
+        This method should be used to define what status code to return
+
+        NOTE: Always remember to call `super().exit()` when overwriting this method
         """
         self._is_alive = False
         return self.status if self.status else STATUS_OK
 
-    def fail_safe(self, exception: Exception):
+    def fail_safe(self, exception: Exception) -> None:
         """
-        This function gets called to capture unhandled exception.\n
-        This function may be called at any time, and once called command execution will be terminated without
-        `self.close()` or `self.exit()`
+        This method gets called to capture unhandled exception.\n
+        This method may be called at any time, and once called command execution will be terminated without
+        calling `self.close()` or `self.exit()`
 
         By default creates a crash report as a temp file for the user to see with all the Traceback informations
         and sets `self.status` to `STATUS_ERR`
         """
         from flux.utils.crash_handler import write_error_log
-        prefx = self.parser.prog if self.parser else self.command[0] if self.command else ""
+        prefx = self.parser.prog if self.parser else self.line_args[0] if self.line_args else ""
         prefx += '_'
         
         if prefx == '_':
@@ -276,13 +298,13 @@ class CommandInterface(_ABC):
         self.clear_interrupts(force=True)
 
     """
-    LOGGING FUNCTIONS
+    LOGGING METHODS
     """
     
     def critical(self, msg: Optional[str] = None, use_color: bool = False):
         """
-        This function should be called once a critical error accoures.\n
-        This function should be called to handle errors.
+        This method should be called once a critical error accoures.\n
+        This method should be called to handle errors.
 
         Also sets the status to STATUS_ERR.
         """
@@ -295,8 +317,8 @@ class CommandInterface(_ABC):
 
     def fatal(self, msg: Optional[str] = None, use_color: bool = False):
         """
-        This function should be called once a fatal error accoures.\n
-        This function should be called to handle errors.
+        This method should be called once a fatal error accoures.\n
+        This method should be called to handle errors.
 
         Also sets the status to STATUS_ERR.
         """
@@ -309,8 +331,8 @@ class CommandInterface(_ABC):
 
     def error(self, msg: Optional[str] = None, use_color: bool = False):
         """
-        This function should be called once an error accoures.\n
-        This function should be called to handle errors.
+        This method should be called once an error accoures.\n
+        This method should be called to handle errors.
 
         Also sets the status to STATUS_ERR.
         """
@@ -323,8 +345,8 @@ class CommandInterface(_ABC):
 
     def warning(self, msg: Optional[str] = None, use_color: bool = False, to_stdout: bool = True):
         """
-        This function should be called to issue warnings.\n
-        This function should be called to handle warnings (by default writes to stdout).
+        This method should be called to issue warnings.\n
+        This method should be called to handle warnings (by default writes to stdout).
 
         Also sets the status to STATUS_WARN.
         """
@@ -344,25 +366,25 @@ class CommandInterface(_ABC):
 
     def info(self, msg: Optional[str] = None):
         """
-        This function should be called for providing the end user with some info.
+        This method should be called for providing the end user with some info.
         """
         if self.log_level <= self.levels.INFO:
             self.print(msg)
     
     def debug(self, msg: Optional[str] = None):
         """
-        This function should be called for debugging.
+        This method should be called for debugging.
         """
         if self.log_level <= _Levels.DEBUG:
             self.print(msg)
 
     """
-    HELPER FUNCIONS
+    HELPER METHODS
     """
 
     def input(self, __prompt: object = "") -> Optional[str]:
         """
-        This function takes an input from the stdin and returns it as a string
+        This method takes an input from the stdin and returns it as a string
 
         If a Ctrl-c is detected, returns None.
         """
@@ -382,7 +404,7 @@ class CommandInterface(_ABC):
         except KeyboardInterrupt:
             return None
         
-    def print(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n", file: Optional[TextIO] = None,  flush: bool = False) -> None :
+    def print(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n", file: Optional[TextIO] = None, flush: bool = False) -> None:
         """
         Prints the values to self.stdout.
 
@@ -399,12 +421,17 @@ class CommandInterface(_ABC):
         \twhether to forcibly flush the stream.
         """
         if self.stdout:
-            txt = f"{sep}".join([ str(v) for v in values if v])
+            txt = f"{sep}".join([str(v) for v in values if v])
             file = self.stdout if file is None else file
 
             if self.redirected_stdout:
                 txt = _format.remove_ansi_escape_sequences(txt)
-            
+
+            if "b" in file.mode:
+                file.write(txt + end.encode())
+                if flush:
+                    file.flush()
+                return
             print(txt, end=end, file=file, flush=flush)
 
     def printerr(self, *values: object, sep: Optional[str] = " ", end: Optional[str] = "\n", file: Optional[TextIO] = None,  flush: bool = False) -> None :
@@ -430,6 +457,12 @@ class CommandInterface(_ABC):
             if self.redirected_stderr:
                 txt = _format.remove_ansi_escape_sequences(txt)
 
+            if "b" in file.mode:
+                file.write(txt + end.encode())
+                if flush:
+                    file.flush()
+                return
+
             print(txt, end=end, file=file, flush=flush)
 
     @property
@@ -437,7 +470,7 @@ class CommandInterface(_ABC):
         """
         returns true if the stdout has been redirected
         """
-        return not (self.stderr and self.stdout == _sys.stdout)
+        return not (self.stdout and self.stdout == _sys.stdout)
 
     @property
     def redirected_stderr(self):
@@ -515,22 +548,37 @@ class CommandInterface(_ABC):
         returns true if `self.stdout` is pointing to a `pipe`
         """
         return self._send_to_pipe
-    
 
+    def get_level_name(self, level_val: _Levels) -> Optional[str]:
+        """
+        returns the level's name based on value
+        """
+        return _lvl_val_to_name.get(level_val, None)
+
+    def get_level_val(self, level_name: str) -> Optional[_Levels]:
+        """
+        returns the level's value based on it's name
+        """
+        return _lvl_name_to_val.get(level_name, None)
+    
     def clear_interrupts(self, force: bool = True) -> None:
         """
         Unregisters all interrupts
 
         `:param force` when set to false the interrupt will be removed only if it has been executed at least once
         """
-        ihandles = [i for i in self._stored_ihandles]
-        for h in ihandles:
-            self.unregister_interrupt(h, force=force)
 
+        stored_ihandles = list(self._stored_ihandles)
+        res = map(lambda h: self.unregister_interrupt(h, force=force), stored_ihandles)
+        if not all(res):
+            # unable to unregister some interrupts 
+            # NOTE: might be usefull to store this error in some log file
+            pass
+        
     def register_interrupt(self,
                          event: EventTriggers,
                          target: Callable[[Any], None],
-                         args: Optional[Tuple[Any]]= (),
+                         args: Optional[Tuple[Any]] = (),
                          kwargs: Optional[Mapping[str, Any]] = None,
                          exec_once: Optional[bool] = True) -> IHandle:
         """
@@ -701,6 +749,27 @@ class _Levels(_IntEnum):
     DEBUG = 10
     NOTSET = 0
 
+_lvl_name_to_val = {
+    "CRITICAL": _Levels.CRITICAL,
+    "FATAL": _Levels.FATAL,
+    "ERROR": _Levels.ERROR,
+    "WARNING": _Levels.WARNING,
+    "WARN": _Levels.WARN,
+    "INFO": _Levels.INFO,
+    "DEBUG": _Levels.DEBUG,
+    "NOTSET": _Levels.NOTSET,
+}
+
+_lvl_val_to_name = {
+    _Levels.CRITICAL: "CRITICAL",
+    _Levels.FATAL: "FATAL",
+    _Levels.ERROR: "ERROR",
+    _Levels.WARNING: "WARNING",
+    _Levels.WARN: "WARN",
+    _Levels.INFO: "INFO",
+    _Levels.DEBUG: "DEBUG",
+    _Levels.NOTSET: "NOTSET",
+}
 
 class Colors:
     def __init__(self) -> None:

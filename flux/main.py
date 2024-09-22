@@ -48,6 +48,9 @@ def run():
                         manager.manage(cmd, SYSTEM)
         except KeyboardInterrupt:
             print()
+        except ValueError as e:
+            print(f"-flux: {e}\n", file=sys.stderr)
+
 
 if __name__ == "__main__":
     
@@ -58,9 +61,8 @@ if __name__ == "__main__":
         del setup
 
         # check for line arguments
-        # if present, pass them to the `flux` command
         if len(sys.argv) > 1:
-            cmd = ["flux"] + sys.argv[1:]
+            cmd = sys.argv[1:]
             manager.manage(cmd, SYSTEM)
             sys.exit(0)
 

@@ -1,6 +1,9 @@
 import os
-from flux.core.helpers.arguments import Parser
-from flux.core.helpers.commands import *
+from typing import List
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 
 
 class Command(CommandInterface):

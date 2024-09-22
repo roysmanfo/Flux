@@ -3,8 +3,10 @@
 Allows the user to change different settings, such as the username or info.user.path informations
 """
 from pathlib import Path
-from flux.core.helpers.arguments import Parser
-from flux.core.helpers.commands import *
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 
 class Command(CommandInterface):
     def init(self):

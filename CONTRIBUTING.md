@@ -59,11 +59,14 @@ $ pip install -r requirements.txt
 If in an update more modules are added to this file, you will need to to install those modules eather. You can use the same command.
 
 ### Run
-To run the application, you will need to go in the `flux` folder,
+To run the application, you will need to go in the src folder,
 and execute `main.py` with 
 
-```sh
-python3 main.py   # Linux/MacOS
-python main.py    # Windows
 ```
-**NOTE**: you can also add arguments after `main.py` as those arguments will be passed to the internal `flux` command
+python3 main.py
+```
+#### Note
+With python 3.12 there are some problems with the thread handling, so you
+should get a mesage notifying you of that if you use the command `python3 main.py stable` to run. Without the keyword `stable` you run in **unstable mode** which means that you run in a version where background processes and threads are not supported.
+
+

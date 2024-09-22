@@ -1,4 +1,7 @@
-from flux.core.helpers.commands import *
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 from http.client import HTTPConnection
 
 import requests

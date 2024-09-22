@@ -1,6 +1,11 @@
 import os
-from flux.core.helpers.commands import *
+from typing import Tuple
+
 from flux.utils import format
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 
 class Command(CommandInterface):
     def init(self):

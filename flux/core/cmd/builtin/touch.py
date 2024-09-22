@@ -6,8 +6,10 @@ A FILE argument that does not exist is created empty, unless -c or -h
 is supplied.
 """
 
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 import os
 import time
 

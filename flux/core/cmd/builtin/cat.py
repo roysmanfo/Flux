@@ -1,5 +1,8 @@
-from flux.core.helpers.commands import *
-from flux.core.helpers.arguments import Parser
+from typing import List
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 import os
 import chardet
 

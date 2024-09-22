@@ -1,36 +1,58 @@
 import random
-from flux.core.helpers.commands import CommandInterface
-from flux.core.helpers.arguments import Parser
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
+
+EMOTES = [
+    r"(ง ͠° ͟ل͜ ͡°)ง",
+    r"(╯°□°)╯︵ ┻━┻",
+    r"(ノಠ益ಠ)ノ彡┻━┻",
+    r"┬─┬ノ( º _ ºノ)",
+    r"¯\_(ツ)_/¯",
+    r"( ͡◉ ͜ʖ ͡◉)",
+    r"(  ಠ_ಠ )",
+    r"(ꐦ ಠ皿ಠ )",
+    r" ̿̿ ̿̿ ̿̿ ̿'̿'\̵͇̿̿\з=(◣_◢)=ε/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿ ",
+    r"ᕦ(⌐■ ͜ʖ■)ᕥ",
+    r"\_(ಠ_ಠ)_/",
+    r"┻━┻ ¯\_(ಠ□ಠ)_/¯ ┻━┻",
+    r"(ノಠ益ಠ)ノ彡┻━┻ ლ(ಠ益ಠლ)",
+]
 
 class Command(CommandInterface):
 
     def init(self):
         self.parser = Parser("flux")
 
-    def setup(self):
-        if "-h" in self.command or "--help" in self.command:
-            self.banner(random.choice([0, 1]))
+    def setup(self) -> None:
+
+        if any(map(lambda x: x in self.line_args, ("-h", "--help"))):
+            self.print(self.banner())
         super().setup()
 
-
     def run(self):
-        if self.parser.no_args:
-            self.print(self.banner)
 
-    @property
+        if len(self.line_args) == 1:
+            self.print(self.banner())
+
+
     def banner(self):
-        emotes = [r"(╯°□°)╯︵ ┻━┻", r"(ノಠ益ಠ)ノ彡┻━┻", r"┬─┬ノ( º _ ºノ)", r"¯\_(ツ)_/¯"]
-        emote = random.choice(emotes) if random.choice([0, 1]) else ""
-        banner = self.colors.Fore.LIGHTBLACK_EX + r"""
-        {:^27}
-         _____ __    __ __  __  __ 
-        |   __|  |  |  |  |\  \/  /
-        |   _]|  |__|  |  | |    | 
-        |__|  |_____\_____//__/\__\ 
+        emote = random.choice(EMOTES)
+        banner_width = 38
+        pad_len = max(0, (banner_width - len(emote)) // 2)
+        pad = " " * pad_len
+        emote = pad + emote
+        title = fr"""
+        {emote}
+         ____       _____ __    __ __  __  __ 
+        |    |___  |   __|  |  |  |  |\  \/  /
+        |___|    | |   _]|  |__|  |  | |    | 
+            |____| |__|  |_____\_____//__/\__\ 
                 
-        {:^27}
+        {'By @roysmanfo':^38}
         
-        """.format(emote, "By @roysmanfo")
-        return banner + self.colors.Fore.RESET
+        """
+        return self.colors.Fore.LIGHTBLACK_EX + title + self.colors.Fore.RESET
 
 

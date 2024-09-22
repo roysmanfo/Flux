@@ -5,7 +5,7 @@ import time
 import inspect
 from signal import Signals
 from enum import IntEnum
-from typing import Any, List, Mapping, Set, Callable, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Set, Callable, Optional, Tuple, Union
 from types import FrameType
 
 
@@ -70,9 +70,9 @@ class EventTriggers(IntEnum):
     # these are exclusive to flux
     PROCESS_CREATED = 100           # Triggered when a new process is created
     PROCESS_DELETED = 101           # Triggered when a new process is deleted
-    # available but not yet working
     COMMAND_EXECUTED = 102          # Triggered after a command is successfully executed
     COMMAND_FAILED = 103            # Triggered if a command execution fails
+    # available but not yet working
     DIRECTORY_CHANGED = 104         # Triggered when the current working directory is changed
     FILE_MODIFIED = 105             # Triggered when a file is modified within the current directory
     SIGNAL_RECEIVED = 106           # Triggered when a signal is received by the terminal
@@ -158,14 +158,14 @@ class Interrupt:
 
         if self.target:
             self.exec_count += 1
-            self.target(signum, frame, *self.args, *self.kwargs)
+            self.target(signum, frame, *self.args, **self.kwargs)
 
 
 class InterruptHandler(object):
     def __init__(self) -> None:
-        self.interrupts: dict[int, list[Interrupt]] = {}
-        self.interrupt_map: dict[IHandle, Interrupt] = {}
-        self.supported: dict[str, int] = {}
+        self.interrupts: dict[int, list[Interrupt]] = {}        # signum -> [Interrupt, ...]
+        self.interrupt_map: dict[IHandle, Interrupt] = {}       # ihandle -> Interrupt
+        self.supported: dict[str, int] = {}                     # event_name -> signum
 
         # add all available interrupts to self
         for event in list(EventTriggers):
@@ -175,7 +175,8 @@ class InterruptHandler(object):
 
                 event_name = event_value_to_name(event)
                 self.supported.update({event_name: int(event)})
-            except ValueError:
+            except (ValueError, OSError):
+                # this event is not supported on this system
                 pass
 
     def _register(self,
@@ -199,22 +200,20 @@ class InterruptHandler(object):
         if not isinstance(event, (EventTriggers, Signals, int)):
             raise UnsupportedSignalError("You must provide a Signal/Event")
 
-        signal_value = event.value if isinstance(event, EventTriggers) else event
+        signal_value = event.value if isinstance(event, (EventTriggers, Signals)) else event
 
-        if signal_value not in EventTriggers and signal_value not in Signals:
+        if signal_value not in self.get_available_signal_values():
             raise UnsupportedSignalError(
-                "The specified EventTriggers isn't suported")
-
-        h = IHandle.generate_handle()
+                "The specified EventTrigger isn't suported")
 
         # avoid shared handles
-        while h in self.interrupt_map:
+        while (h := IHandle.generate_handle()) in self.interrupt_map:
             h = IHandle.generate_handle()
 
         handle = IHandle(h)
-        if type(args) != tuple:
+        if isinstance(args, tuple):
             args = (args,)
-        if kwargs and type(kwargs) != dict:
+        if kwargs and isinstance(kwargs, dict):
             raise TypeError(f"kwargs should be of type dict and not {type(kwargs)}")
         interrupt = Interrupt(handle, signal_value, target, args, kwargs, exec_once)
 
@@ -295,11 +294,11 @@ class InterruptHandler(object):
 
     def find(self, handle: IHandle) -> Optional[Interrupt]:
         """
-        `:returns` the first interrupt with a specific handle using a linear search, None if not found
+        `:returns` the first interrupt with a specific handle, None if not found
         """
         return self.interrupt_map.get(handle, None)
 
-    def get_available_signals(self) -> dict:
+    def get_available_signals(self) -> Dict[str, int]:
         return self.supported
 
     def get_available_signals_names(self) -> List[str]:

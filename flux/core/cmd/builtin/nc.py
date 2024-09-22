@@ -1,7 +1,9 @@
-from ...helpers.commands import *
-from ...helpers.arguments import Parser
-from flux.core.system.interrupts import EventTriggers
-
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser,
+    Status,
+    EventTriggers
+)
 
 import socket
 from threading import Thread, Event
@@ -21,13 +23,13 @@ class Netcat(CommandInterface):
         self.parser.add_argument("-I", dest="length", default=4094, type=int, help="TCP receive buffer length")
         self.parser.add_argument("-v", dest="verbose", action="store_true", help="Verbose")
 
-        if not self.command[1:]:
-            self.command.append("-h")
+        if not self.line_args[1:]:
+            self.line_args.append("-h")
 
     def setup(self):
         super().setup()
 
-        if self.status == STATUS_ERR:
+        if self.status == Status.STATUS_ERR:
             return
         
         self.log_level = self.levels.DEBUG if self.args.verbose else self.levels.INFO
@@ -38,6 +40,13 @@ class Netcat(CommandInterface):
                 return
 
             self.args.port = self.args.PORT
+
+        if self.redirected_stdout:
+            # reopen file in binary mode as we are
+            # probably doing some sort of file transfer
+            file = self.stdout.name
+            self.stdout.close()
+            self.stdout = open(file, "wb")
 
         self.ihandle = self.register_interrupt(EventTriggers.SIGINT, target=self.close_connections)
         self.event = Event()
@@ -101,7 +110,7 @@ class Netcat(CommandInterface):
 
         except TimeoutError:
             print() # helps in understanding that the command did run
-            self.status = STATUS_ERR
+            self.status = Status.STATUS_ERR
             return
 
         Thread(target=self.recv_messages, args=(sock, self.event), daemon=True).start()
@@ -121,13 +130,12 @@ class Netcat(CommandInterface):
         finally:
             event.set()
 
-
     def recv_messages(self, sock: socket.socket, event: Event) -> None:
         try:
             while not event.is_set():
-                recv = sock.recv(self.args.length)
-                if recv:
-                    self.print(recv.decode(), end="")
+                if (recv := sock.recv(self.args.length)):
+                    self.print(
+                        recv if self.redirected_stdout else recv.decode(), end="")
                 else:
                     event.set()
         except (KeyboardInterrupt, ConnectionAbortedError, OSError, ValueError):
