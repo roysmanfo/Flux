@@ -18,6 +18,8 @@ class Service(ServiceInterface):
 
         self.above_threshold = False
 
+        self.cooldown = 1
+
     def update(self) -> None:
         try:
             if self.get_cpu_usage() > self.threshold_cpu:
