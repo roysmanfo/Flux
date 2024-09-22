@@ -93,6 +93,10 @@ class ServiceInterface(metaclass=_ABCMeta):
         return self._running
 
     @property
+    def name(self) -> bool:
+        return self._name
+
+    @property
     def enabled(self) -> bool:
         """
         if true, then this means that the service is allowed to run automatically
