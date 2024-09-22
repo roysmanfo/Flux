@@ -90,7 +90,7 @@ class Servicemanager:
         exec_service_class = loader.load_service(service_name)
         if not exec_service_class or not ServiceInterface._is_subclass(exec_service_class):
             return False
-        service = exec_service_class(self.system)
+        service = exec_service_class(self.system, service_name)
 
         # make sure the service is *actually a Service* 
         if not isinstance(service, ServiceInterface):
