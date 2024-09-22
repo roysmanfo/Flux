@@ -36,11 +36,6 @@ class Service(ServiceInterface):
         except:
             pass
 
-        # these are heavy operations, add a pause
-        # to not slow down the rest of Flux
-        time.sleep(1)
-
-
     def get_ram_usage(self):
         try:
             process = psutil.Process(self.pid)
