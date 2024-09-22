@@ -30,6 +30,13 @@ class ServiceInterface(metaclass=_ABCMeta):
         self.system: System = system
         self._name: str = name or os.path.splitext(os.path.basename(__file__))[0]
         
+        # some operations may be very heavy, so we add a pause
+        # prevent a slow down the rest of Flux
+        self.skip_cooldown = False
+        
+        # time in seconds to wait before executing `update()` again
+        self.cooldown = .1
+
         # informations about the service
         self.metadata = {
             "name": self._name,
@@ -64,6 +71,9 @@ class ServiceInterface(metaclass=_ABCMeta):
             self.awake()
             while self.running:
                 self.update()
+
+                # there will be no wait with skip_cooldown set to True
+                time.sleep(self.cooldown * (not bool(self.skip_cooldown)))
         except Exception:
             pass
         self.stop()
