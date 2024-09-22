@@ -55,6 +55,7 @@ class ServiceInterface(metaclass=_ABCMeta):
         return _FLUX_SERVICE and isinstance(_FLUX_SERVICE, bool)
 
     @service_info_manager
+    @final
     def start(self) -> None:
         """
         Start the service by calling `update()` 
