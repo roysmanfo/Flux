@@ -24,10 +24,10 @@ class Command(CommandInterface):
     def setup(self):
         super().setup()
         
-        if "-l" in self.command or "-L" in self.command:
+        if "-l" in self.line_args or "-L" in self.line_args:
             self.listed = True
             try:
-                signum = self.command[self.command.index("-l") + 1 if "-l" in self.command else self.command.index("-L") +1]
+                signum = self.line_args[self.line_args.index("-l") + 1 if "-l" in self.line_args else self.line_args.index("-L") +1]
                 signum = int(signum)
 
                 name = interrupts.event_value_to_name(signum)

@@ -48,7 +48,7 @@ class Command(CommandInterface):
             n = ['-n', '--no-clobber']
             f = ['-f', '--force']
 
-            for arg in self.command[::-1]:
+            for arg in self.line_args[::-1]:
                 if arg in i + n + f:
                     a = arg
                     break

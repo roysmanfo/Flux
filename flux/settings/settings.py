@@ -32,7 +32,7 @@ class SysPaths(_pathlib_class_type, Enum):
 
         It is not to take for granted that we have write permission on `~`
 
-        `:raises` PermissionError if we do not have permissions to write in a folder
+        :raises PermissionError: if we do not have permissions to write in a folder
         """
         try:
             for i in SysPaths:
@@ -195,7 +195,7 @@ class Path:
     The class Path contains all different infornamtion about where to find many
     different things, like where to put files, or where to look for them
 
-    @param load_data : If set to False, the object will not have any path loaded
+    :param load_data: If set to False, the object will not have any path loaded
     """
 
     def __init__(self, load_data: bool = True):

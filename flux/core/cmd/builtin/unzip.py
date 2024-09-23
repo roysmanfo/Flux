@@ -101,40 +101,25 @@ class Command(CommandInterface):
             archive_items = zip_ref.namelist()
 
             for item in archive_items:
-
-
-                # Ensure the item's path separator is consistent (use forward slash)
                 item = item.replace('\\', '/')
 
-                # Extract the item name (file or directory) without the path
                 item_name = os.path.basename(item)
-                
-                
+                item_dirname = os.path.dirname(item)
+            
                 # ignore this file if it is in xlist
                 if self.args.xlist and item in self.args.xlist:
                     continue
 
-                # Check if the item is a directory
-                is_directory = item.endswith('/')
+                dest_path = os.path.join(destination, item)
+                os.makedirs(os.path.join(destination, item_dirname), exist_ok=True)
 
-                if is_directory:
-                    # Handle directory extraction
-                    dest_dir = os.path.join(destination, item_name)
+                # Check for file conflicts and rename if necessary
+                count = 1
+                base_name, ext = os.path.splitext(item_name)
+                while os.path.exists(dest_path):
+                    new_name = f"{base_name} ({count}){ext}"
+                    dest_path = os.path.join(destination, item_dirname, new_name)
+                    count += 1
 
-                    if not os.path.exists(dest_dir):
-                        os.makedirs(dest_dir)
-
-                else:
-                    # Handle file extraction
-                    dest_path = os.path.join(destination, item_name)
-
-                    # Check for file conflicts and rename if necessary
-                    count = 1
-                    base_name, ext = os.path.splitext(item_name)
-                    while os.path.exists(dest_path):
-                        new_name = f"{base_name} ({count}){ext}"
-                        dest_path = os.path.join(destination, new_name)
-                        count += 1
-
-                    with zip_ref.open(item) as source, open(dest_path, 'wb') as dest:
-                        dest.write(source.read())
+                with zip_ref.open(item) as source, open(dest_path, 'wb') as dest:
+                    dest.write(source.read())

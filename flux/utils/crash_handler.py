@@ -18,18 +18,12 @@ def write_error_log(
     ) -> Tuple[int, str]:
 
     """
-
-    Params
-    -------
-    - fileprefix:       the prefix of the .log filename (default: Flux_log_{datetime}_)
-    - error_log:        the full error log (default: python default Traceback)
-    - title:            the title to put at the start of the error file (default: current_time)
+    :param fileprefix:       the prefix of the .log filename (default: Flux_log_{datetime}_)
+    :param error_log:        the full error log (default: python default Traceback)
+    :param title:            the title to put at the start of the error file (default: current_time)
 
 
-    Returns
-    -------
-    A tuple containing the file descriptor and file path to the error log file
-    (int, str)
+    :returns (fd, path): A tuple containing the file descriptor and file path to the error log file (int, str)
     """
 
     title = title or datetime.datetime.now().ctime()

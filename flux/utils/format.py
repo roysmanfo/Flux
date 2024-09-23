@@ -17,16 +17,16 @@ def create_table(
     Return a N x M table where N rappresents the number of `columns`
     and M rappresents the number of rows in `contents`
 
-    ## Parameters
-    `:param` collumns:           all the collumn titles
-    `:param` contents:           the data tu popu;ate the table (list of rows)
-    `:param` show_headers:       when set tu false the titles will be discarded in the table
-    `:param` fill_value:         value tu use if there is nothing in that row for this column
-    `:param` separator:          a character to use to create divisor lines
-    `:param` add_top_line:       when set to false the line that separates the title from the contents will be omited
-    `:param` add_bottom_line:    when set to true a line at the end of the table will be added
-    `:param` last_is_footer:     if set to true, separates the last line from the rest of the table with a divisor 
-
+    :param collumns:            all the collumn titles
+    :param contents:            the data tu popu;ate the table (list of rows)
+    :param show_headers:        when set tu false the titles will be discarded in the table
+    :param fill_value:          value tu use if there is nothing in that row for this column
+    :param separator:           a character to use to create divisor lines
+    :param add_top_line:        when set to false the line that separates the title from the contents will be omited
+    :param add_bottom_line:     when set to true a line at the end of the table will be added
+    :param last_is_footer:      if set to true, separates the last line from the rest of the table with a divisor 
+    :returns table:             a new table that satisfies the provided requirements
+    
     #### Example
     With this input...
     ```
@@ -86,8 +86,8 @@ def create_adaptive_table(data: Iterable[str]) -> str:
     """
     Return a dynamically sized table based on the terminal size and the length of the data.
 
-    `:param data` : an iterable object containing some kind of informations
-    `:returns` : a string representing the formatted table
+    :param data: an iterable object containing some kind of informations
+    :returns table: a string representing the formatted table
     """
 
     if len(data) == 0:
@@ -118,8 +118,8 @@ def remove_ansi_escape_sequences(text: str) -> str:
     """
     Remove ANSI escape sequences (color codes and styles) from a given string.
 
-    `:param text` : a string that may contain ANSI escape sequences
-    `:return` : a new string with ANSI escape sequences removed
+    :param text: a string that may contain ANSI escape sequences
+    :return escaped_text: a new string with ANSI escape sequences removed
     """
     ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
     return ansi_escape.sub('', text)
