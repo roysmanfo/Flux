@@ -62,7 +62,7 @@ class Servicemanager:
 
                 with open(self.service_db_path, "wt") as services_db:
                     self.service_db = self._get_default_services()
-                    json.dump(self.service_db, services_db, sort_keys=True, indent=4)
+                    self.update_service_db()
 
     def _start_enabled_services(self):
         def _get_names() -> Generator[str, str, None]:
@@ -76,6 +76,13 @@ class Servicemanager:
 
     def _get_default_services(self) -> dict[str, str | bool]:
         return {"sys_usage": {"enabled": True}}
+
+    def update_service_db(self) -> None:
+        """
+        Write the current `service_db` into `services.json`
+        """
+        with open(self.service_db_path, "wt") as sdb:
+            json.dump(sdb, self.service_db, sort_keys=True, indent=2)
 
 
     def register_service(self, service_name: str) -> bool:
