@@ -74,6 +74,7 @@ class EventTriggers(IntEnum):
     COMMAND_FAILED = 103            # Triggered if a command execution fails
     MEMORY_USAGE_HIGH = 114         # Triggered when memory usage exceeds a certain threshold
     CPU_USAGE_HIGH = 115            # Triggered when CPU usage exceeds a certain threshold
+    BATTERY_LOW = 116               # Triggered when the battery level is low (for portable devices)
     # available but not yet working
     DIRECTORY_CHANGED = 104         # Triggered when the current working directory is changed
     FILE_MODIFIED = 105             # Triggered when a file is modified within the current directory
@@ -85,7 +86,6 @@ class EventTriggers(IntEnum):
     USER_LOGIN = 111                # Triggered when a user logs into the system
     USER_LOGOUT = 112               # Triggered when a user logs out of the system
     SYSTEM_ERROR = 113              # Triggered when a system error occurs
-    BATTERY_LOW = 116               # Triggered when the battery level is low (for portable devices)
 
 def event_name_to_value(event: str) -> Optional[int]:
     try:
