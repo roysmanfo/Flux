@@ -1,10 +1,10 @@
 from collections.abc import Generator
+from typing import Union
 import os
 from pathlib import Path
 import sys
 import json
 from threading import Thread
-from typing import Any
 
 
 from flux.core.system import loader
@@ -74,7 +74,7 @@ class Servicemanager:
             if self.register_service(service):
                 self.service_table[service]._enabled = True
 
-    def _get_default_services(self) -> dict[str, str | bool]:
+    def _get_default_services(self) -> dict[str, Union[str, bool]]:
         return {"sys_usage": {"enabled": True}}
 
     def update_service_db(self) -> None:
