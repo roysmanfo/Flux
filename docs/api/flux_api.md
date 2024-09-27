@@ -136,7 +136,7 @@ The execution flow in pseudo code looks something like this
     return the status
 ```
 
-### General Attributess
+### General Attributes
 
 Attributes shared by commands
 
