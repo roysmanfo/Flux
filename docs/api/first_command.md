@@ -149,3 +149,56 @@ def run(self) -> None:
         self.print(n)
 ```
 and now we are done, you can use your new `count` command inside Flux
+
+# Complete code
+```py
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser,
+    EventTriggers
+)
+
+# we can specify the entry point of the command
+# by setting the ENTRY_POINT register to the name of the class
+# that inherits CommandInterface
+ENTRY_POINT = "Count"
+
+# create a flag that will signal to stop the loop 
+stop = False
+
+def stop_counting(signum, frame, *args):
+    # request to exit
+    global stop
+    stop = True
+
+class Count(CommandInterface):
+    def init(self) -> None:
+        self.parser = Parser(
+            prog="count",
+            usage="count LIMIT [STEP]",
+            description="count from 0 up to N"
+        )
+
+        self.parser.add_argument("LIMIT", type=int, help="upper limit of our counter")
+        self.parser.add_argument("STEP", nargs="?", default=1, type=int, help="step size of our counter (default: 1)")
+        
+        self.stop = False
+
+        
+
+        # add our interrupt to the ones controlled by Flux
+        # will be automatically deleted after the command exits  
+        self.register_interrupt(
+            event=EventTriggers.SIGINT,
+            target=stop_counting
+        )
+
+    def run(self) -> None:
+        for n in range(0, self.args.LIMIT+1, self.args.STEP):
+
+            # check if the interrupt has been called
+            if stop:
+                break
+            self.print(n)
+
+```
