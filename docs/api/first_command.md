@@ -86,3 +86,66 @@ our command is used like this
 count 100 > numbers.txt
 ```
 
+## Handling errors
+We are almost done, but we did't take into consideration keyboard interrupts (or SIGINT), so with large numbers, if the user presses `ctrl+c`, the command 
+will crash and [generate a crash log](./flux_api.md#fail_safe).
+
+We can try and solve this with a simple try-except block
+```py
+def run(self) -> None:
+    try:
+        # we add 1 to limit to print it on screen too
+        for n in range(0, self.args.LIMIT+1, self.args.STEP):
+            self.print(n)
+    except KeyboardInterrupt:
+        # exit safely
+        pass
+
+```
+but the interpreter will just keeps going.
+
+To solve cases like this, we can use [interrupts](flux_api.md#register_interrupt).
+
+Let's modify our code accordingly
+
+```py
+# modify the imports to include the EventTriggers enum
+# containing all supported interrupts
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser,
+    EventTriggers
+)
+```
+outside the `Command` class we can create a flag and a funtion to set the flag
+```py
+# create a global flag that will signal to stop the loop 
+stop = False
+
+def stop_counting(signum, frame, *args):
+    # request to exit
+    global stop
+    stop = True
+```
+
+now inside the `Command` class we can modify our code to stop the
+loop
+```py
+def init(self) -> None:
+    ...
+
+    # add our interrupt to the ones controlled by Flux
+    # will be automatically deleted after the command exits  
+    self.register_interrupt(
+        event=EventTriggers.SIGINT,
+        target=stop_counting
+    )
+
+def run(self) -> None:
+    for n in range(0, self.args.LIMIT+1, self.args.STEP):
+        # check if the interrupt has been called
+        if self.stop:
+            break
+        self.print(n)
+```
+and now we are done, you can use your new `count` command inside Flux
