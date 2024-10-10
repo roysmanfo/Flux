@@ -18,7 +18,7 @@ Docs
 #### **Developer guides** - *How to develop your own scripts*
 
 - [Flux API](api/flux_api.md)
-- Create your first command 
+- [Create your first command](api/first_command.md) 
 
 #### **Contributor guides** - *How Flux works under the hood*
 - How commands are loaded and executed

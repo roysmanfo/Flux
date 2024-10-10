@@ -136,7 +136,7 @@ The execution flow in pseudo code looks something like this
     return the status
 ```
 
-### General Attributess
+### General Attributes
 
 Attributes shared by commands
 
@@ -267,9 +267,9 @@ Other usefull informations about the state of the command
 
 | Return type | name                  | description                                                               |
 | ----------- | --------------------- | ------------------------------------------------------------------------- |
-| `bool`      | `redirected_stdout()` | True when the stdout has been redirected (ex. command > file.txt)         |
-| `bool`      | `redirected_stderr()` | True when the stderr has been redirected (ex. command 2> file.txt)        |
-| `bool`      | `redirected_stdin()`  | True when the stdin has been redirected  (ex. command < file.txt)         |
+| `bool`      | `redirected_stdout()` | True when the stdout has been redirected                                  |
+| `bool`      | `redirected_stderr()` | True when the stderr has been redirected                                  |
+| `bool`      | `redirected_stdin()`  | True when the stdin has been redirected                                   |
 | `bool`      | `is_output_red()`     | True when the stdout and stderr have been redirected                      |
 | `bool`      | `is_any_red()`        | True when at least one among stdout, stderr and stdin has been redirected |
 | `bool`      | `is_all_red()`        | True when stdout, stderr and stdin have been redirected                   |
