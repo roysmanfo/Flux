@@ -1,5 +1,6 @@
 import os
 import subprocess
+from pathlib import Path
 from flux.core.helpers.commands import (
     CommandInterface,
     Parser,
@@ -42,17 +43,29 @@ class Command(CommandInterface):
 
         try:
             # find the executable
-            process = subprocess.Popen(['where' if os.name == 'nt' else "which",self.line_args[0]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(['where' if os.name == 'nt' else "which", self.line_args[0]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, _ = process.communicate()
 
-            if process.returncode == 0:
+            is_file = os.path.isfile(self.line_args[0])
+            
+            if process.returncode == 0 or is_file:
                 command_paths = [i.strip() for i in stdout.decode().strip().split('\n') if i]
 
+                # apparently with file paths the checks
+                # above may fail for some reason
+                if is_file:
+                    command_paths = [str(Path(self.line_args[0]).resolve(True))]
+
                 success = False
+
+                # remove the command and keep just the args
+                self.line_args.pop(0)
+
                 # try each path
                 for path in command_paths:
                     try:
-                        p = subprocess.Popen([path])
+                        # start a process with the provided args
+                        p = subprocess.Popen([path] + self.line_args)
                         p.wait()
                         success = True
                     except:
