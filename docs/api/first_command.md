@@ -102,9 +102,9 @@ def run(self) -> None:
         pass
 
 ```
-but the interpreter will just keeps going.
+but the interpreter will keep counting.
 
-To solve cases like this, we can use [interrupts](flux_api.md#register_interrupt).
+We can use [interrupts](flux_api.md#register_interrupt) to solve cases like this.
 
 Let's modify our code accordingly
 
@@ -117,18 +117,18 @@ from flux.core.helpers.commands import (
     EventTriggers
 )
 ```
-outside the `Command` class we can create a flag and a funtion to set the flag
+outside the `Command` class we can create a flag and a function to set the flag
 ```py
 # create a global flag that will signal to stop the loop 
 stop = False
 
-def stop_counting(signum, frame, *args):
+def stop_counting(signum, frame):
     # request to exit
     global stop
     stop = True
 ```
 
-now inside the `Command` class we can modify our code to stop the
+now inside the `Command` class, we can modify our code to stop the
 loop
 ```py
 def init(self) -> None:
@@ -144,7 +144,7 @@ def init(self) -> None:
 def run(self) -> None:
     for n in range(0, self.args.LIMIT+1, self.args.STEP):
         # check if the interrupt has been called
-        if self.stop:
+        if stop:
             break
         self.print(n)
 ```
