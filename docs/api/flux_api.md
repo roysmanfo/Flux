@@ -9,7 +9,7 @@
     - [close()](#close)
     - [exit()](#exit)
     - [fail_safe()](#fail_safe)
-  - [General Attributes](#general-attributess)
+  - [General Attributes](#general-attributes)
   - [Helper Methods](#helper-methods)
     - [input()](#input)
     - [print()](#print)
@@ -54,10 +54,15 @@ class Command(CommandInterface):
 ```
 
 > [!NOTE]  
-> The name of the class that implements `CommandInterface` can be modifid
+> The name of the class that implements `CommandInterface` can be modified
 > if you set the register `ENTRY_POINT` to a different name
+> ```py
+> ENTRY_POINT = "MyCommand"
+> class MyCommand(CommandINterface):
+>   ...
+> ```
 
-Every command that uses this interfacer is equiped with the standard methods to work on the app.  
+Every command that uses this interface is equipped with the standard methods to work on the app.  
 Every single command should use this class to keep a consistent standard.
 
 ### Automatic Calls
@@ -66,16 +71,16 @@ Methods that get called regardless by the terminal
 
 #### `init()`
 
-This function is called on start of execution
-This method should be used to do setup operations (like create the Parser)
+This function is called at the start of the execution
+This method should be used to do setup operations (like creating the Parser)
 
 #### `setup()`
 
-This is function is called right before run()
+This function is called right before run()
 This method is used to parse arguments and exit on parsing errors
 
 > Always remember to call `super().setup()` when overwriting this method  
-> It will handle the parsing part and exiting on parsing errors
+> It will handle the parsing part and exit on parsing errors
 
 #### `run()`
 
