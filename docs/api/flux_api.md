@@ -58,7 +58,7 @@ class Command(CommandInterface):
 > if you set the register `ENTRY_POINT` to a different name
 > ```py
 > ENTRY_POINT = "MyCommand"
-> class MyCommand(CommandINterface):
+> class MyCommand(CommandInterface):
 >   ...
 > ```
 
