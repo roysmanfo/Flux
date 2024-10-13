@@ -133,6 +133,12 @@ class Servicemanager:
             service._enabled = False
 
 
+    def get(self, service_name: str):
+        return self.service_table.get(service_name)
+
+    def get_info(self, service_name: str):
+        return self.service_db.get(service_name)
+
 
     
         
