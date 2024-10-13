@@ -121,7 +121,7 @@ class Servicemanager:
 
 
     def enable(self, name: str) -> bool:
-        service = self.service_table.get(name, None)
+        service = self.get(name)
 
         if service:
             service._enabled = True
