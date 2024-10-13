@@ -106,10 +106,41 @@ class Servicemanager:
         self.service_table.update({service_name: service})
 
         # start service
-        Thread(target=service.start, name=service_name, daemon=True).start()
+        self.start_service(service_name)
 
         return True
 
+    def start_service(self, service_name: str) -> bool:
+        """
+        Start running a service
+
+        :param service_name: the name of the service to start
+        :param new_thread: if True, a new thread will be created for this service
+        :returns: True if the service has been started 
+        """
+        if (service := self.service_table.get(service_name)) is None:
+            # the service has not been registered
+            return False
+        
+        if not service.running:
+            Thread(target=service.start, name=service_name, daemon=True).start()
+
+        return True
+
+    def stop_service(self, service_name: str) -> bool:
+        """
+        Stop a service
+
+        :param service_name: the name of the service to stop
+        :returns: True if the service has been found and stopped 
+        """
+        if (service := self.service_table.get(service_name)) is None:
+            # the service has not been registered
+            return False
+        
+        if service.running:
+            service.stop()
+        return True
 
     def exists(self, service_name: str) -> bool:
         """
