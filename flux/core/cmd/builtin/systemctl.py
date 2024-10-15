@@ -19,14 +19,17 @@ class Command(CommandInterface):
         # stop a service
         parser_stop = commands.add_parser("stop", description="Stop (deactivate) one or more units", help="Stop (deactivate) one or more units")
         parser_stop.add_argument("units", metavar="UNIT", nargs="+", help="the services to stop")
+        # list all services
+        parser_stop = commands.add_parser("list", description="List units currently in memory", help="List units currently in memory")
 
 
     def run(self) -> None:
 
         if not self.args.command:
-            self.args.command = "list-units"
+            self.args.command = "list"
 
         match self.args.command:
+            case "list": self.list_service()
             case "start": self.start_service()
             case "stop": self.stop_service()
             case _: self.error(f"Unknown command verb '{self.args.command}'", use_color=True)        
@@ -66,4 +69,13 @@ class Command(CommandInterface):
                 else:
                     self.warning(f"{unit}.service is already not running", use_color=True)
                 continue
+    
+    # systemctl stop [service_name, ...]
+    def list_service(self):
+        from flux.utils import format
 
+        service_data = [(s.name, s.enabled, s.running, s.metadata.get("description"))
+                        for s in self.system.service_manager.service_table.values()]
+
+        table = format.create_table("name", "enabled", "running", "description", contents=service_data)
+        self.print(table)
