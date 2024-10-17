@@ -20,7 +20,10 @@ class Command(CommandInterface):
         parser_stop = commands.add_parser("stop", description="Stop (deactivate) one or more units", help="Stop (deactivate) one or more units")
         parser_stop.add_argument("units", metavar="UNIT", nargs="+", help="the services to stop")
         # list all services
-        parser_stop = commands.add_parser("list", description="List units currently in memory", help="List units currently in memory")
+        commands.add_parser("list", description="List units currently in memory", help="List units currently in memory")
+        # list all services
+        parser_enable = commands.add_parser("enable", description="Enable one or more units", help="Enable one or more units")
+        parser_enable.add_argument("units", metavar="UNIT", nargs="+", help="the services to enable")
 
 
     def run(self) -> None:
@@ -29,6 +32,7 @@ class Command(CommandInterface):
             self.args.command = "list"
 
         match self.args.command:
+            case "enable": self.enable_service()
             case "list": self.list_service()
             case "start": self.start_service()
             case "stop": self.stop_service()
@@ -79,3 +83,17 @@ class Command(CommandInterface):
 
         table = format.create_table("name", "enabled", "running", "description", contents=service_data)
         self.print(table)
+    
+    # systemctl enable [service_name, ...]
+    def enable_service(self):
+        for unit in self.args.units:
+            unit: str = unit.removesuffix(".service")
+
+            if service_info := self.system.service_manager.get_info(unit):
+                if not (service_info.get("enabled")):
+                    service_info.update({"enabled": True})
+                    self.print(f"{unit}.service has been enabled")
+                else:
+                    self.print(f"{unit}.service is already enabled")
+            else:
+                self.error(f"{unit}.service not found", use_color=True)
