@@ -152,16 +152,48 @@ class Servicemanager:
 
 
     def enable(self, name: str) -> bool:
+        """
+        Modify the service's settings to set `enabled` to True
+
+        :param name:
+            the name of the service to enable
+        :returns status:
+            True if the service was successfully modified
+        """
         service = self.get(name)
+        service_info = self.get_info(name)
 
         if service:
             service._enabled = True
+        
+        if service_info:
+            service_info.update({"enabled": True})
+            self.service_db[name] = service_info
+            self.update_service_db()
+            return True
+        return False
 
     def disable(self, name: str) -> bool:
+        """
+        Modify the service's settings to set `enabled` to False
+
+        :param name:
+            the name of the service to disable
+        :returns status:
+            True if the service was successfully modified
+        """
         service = self.get(name)
+        service_info = self.get_info(name)
 
         if service:
             service._enabled = False
+        
+        if service_info:
+            service_info.update({"enabled": False})
+            self.service_db[name] = service_info
+            self.update_service_db()
+            return True
+        return False
 
 
     def get(self, service_name: str):
