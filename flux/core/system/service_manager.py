@@ -26,9 +26,8 @@ class Servicemanager:
 
     def _load_service_db(self):
         if not os.path.exists(self.service_db_path):
-            with open(self.service_db_path, "wt") as services_db:
-                self.service_db = self._get_default_services()
-                json.dump(self.service_db, services_db, sort_keys=True, indent=4)
+            self.service_db = self._get_default_services()
+            self.update_service_db()
         elif not os.path.isfile(self.service_db_path):
             # **please** do not create conflicts with paths
             # otherwise each time you will startwith the default
