@@ -9,7 +9,7 @@ packaging==24.1
 pillow==11.0.0
 ping3==4.0.8
 pluggy==1.5.0
-psutil==6.0.0
+psutil==6.1.0
 pycodestyle==2.12.1
 pydub==0.25.1
 pypdf==5.0.1
