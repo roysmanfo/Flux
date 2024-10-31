@@ -21,9 +21,12 @@ class Command(CommandInterface):
         parser_stop.add_argument("units", metavar="UNIT", nargs="+", help="the services to stop")
         # list all services
         commands.add_parser("list", description="List units currently in memory", help="List units currently in memory")
-        # list all services
+        # enable a service
         parser_enable = commands.add_parser("enable", description="Enable one or more units", help="Enable one or more units")
         parser_enable.add_argument("units", metavar="UNIT", nargs="+", help="the services to enable")
+        # disable a service
+        parser_disable = commands.add_parser("disable", description="Disable one or more units", help="Disable one or more units")
+        parser_disable.add_argument("units", metavar="UNIT", nargs="+", help="the services to disable")
 
 
     def run(self) -> None:
@@ -32,6 +35,7 @@ class Command(CommandInterface):
             self.args.command = "list"
 
         match self.args.command:
+            case "disable": self.disable_service()
             case "enable": self.enable_service()
             case "list": self.list_service()
             case "start": self.start_service()
@@ -88,12 +92,23 @@ class Command(CommandInterface):
     def enable_service(self):
         for unit in self.args.units:
             unit: str = unit.removesuffix(".service")
-
-            if service_info := self.system.service_manager.get_info(unit):
-                if not (service_info.get("enabled")):
-                    service_info.update({"enabled": True})
+            if self.system.service_manager.get_info(unit):
+                if self.system.service_manager.enable(unit):
                     self.print(f"{unit}.service has been enabled")
                 else:
-                    self.print(f"{unit}.service is already enabled")
+                    self.print(f"{unit}.service has been NOT been enabled")
+            else:
+                self.error(f"{unit}.service not found", use_color=True)
+
+    # systemctl disable [service_name, ...]
+    def disable_service(self):
+        for unit in self.args.units:
+            unit: str = unit.removesuffix(".service")
+            if self.system.service_manager.get_info(unit):
+                if self.system.service_manager.disable(unit):
+                    self.print(f"{unit}.service has been disabled")
+                else:
+                    self.print(f"{unit}.service has been NOT been disabled")
+
             else:
                 self.error(f"{unit}.service not found", use_color=True)
