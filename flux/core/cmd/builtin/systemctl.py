@@ -82,8 +82,12 @@ class Command(CommandInterface):
     def list_service(self):
         from flux.utils import format
 
+        if not (service_table := self.system.service_manager.service_table):
+            self.warning('No services running', use_color=True)
+            return
+
         service_data = [(s.name, s.enabled, s.running, s.metadata.get("description"))
-                        for s in self.system.service_manager.service_table.values()]
+                        for s in service_table.values()]
 
         table = format.create_table("name", "enabled", "running", "description", contents=service_data)
         self.print(table)
