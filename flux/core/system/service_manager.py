@@ -64,14 +64,16 @@ class Servicemanager:
                     self.update_service_db()
 
     def _start_enabled_services(self):
-        def _get_names() -> Generator[str, str, None]:
-            for serv in self.service_db:
-                if self.service_db.get(serv).get("enabled", False):
-                    yield serv
-
-        for service in _get_names():
-            if self.register_service(service):
-                self.service_table[service]._enabled = True
+        # get all enabled services in one go
+        enabled_services = [
+            service_name 
+            for service_name in self.service_db 
+            if self.service_db.get(service_name).get("enabled", False)
+        ]
+        
+        for service_name in enabled_services:
+            if self.register_service(service_name):
+                self.service_table[service_name]._enabled = True
 
     def _get_default_services(self) -> dict[str, Union[str, bool]]:
         return {"sys_usage": {"enabled": True}}
