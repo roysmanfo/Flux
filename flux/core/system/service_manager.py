@@ -44,7 +44,7 @@ class Servicemanager:
                 _, log_path = crash_handler.write_error_log()
                 print(f"The full traceback of this error can be found here: \n{log_path}\n", file=sys.stderr)
 
-                if input("reset the file to default (N/y)").lower() != 'y':
+                if input("reset the file to default (N/y): ").lower() != 'y':
                     print("Aborting...", file=sys.stderr)
                     sys.exit(1)
                 
@@ -59,9 +59,8 @@ class Servicemanager:
                     print("Aborting...", file=sys.stderr)
                     sys.exit(1)
 
-                with open(self.service_db_path, "wt") as services_db:
-                    self.service_db = self._get_default_services()
-                    self.update_service_db()
+                self.service_db = self._get_default_services()
+                self.update_service_db()
 
     def _start_enabled_services(self):
         # get all enabled services in one go
@@ -83,8 +82,12 @@ class Servicemanager:
         Write the current `service_db` into `services.json`
         """
         with open(self.service_db_path, "wt") as sdb:
-            json.dump(sdb, self.service_db, sort_keys=True, indent=2)
-
+            try:
+                json.dump(self.service_db, sdb, sort_keys=True, indent=2)
+            except json.JSONDecodeError:
+                # before giving up try serializing
+                # the dictionary before writing it
+                sdb.write(json.dumps(self.service_db, sort_keys=True, indent=2))
 
     def register_service(self, service_name: str) -> bool:
         """
