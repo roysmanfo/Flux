@@ -13,6 +13,9 @@ class Command(CommandInterface):
             usage="systemctl [OPTIONS...] COMMAND ...")
         
         commands = self.parser.add_subparsers(title="Unit Commands", dest="command")
+        # disable a service
+        parser_disable = commands.add_parser("disable", description="Disable one or more units", help="Disable one or more units")
+        parser_disable.add_argument("units", metavar="UNIT", nargs="+", help="the services to disable")
         # start a service
         parser_start = commands.add_parser("start", description="Start (activate) one or more units", help="Start (activate) one or more units")
         parser_start.add_argument("units", metavar="UNITs", nargs="+", help="the services to start")
@@ -24,9 +27,6 @@ class Command(CommandInterface):
         # enable a service
         parser_enable = commands.add_parser("enable", description="Enable one or more units", help="Enable one or more units")
         parser_enable.add_argument("units", metavar="UNIT", nargs="+", help="the services to enable")
-        # disable a service
-        parser_disable = commands.add_parser("disable", description="Disable one or more units", help="Disable one or more units")
-        parser_disable.add_argument("units", metavar="UNIT", nargs="+", help="the services to disable")
 
 
     def run(self) -> None:
