@@ -1,4 +1,3 @@
-from collections.abc import Generator
 from typing import Union
 import os
 from pathlib import Path
