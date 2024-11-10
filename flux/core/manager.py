@@ -26,11 +26,7 @@ def get_stdout(command: List[str]) -> Optional[TextIO]:
     """
     Returns the stout of the command and pathname of the file if redirection accours 
 
-    :returns
-        - The stdout on which write the output
-        - the path to that file 
-
-    :rtype Actually returns a list [TextIO | None, str | None]
+    :returns stdout: The stdout on which write the output
     """
     
     REDIRECT: str
@@ -55,11 +51,7 @@ def get_stderr(command: List[str]) -> Optional[TextIO]:
     """
     Returns the sterr of the command and pathname of the file if redirection accours 
 
-    :returns
-        - The stderr on which write the output (None if redirected to /dev/null)
-        - the path to that file 
-
-    :rtype Actually returns a list [TextIO | None, str | None]
+    :returns stderr: The stderr on which write the output (None if redirected to /dev/null)
     """
     
     REDIRECT: str
@@ -85,11 +77,7 @@ def get_stdin(command: List[str]) -> Optional[TextIO]:
     """
     Returns the stin of the command and pathname of the file if redirection accours 
 
-    :returns
-        - The stdin on which read the input (None if redirected to /dev/null)
-        - the path to that file 
-
-    :rtype Actually returns a list [TextIO | None, str | None]
+    :returns stdin: The stdin on which read the input (None if redirected to /dev/null)
     """
 
     REDIRECT: str
@@ -267,9 +255,8 @@ def call(command_instance: CommandInterface) -> Status:
     """
     Execute the loaded script
 
-    `:returns` the command's status code
-    `:rtype` int
-    `:raises` AssertionError if the command_instance isn't an instance of CommandInterface
+    :returns status: the command's status code (int)
+    :raises AssertionError: if the command_instance isn't an instance of CommandInterface
     """
     assert CommandInterface._is_subclass_instance(command_instance), "argument passed isn't an instance of CommandInterface"
 

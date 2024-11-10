@@ -63,22 +63,22 @@ class Command(CommandInterface):
             if self.args.recursive:
                 files = []
 
-                if os.path.isfile(self.args.path):
+                if os.path.isfile(path):
                     try:
-                        self.info(f"collecting: {self.args.path}")
-                        os.remove(self.args.path)
+                        self.info(f"collecting: {path}")
+                        os.remove(path)
                     except PermissionError:
                         self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
                 else:
                     # Just to show what shutil.rmtree is doing
-                    for _, _, file in os.walk(self.args.path):
+                    for _, _, file in os.walk(path):
                         files.extend(file)
                         for f in file:
                             self.info(f"collecting: {f}")
 
                     try:
                         self.info(f"deleting {len(files)} files...")
-                        shutil.rmtree(os.path.abspath(self.args.path))
+                        shutil.rmtree(os.path.abspath(path))
                     except PermissionError:
                         self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
                 self.print()
@@ -93,7 +93,4 @@ class Command(CommandInterface):
                     if self.status != Status.STATUS_WARN:
                         self.warning(f"cannot open '{path}': (permission denied)", to_stdout=False)
 
-
-
-
-            
+        super().close()

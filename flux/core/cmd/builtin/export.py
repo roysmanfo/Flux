@@ -3,39 +3,45 @@
 Allows the user to create temporary variables for later use
 """
 
-from flux.core.helpers.commands import CommandInterface
+from flux.core.helpers.commands import (
+    CommandInterface,
+    Parser
+)
 
 class Command(CommandInterface):
+
+    def init(self) -> None:
+        self.parser = Parser(prog="export",
+                             usage="export name [value] or export -p",
+                             description="Set export attribute for shell variables")
+        
+        self.parser.add_argument("name", nargs="?", help="the exported variable's name")
+        self.parser.add_argument("value", nargs="?", help="the value to assign to the variable")
+        self.parser.add_argument("-p", action="store_true", help="display a list of all exported variables")
+        
     def run(self) -> None:
-        """
-        #### Create/update a variable
-        ```
-        $ export $var_name new_value
-        ```
 
-        #### Access a variable
-        ```
-        $ $var_name
-        ```
-
-        #### Returns
-
-        True if the variable has been set, False otherwise
-        """
-
-        # Create a temporary variable if it doesn't already exist
-        # else update it
-        if len(self.line_args) > 2 and self.line_args[1].startswith("$") and len(self.line_args[1]) > 0:
+        if self.args.p or not self.args.name:
+            for var in self.system.variables:
+                # print the var name without the leading '$'
+                self.print(f'declare -x {var.name[1:]}="{var.value}"')
+        else:
             self.set_variable()
 
     def set_variable(self) -> None:
-        name: str = self.line_args[1]        
-        value = str(self.line_args[2])
+        """
+        Create a temporary variable if it doesn't already exist
+        or else update it
+        """
+        name: str = self.args.name
+        value = str(self.args.value or "")
+
+        if not name.startswith("$"):
+            name = f"${name}"
+
         if self.system.variables.exists(name):
             self.system.variables.set(name, value.removeprefix("\"").removesuffix("\""))
         else:
             self.system.variables.add(name, value.removeprefix("\"").removesuffix("\""))
         
-        # Make shure the variable was set
-        self.print(f"{name} = '{self.system.variables.get(name).value}'\n")
-
+        self.print()

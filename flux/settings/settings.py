@@ -23,6 +23,7 @@ class SysPaths(_pathlib_class_type, Enum):
     PUBLIC_KEY_FILE = pathlib.Path(_flux_root, "security", "public.pem").resolve()
     CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux")).resolve()
     SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json")).resolve()
+    SERVICES_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "services.json")).resolve()
     SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE)).resolve()
     CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache")).resolve()
     LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local")).resolve()
@@ -40,7 +41,7 @@ class SysPaths(_pathlib_class_type, Enum):
 
         It is not to take for granted that we have write permission on `~`
 
-        `:raises` PermissionError if we do not have permissions to write in a folder
+        :raises PermissionError: if we do not have permissions to write in a folder
         """
         try:
             for i in SysPaths:
@@ -203,7 +204,7 @@ class Path:
     The class Path contains all different infornamtion about where to find many
     different things, like where to put files, or where to look for them
 
-    @param load_data : If set to False, the object will not have any path loaded
+    :param load_data: If set to False, the object will not have any path loaded
     """
 
     def __init__(self, load_data: bool = True):
