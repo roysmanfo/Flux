@@ -108,8 +108,11 @@ class Flux(CommandInterface):
         update_manager = UpdateManager(old_version_path=old_version_path)
         update_manager.allow_unoficial = self.args.allow_unoficial
         update_manager.logger = self
-        update_needed = update_manager.check_for_update(current_version=self.system.version, update_url=self.args.url)
-        
+        try:
+            update_needed = update_manager.check_for_update(current_version=self.system.version, update_url=self.args.url)
+        except Exception as e:
+            self.fatal(e)
+            return
         install_path = self.settings.syspaths.INSTALL_FOLDER
         
         # updates are (temp) stored in: $HOME/.flux/.cache/flux/updates/{update_file}
