@@ -369,16 +369,16 @@ class UpdateManager:
                     return True
     
         except KeyError as e:
-            raise KeyError(f"unable to retreave some informations: {e}" ) from e
+            raise KeyError(f"unable to retrieve some informations: {e}" ) from e
 
         except requests.ConnectTimeout:
             raise TimeoutError(f"'{parsed_url.path}' does not seem respond in time: {e}" )
 
         except requests.ConnectionError as e:
-            raise ConnectionError(f"unable to retreave some informations: {type(e)}" ) from e
+            raise ConnectionError(f"unable to retrieve some informations: {type(e)}" ) from e
 
         except requests.JSONDecodeError as e:
-            raise requests.JSONDecodeError(f"unable to retreave some informations: {e}" ) from e
+            raise requests.JSONDecodeError(f"unable to retrieve some informations: {e}" ) from e
 
         return False
 
