@@ -69,6 +69,7 @@ class Flux(CommandInterface):
     def run(self):
         match self.args.command:
             case "update":
+                self.warning("the update command is still in development and may be unstable")
                 if self.args.verbose:
                     self.log_level = self.levels.DEBUG
                 asyncio.run(self.flux_update())
