@@ -1,7 +1,7 @@
 import urllib3.util
-from typing import Optional
+from urllib3.util import Url
 
-def get_scheme(path: str) -> Optional[str]:
+def parse_url(path: str) -> Url:
     """
     Extract and return the scheme of the given path
 
@@ -11,6 +11,7 @@ def get_scheme(path: str) -> Optional[str]:
     path = fr"{path}".lower().replace("file://", "")
     return urllib3.util.parse_url(path)
 
+
 def is_local_path(path: str) -> bool:
     """
     Determine if the given path is a local path or a remote one
@@ -18,7 +19,21 @@ def is_local_path(path: str) -> bool:
     :param path: the path to extract the scheme from.
     :returns: true if the path is local
     """
-    return get_scheme(path) is None
 
+    if (path := path.strip()) == '':
+        return False
+
+    url = parse_url(path)
+
+    if not url.scheme and not url.host:
+        return True
+    
+    if url.scheme and url.scheme.lower() == "c":
+        return True
+    
+    if url.host and url.host.replace('.', '') == '':
+        return True
+
+    return False
 
 

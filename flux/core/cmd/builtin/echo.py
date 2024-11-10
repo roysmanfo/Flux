@@ -1,3 +1,4 @@
+from typing import List
 from flux.core.helpers.commands import (
     CommandInterface,
     Parser
@@ -12,12 +13,19 @@ class Command(CommandInterface):
         self.parser.add_argument("-e", action="store_true", help="enable interpretation of backslash escapes")
         self.parser.add_argument("-E", action="store_true", help="disable interpretation of backslash escapes (default)")
         
+    def _resolve_variables(self, str_list: List[str]):
+        for i in str_list:
+            var = self.system.variables.get(i)
+            if var:
+                yield var.value
+            else:
+                yield i
 
+    
     def run(self):
-        string = " ".join(self.args.string)
+        string = " ".join(self._resolve_variables(self.args.string))
 
         if self.args.e and not self.args.E:
             string = string.encode('utf-8').decode('unicode_escape')
-
         self.print(string, end="\n" if not self.args.n else "")
         self.print()

@@ -50,13 +50,16 @@ class Parser(ArgumentParser):
         if len(filt) == 0:
             self._no_args = True
 
+        if "-h" in args or "--help" in args:
+            self.exit_execution = True
+        
         return nspace
 
 
     @property
     def no_args(self):
         if not self.__parsed:
-            raise RuntimeError("the method 'parse_args()' must be parsed before")
+            raise RuntimeError("the method 'parse_args()' must be parsed first")
 
         return self._no_args
     
