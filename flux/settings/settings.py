@@ -6,12 +6,21 @@ import tempfile
 from typing import List
 from enum import Enum 
 
-with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version'), mode='r', encoding='utf-8') as version:
+# this file's folder
+_file_dir_path = os.path.dirname(os.path.realpath(__file__))
+
+# where the app root directory is 
+_flux_root = os.path.dirname(os.path.dirname(_file_dir_path))
+
+# version
+with open(os.path.join(_file_dir_path, 'version'), mode='r', encoding='utf-8') as version:
     VERSION = version.read()
 
 _pathlib_class_type = type(pathlib.Path()) # PosixPath or WindowsPath
 
 class SysPaths(_pathlib_class_type, Enum):
+    INSTALL_FOLDER = pathlib.Path(_flux_root).resolve()
+    PUBLIC_KEY_FILE = pathlib.Path(_flux_root, "security", "public.pem").resolve()
     CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux")).resolve()
     SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json")).resolve()
     SERVICES_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "services.json")).resolve()
@@ -213,6 +222,8 @@ class Path:
                     path["documents"]).resolve()
                 self.images: pathlib.Path = pathlib.Path(
                     path["images"]).resolve()
+                self.downloads: pathlib.Path = pathlib.Path(
+                    path["downloads"]).resolve()
                 self.bucket: pathlib.Path = pathlib.Path(
                     path["bucket"]).resolve()
                 self.bucket_destination: pathlib.Path = pathlib.Path(
@@ -228,6 +239,7 @@ class Path:
         self.terminal = self._set_default_terminal_path()
         self.documents = self._set_default_documents_path()
         self.images = self._set_default_images_path()
+        self.downloads = self._set_default_downloads_path()
         self.bucket = self._set_default_observer_bucket_path()
         self.bucket_destination = self._set_default_observer_bucket_destination_path()
 
@@ -235,6 +247,7 @@ class Path:
             "terminal": f"{self.terminal}",
             "documents": f"{self.documents}",
             "images": f"{self.images}",
+            "downloads": f"{self.downloads}",
             "bucket": f"{self.bucket}",
             "bucket-destination": f"{self.bucket_destination}",
         }
@@ -246,6 +259,7 @@ class Path:
         paths.terminal = self.terminal
         paths.documents = self.documents
         paths.images = self.images
+        paths.downloads = self.downloads
         paths.bucket = self.bucket
         paths.bucket_destination = self.bucket_destination
         return paths
@@ -259,6 +273,7 @@ class Path:
             "terminal": self.terminal,
             "documents": self.documents,
             "images": self.images,
+            "downloads": self.downloads,
             "bucket": self.bucket,
             "bucket-destination": self.bucket_destination
         }
@@ -280,9 +295,16 @@ class Path:
 
     def _set_default_images_path(self) -> pathlib.Path:
         """
-        Returns the location of the documents folder
+        Returns the location of the images folder
         """
         path = pathlib.Path(os.path.join(os.path.expanduser('~'), "Pictures"))
+        return path
+
+    def _set_default_downloads_path(self) -> pathlib.Path:
+        """
+        Returns the location of the downloads folder
+        """
+        path = pathlib.Path(os.path.join(os.path.expanduser('~'), "Downloads"))
         return path
 
     def _set_default_observer_bucket_path(self) -> pathlib.Path:
@@ -325,6 +347,9 @@ class Path:
         elif target == "images":
             self.images = new_path if not reset else self._set_default_images_path()
             new_path = new_path if not reset else self._set_default_images_path()
+        elif target == "downloads":
+            self.downloads = new_path if not reset else self._set_default_downloads_path()
+            new_path = new_path if not reset else self._set_default_downloads_path()
         elif target == "terminal":
             self.terminal = new_path if not reset else self._set_default_terminal_path()
             new_path = new_path if not reset else self._set_default_terminal_path()
