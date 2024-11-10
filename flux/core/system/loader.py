@@ -4,9 +4,6 @@ from functools import lru_cache as _lru_cache
 from types import ModuleType
 from typing import Callable, Optional, TextIO
 
-from flux.core.system.system import System
-
-
 # List of directories to search for custom scripts/extensions
 custom_script_dirs = ["scripts", "fpm"]
 manager_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
