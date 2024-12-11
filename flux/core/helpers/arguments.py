@@ -52,6 +52,7 @@ class Parser(ArgumentParser):
 
         if "-h" in args or "--help" in args:
             self.exit_execution = True
+            self.help()
         
         return nspace
 
