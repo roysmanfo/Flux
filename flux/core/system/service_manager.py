@@ -20,8 +20,7 @@ class Servicemanager:
         self.service_db_path = service_db_path
         self.system: System = None
 
-        self._load_service_db()
-        self._start_enabled_services()
+        self.restart()
 
     def _load_service_db(self):
         if not os.path.exists(self.service_db_path):
@@ -73,10 +72,18 @@ class Servicemanager:
 
     def reset_service_db(self) -> None:
         """
-        restet the service database to the default values
+        reset the service database to the default values
         """
         self.service_db = self._get_default_services()
         self.update_service_db()
+    
+    def restart(self) -> None:
+        """
+        reads the database, starts enabled services
+        and saves their metadata in a table (`self.service_table`) 
+        """
+        self._load_service_db()
+        self._start_enabled_services()
 
     def _get_default_services(self) -> dict[str, Union[str, bool]]:
         return {"sys_usage": {"enabled": True}, "net_monitor": {"enabled": True}}
