@@ -71,7 +71,7 @@ class Service(ServiceInterface):
     def get_battery_percentage(self):
         if (battery := psutil.sensors_battery()):
             if battery.power_plugged:
-                return battery.percent
+                return battery.percent / 100
         
         # if there is no battery or the battery is full,
         # act like there is a full battery
