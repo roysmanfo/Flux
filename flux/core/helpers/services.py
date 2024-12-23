@@ -100,9 +100,14 @@ class ServiceInterface(metaclass=_ABCMeta):
 
                 # there will be no wait with skip_cooldown set to True
                 time.sleep(self.cooldown * (not bool(self.skip_cooldown)))
-        except Exception:
-            pass
-        self.stop()
+        except Exception as e:
+            try:
+                self.on_error(e)
+            except Exception:
+                # you never know what could happen
+                pass
+        finally:
+            self.stop()
         
     
     def awake(self) -> None:
@@ -124,6 +129,12 @@ class ServiceInterface(metaclass=_ABCMeta):
         Operations to perform when the current service gets stopped 
         """
         self._running = False
+    
+    def on_error(self, e: Exception) -> None:
+        """
+        Operations to perform when an error occurs
+        """
+        ...
 
     @property
     def running(self) -> bool:
