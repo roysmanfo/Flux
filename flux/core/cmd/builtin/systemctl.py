@@ -27,6 +27,8 @@ class Command(CommandInterface):
         # enable a service
         parser_enable = commands.add_parser("enable", description="Enable one or more units", help="Enable one or more units")
         parser_enable.add_argument("units", metavar="UNIT", nargs="+", help="the services to enable")
+        # reset database
+        commands.add_parser("reset", description="Reset the database to its default values", help="Reset the database to its default values")
 
 
     def run(self) -> None:
@@ -39,6 +41,7 @@ class Command(CommandInterface):
             case "enable": self.enable_service()
             case "list": self.list_service()
             case "start": self.start_service()
+            case "reset": self.reset_db()
             case "stop": self.stop_service()
             case _: self.error(f"Unknown command verb '{self.args.command}'", use_color=True)        
     
@@ -116,3 +119,8 @@ class Command(CommandInterface):
 
             else:
                 self.error(f"{unit}.service not found", use_color=True)
+
+    # systemctl reset
+    def reset_db(self):
+        self.system.service_manager.reset_service_db()
+        self.print("Database has been reset")
