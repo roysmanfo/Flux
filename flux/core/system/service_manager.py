@@ -20,8 +20,6 @@ class Servicemanager:
         self.service_db_path = service_db_path
         self.system: System = None
 
-        self.restart()
-
     def _load_service_db(self):
         if not os.path.exists(self.service_db_path):
             self.reset_service_db()
