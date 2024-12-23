@@ -34,6 +34,7 @@ class System():
 
     def _init_service_manager(self) -> None:
         self.service_manager.system = self
+        self.service_manager.restart()
 
     def get_settings(self) -> Settings:
         return self.settings.copy()
