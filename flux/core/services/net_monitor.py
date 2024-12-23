@@ -32,11 +32,8 @@ class Service(ServiceInterface):
 
     def stop(self):
         try:
-            # close the socket if is't still open 
+            # close the socket if it's still open 
             self.socket.close()
         except:
             pass
-
-    def on_error(self, err: Exception):
-        print(f"{err=}")
     
