@@ -138,9 +138,6 @@ class Interrupt:
         self.exec_once = exec_once if exec_once is not None else True
         self.exec_count = 0
 
-        global _system_interrupt_handler
-        _system_interrupt_handler = self
-
     @property
     def handle(self):
         """
@@ -171,6 +168,9 @@ class InterruptHandler(object):
         self.interrupts: dict[int, list[Interrupt]] = {}        # signum -> [Interrupt, ...]
         self.interrupt_map: dict[IHandle, Interrupt] = {}       # ihandle -> Interrupt
         self.supported: dict[str, int] = {}                     # event_name -> signum
+
+        global _system_interrupt_handler
+        _system_interrupt_handler = self
 
         # add all available interrupts to self
         for event in list(EventTriggers):
