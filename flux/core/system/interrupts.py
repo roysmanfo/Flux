@@ -1,3 +1,4 @@
+import os
 import sys
 import signal
 import random
@@ -13,6 +14,8 @@ class UnsupportedSignalError(ValueError):
     """
     Error with the provided Event/Signal 
     """
+
+class InterruptHandler: ...
 
 
 class EventTriggers(IntEnum):
@@ -72,14 +75,14 @@ class EventTriggers(IntEnum):
     PROCESS_DELETED = 101           # Triggered when a new process is deleted
     COMMAND_EXECUTED = 102          # Triggered after a command is successfully executed
     COMMAND_FAILED = 103            # Triggered if a command execution fails
+    DIRECTORY_CHANGED = 104         # Triggered when the current working directory is changed
+    SIGNAL_RECEIVED = 106           # Triggered when a signal is received by the terminal
+    NETWORK_CONNECTED = 109         # Triggered when a network connection is established
+    NETWORK_DISCONNECTED = 110      # Triggered when a network connection is lost
     MEMORY_USAGE_HIGH = 114         # Triggered when memory usage exceeds a certain threshold
     CPU_USAGE_HIGH = 115            # Triggered when CPU usage exceeds a certain threshold
     BATTERY_LOW = 116               # Triggered when the battery level is low (for portable devices)
-    NETWORK_CONNECTED = 109         # Triggered when a network connection is established
-    NETWORK_DISCONNECTED = 110      # Triggered when a network connection is lost
-    SIGNAL_RECEIVED = 106           # Triggered when a signal is received by the terminal
     # available but not yet working
-    DIRECTORY_CHANGED = 104         # Triggered when the current working directory is changed
     FILE_MODIFIED = 105             # Triggered when a file is modified within the current directory
     TASK_COMPLETED = 107            # Triggered when a long-running task completes
     TASK_FAILED = 108               # Triggered when a long-running task fails
@@ -92,7 +95,6 @@ def event_name_to_value(event: str) -> Optional[int]:
         return EventTriggers[event]
     except KeyError:
         return None
-
 
 def event_value_to_name(value: int) -> Optional[str]:
     if value not in EventTriggers:
@@ -135,6 +137,9 @@ class Interrupt:
         self.kwargs = kwargs if kwargs is not None else dict()
         self.exec_once = exec_once if exec_once is not None else True
         self.exec_count = 0
+
+        global _system_interrupt_handler
+        _system_interrupt_handler = self
 
     @property
     def handle(self):
@@ -313,3 +318,25 @@ class InterruptHandler(object):
 
     def get_available_signal_values(self) -> List[int]:
         return list(self.supported.values())
+
+
+
+
+###################
+###### HOOKS ######
+###################
+
+_system_interrupt_handler: InterruptHandler
+
+
+def _chdir_hook(path: str):
+    _chdir(path)
+
+    # raise in interrupt AFTER the directory has been changed
+    # this prevents the interrupt from being raised if the directory change fails
+    if _system_interrupt_handler:
+        _system_interrupt_handler.raise_interrupt(EventTriggers.DIRECTORY_CHANGED)
+
+_chdir = os.chdir # original os.chdir
+os.chdir = _chdir_hook # replace os.chdir with our custom function
+
