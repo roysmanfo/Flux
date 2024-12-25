@@ -33,6 +33,5 @@ def setup() -> System:
     settings = Settings(user)
     system = System(settings)
     
-    os.chdir(system.variables.get("$HOME").value)
     return system
 
