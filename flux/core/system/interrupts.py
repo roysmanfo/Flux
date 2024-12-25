@@ -75,14 +75,14 @@ class EventTriggers(IntEnum):
     MEMORY_USAGE_HIGH = 114         # Triggered when memory usage exceeds a certain threshold
     CPU_USAGE_HIGH = 115            # Triggered when CPU usage exceeds a certain threshold
     BATTERY_LOW = 116               # Triggered when the battery level is low (for portable devices)
+    NETWORK_CONNECTED = 109         # Triggered when a network connection is established
+    NETWORK_DISCONNECTED = 110      # Triggered when a network connection is lost
+    SIGNAL_RECEIVED = 106           # Triggered when a signal is received by the terminal
     # available but not yet working
     DIRECTORY_CHANGED = 104         # Triggered when the current working directory is changed
     FILE_MODIFIED = 105             # Triggered when a file is modified within the current directory
-    SIGNAL_RECEIVED = 106           # Triggered when a signal is received by the terminal
     TASK_COMPLETED = 107            # Triggered when a long-running task completes
     TASK_FAILED = 108               # Triggered when a long-running task fails
-    NETWORK_CONNECTED = 109         # Triggered when a network connection is established
-    NETWORK_DISCONNECTED = 110      # Triggered when a network connection is lost
     USER_LOGIN = 111                # Triggered when a user logs into the system
     USER_LOGOUT = 112               # Triggered when a user logs out of the system
     SYSTEM_ERROR = 113              # Triggered when a system error occurs
@@ -278,6 +278,13 @@ class InterruptHandler(object):
         if signum and signum in self.interrupts:
             for interrupt in self.interrupts[signum]:
                 interrupt.call(signum, frame)
+
+            # also call any interrupt hooked to SIGNAL_RECEIVED
+            if EventTriggers.SIGNAL_RECEIVED in self.interrupts:
+                for interrupt in self.interrupts[EventTriggers.SIGNAL_RECEIVED]:
+                    # pass the actual signal that has been received
+                    interrupt.call(signum, frame)
+
 
     def get_all(self, event: Union[Signals, EventTriggers]) -> List[Interrupt]:
         """
