@@ -1,8 +1,6 @@
 import os
 import sys
 import signal
-import random
-import time
 import inspect
 from signal import Signals
 from enum import IntEnum
@@ -97,14 +95,14 @@ def event_name_to_value(event: str) -> Optional[int]:
         return None
 
 def event_value_to_name(value: int) -> Optional[str]:
-    if value not in EventTriggers:
+    if value not in EventTriggers._value2member_map_:
         return None
 
     return _clean_event_name(EventTriggers(value))
 
 
-def _clean_event_name(event_repr: str) -> str:
-    return event_repr.__repr__().split(".")[1].split(":")[0].upper()
+def _clean_event_name(event_repr: EventTriggers) -> str:
+    return event_repr.name
 
 class IHandle(int):
     """
@@ -114,11 +112,12 @@ class IHandle(int):
     """
 
     def __str__(self) -> str:
-        return f"IHandle<{super().__str__()}>"
+        return f"IHandle<{int(self)}>"
 
     @staticmethod
     def generate_handle():
-        return int(time.time()) // random.randint(1000, 9999)
+        import uuid
+        return uuid.uuid4().int
 
 
 class Interrupt:
@@ -160,11 +159,15 @@ class Interrupt:
 
         if self.target:
             self.exec_count += 1
-            self.target(signum, frame, *self.args, **self.kwargs)
+            try:
+                self.target(signum, frame, *self.args, **self.kwargs)
+            except Exception as e:
+                print(f"Exception occurred in interrupt handler: {e}")
 
 
 class InterruptHandler(object):
     def __init__(self) -> None:
+        self.supported: dict[str, int] = {}                     # event_name -> signum
         self.interrupts: dict[int, list[Interrupt]] = {}        # signum -> [Interrupt, ...]
         self.interrupt_map: dict[IHandle, Interrupt] = {}       # ihandle -> Interrupt
         self.supported: dict[str, int] = {}                     # event_name -> signum
@@ -216,16 +219,14 @@ class InterruptHandler(object):
             h = IHandle.generate_handle()
 
         handle = IHandle(h)
-        if isinstance(args, tuple):
-            args = (args,)
-        if kwargs and isinstance(kwargs, dict):
+        if not isinstance(args, tuple):
+            args = (args,)    
+        if kwargs and not isinstance(kwargs, dict):
             raise TypeError(f"kwargs should be of type dict and not {type(kwargs)}")
         interrupt = Interrupt(handle, signal_value, target, args, kwargs, exec_once)
 
         if signal_value not in self.interrupts:
             self.interrupts[signal_value] = []
-        self.interrupts[signal_value].append(interrupt)
-
         self.interrupt_map[handle] = interrupt
         return handle
 
@@ -247,7 +248,11 @@ class InterruptHandler(object):
             self.interrupt_map.pop(handle)
 
             # remove from database
-            self.interrupts.get(interrupt.signal).remove(interrupt)
+            interrupt_list = self.interrupts.get(interrupt.signal, [])
+            try:
+                interrupt_list.remove(interrupt)
+            except ValueError:
+                pass
 
             # delete from memory
             del interrupt
@@ -261,8 +266,8 @@ class InterruptHandler(object):
         if not isinstance(event, (Signals, EventTriggers, int)):
             raise UnsupportedSignalError("You must provide a Signal/Event")
 
-        if event not in self.supported.values():
-            raise UnsupportedSignalError("The specified EventTriggers isn't suported")
+        if event not in self.get_available_signal_values():
+            raise UnsupportedSignalError("The specified EventTriggers isn't supported")
 
         frame = inspect.currentframe()
         if frame:
