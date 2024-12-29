@@ -6,7 +6,7 @@ from flux.core.helpers.commands import (
 import paramiko
 import socket
 import getpass
-
+import time
 
 class Command(CommandInterface):
     def init(self):
@@ -32,52 +32,91 @@ class Command(CommandInterface):
             *username, host = self.args.host.split("@")
             username = "@".join(username)
 
-        names, _, ip_addresses = socket.gethostbyname_ex(host)
+        _, _, ip_addresses = socket.gethostbyname_ex(host)
         
-        print(names)
         if not ip_addresses:
             self.print(f"ssh: Could not resolve hostname {host}: Name or service not known")
             return
 
 
-        self.print(f"Connecting to {host} as {username}")
         self.connect(username, host)
     
+
+
     def connect(self, username: str, host: str) -> None:
-        with paramiko.SSHClient() as ssh:
-            ssh.load_system_host_keys()
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            
-            passw = None
-            if not (key := ssh.get_host_keys().lookup(host)):
-                # todo: handle key error
-                passw = getpass.getpass(f"{username}@{host}'s password: ")
+        try:
+            with paramiko.SSHClient() as ssh:
+                ssh.load_system_host_keys()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-            ssh.connect(
-                hostname=host,
-                port=self.args.port,
-                password=passw,
-                username=username,
-                pkey=key
-            )
-            
-            exit_status = 0
-            prompt = f"{self.colors.Fore.GREEN}{self.colors.Style.BRIGHT}{username}@{host}{self.colors.Style.NORMAL}{self.colors.Fore.RESET}"
-            path = "~"
-            input_prompt_separator = f"{self.colors.Style.BRIGHT}${self.colors.Style.NORMAL}"
-            
-            while not exit_status:
-                command = input(f"{prompt}:{self.colors.Fore.BLUE}{path} {input_prompt_separator}{self.colors.Fore.RESET} ")
-                if command == "exit":
-                    break
-                _, stdout, stderr = ssh.exec_command(command)
+                passw = None
+                key = None
 
-                if out := stdout.read():
-                    self.print(out.decode())
-                
-                if err := stderr.read():
-                    self.print(err.decode())
-                
-                exit_status = stdout.channel.recv_exit_status()
+                for i in range(3):
+                    if not ssh.get_host_keys().lookup(host):
+                        self.print(f"Host key for {host} not found. Proceeding with password authentication.")
+                        passw = getpass.getpass(f"{username}@{host}'s password: ")
+
+                    try:
+                        ssh.connect(
+                            hostname=host,
+                            port=self.args.port,
+                            password=passw,
+                            username=username,
+                            pkey=key,
+                        )
+                        break
+                    except paramiko.AuthenticationException:
+                        if i == 2:
+                            self.print(f"{username}@{host}: Permission denied (publickey,password).")
+                            return
+                        self.print("Permission denied, please try again.")
+                    except Exception as e:
+                        self.print(f"Error connecting to {host}: {e}")
+                        return
+
+                shell_exit = False
+                with ssh.invoke_shell() as shell:
+                    # Receive the welcome message
+                    time.sleep(0.1)
+                    while shell.recv_ready():
+                        out = shell.recv(1024).decode()
+                        self.print(out, end="")
+                    self.print()
+
+                    while not shell_exit:
+                        try:
+                            command = input()
+                            if command.strip().lower() == "exit":
+                                shell_exit = True
+                                continue
+
+                            # Send command
+                            shell.send(command + "\n")
+                            time.sleep(0.2)
+
+                            # Receive command output
+                            first_line_received = False
+                            while shell.recv_ready():
+                                out = shell.recv(1024).decode()
+
+                                # the first line is the command itself,
+                                # so we don't want to print it
+                                if not first_line_received:
+                                    out = out.split("\n", 1)[1]
+                                self.print(out, end="")
+
+                            # Check for errors
+                            while shell.recv_stderr_ready():
+                                err = shell.recv_stderr(1024).decode()
+                                self.print(err, end="")
+
+                        except Exception as e:
+                            self.print(f"Error during shell session: {e}")
+                            shell_exit = True
+
+                self.print(f"Connection to {host} closed.")
+        except Exception as e:
+            self.print(f"An error occurred: {e}")
 
 
