@@ -18,7 +18,7 @@ def create_table(
     and M rappresents the number of rows in `contents`
 
     :param collumns:            all the collumn titles
-    :param contents:            the data tu popu;ate the table (list of rows)
+    :param contents:            the data tu populate the table (list of rows)
     :param show_headers:        when set tu false the titles will be discarded in the table
     :param fill_value:          value tu use if there is nothing in that row for this column
     :param separator:           a character to use to create divisor lines

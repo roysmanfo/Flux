@@ -80,19 +80,17 @@ class Netcat(CommandInterface):
         if self.args.verbose:
             # print on the stdout
             print(f"Listening on {bind_ip} {self.args.port}")
-        sock.settimeout(.1)
+        sock.settimeout(.1) # small timeout to allow the event to be set
 
-        while True:
-            if self.event.is_set():
-                return
-            
+        while not self.event.is_set():            
             try:
                 client, addr = sock.accept()
                 break
             except TimeoutError:
                 pass
-
-
+        
+        if self.event.is_set():
+            return
 
         try:
             addr = socket.getnameinfo(addr, 0) if not self.args.no_name_resolution else addr

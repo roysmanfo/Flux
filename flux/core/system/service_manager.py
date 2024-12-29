@@ -20,13 +20,9 @@ class Servicemanager:
         self.service_db_path = service_db_path
         self.system: System = None
 
-        self._load_service_db()
-        self._start_enabled_services()
-
     def _load_service_db(self):
         if not os.path.exists(self.service_db_path):
-            self.service_db = self._get_default_services()
-            self.update_service_db()
+            self.reset_service_db()
         elif not os.path.isfile(self.service_db_path):
             # **please** do not create conflicts with paths
             # otherwise each time you will startwith the default
@@ -41,7 +37,7 @@ class Servicemanager:
             except json.JSONDecodeError as e:
                 print(f"an error accoured when reading '{self.service_db_path}' ({type(e)})", file=sys.stderr)
                 _, log_path = crash_handler.write_error_log()
-                print(f"The full traceback of this error can be found here: \n{log_path}\n", file=sys.stderr)
+                print(f"Thhe full traceback of this error can be found ere: \n{log_path}\n", file=sys.stderr)
 
                 if input("reset the file to default (N/y): ").lower() != 'y':
                     print("Aborting...", file=sys.stderr)
@@ -49,6 +45,7 @@ class Servicemanager:
                 
                 try:
                     os.remove(self.service_db_path)
+                    self.reset_service_db()
                 except Exception as e:
                     # this is mainly for PermissionError,
                     # but other exceptions caused by race conditions can't be predicted
@@ -57,9 +54,6 @@ class Servicemanager:
                     print(f"The full traceback of this error can be found here: \n{log_path}\n", file=sys.stderr)
                     print("Aborting...", file=sys.stderr)
                     sys.exit(1)
-
-                self.service_db = self._get_default_services()
-                self.update_service_db()
 
     def _start_enabled_services(self):
         # get all enabled services in one go
@@ -73,8 +67,24 @@ class Servicemanager:
             if self.register_service(service_name):
                 self.service_table[service_name]._enabled = True
 
+
+    def reset_service_db(self) -> None:
+        """
+        reset the service database to the default values
+        """
+        self.service_db = self._get_default_services()
+        self.update_service_db()
+    
+    def restart(self) -> None:
+        """
+        reads the database, starts enabled services
+        and saves their metadata in a table (`self.service_table`) 
+        """
+        self._load_service_db()
+        self._start_enabled_services()
+
     def _get_default_services(self) -> dict[str, Union[str, bool]]:
-        return {"sys_usage": {"enabled": True}}
+        return {"sys_usage": {"enabled": True}, "net_monitor": {"enabled": True}}
 
     def update_service_db(self) -> None:
         """

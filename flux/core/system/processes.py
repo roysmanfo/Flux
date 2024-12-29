@@ -212,16 +212,22 @@ class Processes:
             Status.STATUS_OK: False,
             Status.STATUS_WARN: False,
         }
+        completed_processes = []
         for p in self.processes.values():
             # check that we are not trying to remove the main process 
             if not p is _main_process and not p.thread.is_alive():
-                self.processes.pop(p.id)
+                # do not modify the dictionary inside the loop
+                # but still keep track of all the processes to remove
+                completed_processes.append(p.id)
                 try:
                     status_dict[p.status] = True
                 except:
                     # a non valid status was received (probably some other data type),
                     # ignore it as we don't know what does it mean
                     pass
+
+        for pid in completed_processes:
+            self.processes.pop(pid)
 
         self.i_handler.raise_interrupt(EventTriggers.PROCESS_DELETED)
         
