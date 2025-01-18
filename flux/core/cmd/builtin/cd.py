@@ -26,7 +26,6 @@ class Command(CommandInterface):
                 new_dir: str = "" + self.args.dir.strip('"').strip("'")
                 if new_dir.startswith("$"):
                     new_dir = self.system.variables.get(new_dir).value or new_dir
-                self.system.settings.user.paths.terminal = new_dir
 
             except FileNotFoundError:
                 self.error(self.errors.path_not_found(new_dir))
@@ -36,8 +35,8 @@ class Command(CommandInterface):
 
             except OSError:
                 self.error(self.errors.cannot_read_fod(new_dir))
-
-            self.settings.user.paths.terminal = os.getcwd().replace("\\", "/")
+                                              
+            self.settings.user.paths.terminal = os.path.realpath(new_dir).replace("\\", "/")
 
         else:
             self.settings.user.paths.terminal = self.system.variables.get("$HOME").value
