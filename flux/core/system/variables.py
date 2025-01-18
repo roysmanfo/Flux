@@ -99,12 +99,11 @@ class Variables:
         Returns it's value if the variable has been remove found, otherwise returns default
         """
 
-        for var in self._variables:
-            if var == name:
-                v = self._variables.get(var)
-                return v.copy() if copy else v
+        v = self._variables.get(name)
+        if not v:
+            return default
+        return v.copy() if copy else v
 
-        return default
 
     def set(self, name: str, value: str) -> None:
         """

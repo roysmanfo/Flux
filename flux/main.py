@@ -34,7 +34,7 @@ def listen() -> List[str]:
 
 def run():
     while not SYSTEM.exit:
-        os.chdir(SYSTEM.settings.user.paths.terminal)
+        os.chdir(SYSTEM.variables.get("$PWD").value)
         try:
             cmd = listen()
 
