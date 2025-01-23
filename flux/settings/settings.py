@@ -21,15 +21,25 @@ _pathlib_class_type = type(pathlib.Path()) # PosixPath or WindowsPath
 class SysPaths(_pathlib_class_type, Enum):
     INSTALL_FOLDER = pathlib.Path(_flux_root).resolve()
     PUBLIC_KEY_FILE = pathlib.Path(_flux_root, "security", "public.pem").resolve()
+    
+    # Configuration files
     CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux")).resolve()
     SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json")).resolve()
     SERVICES_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "services.json")).resolve()
     SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE)).resolve()
     CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache")).resolve()
     LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local")).resolve()
+    
+    # Temporary files
     FLUX_TEMP_FOLDER = pathlib.Path(os.path.join(tempfile.gettempdir(), "flux-temp")).resolve()
     LOGS_FOLDER = pathlib.Path(os.path.join(FLUX_TEMP_FOLDER, "logs")).resolve()
     PIPES_FOLDER = pathlib.Path(os.path.join(FLUX_TEMP_FOLDER, "pipes")).resolve()
+    
+    # Command folders
+    CMD_FOLDER = pathlib.Path(os.path.join(_flux_root, "flux", "core", "cmd")).resolve()
+    CMD_BUILTIN_FOLDER = pathlib.Path(os.path.join(CMD_FOLDER, "builtin")).resolve()
+    CMD_SCRIPTS_FOLDER = pathlib.Path(os.path.join(CMD_FOLDER, "scripts")).resolve()
+    CMD_FPM_FOLDER = pathlib.Path(os.path.join(CMD_FOLDER, "fpm")).resolve()
     
     def __str__(self):
         return str(self.value)
