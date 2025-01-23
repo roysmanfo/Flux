@@ -3,6 +3,7 @@ import importlib
 from functools import lru_cache as _lru_cache
 from types import ModuleType
 from typing import Callable, Optional, TextIO
+from pathlib import Path, WindowsPath, PosixPath
 
 # List of directories to search for custom scripts/extensions
 custom_script_dirs = ["scripts", "fpm"]
@@ -11,9 +12,62 @@ manager_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 # store up to 50 commands in the cache
 max_cache_size = 50
 
+_search_priority: list[Path] = []
+
+ComamndInterfaceType = Callable[[object, str, str, bool, TextIO, TextIO, TextIO, int], None]
+
+
+def set_search_priority(priority: list[Path]) -> None:
+    """
+    Set the search priority for the command loader
+    """
+    global _search_priority
+    _search_priority = priority
+    _search_priority = list(map(lambda p: Path(p) if not isinstance(p, (Path, WindowsPath, PosixPath)) else p, _search_priority))
+
+def get_search_priority() -> list[Path]:
+    """
+    Get the search priority for the command loader
+    """
+    return _search_priority
+
 
 @_lru_cache(maxsize=max_cache_size, typed=False)
-def load_custom_script(script_name: str) -> Optional[Callable[[object, str, str, bool, TextIO, TextIO, TextIO, int], None]]:
+def load_command(script_name: str) -> Optional[ComamndInterfaceType]:
+    """
+    Load a command installed on the machine
+     
+    If the `search_priority` has been set, it will search in the directories in the order specified
+    """
+    if not _search_priority:
+        set_search_priority([
+            Path(manager_dir, "cmd", "builtin"),
+            Path(manager_dir, "cmd", "scripts"),
+            Path(manager_dir, "cmd", "fpm"),
+        ])
+
+
+    for dir_path in _search_priority:
+        script_path = os.path.join(dir_path, script_name)
+        if os.path.exists(script_path + ".py"):
+            if os.path.isfile(script_path + ".py"):
+                try:
+                    module = importlib.import_module(f"flux.core.cmd.{dir_path.name}.{script_name}", "flux")
+                    class_name = _get_entry_point(module)
+                    return getattr(module, class_name) if class_name else None
+                except ImportError:
+                    pass
+            elif os.path.isdir(script_path):
+                try:
+                    module = importlib.import_module(f"flux.core.cmd.{dir_path.name}.{script_name}.main", "flux")
+                    class_name = _get_entry_point(module)
+                    return getattr(module, class_name) if class_name else None
+                except ImportError:
+                    pass
+    return None
+
+@_lru_cache(maxsize=max_cache_size, typed=False)
+def load_custom_script(script_name: str) -> Optional[ComamndInterfaceType]:
     """
     Load an external command installed on the machine
     """
@@ -40,7 +94,7 @@ def load_custom_script(script_name: str) -> Optional[Callable[[object, str, str,
     return None
 
 @_lru_cache(maxsize=max_cache_size, typed=False)
-def load_builtin_script(script_name: str) -> Optional[Callable[[object, str, str, bool, TextIO, TextIO, TextIO, int], None]]:
+def load_builtin_script(script_name: str) -> Optional[ComamndInterfaceType]:
     """
     Load an internal command installed on the machine
     """

@@ -134,6 +134,14 @@ def delete_used_pipes(pipe_files: Iterable[TextIO]) -> None:
 
 def manage(command: List[str], system: System) -> None:
 
+    if not loader.get_search_priority():
+        loader.set_search_priority([
+            system.settings.syspaths.CMD_BUILTIN_FOLDER,
+            system.settings.syspaths.CMD_SCRIPTS_FOLDER,
+            system.settings.syspaths.CMD_FPM_FOLDER,
+        ])
+
+
     commands = transform.split_commands(command)
     remainning_commands = len(commands)
     num_pipes_left, tot_pipes = 0, 0
@@ -233,9 +241,12 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
         stdout = create_pipe(system.settings.syspaths.PIPES_FOLDER)
 
     # Load command
-    exec_command_class = loader.load_builtin_script(command_name)
-    if not exec_command_class:
-        exec_command_class = loader.load_custom_script(command_name)
+    if loader.get_search_priority():
+        exec_command_class = loader.load_command(command_name)
+    else:
+        exec_command_class = loader.load_builtin_script(command_name)
+        if not exec_command_class:
+            exec_command_class = loader.load_custom_script(command_name)
 
     if not exec_command_class:
         print(f"-flux: {command_name}: command not found\n", file=sys.stderr)
