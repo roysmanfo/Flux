@@ -1,5 +1,4 @@
 import os
-import sys
 import unittest
 import tempfile
 from flux.settings.settings import SysPaths
@@ -25,19 +24,11 @@ class Test_TestShell(unittest.TestCase):
         if not s_file_exists and os.path.exists( SysPaths.SETTINGS_FILE):
             os.remove(SysPaths.SETTINGS_FILE)
         
+        if os.path.exists(FILE):
+            os.remove(FILE)
+
         if self.instance:
-            if self.instance.stdout and self.instance.stdout != sys.stdout:
-                if not self.instance.stdout.closed:
-                    self.instance.stdout.close()
-
-            if self.instance.stderr and self.instance.stderr != sys.stderr:
-                if not self.instance.stderr.closed:
-                    self.instance.stderr.close()
-
-            if self.instance.stdin and self.instance.stdin != sys.stdin:
-                if not self.instance.stdin.closed:
-                    self.instance.stdin.close()
-            
+            self.instance.close()
             self.instance = None
 
     def test_build_01(self):
@@ -89,6 +80,89 @@ class Test_TestShell(unittest.TestCase):
         command = utils.transform.string_to_list(f"cat <<{FILE} >> {os.path.join(TMP, 'file2.txt')}")
         self.instance = manager.build(command, info)
         self.assertFalse(self.instance is None)
+
+class Test_TestFilePathHandling(unittest.TestCase):
+
+    def track_file(self, file_path: str) -> None:
+        self.files.append(file_path)
+
+    def setUp(self):
+        self.addCleanup(self.clean)
+        self.instance = None
+        self.files: list[str] = []
+
+    def clean(self) -> None:        
+        if not s_file_exists and os.path.exists( SysPaths.SETTINGS_FILE):
+            os.remove(SysPaths.SETTINGS_FILE)
+        
+        if os.path.exists(FILE):
+            os.remove(FILE)
+
+        if self.instance:
+            self.instance.close()
+            self.instance = None
+
+        while self.files:
+            if os.path.exists(file := self.files.pop()):
+                os.remove(file)
+
+    def test_file_path_01(self):
+        command = utils.transform.string_to_list(f"ls > {FILE}")
+        self.instance = manager.build(command, info)
+        self.assertFalse(self.instance is None)
+        self.assertTrue(os.path.exists(FILE))
+    
+    def test_file_path_02(self):
+        command = utils.transform.string_to_list(f"ls > {FILE}")
+        self.instance = manager.build(command, info)
+        self.assertFalse(self.instance is None)
+        self.assertTrue(os.path.exists(FILE))
+
+    def test_file_path_03(self):
+        file = os.path.join(TMP, 'file with spaces.txt')
+        self.track_file(file)
+        command = utils.transform.string_to_list(f"ls > {file}")
+        self.instance = manager.build(command, info)
+        self.assertFalse(self.instance is None)
+        self.assertTrue(os.path.exists(file))
+
+    def test_file_path_04(self):
+        # Test Windows-style paths
+        win_path = os.path.join(TMP, 'test\\folder\\file.txt')
+        self.track_file(win_path)
+        command = utils.transform.string_to_list(f"ls > {win_path}")
+        self.instance = manager.build(command, info)
+        self.assertFalse(self.instance is None)
+        self.assertTrue(os.path.exists(win_path.replace('\\','/')))
+
+    def test_file_path_05(self):
+        # Test paths with special characters
+        special_path = os.path.join(TMP, 'test@#$%^&()_+.txt')
+        self.track_file(special_path)
+        command = utils.transform.string_to_list(f"ls > {special_path}")
+        self.instance = manager.build(command, info)
+        self.assertFalse(self.instance is None)
+        self.assertTrue(os.path.exists(special_path))
+
+    def test_file_path_06(self):
+        # Test very long paths
+        long_dir = 'a' * 100
+        long_path = os.path.join(TMP, long_dir, 'file.txt')
+        self.track_file(long_path)
+        command = utils.transform.string_to_list(f"ls > {long_path}")
+        self.instance = manager.build(command, info)
+        self.assertFalse(self.instance is None)
+        self.assertTrue(os.path.exists(long_path))
+
+    def test_file_path_07(self):
+        # Test paths with unicode characters
+        unicode_path = os.path.join(TMP, 'áéíóú ñçß.txt')
+        self.track_file(unicode_path)
+        command = utils.transform.string_to_list(f"ls > {unicode_path}")
+        self.instance = manager.build(command, info)
+        self.assertFalse(self.instance is None)
+        self.assertTrue(os.path.exists(unicode_path))
+
 
 if __name__ == '__main__':
     unittest.main()
