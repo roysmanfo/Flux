@@ -23,6 +23,7 @@ def string_to_list(string: str) -> List[str]:
     ```
     """
     try:
+        string = string.replace("\\", "/")
         words = shlex.split(string, comments=True, posix=True)
     except ValueError:
         raise
