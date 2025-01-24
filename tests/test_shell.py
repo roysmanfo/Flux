@@ -94,13 +94,13 @@ class Test_TestFilePathHandling(unittest.TestCase):
     def clean(self) -> None:        
         if not s_file_exists and os.path.exists( SysPaths.SETTINGS_FILE):
             os.remove(SysPaths.SETTINGS_FILE)
-        
-        if os.path.exists(FILE):
-            os.remove(FILE)
 
         if self.instance:
             self.instance.close()
             self.instance = None
+
+        if os.path.exists(FILE):
+            os.remove(FILE)
 
         while self.files:
             if os.path.exists(file := self.files.pop()):
@@ -113,7 +113,7 @@ class Test_TestFilePathHandling(unittest.TestCase):
         self.assertTrue(os.path.exists(FILE))
     
     def test_file_path_02(self):
-        command = utils.transform.string_to_list(f"ls > {FILE}")
+        command = utils.transform.string_to_list(f"ls 2> {FILE}")
         self.instance = manager.build(command, info)
         self.assertFalse(self.instance is None)
         self.assertTrue(os.path.exists(FILE))
