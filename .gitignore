@@ -18,3 +18,8 @@ pyvenv.cfg
 
 # make shure that no private key gets leaked by anyone
 private.pem
+
+# custom commands
+cmd/fpm/
+cmd/scripts/
+
