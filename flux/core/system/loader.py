@@ -49,7 +49,7 @@ def load_command(script_name: str) -> Optional[ComamndInterfaceType]:
 
     for dir_path in _search_priority:
         script_path = os.path.join(dir_path, script_name)
-        if os.path.exists(script_path + ".py"):
+        if os.path.exists(script_path + ".py") or os.path.isdir(script_path):
             if os.path.isfile(script_path + ".py"):
                 try:
                     module = importlib.import_module(f"flux.core.cmd.{dir_path.name}.{script_name}", "flux")
