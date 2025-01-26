@@ -14,22 +14,33 @@ s_file_exists = os.path.exists(SysPaths.SETTINGS_FILE)
 # NOTE: tests for setup must be handles elsewhere
 info = setup.setup()
 
-class Test_TestShell(unittest.TestCase):
+
+class TestCaseWithInstance(unittest.TestCase):
+    def track_file(self, file_path: str) -> None:
+        self.files.append(file_path)
 
     def setUp(self):
         self.addCleanup(self.clean)
         self.instance = None
+        self.files: list[str] = []
 
     def clean(self) -> None:        
         if not s_file_exists and os.path.exists( SysPaths.SETTINGS_FILE):
             os.remove(SysPaths.SETTINGS_FILE)
-        
-        if os.path.exists(FILE):
-            os.remove(FILE)
 
         if self.instance:
             self.instance.close()
             self.instance = None
+
+        if os.path.exists(FILE):
+            os.remove(FILE)
+
+        while self.files:
+            if os.path.exists(file := self.files.pop()):
+                os.remove(file)
+
+
+class Test_TestOutputRedirection(TestCaseWithInstance):
 
     def test_build_01(self):
         command = utils.transform.string_to_list("not existent command")
@@ -81,30 +92,7 @@ class Test_TestShell(unittest.TestCase):
         self.instance = manager.build(command, info)
         self.assertFalse(self.instance is None)
 
-class Test_TestFilePathHandling(unittest.TestCase):
-
-    def track_file(self, file_path: str) -> None:
-        self.files.append(file_path)
-
-    def setUp(self):
-        self.addCleanup(self.clean)
-        self.instance = None
-        self.files: list[str] = []
-
-    def clean(self) -> None:        
-        if not s_file_exists and os.path.exists( SysPaths.SETTINGS_FILE):
-            os.remove(SysPaths.SETTINGS_FILE)
-
-        if self.instance:
-            self.instance.close()
-            self.instance = None
-
-        if os.path.exists(FILE):
-            os.remove(FILE)
-
-        while self.files:
-            if os.path.exists(file := self.files.pop()):
-                os.remove(file)
+class Test_TestFilePathHandling(TestCaseWithInstance):
 
     def test_file_path_01(self):
         command = utils.transform.string_to_list(f"ls > {FILE}")
@@ -121,12 +109,23 @@ class Test_TestFilePathHandling(unittest.TestCase):
     def test_file_path_03(self):
         file = os.path.join(TMP, 'file with spaces.txt')
         self.track_file(file)
-        command = utils.transform.string_to_list(f"ls > {file}")
+        command = utils.transform.string_to_list(f"ls > '{file}'")
         self.instance = manager.build(command, info)
         self.assertFalse(self.instance is None)
         self.assertTrue(os.path.exists(file))
 
     def test_file_path_04(self):
+        file = os.path.join(TMP, 'file with spaces.txt')
+        expected = os.path.join(TMP, 'file')
+        self.track_file(file)
+        self.track_file(expected)
+        command = utils.transform.string_to_list(f"ls > {file}")
+        self.instance = manager.build(command, info)
+        self.assertFalse(self.instance is None)
+        self.assertFalse(os.path.exists(file))
+        self.assertTrue(os.path.exists(expected))
+
+    def test_file_path_05(self):
         # Test Windows-style paths
         win_path = os.path.join(TMP, 'test\\folder\\file.txt')
         self.track_file(win_path)
@@ -135,7 +134,7 @@ class Test_TestFilePathHandling(unittest.TestCase):
         self.assertFalse(self.instance is None)
         self.assertTrue(os.path.exists(win_path.replace('\\','/')))
 
-    def test_file_path_05(self):
+    def test_file_path_06(self):
         # Test paths with special characters
         special_path = os.path.join(TMP, 'test@#$%^&()_+.txt')
         self.track_file(special_path)
@@ -144,7 +143,7 @@ class Test_TestFilePathHandling(unittest.TestCase):
         self.assertFalse(self.instance is None)
         self.assertTrue(os.path.exists(special_path))
 
-    def test_file_path_06(self):
+    def test_file_path_07(self):
         # Test very long paths
         long_dir = 'a' * 100
         long_path = os.path.join(TMP, long_dir, 'file.txt')
@@ -154,7 +153,7 @@ class Test_TestFilePathHandling(unittest.TestCase):
         self.assertFalse(self.instance is None)
         self.assertTrue(os.path.exists(long_path))
 
-    def test_file_path_07(self):
+    def test_file_path_08(self):
         # Test paths with unicode characters
         unicode_path = os.path.join(TMP, 'áéíóú ñçß.txt')
         self.track_file(unicode_path)
