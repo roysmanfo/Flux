@@ -102,13 +102,14 @@ def _get_stream(command: List[str], redirect: str, mode: str) -> Optional[TextIO
             command.remove(redirect)
 
             pathname = Path(pathname).resolve()
+            
+            # create parent dirs if not present
+            os.makedirs(pathname.parent, exist_ok=True)
             return open(pathname, mode) if pathname not in NULL_PATH else None
-        except PermissionError:
-            raise PermissionError(f"-flux: {pathname}: Permission denied")
-        except OSError:
-            raise
+        except PermissionError as e:
+            raise PermissionError(f"-flux: {pathname}: Permission denied") from e
     else:
-        raise RuntimeError("syntax error near unexpected token `newline'")
+        raise RuntimeError("syntax error near unexpected token `newline`")
 
 
 def is_output_piped(command: List[str]) -> bool:
