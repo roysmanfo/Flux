@@ -10,12 +10,15 @@ custom_script_dirs = ["scripts", "fpm"]
 manager_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 # store up to 50 commands in the cache
-max_cache_size = 50
-
+_max_cache_size = 50
 _search_priority: list[Path] = []
 
 ComamndInterfaceType = Callable[[object, str, str, bool, TextIO, TextIO, TextIO, int], None]
 
+
+def use_cache(use: bool) -> None:
+    global _max_cache_size
+    _max_cache_size = 0 if not use else 50
 
 def set_search_priority(priority: list[Path]) -> None:
     """
@@ -31,8 +34,11 @@ def get_search_priority() -> list[Path]:
     """
     return _search_priority
 
+def _load_module(module_name: str) -> ModuleType:
+    module = importlib.import_module(f"flux.core.cmd.{module_name}", "flux")
+    return importlib.reload(module)
 
-@_lru_cache(maxsize=max_cache_size, typed=False)
+@_lru_cache(maxsize=_max_cache_size, typed=False)
 def load_command(script_name: str) -> Optional[ComamndInterfaceType]:
     """
     Load a command installed on the machine
@@ -52,21 +58,21 @@ def load_command(script_name: str) -> Optional[ComamndInterfaceType]:
         if os.path.exists(script_path + ".py") or os.path.isdir(script_path):
             if os.path.isfile(script_path + ".py"):
                 try:
-                    module = importlib.import_module(f"flux.core.cmd.{dir_path.name}.{script_name}", "flux")
+                    module = _load_module(f"{dir_path.name}.{script_name}")
                     class_name = _get_entry_point(module)
                     return getattr(module, class_name) if class_name else None
                 except ImportError:
                     pass
             elif os.path.isdir(script_path):
                 try:
-                    module = importlib.import_module(f"flux.core.cmd.{dir_path.name}.{script_name}.main", "flux")
+                    module = _load_module(f"{dir_path.name}.{script_name}.main")
                     class_name = _get_entry_point(module)
                     return getattr(module, class_name) if class_name else None
                 except ImportError:
                     pass
     return None
 
-@_lru_cache(maxsize=max_cache_size, typed=False)
+@_lru_cache(maxsize=_max_cache_size, typed=False)
 def load_custom_script(script_name: str) -> Optional[ComamndInterfaceType]:
     """
     Load an external command installed on the machine
@@ -93,7 +99,7 @@ def load_custom_script(script_name: str) -> Optional[ComamndInterfaceType]:
                     pass
     return None
 
-@_lru_cache(maxsize=max_cache_size, typed=False)
+@_lru_cache(maxsize=_max_cache_size, typed=False)
 def load_builtin_script(script_name: str) -> Optional[ComamndInterfaceType]:
     """
     Load an internal command installed on the machine
@@ -111,7 +117,7 @@ def load_builtin_script(script_name: str) -> Optional[ComamndInterfaceType]:
 
     return None
 
-@_lru_cache(maxsize=max_cache_size, typed=False)
+@_lru_cache(maxsize=_max_cache_size, typed=False)
 def _get_entry_point(module: ModuleType) -> Optional[str]:
     """
     resolve the entry point for this command
@@ -126,8 +132,9 @@ def _get_entry_point(module: ModuleType) -> Optional[str]:
             class_name = None
 
     return class_name
-  
-@_lru_cache(maxsize=max_cache_size, typed=False)
+
+
+@_lru_cache(maxsize=_max_cache_size, typed=False)
 def load_service(service_name: str) -> Optional[Callable[[object, str], None]]:
     """
     Load a service installed on the machine
