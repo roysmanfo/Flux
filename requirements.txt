@@ -14,7 +14,7 @@ pluggy==1.5.0
 psutil==6.1.1
 pycodestyle==2.12.1
 pydub==0.25.1
-pypdf==5.1.0
+pypdf==5.2.0
 requests==2.32.3
 tomli==2.2.1
 urllib3==2.3.0
