@@ -14,7 +14,7 @@ __initial_max_cache_size__ = 50
 _max_cache_size = __initial_max_cache_size__
 _search_priority: list[Path] = []
 
-ComamndInterfaceType = Callable[[object, str, str, bool, TextIO, TextIO, TextIO, int], None]
+CommandInterfaceType = Callable[[object, list[str], bool, Optional[TextIO], Optional[TextIO], Optional[TextIO], int], None]
 
 
 def use_cache(use: bool) -> None:
@@ -40,7 +40,7 @@ def _load_module(module_name: str) -> ModuleType:
     return importlib.reload(module)
 
 @_lru_cache(maxsize=_max_cache_size, typed=False)
-def load_command(script_name: str) -> Optional[ComamndInterfaceType]:
+def load_command(script_name: str) -> Optional[CommandInterfaceType]:
     """
     Load a command installed on the machine
      
@@ -74,7 +74,7 @@ def load_command(script_name: str) -> Optional[ComamndInterfaceType]:
     return None
 
 @_lru_cache(maxsize=_max_cache_size, typed=False)
-def load_custom_script(script_name: str) -> Optional[ComamndInterfaceType]:
+def load_custom_script(script_name: str) -> Optional[CommandInterfaceType]:
     """
     Load an external command installed on the machine
     """
@@ -101,7 +101,7 @@ def load_custom_script(script_name: str) -> Optional[ComamndInterfaceType]:
     return None
 
 @_lru_cache(maxsize=_max_cache_size, typed=False)
-def load_builtin_script(script_name: str) -> Optional[ComamndInterfaceType]:
+def load_builtin_script(script_name: str) -> Optional[CommandInterfaceType]:
     """
     Load an internal command installed on the machine
     """
