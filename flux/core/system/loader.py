@@ -10,7 +10,8 @@ custom_script_dirs = ["scripts", "fpm"]
 manager_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 # store up to 50 commands in the cache
-_max_cache_size = 50
+__initial_max_cache_size__ = 50
+_max_cache_size = __initial_max_cache_size__
 _search_priority: list[Path] = []
 
 ComamndInterfaceType = Callable[[object, str, str, bool, TextIO, TextIO, TextIO, int], None]
@@ -18,7 +19,7 @@ ComamndInterfaceType = Callable[[object, str, str, bool, TextIO, TextIO, TextIO,
 
 def use_cache(use: bool) -> None:
     global _max_cache_size
-    _max_cache_size = 0 if not use else 50
+    _max_cache_size = 0 if not use else __initial_max_cache_size__
 
 def set_search_priority(priority: list[Path]) -> None:
     """
