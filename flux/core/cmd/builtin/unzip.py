@@ -91,7 +91,7 @@ class Command(CommandInterface):
             file_info.append((total_len, "", "", f"{num_files} files"))
 
             # create table
-            table = format.create_table("Length", "Date", "Time", "Name", contents=file_info).rstrip("\n")
+            table = format.create_table("Length", "Date", "Time", "Name", rows=file_info).rstrip("\n")
             self.print(table)
 
 
