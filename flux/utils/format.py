@@ -5,7 +5,7 @@ import re
 
 def create_table(
         *collumns: Union[str, List[str]],
-        contents: Iterable[Iterable[Any]],
+        rows: Iterable[Iterable[Any]],
         show_headers: bool = True,
         fill_value: Optional[Any] = '-',
         separator: str = "-",
@@ -16,31 +16,40 @@ def create_table(
     """
     Return a N x M table where N rappresents the number of `columns`
     and M rappresents the number of rows in `contents`
-
-    :param collumns:            all the collumn titles
-    :param contents:            the data tu populate the table (list of rows)
-    :param show_headers:        when set tu false the titles will be discarded in the table
-    :param fill_value:          value tu use if there is nothing in that row for this column
-    :param separator:           a character to use to create divisor lines
-    :param add_top_line:        when set to false the line that separates the title from the contents will be omited
-    :param add_bottom_line:     when set to true a line at the end of the table will be added
-    :param last_is_footer:      if set to true, separates the last line from the rest of the table with a divisor 
-    :returns table:             a new table that satisfies the provided requirements
+    
+    ### params 
+    `collumns` :            all the collumn titles
+    `rows` :                the data to populate the table (list of rows)
+    `show_headers` :        when set to false the titles will be discarded in the table
+    `fill_value` :          value to use if there is nothing in that row for this column
+    `separator` :           a character to use to create divisor lines
+    `add_top_line` :        when set to false the line that separates the title from the contents will be omited
+    `add_bottom_line` :     when set to true a line at the end of the table will be added
+    `last_is_footer` :      if set to true, separates the last line from the rest of the table with a divisor 
+    
+    ### returns
+    - `table` :            a new table that satisfies the provided requirements
     
     #### Example
-    With this input...
     ```
-    >>> create_table("col1", "col2", contents=[(1, 2), (3, 4)])
+    >>> create_table("col1", "col2", rows=[(1, 2), (3, 4)])
     ```
-
-    ... we expect the following output
     ```txt
     col1     col2  
     ----     ------
     1        2  
-    3        4  
+    3        4
+     
+    ```
 
     ```
+    >>> create_table(["col1", "col2"], rows=[(1, 2), (3,)], fill_value="<none>")
+    ```
+    ```txt
+    col1     col2  
+    ----     ------
+    1        2  
+    3        <none>
 
     """
 
@@ -48,7 +57,7 @@ def create_table(
     if collumns and isinstance(collumns[0], (list, tuple, set)):
         collumns = collumns[0]
 
-    records: List[List[str]] = contents
+    rows: List[List[str]]
     fill_value = str(fill_value or '')
 
     n_columns = len(collumns)
@@ -56,7 +65,7 @@ def create_table(
     column_widths = [
         max(
             len(str(record[i]) if i < len(record) else fill_value)
-            for record in records
+            for record in rows
         ) + 2 for i in range(n_columns)
     ]
     column_widths = [max(len(collumn), width) + 2 for collumn,
@@ -70,10 +79,10 @@ def create_table(
     
     # add a footer separator
     if last_is_footer:
-        records.insert(-1, tuple((separator if add_top_line else ' ') * (width - 2) for width in column_widths))
+        rows.insert(-1, tuple((separator if add_top_line else ' ') * (width - 2) for width in column_widths))
 
     # add all rows (ignores a row's column if there is no header for it)
-    for record in records:
+    for record in rows:
         output += "   ".join(f"{str(record[i]) if i < len(record) else fill_value}{' ' * (width - len(str(record[i]) if i < len(record) else fill_value))}" for i, width in enumerate(column_widths)) + "\n"
     
     # manage footer

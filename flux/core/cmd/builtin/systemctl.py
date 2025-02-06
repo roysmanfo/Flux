@@ -92,7 +92,7 @@ class Command(CommandInterface):
         service_data = [(s.name, s.enabled, s.running, s.metadata.get("description"))
                         for s in service_table.values()]
 
-        table = format.create_table("name", "enabled", "running", "description", contents=service_data)
+        table = format.create_table("name", "enabled", "running", "description", rows=service_data)
         self.print(table)
     
     # systemctl enable [service_name, ...]

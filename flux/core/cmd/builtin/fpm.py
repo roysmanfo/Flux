@@ -42,4 +42,4 @@ class Command(CommandInterface):
         
         if self.args.list:
             from flux.utils.format import create_table
-            self.print(create_table("Name", "Description", contents=COMMAND_DESC))
+            self.print(create_table("Name", "Description", rows=COMMAND_DESC))

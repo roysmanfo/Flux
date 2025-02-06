@@ -126,7 +126,7 @@ options:
         contents = list(extension_paths.items())
         if self.args.sort:
             contents.sort(key=lambda x: x[1])
-        self.print(utils.format.create_table("extension", "destination", contents=contents))
+        self.print(utils.format.create_table("extension", "destination", rows=contents))
 
     def remove_filetype(self):
         ext = str(self.args.remove)

@@ -34,7 +34,7 @@ class Command(CommandInterface):
             outputs.append(tuple(total))
 
         cols = ["" for _ in range(len(outputs[0]))]
-        table = format.create_table(cols, contents=outputs, show_headers=False)
+        table = format.create_table(cols, rows=outputs, show_headers=False)
         self.print(table.rstrip("\n"))
 
     
