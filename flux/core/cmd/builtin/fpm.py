@@ -3,6 +3,7 @@ from flux.core.helpers.commands import (
     Parser
 )
 
+import sqlite3
 
 COMMANDS_AVAILABLE = [
     'autoremove',
@@ -32,6 +33,10 @@ class Command(CommandInterface):
         self.parser.usage = "fpm [options] command"
         self.parser.add_argument("command", nargs="?", help="The command to execute")
         self.parser.add_argument("-l", dest="list", action="store_true",  help="List available commands")
+
+
+        self.db_path = self.settings.syspaths.LOCAL_FOLDER / "fpm" / "state.db"
+        self.db: sqlite3.Connection = None
     
     def setup(self):
         if len(self.line_args) == 1:
@@ -43,3 +48,38 @@ class Command(CommandInterface):
         if self.args.list:
             from flux.utils.format import create_table
             self.print(create_table("Name", "Description", rows=COMMAND_DESC))
+
+
+    def init_db(self):
+        if not self.db_path.exists():
+            self._create_db()
+        
+
+
+    def _create_db(self):
+        self.db_path.parent.mkdir(parents=True)
+        self.db_path.write_bytes(b"")
+
+        with sqlite3.connect(self.db_path) as db:
+            db.execute("""
+                CREATE TABLE command_types(
+                    name TEXT PRIMARY KEY,
+                )
+            """)
+        
+            db.execute("""
+                CREATE TABLE commands(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    install_date DATE NOT NULL,
+                    version TEXT,
+                    type TEXT,
+                       
+                    FOREIGN KEY (type) REFERENCES command_types(name)
+                )
+            """)
+
+            db.commit()
+        
+
+
