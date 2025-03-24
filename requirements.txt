@@ -5,7 +5,7 @@ charset-normalizer==3.4.1
 colorama==0.4.6
 cryptography==44.0.2
 idna==3.10
-iniconfig==2.0.0
+iniconfig==2.1.0
 paramiko==3.5.1
 packaging==24.2
 pillow==11.1.0
