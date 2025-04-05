@@ -9,8 +9,8 @@ sys.path.append(os.path.dirname(os.getcwd()))
 init(autoreset=True)
 
 # Flux modules
-from core import setup, manager
-import utils
+from flux.core import setup, manager
+from flux import utils
 
 def listen() -> List[str]:
     """
@@ -52,22 +52,25 @@ def run():
             print(f"-flux: {e}\n", file=sys.stderr)
 
 
-if __name__ == "__main__":
-    
+
+def main():
+    global setup
+    global SYSTEM
+
     try:
 
         # Setup process
         SYSTEM = setup.setup()
-        del setup
+        del setup # forcibly remove setup module as no longer needed
 
         # check for line arguments
         if len(sys.argv) > 1:
             cmd = sys.argv[1:]
             manager.manage(cmd, SYSTEM)
-            sys.exit(0)
+            return 0
 
         SYSTEM.processes._add_main_process(SYSTEM, ['flux'], run)
-        sys.exit(0)
+        return 0
 
     except Exception as e:
         # Catch all the exceptions related to the whole program.
@@ -82,4 +85,8 @@ if __name__ == "__main__":
         log_path = utils.crash_handler.write_error_log()[1]
         sys.stderr.write("The full traceback of this error can be found here: \n" + log_path + "\n")
 
-        sys.exit(1)
+        return 1
+
+if __name__ == "__main__":
+    SYSTEM: setup.System
+    sys.exit(main())
