@@ -1,0 +1,7 @@
+include flux/settings/version
+include flux/security/public.pem
+recursive-include flux *.py
+recursive-include flux *.txt
+include requirements.txt
+include win-requirements.txt
+include linux-requirements.txt
