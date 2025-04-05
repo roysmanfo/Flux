@@ -18,12 +18,12 @@ It is suggested to add python to PATH during installation
 This command should work on debian based systems,
 in alternative replace apt with your own package manager
 ```sh
-$ sudo apt install python3
+$ sudo apt install python3.13
 ```
 On MacOS instead of `apt` you should have `brew`
 
 ### After install
-Make sure that your version is **3.8** or above.  
+Make sure that your version is **3.9** or above.  
 To check your python version, open your terminal and type the following command:
 
 ```sh
@@ -38,7 +38,8 @@ Python 3.10.8
 
 ### Virtual environment
 
-It is suggested to work on a virtual environment, in order to isolate the program from global modules (This makes it easier to move the source code across different PCs).
+It is highly suggested to work in a virtual environment.  
+To isolate the program from global modules (This makes it easier to move the source code across different PCs).
 
 To do so, just execute the following commands in the project folder 
 
@@ -56,17 +57,15 @@ Next you will need to install the modules listed in the requirements file, with 
 $ pip install -r requirements.txt
 ```
 
-If in an update more modules are added to this file, you will need to to install those modules eather. You can use the same command.
+If in an update more modules are added to this file, you will need to to install those modules too. You can use the same command.
 
 ### Run
-To run the application, you will need to go in the src folder,
+To run the application, you will need to go in the `flux` folder,
 and execute `main.py` with 
 
 ```
 python3 main.py
 ```
-#### Note
-With python 3.12 there are some problems with the thread handling, so you
-should get a mesage notifying you of that if you use the command `python3 main.py stable` to run. Without the keyword `stable` you run in **unstable mode** which means that you run in a version where background processes and threads are not supported.
+
 
 
