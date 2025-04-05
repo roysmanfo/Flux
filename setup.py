@@ -17,7 +17,6 @@ with open(REQUIREMENTS_FILE, 'r') as fp:
 
 with open(VERSION_FILE, 'r') as fp:
     version = fp.read().splitlines()[0]
-    print(version)
     VERSION = version if version else None
 
     if VERSION is None:
