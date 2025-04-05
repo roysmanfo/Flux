@@ -10,6 +10,8 @@ except ImportError:
     # in case that the problem is there we should be able to adapt to this
     LOG_PATH = tempfile.gettempdir()
 
+# create the log path if not already present
+os.makedirs(LOG_PATH, exist_ok=True)
 
 def write_error_log(
         fileprefix: Optional[str] = None,
