@@ -18,7 +18,7 @@ def create_table(
     and M rappresents the number of rows in `contents`
     
     ### params 
-    `collumns` :            all the collumn titles
+    `columns` :            all the column titles
     `rows` :                the data to populate the table (list of rows)
     `show_headers` :        when set to false the titles will be discarded in the table
     `fill_value` :          value to use if there is nothing in that row for this column
