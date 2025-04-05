@@ -63,7 +63,7 @@ class Command(CommandInterface):
         with sqlite3.connect(self.db_path) as db:
             db.execute("""
                 CREATE TABLE command_types(
-                    name TEXT PRIMARY KEY,
+                    name TEXT PRIMARY KEY
                 )
             """)
         
