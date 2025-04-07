@@ -35,7 +35,7 @@ class Command(CommandInterface):
         self.parser.add_argument("-l", dest="list", action="store_true",  help="List available commands")
 
 
-        self.db_path = self.settings.syspaths.LOCAL_FOLDER / "fpm" / "state.db"
+        self.db_path = self.settings.syspaths.LOCAL_FOLDER.value / "fpm" / "state.db"
         self.db: sqlite3.Connection = None
     
     def setup(self):
