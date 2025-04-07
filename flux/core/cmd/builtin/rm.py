@@ -68,7 +68,7 @@ class Command(CommandInterface):
                         self.info(f"collecting: {path}")
                         os.remove(path)
                     except PermissionError:
-                        self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
+                        self.warning(f"cannot open '{path}': (permission denied)", to_stdout=False)
                 else:
                     # Just to show what shutil.rmtree is doing
                     for _, _, file in os.walk(path):
@@ -80,7 +80,7 @@ class Command(CommandInterface):
                         self.info(f"deleting {len(files)} files...")
                         shutil.rmtree(os.path.abspath(path))
                     except PermissionError:
-                        self.warning(f"cannot open '{folder}': (permission denied)", to_stdout=False)
+                        self.warning(f"cannot open '{path}': (permission denied)", to_stdout=False)
                 self.print()
                 
 
