@@ -4,6 +4,7 @@ from flux.core.helpers.commands import (
 )
 
 import sqlite3
+import sqlite3
 
 COMMANDS_AVAILABLE = [
     'autoremove',
@@ -47,6 +48,42 @@ class Command(CommandInterface):
         
         if self.args.list:
             from flux.utils.format import create_table
+            self.print(create_table("Name", "Description", rows=COMMAND_DESC))
+
+
+    def init_db(self):
+        if not self.db_path.exists():
+            self._create_db()
+        
+
+
+    def _create_db(self):
+        self.db_path.parent.mkdir(parents=True)
+        self.db_path.write_bytes(b"")
+
+        with sqlite3.connect(self.db_path) as db:
+            db.execute("""
+                CREATE TABLE command_types(
+                    name TEXT PRIMARY KEY
+                )
+            """)
+        
+            db.execute("""
+                CREATE TABLE commands(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    install_date DATE NOT NULL,
+                    version TEXT,
+                    type TEXT,
+                       
+                    FOREIGN KEY (type) REFERENCES command_types(name)
+                )
+            """)
+
+            db.commit()
+        
+
+
             self.print(create_table("Name", "Description", rows=COMMAND_DESC))
 
 

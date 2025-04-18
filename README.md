@@ -2,8 +2,27 @@
 
 Flux is an extensible and cross-platform Unix-like terminal written in python that has many different commands built to help the user to manage many tasks.
 
-## Run flux
-To run flux you will need to have python installed (at least version 3.8, but a version >=3.10 is prefered)
+# Installing Flux
+1. Clone the repository on your machine
+```sh
+git clone https://github.com/roysmanfo/Flux.git
+```
+2. Install Flux using pip
+```sh
+cd Flux; pip install .
+```
+3. Verify that the installation has been successfull by running the `flux`
+command on your terminal
+
+## Develop your own commands
+Flux comes with many scripts for the most common tasks, but it also provides
+an API to develop your own scripts and commands.
+
+Read the docs regarding the [Flux API](./docs/api/flux_api.md).  
+You can also find a guided tutorial on [how to create your first Flux command](./docs/api/first_command.md) 
+
+## Develop Flux
+To run Flux you will need to have python installed (at least version 3.8, but a version >=3.10 is prefered)
 
 ### setup (only the first time)
 
@@ -26,7 +45,7 @@ pip install -r win-requirements.txt
 
 ### run
 
-to run flux now you will need to move into the `flux` folder
+to run Flux now you will need to move into the `Flux` folder
 and execute `main.py`
 
 >   **NOTE**: Each time you will need to activate the virtual environment to execute `main.py`,
@@ -34,11 +53,11 @@ and execute `main.py`
     
 **Linux**
 ```
-cd flux && python3 main.py
+cd Flux && python3 main.py
 ```
 **Windows**
 ```
-cd flux; python main.py
+cd Flux; python main.py
 ```
 
 ## Contributing
