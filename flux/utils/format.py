@@ -18,14 +18,14 @@ def create_table(
     and M rappresents the number of rows in `contents`
     
     ### params 
-    `columns` :            all the column titles
-    `rows` :                the data to populate the table (list of rows)
-    `show_headers` :        when set to false the titles will be discarded in the table
-    `fill_value` :          value to use if there is nothing in that row for this column
-    `separator` :           a character to use to create divisor lines
-    `add_top_line` :        when set to false the line that separates the title from the contents will be omited
-    `add_bottom_line` :     when set to true a line at the end of the table will be added
-    `last_is_footer` :      if set to true, separates the last line from the rest of the table with a divisor 
+    - `columns` :            all the column titles
+    - `rows` :                the data to populate the table (list of rows)
+    - `show_headers` :        when set to false the titles will be discarded in the table
+    - `fill_value` :          value to use if there is nothing in that row for this column
+    - `separator` :           a character to use to create divisor lines
+    - `add_top_line` :        when set to false the line that separates the title from the contents will be omited
+    - `add_bottom_line` :     when set to true a line at the end of the table will be added
+    - `last_is_footer` :      if set to true, separates the last line from the rest of the table with a divisor 
     
     ### returns
     - `table` :            a new table that satisfies the provided requirements
