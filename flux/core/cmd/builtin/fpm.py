@@ -2,8 +2,8 @@ from flux.core.helpers.commands import (
     CommandInterface,
     Parser
 )
-
-import sqlite3
+from flux.utils.format import create_table
+from pathlib import Path
 import sqlite3
 
 COMMANDS_AVAILABLE = [
@@ -36,7 +36,7 @@ class Command(CommandInterface):
         self.parser.add_argument("-l", dest="list", action="store_true",  help="List available commands")
 
 
-        self.db_path = self.settings.syspaths.LOCAL_FOLDER.value / "fpm" / "state.db"
+        self.db_path: Path = self.settings.syspaths.LOCAL_FOLDER.value / "fpm" / "state.db"
         self.db: sqlite3.Connection = None
     
     def setup(self):
@@ -47,7 +47,6 @@ class Command(CommandInterface):
     def run(self):
         
         if self.args.list:
-            from flux.utils.format import create_table
             self.print(create_table("Name", "Description", rows=COMMAND_DESC))
 
 
