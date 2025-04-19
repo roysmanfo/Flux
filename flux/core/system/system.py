@@ -31,6 +31,7 @@ class System():
         self.variables.add("$HOME", str(self.settings.user.paths.terminal).replace("\\", "/"), True)
         self.variables.add("$PATH", os.environ.get("PATH", ""), True)
         self.variables.add("$PWD", str(self.settings.user.paths.terminal).replace("\\", "/"), True)
+        self.variables.add("$OLDPWD", self.variables.get("$PWD").value, True)
 
     def _init_service_manager(self) -> None:
         self.service_manager.system = self

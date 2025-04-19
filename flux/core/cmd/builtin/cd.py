@@ -22,6 +22,7 @@ class Command(CommandInterface):
             self.args.dir = self.system.variables.get("$HOME").value
 
     def run(self):
+
         if self.args.dir:
             new_dir: str = "" + self.args.dir.strip('"').strip("'")
             if new_dir.startswith("$"):
@@ -36,11 +37,12 @@ class Command(CommandInterface):
             elif not os.access(new_dir, os.R_OK):
                 self.error(self.errors.permission_denied(new_dir))
 
-            else:                           
+            else:
                 self.settings.user.paths.terminal = os.path.realpath(new_dir).replace("\\", "/")
 
         else:
             self.settings.user.paths.terminal = self.system.variables.get("$HOME").value
         
         if self.status != Status.STATUS_ERR:
+            self.system.variables.set("$OLDPWD", self.system.variables.get("$PWD").value)
             self.system.variables.set("$PWD", self.settings.user.paths.terminal)
