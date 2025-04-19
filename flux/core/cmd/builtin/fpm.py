@@ -79,7 +79,7 @@ class Command(CommandInterface):
 
 
     def _create_db(self):
-        self.db_path.parent.mkdir(parents=True)
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.db_path.write_bytes(b"")
 
         with sqlite3.connect(self.db_path) as db:
@@ -88,14 +88,16 @@ class Command(CommandInterface):
                     name TEXT PRIMARY KEY
                 )
             """)
-        
+
+            # may change the id to TEXT and use a uuid instead of a number
             db.execute("""
                 CREATE TABLE commands(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL,
-                    install_date DATE NOT NULL,
+                    install_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
                     version TEXT,
-                    type TEXT,
+                    description TEXT,
+                    type TEXT NOT NULL,
                        
                     FOREIGN KEY (type) REFERENCES command_types(name)
                 )
@@ -105,7 +107,7 @@ class Command(CommandInterface):
         
 
 
-            self.print(create_table("Name", "Description", rows=COMMAND_DESC))
+            self.print(create_table("name", "description", rows=COMMAND_DESC))
 
 
     def init_db(self):
@@ -114,13 +116,16 @@ class Command(CommandInterface):
         
     @_init_connection
     def cmd_list(self):
-        print("Listing commands...", end="\r" if not self.redirected_stdout else "\n") # not influenced by output redirection
+        
+        # this print will not be redirected to another file
+        print("Listing commands...", end="\r" if not self.redirected_stdout else "\n")
+        
         with self.db:
             cursor = self.db.cursor()
             cursor.execute("SELECT id, name, version FROM commands")
             rows = cursor.fetchall()
             if rows:
-                self.print(create_table("ID", "Name", "Version", rows=rows))
+                self.print(create_table("id", "name", "version", rows=rows))
             else:
                 self.print("No commands installed.")
 
