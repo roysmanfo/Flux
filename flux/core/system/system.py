@@ -1,4 +1,5 @@
 import os
+from flux.core.system import loader
 from flux.core.system.interrupts import InterruptHandler
 from flux.core.system.processes import Processes
 from flux.core.system.service_manager import Servicemanager
@@ -23,7 +24,8 @@ class System():
         self.variables: Variables = Variables()
         self.processes: Processes = Processes(self.interrupt_handler)
         self.service_manager: Servicemanager = Servicemanager(settings.syspaths.SERVICES_FILE)
-        
+        self.command_loader = loader
+
         self._init_reserved_variables()
         self._init_service_manager()
         
