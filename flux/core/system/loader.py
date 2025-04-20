@@ -1,6 +1,6 @@
 import os
 import importlib
-from functools import lru_cache as _lru_cache
+from functools import lru_cache as _lru_cache, _CacheInfo
 from types import ModuleType
 from typing import Callable, Optional, TextIO
 from pathlib import Path, WindowsPath, PosixPath
@@ -162,4 +162,52 @@ def load_service(service_name: str) -> Optional[Callable[[object, str], None]]:
             pass
 
     return None
+
+def clear_loader_cache() -> None:
+    """
+    Clear the cache for the command loader
+    """    
+    load_command.cache_clear()
+    load_custom_script.cache_clear()
+    load_builtin_script.cache_clear()
+    load_service.cache_clear()
+
+def get_cache_info() -> dict[str, _CacheInfo]:
+    """
+    Get the cache info for the command loader
+    """
+    return {
+        "load_command": load_command.cache_info(),
+        "load_custom_script": load_custom_script.cache_info(),
+        "load_builtin_script": load_builtin_script.cache_info(),
+        "load_service": load_service.cache_info()
+    }
+
+def get_cache_parameters() -> dict[str, dict[str, int | bool]]:
+    """
+    Get the cache parameters for the command loader
+    """
+    return {
+        "load_command": load_command.cache_parameters(),
+        "load_custom_script": load_custom_script.cache_parameters(),
+        "load_builtin_script": load_builtin_script.cache_parameters(),
+        "load_service": load_service.cache_parameters()
+    }
+
+
+def get_cache_size() -> int:
+    """
+    Get the cache size for the command loader
+    """
+
+    return sum([i.currsize for i in get_cache_info().values() if i is not None])
+
+def set_max_cache_size(size: int) -> None:
+    """
+    Set the max cache size for the command loader,
+    if size is 0 or less, the cache will be reset to it's default value
+    """
+    global _max_cache_size
+    _max_cache_size = size if size > 0 else __initial_max_cache_size__
+    load_command.cache_clear()
 
