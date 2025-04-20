@@ -335,6 +335,7 @@ _system_interrupt_handler: InterruptHandler
 
 
 def _chdir_hook(path: str):
+    global _system_interrupt_handler
     _chdir(path)
 
     # raise in interrupt AFTER the directory has been changed
