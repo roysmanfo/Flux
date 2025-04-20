@@ -45,7 +45,10 @@ from flux import utils
 
 extension_paths = {}
 class Command(CommandInterface):
-
+    """
+    Scans the bucket folder and sorts files in the destination folder
+    """
+    
     def init(self) -> None:
         self.parser = Parser(prog="observer", add_help=False)
         self.parser.add_argument("-p", "--path", action="store_true")

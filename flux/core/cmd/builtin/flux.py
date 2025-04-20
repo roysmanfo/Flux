@@ -47,6 +47,9 @@ class Flux(CommandInterface):
     def init(self):
         self.parser = Parser("flux", usage="flux [command] [options]")
         subparsers = self.parser.add_subparsers(title="commands", dest="command")
+        cache_parser = subparsers.add_parser("cache", usage="flux cache action [options]", help="manage the command loader cache")
+        cache_parser.add_argument("action", choices={"clear",}, help="the action to perform on the cache")
+
         update_parser = subparsers.add_parser("update", usage="flux update [options]", help="update flux to the most recent version")
         update_parser.add_argument("--from", dest="url", help="use the specified URI to update flux (can also point to a file on disk)")
         update_parser.add_argument("--allow-unoficial", action="store_true", help="allow updates from any host (even localhost)")
@@ -68,6 +71,8 @@ class Flux(CommandInterface):
 
     def run(self):
         match self.args.command:
+            case "cache":
+                self.flux_cache()
             case "update":
                 self.warning("the update command is still in development and may be unstable")
                 if self.args.verbose:
@@ -151,6 +156,15 @@ class Flux(CommandInterface):
         else:
             # asyncio.run(update_manager.install_new_version("", self.settings.syspaths.INSTALL_FOLDER, uninstall_first=True))
             self.print("already up to date") # <- uncoment once all test over here have been done
+
+    def flux_cache(self):
+        match self.args.action:
+            case "clear":
+                self.info("clearing command loader cache ...")
+                self.system.command_loader.clear_loader_cache()
+                self.info("cache cleared")
+            case _:
+                self.fatal("command not supported")
 
 
 class UpdateManager:

@@ -12,6 +12,9 @@ import random
 
 
 class Command(CommandInterface):
+    """
+    This command tells a random programming joke
+    """
     
     def setup(self):
         self.jokes: List[str] = []

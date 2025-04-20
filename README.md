@@ -2,6 +2,10 @@
 
 Flux is an extensible and cross-platform Unix-like terminal written in python that has many different commands built to help the user to manage many tasks.
 
+
+[![Unit Tests on dev branch](https://github.com/roysmanfo/Flux/actions/workflows/run-tests.yml/badge.svg?branch=dev)](https://github.com/roysmanfo/Flux/actions/workflows/run-tests.yml)
+
+
 # Installing Flux
 1. Clone the repository on your machine
 ```sh

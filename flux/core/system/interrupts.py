@@ -335,12 +335,18 @@ _system_interrupt_handler: InterruptHandler
 
 
 def _chdir_hook(path: str):
+    global _system_interrupt_handler
     _chdir(path)
 
     # raise in interrupt AFTER the directory has been changed
     # this prevents the interrupt from being raised if the directory change fails
-    if _system_interrupt_handler:
-        _system_interrupt_handler.raise_interrupt(EventTriggers.DIRECTORY_CHANGED)
+    try:
+        if _system_interrupt_handler:
+            _system_interrupt_handler.raise_interrupt(EventTriggers.DIRECTORY_CHANGED)
+    except NameError:
+        # _system_interrupt_handler is not defined yet
+        # (seems to be an issue only in python 3.9)
+        pass
 
 _chdir = os.chdir # original os.chdir
 os.chdir = _chdir_hook # replace os.chdir with our custom function
