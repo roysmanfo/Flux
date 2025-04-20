@@ -2,7 +2,7 @@ import os
 import importlib
 from functools import lru_cache as _lru_cache, _CacheInfo
 from types import ModuleType
-from typing import Callable, Optional, TextIO
+from typing import Callable, Optional, TextIO, Union
 from pathlib import Path, WindowsPath, PosixPath
 
 # List of directories to search for custom scripts/extensions
@@ -183,7 +183,7 @@ def get_cache_info() -> dict[str, _CacheInfo]:
         "load_service": load_service.cache_info()
     }
 
-def get_cache_parameters() -> dict[str, dict[str, int | bool]]:
+def get_cache_parameters() -> dict[str, dict[str, Union[int, bool]]]:
     """
     Get the cache parameters for the command loader
     """
