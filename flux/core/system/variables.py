@@ -73,7 +73,7 @@ class Variables:
         if not self.exists(name):
             return False
 
-        if (v := self._variables.get(name))
+        if (v := self._variables.get(name)):
             if v.is_reserved:
                 raise ValueError(
                     f"Variable ${name} can't be deleted because it is a reserved variable")
