@@ -55,7 +55,7 @@ class Process:
 
 
         if command_instance and hasattr(command_instance, "parser") and hasattr(command_instance.parser, "prog"):
-            self.name = command_instance.parser.prog or self.name 
+            self.name = command_instance.parser.prog or self.name
 
     def get_info(self) -> ProcessInfo:
         return ProcessInfo(self.id,
@@ -77,7 +77,7 @@ class Process:
 
         if hours > 0:
             return f"{int(hours)}h {int(minutes)}m {int(seconds)}s"
-        
+
         if minutes > 0:
             return f"{int(minutes)}m {int(seconds)}s"
 
@@ -111,7 +111,7 @@ class Process:
             self.command_instance.run()
             self.command_instance.close()
             self.status = self.command_instance.exit()
-        
+
         except Exception as e:
             self.command_instance.fail_safe(e)
             self.status = self.command_instance.status
@@ -135,11 +135,11 @@ class Processes:
         self.process_counter += 1
         return self.process_counter
 
-    def _add_main_process(self, system: object, prog_name: str, callable: Callable):
+    def _add_main_process(self, system: object, prog_name: List[str], callable: Callable):
         global _main_process
 
         pid = self._generate_pid()
-        p = Process(id=pid, owner=system.settings.user.username, 
+        p = Process(id=pid, owner=system.settings.user.username,
                     command_instance=callable, line_args=prog_name, is_reserved_process=True)
         _main_process = p
         self.processes.update({pid: p})
@@ -154,7 +154,7 @@ class Processes:
         self.processes[pid].run()
         _time.sleep(.1)
 
-    def find(self, id: int) -> Optional[Process]:            
+    def find(self, id: int) -> Optional[Process]:
         return self.processes.get(id)
 
     def select(self,
@@ -166,7 +166,7 @@ class Processes:
                ) -> List[Process]:
         """
         Search a group of processes that match the rule
-        
+
         `:param` id: the pid of the process to search (if you have this, results are faster with the `find()` method)
         `:param` name: the name of the process to search
         `:param` owner: the owner of the process
@@ -183,7 +183,7 @@ class Processes:
             if reserved and not p.is_reserved_process:
                 return False
             return True
-        
+
         return list(filter(_filter, self.processes.values()))
 
 
@@ -194,7 +194,7 @@ class Processes:
         try:
             if id == _main_process.id:
                 return None
-            
+
             proc = self.processes.pop(id)
             self.i_handler.raise_interrupt(EventTriggers.PROCESS_DELETED)
             return proc
@@ -214,13 +214,15 @@ class Processes:
         }
         completed_processes = []
         for p in self.processes.values():
-            # check that we are not trying to remove the main process 
+            # check that we are not trying to remove the main process
             if not p is _main_process and not p.thread.is_alive():
                 # do not modify the dictionary inside the loop
                 # but still keep track of all the processes to remove
                 completed_processes.append(p.id)
                 try:
-                    status_dict[p.status] = True
+                    # p.staus should have a value assigned, but check (just in case)
+                    if isinstance(p.status, Status):
+                        status_dict[p.status] = True
                 except:
                     # a non valid status was received (probably some other data type),
                     # ignore it as we don't know what does it mean
@@ -230,14 +232,13 @@ class Processes:
             self.processes.pop(pid)
 
         self.i_handler.raise_interrupt(EventTriggers.PROCESS_DELETED)
-        
+
         if status_dict[Status.STATUS_ERR]:
             self.i_handler.raise_interrupt(EventTriggers.COMMAND_FAILED)
         elif status_dict[Status.STATUS_OK] or status_dict[Status.STATUS_WARN]:
             self.i_handler.raise_interrupt(EventTriggers.COMMAND_FAILED)
 
     def copy(self):
-        processes = Processes()
+        processes = Processes(i_handler=self.i_handler)
         processes.processes = self.processes.copy()
         return processes
-        

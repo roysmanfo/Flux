@@ -15,10 +15,10 @@ class Variable:
             return False
 
         return all([__value.name == self.name, __value.value == self.value, __value.is_reserved == self.is_reserved])
-    
+
     def __ne__(self, __value: object) -> bool:
         return not self.__eq__(__value)
-    
+
     def copy(self):
         return Variable(self.name, self.value, self.is_reserved)
 
@@ -34,7 +34,7 @@ class Variables:
     def __iter__(self) -> Iterator[Variable]:
         for v in self._variables:
             yield self._variables.get(v)
-    
+
     def __dict__(self):
         res = {}
         for v in self._variables:
@@ -54,7 +54,7 @@ class Variables:
         value = str(value)
         if self.get(name):
             return False
-        
+
         self._variables.update({name.upper(): Variable(name.upper(), value, is_reserved)})
         self._variables.update({"$ALL": Variable("$ALL", ":".join(sorted(self._variables.keys())), True)})
 
@@ -65,21 +65,22 @@ class Variables:
         """
         Deletes a variable
 
-        Returns True if the variable has been removed, False otherwise (variable not found or is reserved)
+        :returns: True if the variable has been removed, False otherwise (variable not found)
+        :raises ValueError: If the variable is reserved
         """
         name = name.upper()
 
         if not self.exists(name):
             return False
-        
-       
-        if self._variables.get(name).is_reserved:
-            print(
-                f"Variable ${name} can't be deleted because it is a reserved variable")
-            return False
-        self._variables.pop(name)
-        self._variables.update({"$ALL": Variable("$ALL", ":".join(sorted(self._variables.keys())), True)})
-        return True
+
+        if (v := self._variables.get(name))
+            if v.is_reserved:
+                raise ValueError(
+                    f"Variable ${name} can't be deleted because it is a reserved variable")
+            self._variables.pop(name)
+            self._variables.update({"$ALL": Variable("$ALL", ":".join(sorted(self._variables.keys())), True)})
+            return True
+        return False
 
     def exists(self, name: str) -> bool:
         """
@@ -119,11 +120,10 @@ class Variables:
 
     def copy(self):
         """
-        Creates a screenshot of the current state of env vars (returns a deep copy of all variables) 
+        Creates a screenshot of the current state of env vars (returns a deep copy of all variables)
         """
 
         v = Variables()
         for var in self:
             v._variables.update({var.name: var.copy()})
         return v
-    
