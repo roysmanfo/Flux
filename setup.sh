@@ -30,7 +30,7 @@ createVenv() {
     exit $?
 }
 
-if [[ $(ffmpeg 2>/dev/null) != 0 ]]; then
+if [[ $(which ffmpeg) == "" ]]; then
     echo "you need to install ffmpeg, run 'sudo apt install ffmpeg'" >&2
     exit 1
 fi
