@@ -239,7 +239,7 @@ class InterruptHandler(object):
 
         # avoid shared handles
         while (h := IHandle.generate_handle()) in self.interrupt_map:
-            h = IHandle.generate_handle()
+            pass
 
         handle = IHandle(h)
         if not isinstance(args, tuple):
