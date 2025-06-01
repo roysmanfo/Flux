@@ -18,7 +18,7 @@ def create_table(
     and M rappresents the number of rows in `contents`
     
     ### params 
-    - `columns` :            all the column titles
+    - `columns` :             all the column titles
     - `rows` :                the data to populate the table (list of rows)
     - `show_headers` :        when set to false the titles will be discarded in the table
     - `fill_value` :          value to use if there is nothing in that row for this column
@@ -109,7 +109,7 @@ def create_adaptive_table(data: Iterable[str]) -> str:
         cell = remove_ansi_escape_sequences(d.__str__())
         longest = max(longest, len(cell))
 
-    num_columns = max(1, terminal_width // longest)  # Adjust this value based on your preference
+    num_columns = max(1, terminal_width // longest)
     num_rows = (len(data) + num_columns - 1) // num_columns
 
     output = ""
