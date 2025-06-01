@@ -24,7 +24,6 @@ class Command(CommandInterface):
         session = requests.Session()
         session.max_redirects = self.args.max_redirs
 
-        HTTPConnection._http_vsn_str = 'HTTP/1.0'
         if self.args.verbose:
             self.log_level = self.levels.DEBUG
 
