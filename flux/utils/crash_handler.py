@@ -8,7 +8,8 @@ try:
     from flux.settings.settings import SysPaths
     LOG_PATH = str(SysPaths.LOGS_FOLDER)
 except ImportError:
-    # in case that the problem is there we should be able to adapt to this
+    # in case of any problem (even with the imports)
+    # we should be able to adapt to this
     LOG_PATH = tempfile.gettempdir()
 
 # create the log path if not already present
