@@ -12,7 +12,7 @@ pillow==11.2.1
 ping3==4.0.8
 pluggy==1.6.0
 psutil==7.0.0
-pycodestyle==2.13.0
+pycodestyle==2.14.0
 pydub==0.25.1
 pypdf==5.6.1
 requests==2.32.4
