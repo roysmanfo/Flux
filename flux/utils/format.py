@@ -62,6 +62,11 @@ def create_table(
 
     n_columns = len(collumns)
     
+    is_empty = len(rows) == 0
+    if is_empty:
+        rows = [tuple('' for _ in range(n_columns))]
+
+
     column_widths = [
         max(
             len(str(record[i]) if i < len(record) else fill_value)
@@ -77,13 +82,14 @@ def create_table(
         output += "   ".join(f"{collumn}{' ' * (width - len(collumn))}" for collumn, width in zip(collumns, column_widths)) + "\n"
         output += "     ".join((separator if add_top_line else ' ') * (width - 2) for width in column_widths) + "\n"
     
-    # add a footer separator
-    if last_is_footer:
-        rows.insert(-1, tuple((separator if add_top_line else ' ') * (width - 2) for width in column_widths))
+    if not is_empty:
+        # add a footer separator
+        if last_is_footer:
+            rows.insert(-1, tuple((separator if add_top_line else ' ') * (width - 2) for width in column_widths))
 
-    # add all rows (ignores a row's column if there is no header for it)
-    for record in rows:
-        output += "   ".join(f"{str(record[i]) if i < len(record) else fill_value}{' ' * (width - len(str(record[i]) if i < len(record) else fill_value))}" for i, width in enumerate(column_widths)) + "\n"
+        # add all rows (ignores a row's column if there is no header for it)
+        for record in rows:
+            output += "   ".join(f"{str(record[i]) if i < len(record) else fill_value}{' ' * (width - len(str(record[i]) if i < len(record) else fill_value))}" for i, width in enumerate(column_widths)) + "\n"
     
     # manage footer
     if add_bottom_line:
