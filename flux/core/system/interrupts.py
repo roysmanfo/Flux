@@ -175,6 +175,7 @@ class InterruptHandler(object):
         global _root_interrupt_handler
         if (_root_interrupt_handler is None):
             self._set_as_root_handler()
+        _interrupt_handlers.append(self)
 
         # add all available interrupts to self
         for event in list(EventTriggers):
@@ -336,23 +337,41 @@ class InterruptHandler(object):
         return self.interrupt_map.get(handle, None)
 
     def get_available_signals(self) -> Dict[str, int]:
+        """
+        `:returns` a dictionary that maps all supported signal names to their value
+        """
         return self.supported
 
     def get_available_signals_names(self) -> List[str]:
+        """
+        `:returns` a list of all supported signal names
+        """
         return list(self.supported.keys())
 
     def get_available_signal_values(self) -> List[int]:
+        """
+        `:returns` a list of all supported signal values
+        """
         return list(self.supported.values())
 
+    def event_name_to_value(self, event: str) -> Optional[int]:
+        """
+        `:returns` the resolved name of the provided signal value 
+        """
+        return event_name_to_value(event)
 
-
+    def event_value_to_name(self, value: int) -> Optional[str]:
+        """
+        `:returns` the value corresponding to the provided name
+        """
+        return event_value_to_name(value)
 
 ###################
 ###### HOOKS ######
 ###################
 
 _root_interrupt_handler: InterruptHandler = None
-
+_interrupt_handlers: List[InterruptHandler] = []
 
 def _chdir_hook(path: str):
     global _root_interrupt_handler
