@@ -12,7 +12,7 @@ class Command(CommandInterface):
         self.parser = Parser('itrptctl', description=description)
 
     def run(self):
-        
+
         self.list_interrupts()
     
     def list_interrupts(self):
@@ -30,8 +30,11 @@ class Command(CommandInterface):
                 interrupt.exec_count,
                 interrupt.exec_once,
             ))
-        if interrupt_data:
-            table = create_table('handle', 'event_name', 'event_value', 'exec_count', 'exec_once', rows=interrupt_data)
-            self.print(table)
-        else:
+        
+        if not interrupt_data:
             self.warning('no interrupts registered yet')
+            return
+                
+        table = create_table('handle', 'event_name', 'event_value', 'exec_count', 'exec_once', rows=interrupt_data)
+        self.print(table)
+        
