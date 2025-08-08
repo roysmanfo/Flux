@@ -51,6 +51,7 @@ class Flux(CommandInterface):
         cache_parser.add_argument("action", choices={"clear",}, help="the action to perform on the cache")
 
         update_parser = subparsers.add_parser("update", usage="flux update [options]", help="update flux to the most recent version")
+        update_parser.add_argument("-c", "--check", action="store_true", help="check if there is an update available")
         update_parser.add_argument("--from", dest="url", help="use the specified URI to update flux (can also point to a file on disk)")
         update_parser.add_argument("--allow-unoficial", action="store_true", help="allow updates from any host (even localhost)")
         update_parser.add_argument("--skip-validation", action="store_true", help="do not verify the signature of the update (default: false)")
@@ -115,6 +116,15 @@ class Flux(CommandInterface):
         update_manager.logger = self
         try:
             update_needed = update_manager.check_for_update(current_version=self.system.version, update_url=self.args.url)
+
+            if self.args.check:
+                if update_needed:
+                    self.print(f'update available (v{self.system.version} -> {update_manager.latest_version})')
+                else:
+                    self.print('no newer version found')
+                
+                return
+
         except Exception as e:
             self.fatal(e)
             return
@@ -196,6 +206,10 @@ class UpdateManager:
     def _compare_versions(self, v1: str, v2: str) -> str:
         """
         Takes 2 flux versions as input and returns the most recent one
+        
+        In case of tagged version (like v1.1-alpha), this is the order:
+            *-alpha < *-beta < *-dev 
+        
         """
 
         def _format_version(v: str):
@@ -205,26 +219,26 @@ class UpdateManager:
                 else:
                     # may be something like x.y.z-dev
                     for i in segm.split('-'):
-                        if i.isnumeric():
-                            yield int(i)
+                        yield (int(i) if i.isnumeric() else i)
+                        
 
-        if (v1 := v1.strip()) == (v2 := v2.strip()):
+        if (_v1 := v1.strip().removeprefix("v")) == (_v2 := v2.strip().removeprefix("v")):
             # same version
             return v1
         
-        v1 = _format_version(v1)
-        v2 = _format_version(v2)
+        parsed_v1 = list(_format_version(_v1))
+        parsed_v2 = list(_format_version(_v2))
 
-        for i1, i2 in zip(v1, v2):
+        for i1, i2 in zip(parsed_v1, parsed_v2):
             if i1 > i2:
-                return v1    
+                return v1 
             elif i1 < i2:
                 return v2
 
         # reaching here means that the 2 version are not homogeneus (ie. x.y and x.y.z)
         # they have same major (x) and minor (y) version, check for eventual micro version (z)
 
-        if len(v1) > len(v2):
+        if len(parsed_v1) > len(parsed_v2):
             return v1
         return v2
 
@@ -346,7 +360,7 @@ class UpdateManager:
                         "Accept": accept
                     }
                     verify_tsl = parsed_url.scheme == "https"
-                    self.logger.info("requesting data from %s" % parsed_url.url)
+                    self.logger.debug("requesting data from %s" % parsed_url.url)
                     response = requests.get(parsed_url.url, headers=headers, timeout=3, verify=verify_tsl)
                 except requests.ConnectionError:
                     # possible SSL verification error, retry as a normal http request 
@@ -354,7 +368,7 @@ class UpdateManager:
                     self.logger.error("unable to connect using https, falling back to simple http")
                     
                     # let possible errors be caught by the surrounding try-except block
-                    self.logger.info("requesting data from %s" % parsed_url.url)
+                    self.logger.debug("requesting data from %s" % parsed_url.url)
                     response = requests.get(parsed_url.url, headers=headers, timeout=3, verify=verify_tsl)
 
                 if response.status_code < 200 or response.status_code >= 400:
@@ -364,7 +378,7 @@ class UpdateManager:
                 self.logger.debug("extracting update informations")
                 latest_release: dict = response.json()
                 self.latest_version = latest_release["tag_name"]
-                if self.latest_version != current_version:
+                if self._compare_versions(self.latest_version, current_version) == self.latest_version:
                     self.logger.info("a newer version is available")
                     
                     # get the new release download url
@@ -378,6 +392,8 @@ class UpdateManager:
                         if a != asset:
                             d_url: str = a["browser_download_url"]
                             if d_url.endswith('.tar.xz'):
+                                asset = a
+                            elif d_url.endswith('.whl'):
                                 asset = a
 
                     self.download_url = asset["browser_download_url"]
