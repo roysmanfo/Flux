@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import sys
 import os
 from pathlib import Path
 import random
@@ -47,8 +48,9 @@ class Flux(CommandInterface):
     def init(self):
         self.parser = Parser("flux", usage="flux [command] [options]")
         subparsers = self.parser.add_subparsers(title="commands", dest="command")
-        cache_parser = subparsers.add_parser("cache", usage="flux cache action [options]", help="manage the command loader cache")
+        cache_parser = subparsers.add_parser("cache", usage="flux cache ACTION [options]", help="manage the command loader cache")
         cache_parser.add_argument("action", choices={"clear",}, help="the action to perform on the cache")
+        cache_parser.add_argument("-v", "--verbose", action="store_true", help="show more output")
 
         update_parser = subparsers.add_parser("update", usage="flux update [options]", help="update flux to the most recent version")
         update_parser.add_argument("-c", "--check", action="store_true", help="check if there is an update available")
@@ -56,6 +58,8 @@ class Flux(CommandInterface):
         update_parser.add_argument("--allow-unoficial", action="store_true", help="allow updates from any host (even localhost)")
         update_parser.add_argument("--skip-validation", action="store_true", help="do not verify the signature of the update (default: false)")
         update_parser.add_argument("-v", "--verbose", action="store_true", help="show more output")
+
+        version_parser = subparsers.add_parser("version", usage="flux version", help="print the current flux version") 
 
         self.log_level = self.levels.INFO
 
@@ -73,12 +77,16 @@ class Flux(CommandInterface):
     def run(self):
         match self.args.command:
             case "cache":
+                if self.args.verbose:
+                    self.log_level = self.levels.DEBUG
                 self.flux_cache()
             case "update":
                 self.warning("the update command is still in development and may be unstable")
                 if self.args.verbose:
                     self.log_level = self.levels.DEBUG
                 asyncio.run(self.flux_update())
+            case "version":
+                self.flux_version()
 
     def banner(self):
         emote = random.choice(EMOTES)
@@ -170,11 +178,14 @@ class Flux(CommandInterface):
     def flux_cache(self):
         match self.args.action:
             case "clear":
-                self.info("clearing command loader cache ...")
+                self.debug("clearing command loader cache ...")
                 self.system.command_loader.clear_loader_cache()
                 self.info("cache cleared")
             case _:
                 self.fatal("command not supported")
+
+    def flux_version(self):
+        self.print(f"Flux v{self.system.version}\nRunning on Python {sys.version}")
 
 
 class UpdateManager:
