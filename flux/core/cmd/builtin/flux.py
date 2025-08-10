@@ -20,7 +20,8 @@ from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 
 from flux.core.helpers.commands import CommandInterface, Parser
-from flux.utils import paths
+from flux.utils import paths, format
+
 
 PathOrStr = Path | str
 
@@ -49,7 +50,7 @@ class Flux(CommandInterface):
         self.parser = Parser("flux", usage="flux [command] [options]")
         subparsers = self.parser.add_subparsers(title="commands", dest="command")
         cache_parser = subparsers.add_parser("cache", usage="flux cache ACTION [options]", help="manage the command loader cache")
-        cache_parser.add_argument("action", choices={"clear",}, help="the action to perform on the cache")
+        cache_parser.add_argument("action", choices={"clear", "show"}, help="the action to perform on the cache")
         cache_parser.add_argument("-v", "--verbose", action="store_true", help="show more output")
 
         update_parser = subparsers.add_parser("update", usage="flux update [options]", help="update flux to the most recent version")
@@ -181,6 +182,11 @@ class Flux(CommandInterface):
                 self.debug("clearing command loader cache ...")
                 self.system.command_loader.clear_loader_cache()
                 self.info("cache cleared")
+            case "show":
+                info = self.system.command_loader.get_cache_info()
+                values = [(loader, *info[loader]) for loader in info]
+                table = format.create_table("loader", "hits", "misses", "max size", "current size", rows=values)
+                self.print(table)
             case _:
                 self.fatal("command not supported")
 
