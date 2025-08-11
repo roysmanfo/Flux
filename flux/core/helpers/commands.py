@@ -2,7 +2,7 @@ import sys as _sys
 import os as _os
 from enum import IntEnum as _IntEnum
 from argparse import Namespace as _Namespace
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from abc import abstractmethod as _abstractmethod
 from typing import Any, Callable, Mapping, Optional, TextIO, List, Tuple, Union, final
 
 from flux.core.system.interrupts import EventTriggers, IHandle
