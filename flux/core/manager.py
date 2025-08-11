@@ -14,7 +14,7 @@ from flux.core.system.system import System
 from flux.core.system import loader
 from flux.core.system.interrupts import EventTriggers
 from flux.core.helpers.commands import CommandInterface, Status
-from flux.utils import transform
+from flux.utils import parsing
 from flux.utils.exceptions import FluxException
 
 # NULL_PATH = os.devnull
@@ -144,7 +144,7 @@ def manage(command: List[str], system: System) -> None:
         ])
 
 
-    commands = transform.split_commands(command)
+    commands = parsing.split_commands(command)
     remainning_commands = len(commands)
     num_pipes_left, tot_pipes = 0, 0
     created_pipes: list[TextIO] = []
@@ -159,7 +159,7 @@ def manage(command: List[str], system: System) -> None:
             if piping_detected:
                 num_pipes_left += command.count("|")
                 tot_pipes += command.count("|")
-                piped_commands = transform.split_pipe(command)
+                piped_commands = parsing.split_pipe(command)
                 commands = piped_commands + commands
                 command = commands.pop(0)
                 remainning_commands += len(piped_commands) - 1

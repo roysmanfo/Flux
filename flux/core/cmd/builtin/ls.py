@@ -10,7 +10,7 @@ from flux.core.helpers.commands import (
     Parser,
     Status
 )
-from flux.utils import format
+from flux.utils import tables
 
 import sys
 import os
@@ -105,7 +105,7 @@ class Command(CommandInterface):
         #     else:
         #         linelenght = len(content) + 2
         #         self.print(f"\n{content}  ", end="")
-        self.print(format.create_adaptive_table(output))    
+        self.print(tables.create_adaptive_table(output))    
     
     def long_listing_format(self, file_path: str) -> str:
         def get_permissions_string(mode):

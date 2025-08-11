@@ -20,7 +20,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 
 from flux.core.helpers.commands import CommandInterface, Parser
-from flux.utils import paths, format
+from flux.utils import paths, tables
 
 
 PathOrStr = Path | str
@@ -185,7 +185,7 @@ class Flux(CommandInterface):
             case "show":
                 info = self.system.command_loader.get_cache_info()
                 values = [(loader, *info[loader]) for loader in info]
-                table = format.create_table("loader", "hits", "misses", "max size", "current size", rows=values)
+                table = tables.create_table("loader", "hits", "misses", "max size", "current size", rows=values)
                 self.print(table)
             case _:
                 self.fatal("command not supported")

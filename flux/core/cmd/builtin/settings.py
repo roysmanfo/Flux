@@ -81,7 +81,7 @@ class Command(CommandInterface):
                     except KeyError:
                         self.error(f"setting not found")
             else:
-                from flux.utils.format import create_table
+                from flux.utils.tables import create_table
                 c = [(p, self.settings.user.paths.all_paths[p]) for p in self.settings.user.paths.all_paths.keys()]
                 
                 self.print(create_table("Path name", "Value", rows=c))

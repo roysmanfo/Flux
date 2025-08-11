@@ -3,7 +3,7 @@ from flux.core.helpers.commands import (
     Parser
 )
 from flux.core.manager import loader
-from flux.utils import format
+from flux.utils import tables
 import os
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -35,7 +35,7 @@ class Command(CommandInterface):
         command_descriptions = {
             command: self.capitalize(self.get_description(command).strip()) for command in command_names
         }
-        result_table = format.create_table(
+        result_table = tables.create_table(
             "command",
             "description",
             rows=command_descriptions.items(),

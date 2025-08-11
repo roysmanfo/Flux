@@ -2,7 +2,7 @@ from flux.core.helpers.commands import (
     CommandInterface,
     Parser
 )
-from flux.utils.format import create_table
+from flux.utils.tables import create_table
 
 
 class Command(CommandInterface):

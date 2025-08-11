@@ -43,7 +43,7 @@ class Test_Variables(unittest.TestCase):
             self.instance.stdin = None
     
     def _run_test(self, command: str, var_to_get: str) -> Optional[Variable]:
-        cmd = utils.transform.string_to_list(command)
+        cmd = utils.parsing.string_to_list(command)
         self.instance = manager.build(cmd, info)
         self._capture_output()
         manager.call(self.instance)

@@ -28,7 +28,7 @@ def listen() -> List[str]:
         command = input()
         print(f"{Fore.WHITE}", end="")
 
-        return utils.transform.string_to_list(command)
+        return utils.parsing.string_to_list(command)
 
     except (KeyboardInterrupt, EOFError):
         signal.raise_signal(signal.SIGINT)

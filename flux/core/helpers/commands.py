@@ -10,7 +10,7 @@ from flux.core.system.privileges import Privileges
 from flux.core.system.processes import Status
 from flux.core.system.system import System
 from flux.settings.settings import Settings
-from flux.utils import format as _format
+from flux.utils import tables as _format
 from flux.utils.security import NoOverrideMeta as _NoOverrideMeta, prevent_overwrite
 from .arguments import Parser
 

@@ -43,52 +43,52 @@ class TestCaseWithInstance(unittest.TestCase):
 class Test_TestOutputRedirection(TestCaseWithInstance):
 
     def test_build_01(self):
-        command = utils.transform.string_to_list("not existent command")
+        command = utils.parsing.string_to_list("not existent command")
         self.instance = manager.build(command, info)
         self.assertTrue(self.instance is None)
     
     def test_build_02(self):
-        command = utils.transform.string_to_list("£345%$£")
+        command = utils.parsing.string_to_list("£345%$£")
         self.instance = manager.build(command, info)
         self.assertTrue(self.instance is None)
     
     def test_build_03(self):
-        command = utils.transform.string_to_list("ls >")
+        command = utils.parsing.string_to_list("ls >")
         self.instance = manager.build(command, info)
         self.assertTrue(self.instance is None)
    
     def test_build_04(self):
-        command = utils.transform.string_to_list("ls >>")
+        command = utils.parsing.string_to_list("ls >>")
         self.instance = manager.build(command, info)
         self.assertTrue(self.instance is None)
     
     def test_build_05(self):
-        command = utils.transform.string_to_list(f"ls >{FILE}")
+        command = utils.parsing.string_to_list(f"ls >{FILE}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
 
     def test_build_06(self):
-        command = utils.transform.string_to_list(f"ls > {FILE}")
+        command = utils.parsing.string_to_list(f"ls > {FILE}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
 
     def test_build_07(self):
-        command = utils.transform.string_to_list(f"ls 2>{FILE}")
+        command = utils.parsing.string_to_list(f"ls 2>{FILE}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         
     def test_build_08(self):
-        command = utils.transform.string_to_list(f"ls 2>>{FILE}")
+        command = utils.parsing.string_to_list(f"ls 2>>{FILE}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
     
     def test_build_09(self):
-        command = utils.transform.string_to_list("ls <")
+        command = utils.parsing.string_to_list("ls <")
         self.instance = manager.build(command, info)
         self.assertIsNone(self.instance)
     
     def test_build_10(self): 
-        command = utils.transform.string_to_list(f"cat << {FILE} >> {os.path.join(TMP, 'file2.txt')}")
+        command = utils.parsing.string_to_list(f"cat << {FILE} >> {os.path.join(TMP, 'file2.txt')}")
         self.instance = manager.build(command, info)
         # works when trying manualy, but not in tests for some reason
         # self.assertIsNotNone(self.instance)
@@ -96,13 +96,13 @@ class Test_TestOutputRedirection(TestCaseWithInstance):
 class Test_TestFilePathHandling(TestCaseWithInstance):
 
     def test_file_path_01(self):
-        command = utils.transform.string_to_list(f"ls > {FILE}")
+        command = utils.parsing.string_to_list(f"ls > {FILE}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         self.assertTrue(os.path.exists(FILE))
     
     def test_file_path_02(self):
-        command = utils.transform.string_to_list(f"ls 2> {FILE}")
+        command = utils.parsing.string_to_list(f"ls 2> {FILE}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         self.assertTrue(os.path.exists(FILE))
@@ -110,7 +110,7 @@ class Test_TestFilePathHandling(TestCaseWithInstance):
     def test_file_path_03(self):
         file = os.path.join(TMP, 'file with spaces.txt')
         self.track_file(file)
-        command = utils.transform.string_to_list(f"ls > '{file}'")
+        command = utils.parsing.string_to_list(f"ls > '{file}'")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         self.assertTrue(os.path.exists(file))
@@ -120,7 +120,7 @@ class Test_TestFilePathHandling(TestCaseWithInstance):
         expected = os.path.join(TMP, 'file')
         self.track_file(file)
         self.track_file(expected)
-        command = utils.transform.string_to_list(f"ls > {file}")
+        command = utils.parsing.string_to_list(f"ls > {file}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         self.assertFalse(os.path.exists(file))
@@ -130,7 +130,7 @@ class Test_TestFilePathHandling(TestCaseWithInstance):
         # Test Windows-style paths
         win_path = os.path.join(TMP, 'test\\folder\\file.txt')
         self.track_file(win_path)
-        command = utils.transform.string_to_list(f"ls > {win_path}")
+        command = utils.parsing.string_to_list(f"ls > {win_path}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         self.assertTrue(os.path.exists(win_path.replace('\\','/')))
@@ -139,7 +139,7 @@ class Test_TestFilePathHandling(TestCaseWithInstance):
         # Test paths with special characters
         special_path = os.path.join(TMP, 'test@#$%^&()_+.txt')
         self.track_file(special_path)
-        command = utils.transform.string_to_list(f"ls > '{special_path}'")
+        command = utils.parsing.string_to_list(f"ls > '{special_path}'")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         self.assertTrue(os.path.exists(special_path))
@@ -148,7 +148,7 @@ class Test_TestFilePathHandling(TestCaseWithInstance):
         # Test paths with special characters (no quotation marks around the path)
         special_path = os.path.join(TMP, 'test@#$%^&()_+.txt')
         self.track_file(special_path)
-        command = utils.transform.string_to_list(f"ls > {special_path}")
+        command = utils.parsing.string_to_list(f"ls > {special_path}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         self.assertFalse(os.path.exists(special_path))
@@ -159,7 +159,7 @@ class Test_TestFilePathHandling(TestCaseWithInstance):
         long_dir = 'a' * 100
         long_path = os.path.join(TMP, long_dir, 'file.txt')
         self.track_file(long_path)
-        command = utils.transform.string_to_list(f"ls > {long_path}")
+        command = utils.parsing.string_to_list(f"ls > {long_path}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         self.assertTrue(os.path.exists(long_path))
@@ -168,7 +168,7 @@ class Test_TestFilePathHandling(TestCaseWithInstance):
         # Test paths with unicode characters
         unicode_path = os.path.join(TMP, 'áéíóúñçß.txt')
         self.track_file(unicode_path)
-        command = utils.transform.string_to_list(f"ls > {unicode_path}")
+        command = utils.parsing.string_to_list(f"ls > {unicode_path}")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         self.assertTrue(os.path.exists(unicode_path), self.instance.stdout.name)
@@ -177,7 +177,7 @@ class Test_TestFilePathHandling(TestCaseWithInstance):
         # Test paths with unicode characters
         unicode_path = os.path.join(TMP, 'áéíó úñçß.txt')
         self.track_file(unicode_path)
-        command = utils.transform.string_to_list(f"ls > '{unicode_path}'")
+        command = utils.parsing.string_to_list(f"ls > '{unicode_path}'")
         self.instance = manager.build(command, info)
         self.assertIsNotNone(self.instance)
         self.assertTrue(os.path.exists(unicode_path), self.instance.stdout.name)
