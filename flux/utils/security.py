@@ -6,21 +6,21 @@ from flux.utils.exceptions import FluxIllegalOverwrite
 # Global set to track method names that shouldn't be overridden
 _ILLEGAL_OVERWRITES: Set[str] = set()
 
-def prevent_overwrite(func: Callable) -> Callable:
+def prevent_override(func: Callable) -> Callable:
     """Decorator to mark a method as non-overridable in subclasses."""
     _ILLEGAL_OVERWRITES.add(func.__name__)
     return func
 
 class NoOverrideMeta(ABCMeta):
     """
-    Metaclass for classes that have methods that prevent overwrites,
+    Metaclass for classes that have methods that prevent overrides,
     this metaclass should be assigned to the class you are trying to secure, and
-    the decorator `prevent_overwrite` should be put on the protected methods
+    the decorator `prevent_override` should be put on the protected methods
 
     ```
     class MyClass(metaclass=NoOverrideMeta):
     
-        @prevent_overwrite
+        @prevent_override
         def execute(self):
             print('Executing...')
 

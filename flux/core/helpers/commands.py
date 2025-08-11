@@ -11,7 +11,7 @@ from flux.core.system.processes import Status
 from flux.core.system.system import System
 from flux.settings.settings import Settings
 from flux.utils import tables as _format
-from flux.utils.security import NoOverrideMeta as _NoOverrideMeta, prevent_overwrite
+from flux.utils.security import NoOverrideMeta as _NoOverrideMeta, prevent_override
 from .arguments import Parser
 
 STATUS_OK = Status.STATUS_OK
@@ -160,7 +160,7 @@ class CommandInterface(metaclass=_NoOverrideMeta):
             self.stdin = open(self.stdin.name, "r")
     
     @final
-    @prevent_overwrite
+    @prevent_override
     def __delattr__(self, name: str) -> None:
         PRIVATE = {"PRIVILEGES"}
         if name in PRIVATE:
@@ -168,13 +168,13 @@ class CommandInterface(metaclass=_NoOverrideMeta):
         return super().__delattr__(name)
 
     @final
-    @prevent_overwrite
+    @prevent_override
     def __init_subclass__(cls) -> None:
         cls._FLUX_COMMAND = True
 
     @final
     @staticmethod
-    @prevent_overwrite
+    @prevent_override
     def _is_subclass(cls) -> bool:
         self_mro = [i.__name__ for i in CommandInterface.mro()]
         cls_mro = [i.__name__ for i in cls.mro()[-len(self_mro):]]
@@ -182,7 +182,7 @@ class CommandInterface(metaclass=_NoOverrideMeta):
 
     @final
     @staticmethod
-    @prevent_overwrite
+    @prevent_override
     def _is_subclass_instance(instance: object) -> bool:
         _FLUX_COMMAND = getattr(instance, "_FLUX_COMMAND", None)
         return _FLUX_COMMAND and isinstance(_FLUX_COMMAND, bool)
@@ -246,7 +246,7 @@ class CommandInterface(metaclass=_NoOverrideMeta):
 
         self.clear_interrupts(force=True)
 
-    @prevent_overwrite
+    @prevent_override
     def exit(self) -> Status:
         """
         This is the last method that gets called.\n
@@ -258,7 +258,7 @@ class CommandInterface(metaclass=_NoOverrideMeta):
         return self.status if self.status else STATUS_OK
 
     @final
-    @prevent_overwrite
+    @prevent_override
     def fail_safe(self, exception: Exception) -> None:
         """
         This method gets called to capture unhandled exception.\n
