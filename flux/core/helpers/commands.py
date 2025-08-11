@@ -173,16 +173,16 @@ class CommandInterface(metaclass=_NoOverrideMeta):
         cls._FLUX_COMMAND = True
 
     @final
-    @prevent_overwrite
     @staticmethod
+    @prevent_overwrite
     def _is_subclass(cls) -> bool:
         self_mro = [i.__name__ for i in CommandInterface.mro()]
         cls_mro = [i.__name__ for i in cls.mro()[-len(self_mro):]]
         return cls_mro == self_mro
 
     @final
-    @prevent_overwrite
     @staticmethod
+    @prevent_overwrite
     def _is_subclass_instance(instance: object) -> bool:
         _FLUX_COMMAND = getattr(instance, "_FLUX_COMMAND", None)
         return _FLUX_COMMAND and isinstance(_FLUX_COMMAND, bool)
