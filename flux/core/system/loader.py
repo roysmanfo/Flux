@@ -1,9 +1,12 @@
+import sys
 import os
 import importlib
 from functools import lru_cache as _lru_cache, _CacheInfo
 from types import ModuleType
 from typing import Callable, Optional, TextIO, Union
 from pathlib import Path, WindowsPath, PosixPath
+
+from flux.utils.exceptions import FluxException
 
 # List of directories to search for custom scripts/extensions
 custom_script_dirs = ["scripts", "fpm"]
@@ -40,11 +43,13 @@ def _load_module(module_name: str) -> ModuleType:
     return importlib.reload(module)
 
 @_lru_cache(maxsize=_max_cache_size, typed=False)
-def load_command(script_name: str) -> Optional[CommandInterfaceType]:
+def load_command(script_name: str, *, pass_flux_exceptions: bool = False) -> Optional[CommandInterfaceType]:
     """
     Load a command installed on the machine
      
     If the `search_priority` has been set, it will search in the directories in the order specified
+
+    :param pass_flux_exceptions: When set to True, any `FluxException` won't be handled
     """
     if not _search_priority:
         set_search_priority([
@@ -53,24 +58,32 @@ def load_command(script_name: str) -> Optional[CommandInterfaceType]:
             Path(manager_dir, "cmd", "fpm"),
         ])
 
+    try:
+        for dir_path in _search_priority:
+            script_path = os.path.join(dir_path, script_name)
+            if os.path.exists(script_path + ".py") or os.path.isdir(script_path):
+                if os.path.isfile(script_path + ".py"):
+                    try:
+                        module = _load_module(f"{dir_path.name}.{script_name}")
+                        class_name = _get_entry_point(module)
+                        return getattr(module, class_name) if class_name else None
+                    except ImportError:
+                        pass
+                elif os.path.isdir(script_path):
+                    try:
+                        module = _load_module(f"{dir_path.name}.{script_name}.main")
+                        class_name = _get_entry_point(module)
+                        return getattr(module, class_name) if class_name else None
+                    except ImportError:
+                        pass
 
-    for dir_path in _search_priority:
-        script_path = os.path.join(dir_path, script_name)
-        if os.path.exists(script_path + ".py") or os.path.isdir(script_path):
-            if os.path.isfile(script_path + ".py"):
-                try:
-                    module = _load_module(f"{dir_path.name}.{script_name}")
-                    class_name = _get_entry_point(module)
-                    return getattr(module, class_name) if class_name else None
-                except ImportError:
-                    pass
-            elif os.path.isdir(script_path):
-                try:
-                    module = _load_module(f"{dir_path.name}.{script_name}.main")
-                    class_name = _get_entry_point(module)
-                    return getattr(module, class_name) if class_name else None
-                except ImportError:
-                    pass
+    except FluxException as e:
+        if pass_flux_exceptions:
+            # pass the exception down
+            raise
+        else:
+            print(f"-flux: {script_name}: {e}\n", file=sys.stderr)
+
     return None
 
 @_lru_cache(maxsize=_max_cache_size, typed=False)
