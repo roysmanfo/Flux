@@ -33,7 +33,6 @@ class Base64(CommandInterface):
         else:
             import textwrap
             encoded = base64.b64encode(content).decode()
-            self.print(self.args)
             if self.args.cols is not None:
                 width = self.args.cols[0] if len(self.args.cols) > 0 else DEFAULT_COLS
                 wrapped = '\n'.join(textwrap.wrap(encoded, width))
