@@ -172,8 +172,10 @@ class InterruptHandler(object):
         self.interrupt_map: dict[IHandle, Interrupt] = {}       # ihandle -> Interrupt
         self.supported: dict[str, int] = {}                     # event_name -> signum
 
-        global _system_interrupt_handler
-        _system_interrupt_handler = self
+        global _root_interrupt_handler
+        if (_root_interrupt_handler is None):
+            self._set_as_root_handler()
+        _interrupt_handlers.append(self)
 
         # add all available interrupts to self
         for event in list(EventTriggers):
@@ -186,6 +188,28 @@ class InterruptHandler(object):
             except (ValueError, OSError):
                 # this event is not supported on this system
                 pass
+    
+    @property
+    def is_root_handler(self):
+        global _root_interrupt_handler
+        return self == _root_interrupt_handler
+
+    def _set_as_root_handler(self):
+        global _root_interrupt_handler
+
+        if not self.is_root_handler:
+            old = _root_interrupt_handler
+            _root_interrupt_handler = self
+
+            # check if this is the first time setting a root handler
+            if old is not None:
+                # this makes shure that system.interrupt_handler
+                # is always referencing the root handler
+                old._replace_with_root_handler()
+
+    def _replace_with_root_handler(self):
+        global _root_interrupt_handler
+        self = _root_interrupt_handler
 
     def _register(self,
                  event: Union[Signals, EventTriggers],
@@ -216,7 +240,7 @@ class InterruptHandler(object):
 
         # avoid shared handles
         while (h := IHandle.generate_handle()) in self.interrupt_map:
-            h = IHandle.generate_handle()
+            pass
 
         handle = IHandle(h)
         if not isinstance(args, tuple):
@@ -260,7 +284,6 @@ class InterruptHandler(object):
             return True
         return False
 
-
     def raise_interrupt(self, event: EventTriggers) -> None:
         
         if not isinstance(event, (Signals, EventTriggers, int)):
@@ -279,7 +302,6 @@ class InterruptHandler(object):
         else:
             self._handle_interrupts(event, frame)
 
-
     def get_supported_signals(self) -> Set[str]:
         return set(self.supported.keys())
 
@@ -294,7 +316,6 @@ class InterruptHandler(object):
                 for interrupt in self.interrupts[EventTriggers.SIGNAL_RECEIVED]:
                     # pass the actual signal that has been received
                     interrupt.call(signum, frame)
-
 
     def get_all(self, event: Union[Signals, EventTriggers]) -> List[Interrupt]:
         """
@@ -316,33 +337,51 @@ class InterruptHandler(object):
         return self.interrupt_map.get(handle, None)
 
     def get_available_signals(self) -> Dict[str, int]:
+        """
+        `:returns` a dictionary that maps all supported signal names to their value
+        """
         return self.supported
 
     def get_available_signals_names(self) -> List[str]:
+        """
+        `:returns` a list of all supported signal names
+        """
         return list(self.supported.keys())
 
     def get_available_signal_values(self) -> List[int]:
+        """
+        `:returns` a list of all supported signal values
+        """
         return list(self.supported.values())
 
+    def event_name_to_value(self, event: str) -> Optional[int]:
+        """
+        `:returns` the resolved name of the provided signal value 
+        """
+        return event_name_to_value(event)
 
-
+    def event_value_to_name(self, value: int) -> Optional[str]:
+        """
+        `:returns` the value corresponding to the provided name
+        """
+        return event_value_to_name(value)
 
 ###################
 ###### HOOKS ######
 ###################
 
-_system_interrupt_handler: InterruptHandler
-
+_root_interrupt_handler: InterruptHandler = None
+_interrupt_handlers: List[InterruptHandler] = []
 
 def _chdir_hook(path: str):
-    global _system_interrupt_handler
+    global _root_interrupt_handler
     _chdir(path)
 
     # raise in interrupt AFTER the directory has been changed
     # this prevents the interrupt from being raised if the directory change fails
     try:
-        if _system_interrupt_handler:
-            _system_interrupt_handler.raise_interrupt(EventTriggers.DIRECTORY_CHANGED)
+        if _root_interrupt_handler:
+            _root_interrupt_handler.raise_interrupt(EventTriggers.DIRECTORY_CHANGED)
     except NameError:
         # _system_interrupt_handler is not defined yet
         # (seems to be an issue only in python 3.9)

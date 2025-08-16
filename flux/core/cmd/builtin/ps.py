@@ -7,7 +7,7 @@ from flux.core.helpers.commands import (
     CommandInterface,
     Parser
 )
-from flux.utils import format
+from flux.utils import tables
 
 class Command(CommandInterface):
     def init(self):
@@ -33,27 +33,27 @@ class Command(CommandInterface):
                 for p in procceses:
                     contents.append([p.id, p.owner, p.name, p.time_alive])
                 self.print()
-                self.print(format.create_table("ID", "OWNER", "NAME", "TIME ALIVE", rows=contents), end="")
+                self.print(tables.create_table("ID", "OWNER", "NAME", "TIME ALIVE", rows=contents), end="")
 
             case "all":
                 contents = []
                 for p in procceses:
                     contents.append([p.id, p.ppid, p.owner, p.name, p.native_id, p.time_alive, p.is_reserved_process, " ".join(p.line_args)])
                 self.print()
-                self.print(format.create_table("ID", "PPID", "OWNER", "NAME", "NATIVE ID", "TIME ALIVE", "IS RESERVED PROCESS", "ARGS", rows=contents), end="")
+                self.print(tables.create_table("ID", "PPID", "OWNER", "NAME", "NATIVE ID", "TIME ALIVE", "IS RESERVED PROCESS", "ARGS", rows=contents), end="")
 
             case "threads":
                 contents = []
                 for p in procceses:
                     contents.append([p.id, p.name, p.native_id])
 
-                self.stdout.write(format.create_table("ID", "NAME", "NATIVE ID", rows=contents))
+                self.stdout.write(tables.create_table("ID", "NAME", "NATIVE ID", rows=contents))
 
             case "misc":
                 for p in procceses:
                     contents.append([p.id, p.ppid, p.owner, p.name, p.is_reserved_process, p.time_alive])
 
-                self.stdout.write(format.create_table("ID", "PPID", "OWNER", "NAME", "IS RESERVED PROCESS", "TIME ALIVE", rows=contents))
+                self.stdout.write(tables.create_table("ID", "PPID", "OWNER", "NAME", "IS RESERVED PROCESS", "TIME ALIVE", rows=contents))
 
             case _:
                 self.error(self.errors.parameter_not_supported(self.args.mode))

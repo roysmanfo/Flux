@@ -14,7 +14,8 @@ from flux.core.system.system import System
 from flux.core.system import loader
 from flux.core.system.interrupts import EventTriggers
 from flux.core.helpers.commands import CommandInterface, Status
-from flux.utils import transform
+from flux.utils import parsing
+from flux.utils.exceptions import FluxException
 
 # NULL_PATH = os.devnull
 NULL_PATH = [
@@ -143,7 +144,7 @@ def manage(command: List[str], system: System) -> None:
         ])
 
 
-    commands = transform.split_commands(command)
+    commands = parsing.split_commands(command)
     remainning_commands = len(commands)
     num_pipes_left, tot_pipes = 0, 0
     created_pipes: list[TextIO] = []
@@ -158,7 +159,7 @@ def manage(command: List[str], system: System) -> None:
             if piping_detected:
                 num_pipes_left += command.count("|")
                 tot_pipes += command.count("|")
-                piped_commands = transform.split_pipe(command)
+                piped_commands = parsing.split_pipe(command)
                 commands = piped_commands + commands
                 command = commands.pop(0)
                 remainning_commands += len(piped_commands) - 1
@@ -242,12 +243,17 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
         stdout = create_pipe(system.settings.syspaths.PIPES_FOLDER)
 
     # Load command
-    if loader.get_search_priority():
-        exec_command_class = loader.load_command(command_name)
-    else:
-        exec_command_class = loader.load_builtin_script(command_name)
-        if not exec_command_class:
-            exec_command_class = loader.load_custom_script(command_name)
+    try:
+        if loader.get_search_priority():
+            exec_command_class = loader.load_command(command_name, pass_flux_exceptions=True)
+        else:
+            exec_command_class = loader.load_builtin_script(command_name)
+            if not exec_command_class:
+                exec_command_class = loader.load_custom_script(command_name)
+    except FluxException as e:
+        print(f"-flux: {command_name}: [{e.__class__.__name__}] {e}\n", file=sys.stderr)
+        return None
+
 
     if not exec_command_class:
         print(f"-flux: {command_name}: command not found\n", file=sys.stderr)

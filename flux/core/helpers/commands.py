@@ -2,15 +2,16 @@ import sys as _sys
 import os as _os
 from enum import IntEnum as _IntEnum
 from argparse import Namespace as _Namespace
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from typing import Any, Callable, Mapping, Optional, TextIO, List, Tuple, Union
+from abc import abstractmethod as _abstractmethod
+from typing import Any, Callable, Mapping, Optional, TextIO, List, Tuple, Union, final
 
 from flux.core.system.interrupts import EventTriggers, IHandle
 from flux.core.system.privileges import Privileges
 from flux.core.system.processes import Status
 from flux.core.system.system import System
 from flux.settings.settings import Settings
-from flux.utils import format as _format
+from flux.utils import tables as _format
+from flux.utils.security import NoOverrideMeta as _NoOverrideMeta, prevent_override
 from .arguments import Parser
 
 STATUS_OK = Status.STATUS_OK
@@ -21,8 +22,7 @@ class _Levels(_IntEnum): ...
 
 class OperationNotPermitted(RuntimeError): ...
 
-
-class CommandInterface(_ABC):
+class CommandInterface(metaclass=_NoOverrideMeta):
     """
     Interface class for commands
 
@@ -159,34 +159,30 @@ class CommandInterface(_ABC):
         if self.recv_from_pipe:
             self.stdin = open(self.stdin.name, "r")
     
+    @final
+    @prevent_override
     def __delattr__(self, name: str) -> None:
         PRIVATE = {"PRIVILEGES"}
         if name in PRIVATE:
             raise OperationNotPermitted("Unable to delete specified variable %s" % name)
         return super().__delattr__(name)
 
-
-    def __new__(cls, *args, **kwargs):
-        # override of these methods is not allowed
-        NAMES = {"__init__", "__new__", "__delattr__", "fail_safe"}
-
-        instance = super().__new__(cls)
-        for name, method in cls.__dict__.items():
-            if callable(method) and name in NAMES:
-                if hasattr(CommandInterface, name) and getattr(CommandInterface, name) is not method:
-                    raise RuntimeError(f"Method '{name}' can't be overrided in subclass.")
-        return instance
-
+    @final
+    @prevent_override
     def __init_subclass__(cls) -> None:
         cls._FLUX_COMMAND = True
 
+    @final
     @staticmethod
+    @prevent_override
     def _is_subclass(cls) -> bool:
-        cls_mro = [i.__name__ for i in cls.mro()[-3:]]
         self_mro = [i.__name__ for i in CommandInterface.mro()]
+        cls_mro = [i.__name__ for i in cls.mro()[-len(self_mro):]]
         return cls_mro == self_mro
 
+    @final
     @staticmethod
+    @prevent_override
     def _is_subclass_instance(instance: object) -> bool:
         _FLUX_COMMAND = getattr(instance, "_FLUX_COMMAND", None)
         return _FLUX_COMMAND and isinstance(_FLUX_COMMAND, bool)
@@ -250,7 +246,7 @@ class CommandInterface(_ABC):
 
         self.clear_interrupts(force=True)
 
-
+    @prevent_override
     def exit(self) -> Status:
         """
         This is the last method that gets called.\n
@@ -261,6 +257,8 @@ class CommandInterface(_ABC):
         self._is_alive = False
         return self.status if self.status else STATUS_OK
 
+    @final
+    @prevent_override
     def fail_safe(self, exception: Exception) -> None:
         """
         This method gets called to capture unhandled exception.\n

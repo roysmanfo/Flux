@@ -1,7 +1,7 @@
 import os
 from typing import Iterable, Any, List, Optional, Union
-import re
 
+from flux.utils.text import remove_ansi_escape_sequences
 
 def create_table(
         *collumns: Union[str, List[str]],
@@ -18,7 +18,7 @@ def create_table(
     and M rappresents the number of rows in `contents`
     
     ### params 
-    - `columns` :            all the column titles
+    - `columns` :             all the column titles
     - `rows` :                the data to populate the table (list of rows)
     - `show_headers` :        when set to false the titles will be discarded in the table
     - `fill_value` :          value to use if there is nothing in that row for this column
@@ -62,6 +62,11 @@ def create_table(
 
     n_columns = len(collumns)
     
+    is_empty = len(rows) == 0
+    if is_empty:
+        rows = [tuple('' for _ in range(n_columns))]
+
+
     column_widths = [
         max(
             len(str(record[i]) if i < len(record) else fill_value)
@@ -77,13 +82,14 @@ def create_table(
         output += "   ".join(f"{collumn}{' ' * (width - len(collumn))}" for collumn, width in zip(collumns, column_widths)) + "\n"
         output += "     ".join((separator if add_top_line else ' ') * (width - 2) for width in column_widths) + "\n"
     
-    # add a footer separator
-    if last_is_footer:
-        rows.insert(-1, tuple((separator if add_top_line else ' ') * (width - 2) for width in column_widths))
+    if not is_empty:
+        # add a footer separator
+        if last_is_footer:
+            rows.insert(-1, tuple((separator if add_top_line else ' ') * (width - 2) for width in column_widths))
 
-    # add all rows (ignores a row's column if there is no header for it)
-    for record in rows:
-        output += "   ".join(f"{str(record[i]) if i < len(record) else fill_value}{' ' * (width - len(str(record[i]) if i < len(record) else fill_value))}" for i, width in enumerate(column_widths)) + "\n"
+        # add all rows (ignores a row's column if there is no header for it)
+        for record in rows:
+            output += "   ".join(f"{str(record[i]) if i < len(record) else fill_value}{' ' * (width - len(str(record[i]) if i < len(record) else fill_value))}" for i, width in enumerate(column_widths)) + "\n"
     
     # manage footer
     if add_bottom_line:
@@ -109,7 +115,7 @@ def create_adaptive_table(data: Iterable[str]) -> str:
         cell = remove_ansi_escape_sequences(d.__str__())
         longest = max(longest, len(cell))
 
-    num_columns = max(1, terminal_width // longest)  # Adjust this value based on your preference
+    num_columns = max(1, terminal_width // longest)
     num_rows = (len(data) + num_columns - 1) // num_columns
 
     output = ""
@@ -121,14 +127,3 @@ def create_adaptive_table(data: Iterable[str]) -> str:
         output += " ".join(str(item).ljust(longest) for item in row_data) + "\n"
 
     return output
-
-
-def remove_ansi_escape_sequences(text: str) -> str:
-    """
-    Remove ANSI escape sequences (color codes and styles) from a given string.
-
-    :param text: a string that may contain ANSI escape sequences
-    :return escaped_text: a new string with ANSI escape sequences removed
-    """
-    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-    return ansi_escape.sub('', text)

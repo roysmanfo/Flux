@@ -3,6 +3,7 @@ from flux.core.helpers.commands import (
     Parser
 )
 from http.client import HTTPConnection
+from urllib3.util import parse_url
 
 import requests
 
@@ -12,7 +13,8 @@ class Command(CommandInterface):
     def init(self):
         self.parser = Parser("curl", description=" transfer a URL", usage="curl [options...] <url>")
         self.parser.add_argument("url", help="the page to visit")
-        self.parser.add_argument("-A", "--user-agent", dest="agent", metavar="name", default="curl", help="Send User-Agent <name> to server")
+        self.parser.add_argument("-A", "--user-agent", dest="agent", metavar="name", default="curl/flux", help="Send User-Agent <name> to server")
+        self.parser.add_argument("-b", "--cookie", dest="cookie", default="", metavar="data", help="Pass the specified cookies in the request's header")
         self.parser.add_argument("-H", "--header", action="append", dest="header", help="Extra header to include in information sent")
         self.parser.add_argument("-L", "--location", action="store_true", help="Follow redirects")
         self.parser.add_argument("--max-redirs", metavar="num", type=int, default=50, help="Maximum number of redirects allowed")
@@ -24,29 +26,41 @@ class Command(CommandInterface):
         session = requests.Session()
         session.max_redirects = self.args.max_redirs
 
-        HTTPConnection._http_vsn_str = 'HTTP/1.0'
         if self.args.verbose:
             self.log_level = self.levels.DEBUG
 
+        cookies = {}
+        if self.args.cookie:
+            for c in self.args.cookie.split(";"):
+                try:
+                    k,v = c.split("=")
+                except ValueError:
+                    self.error(f"malformed cookie (does not respect format: NAME=VALUE): {c}")
+                cookies[k] = v
+
 
         url: str = self.args.url
-
         if not "://" in url:
             url = "http://" + url
 
         if not url[:url.index("://")] in SUPPORTED_SCHEMAS:
             self.error("unsupported schema")
             return
+        
+        self.args.url = url
 
         headers = self.format_headers()
+        cookie_str = ";".join(f'{n}={v}' for n,v in cookies.items())
         self.debug(f"GET / {HTTPConnection._http_vsn_str}")
         self.print_headers(headers, is_response=False)
+        self.print_headers({"Cookies": cookie_str}, is_response=False)
         self.debug()
 
         try:
             res = session.get(
                 url=url,
                 headers=headers,
+                cookies=cookies,
                 allow_redirects=self.args.location,
             )
 
@@ -63,7 +77,11 @@ class Command(CommandInterface):
 
 
     def format_headers(self) -> dict[str, str]:
-        headers = {"User-Agent": self.args.agent}
+        headers = {
+            "Host": parse_url(self.args.url).host or self.args.url,
+            "Accept": "*/*",
+            "User-Agent": self.args.agent,
+            }
 
         if not self.args.header:
             return headers

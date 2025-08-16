@@ -3,7 +3,7 @@ from flux.core.helpers.commands import (
     Parser
 )
 
-from flux.utils import format
+from flux.utils import tables
 from flux.core.system import interrupts
 
 class Command(CommandInterface):
@@ -38,7 +38,7 @@ class Command(CommandInterface):
                     raise IndexError()
                 
             except IndexError:
-                table = format.create_adaptive_table([f"{v}) {k}" for k, v in self.system.interrupt_handler.supported.items()])
+                table = tables.create_adaptive_table([f"{v}) {k}" for k, v in self.system.interrupt_handler.supported.items()])
                 self.print(table)
             
             return

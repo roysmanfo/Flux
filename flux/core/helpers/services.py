@@ -1,10 +1,10 @@
-from abc import ABCMeta as _ABCMeta, abstractmethod as _abstractmethod
+from abc import abstractmethod as _abstractmethod
 import os
 import time
 from typing import Callable, Optional, final
 
 from flux.core.system.system import System
-
+from flux.utils.security import NoOverrideMeta, prevent_override
 
 def service_info_manager(func: Callable[[], None]):
     is_running = func.__name__ == "start"
@@ -16,7 +16,7 @@ def service_info_manager(func: Callable[[], None]):
     return wrapper
 
 
-class ServiceInterface(metaclass=_ABCMeta):
+class ServiceInterface(metaclass=NoOverrideMeta):
     """
     A service is a background program that is allowed to run as soon as the
     program starts
@@ -89,6 +89,7 @@ class ServiceInterface(metaclass=_ABCMeta):
 
     @service_info_manager
     @final
+    @prevent_override
     def start(self) -> None:
         """
         Start the service by calling `update()` 

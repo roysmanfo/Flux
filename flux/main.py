@@ -18,13 +18,17 @@ def listen() -> List[str]:
     a string of text containing the username, the name of the program,
     the version and the location where Flux is oparating on the disk.
     """
+    path = SYSTEM.variables.get("$PWD").value.lower()
+    home = SYSTEM.variables.get("$HOME").value.lower()
+    cwd = path.replace(home, "~")
+   
     try:
         print(
-            f"{Fore.GREEN}{SYSTEM.settings.user.username}{Fore.CYAN} Flux [{SYSTEM.version}] {Fore.YELLOW}" + SYSTEM.variables.get("$PWD").value.lower() + f"{Fore.MAGENTA} $ ", end="")
+            f"{Fore.GREEN}{SYSTEM.settings.user.username}{Fore.CYAN} Flux [{SYSTEM.version}] {Fore.YELLOW}" + cwd + f"{Fore.MAGENTA} $ ", end="")
         command = input()
         print(f"{Fore.WHITE}", end="")
 
-        return utils.transform.string_to_list(command)
+        return utils.parsing.string_to_list(command)
 
     except (KeyboardInterrupt, EOFError):
         signal.raise_signal(signal.SIGINT)
