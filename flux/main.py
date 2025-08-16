@@ -2,7 +2,10 @@
 import sys
 import os
 import signal
+import glob
 from typing import List
+
+import readline
 from colorama import init, Fore
 
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -12,7 +15,24 @@ init(autoreset=True)
 from flux.core import setup, manager
 from flux import utils
 
-def listen() -> List[str]:
+def path_completer(text: str, state: int):
+    """
+    Autocomplete function for file paths.
+    """
+    expanded = os.path.expanduser(text)
+    expanded = os.path.expandvars(expanded)
+
+    matches = glob.glob(expanded + '*')
+    matches = [m.replace('\\', '/') for m in matches]
+    matches = [m + '/' if os.path.isdir(m) else m for m in matches]
+
+    try:
+        return matches[state]
+    except IndexError:
+        return None
+
+
+def get_line_args() -> List[str]:
     """
     This function is used to get the command typed by the user preceded by
     a string of text containing the username, the name of the program,
@@ -21,10 +41,18 @@ def listen() -> List[str]:
     path = SYSTEM.variables.get("$PWD").value.lower()
     home = SYSTEM.variables.get("$HOME").value.lower()
     cwd = path.replace(home, "~")
-   
+
     try:
+        # setup autocompletion
+        readline.set_completer_delims(" \t\n;")
+        readline.parse_and_bind("tab: complete")
+        readline.set_completer(path_completer)
+
         print(
-            f"{Fore.GREEN}{SYSTEM.settings.user.username}{Fore.CYAN} Flux [{SYSTEM.version}] {Fore.YELLOW}" + cwd + f"{Fore.MAGENTA} $ ", end="")
+            f"{Fore.GREEN}{SYSTEM.settings.user.username}{Fore.CYAN} Flux [{SYSTEM.version}] {Fore.YELLOW}" 
+            + cwd 
+            + f"{Fore.MAGENTA} $ ", end=""
+        )
         command = input()
         print(f"{Fore.WHITE}", end="")
 
@@ -40,7 +68,7 @@ def run():
     while not SYSTEM.exit:
         os.chdir(SYSTEM.variables.get("$PWD").value)
         try:
-            cmd = listen()
+            cmd = get_line_args()
 
             if cmd:
                 if cmd[0] == "exit":
