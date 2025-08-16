@@ -9,21 +9,33 @@ import curses
 class Command(CommandInterface):
     def init(self):
         self.parser = Parser(prog="less", description="View FILE contents one screen at a time")
-        self.parser.add_argument("FILE", help="the file to view")
+        self.parser.add_argument("FILE", nargs='?', help="the file to view")
 
     def run(self):
         file = self.args.FILE
-        if not os.path.exists(file):
-            self.error(self.errors.file_not_found(file))
-            return
+        lines: list[str] = []
 
-        try:
-            with open(file, "r") as f:
-                lines = f.readlines()
-        except Exception as e:
-            self.error(str(e))
-            return
+        if file:
+            if not os.path.exists(file):
+                self.error(self.errors.file_not_found(file))
+                return
+
+            try:
+                with open(file, "r") as f:
+                    lines = f.readlines()
+            except Exception as e:
+                self.error(str(e))
+                return
+
+        elif self.recv_from_pipe:
+            lines = self.stdin.readlines()
         
+        else:
+            self.error('Missing filename')
+            return
+             
+
+
         def pager(stdscr: curses.window):
             curses.curs_set(0)  # hide cursor
             height, width = stdscr.getmaxyx()
