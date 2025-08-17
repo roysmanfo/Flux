@@ -151,9 +151,9 @@ class CommandInterface(metaclass=_NoOverrideMeta):
                  system: System,
                  command: List[str],
                  is_process: bool,
-                 stdout: Optional[TextIO | BinaryIO] = _sys.stdout,
-                 stderr: Optional[TextIO | BinaryIO] = _sys.stdout,
-                 stdin: Optional[TextIO | BinaryIO] = _sys.stdin,
+                 stdout: Optional[Union[TextIO | BinaryIO]] = _sys.stdout,
+                 stderr: Optional[Union[TextIO | BinaryIO]] = _sys.stdout,
+                 stdin: Optional[Union[TextIO | BinaryIO]] = _sys.stdin,
                  privileges: Privileges = Privileges.LOW
                  ) -> None:
         
@@ -163,9 +163,9 @@ class CommandInterface(metaclass=_NoOverrideMeta):
         self.settings: Settings = self.system.settings
         self.line_args: List[str] = command
         self.status: Optional[Status] = None
-        self.stdout: TextIO | BinaryIO = stdout
-        self.stderr: TextIO | BinaryIO = stderr
-        self.stdin: TextIO | BinaryIO = stdin
+        self.stdout: Union[TextIO | BinaryIO] = stdout
+        self.stderr: Union[TextIO | BinaryIO] = stderr
+        self.stdin: Union[TextIO | BinaryIO] = stdin
         self.parser: Optional[Parser] = None
         self.args: Optional[_Namespace] = None
         self.errors: Errors = Errors()
