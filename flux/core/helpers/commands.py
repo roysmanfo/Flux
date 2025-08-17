@@ -3,12 +3,23 @@ import os as _os
 from enum import IntEnum as _IntEnum
 from argparse import Namespace as _Namespace
 from abc import abstractmethod as _abstractmethod
-from typing import Any, Callable, Mapping, Optional, TextIO, List, Tuple, Union, final
-
+from typing import (
+    Any,
+    Callable,
+    Mapping,
+    Optional,
+    TextIO,
+    BinaryIO,
+    List,
+    Tuple,
+    Union,
+    final,
+)
 from flux.core.system.interrupts import EventTriggers, IHandle
 from flux.core.system.privileges import Privileges
 from flux.core.system.processes import Status
 from flux.core.system.system import System
+from flux.core.system.loader import PreLoadConfigs
 from flux.settings.settings import Settings
 from flux.utils import tables as _format
 from flux.utils.security import NoOverrideMeta as _NoOverrideMeta, prevent_override
@@ -123,14 +134,26 @@ class CommandInterface(metaclass=_NoOverrideMeta):
     - `bool` `recv_from_pipe()`        True if `self.stdin` is pointing to a `pipe`
     - `bool` `send_to_pipe()`          True if `self.stdout` is pointing to a `pipe`
 
+    ### PRELOAD CONFIGS
+    It is possible for a command to define custom configurations for the command loader.
+    These configurations will be used when loading the command and take effect BEFORE an instance of the command
+    is even created. The loader will look for these configurations to determine how to create an instance of your command 
+                      
     """
+    
+    """
+    PRELOAD CONFIGS
+    """
+
+    PRELOAD_CONFIGS = PreLoadConfigs()
+
     def __init__(self,
                  system: System,
                  command: List[str],
                  is_process: bool,
-                 stdout: Optional[TextIO] = _sys.stdout,
-                 stderr: Optional[TextIO] = _sys.stdout,
-                 stdin: Optional[TextIO] = _sys.stdin,
+                 stdout: Optional[TextIO | BinaryIO] = _sys.stdout,
+                 stderr: Optional[TextIO | BinaryIO] = _sys.stdout,
+                 stdin: Optional[TextIO | BinaryIO] = _sys.stdin,
                  privileges: Privileges = Privileges.LOW
                  ) -> None:
         
@@ -140,9 +163,9 @@ class CommandInterface(metaclass=_NoOverrideMeta):
         self.settings: Settings = self.system.settings
         self.line_args: List[str] = command
         self.status: Optional[Status] = None
-        self.stdout = stdout
-        self.stderr = stderr
-        self.stdin = stdin
+        self.stdout: TextIO | BinaryIO = stdout
+        self.stderr: TextIO | BinaryIO = stderr
+        self.stdin: TextIO | BinaryIO = stdin
         self.parser: Optional[Parser] = None
         self.args: Optional[_Namespace] = None
         self.errors: Errors = Errors()
@@ -355,9 +378,9 @@ class CommandInterface(metaclass=_NoOverrideMeta):
                     self.print(msg)
             else:
                 if use_color:
-                    self.print(f"{self.colors.Fore.YELLOW}{self.parser.prog}: {msg}{self.colors.Fore.RESET}")
+                    self.printerr(f"{self.colors.Fore.YELLOW}{self.parser.prog}: {msg}{self.colors.Fore.RESET}")
                 else:
-                    self.print(msg)
+                    self.printerr(msg)
 
         self.status = STATUS_WARN
 
@@ -379,7 +402,7 @@ class CommandInterface(metaclass=_NoOverrideMeta):
     HELPER METHODS
     """
 
-    def input(self, __prompt: object = "") -> Optional[str]:
+    def input(self, __prompt: object = "") -> Optional[str | bytes]:
         """
         This method takes an input from the stdin and returns it as a string
 
@@ -392,12 +415,15 @@ class CommandInterface(metaclass=_NoOverrideMeta):
             if not self.stdin.readable():
                 return None
 
-            file_contents = self.stdin.readline()
+            _source = self.stdin.readline()
+            if isinstance(_source, bytes):
+                _source = _source.replace(b'\r\n', b'\n')
             
-            if file_contents == '':
+            if _source in ('', b''):
                 return None
             
-            return file_contents
+            
+            return _source
         except KeyboardInterrupt:
             return None
         
@@ -467,22 +493,31 @@ class CommandInterface(metaclass=_NoOverrideMeta):
         """
         returns true if the stdout has been redirected
         """
-        return not (self.stdout and self.stdout == _sys.stdout)
+        return not (
+            (self.stdout and self.stdout == _sys.stdout) or
+            (self.stdout == _sys.stdout.buffer)
+            )
 
     @property
     def redirected_stderr(self):
         """
         returns true if the stderr has been redirected
         """
-        return not (self.stderr and self.stderr == _sys.stderr)
+        return not (
+            (self.stderr and self.stderr == _sys.stderr) or
+            (self.stderr == _sys.stderr.buffer)
+        )
 
     @property
     def redirected_stdin(self):
         """
         returns true if the stdin has been redirected
         """
-        return not (self.stdin and self.stdin == _sys.stdin)
-    
+        return not (
+            (self.stdin and self.stdin == _sys.stdin) or
+            (self.stdin == _sys.stdin.buffer)
+            )
+
     @property
     def is_output_red(self):
         """

@@ -7,7 +7,7 @@ with the respective command (if existent).
 import sys
 import os
 import tempfile
-from typing import Iterable, List, Optional, TextIO
+from typing import Iterable, List, Literal, Optional, TextIO, BinaryIO
 from pathlib import Path
 
 from flux.core.system.system import System
@@ -23,7 +23,7 @@ NULL_PATH = [
     Path(os.devnull).resolve() if os.name != "nt" else Path(os.devnull)
 ]
 
-def get_stdout(command: List[str]) -> Optional[TextIO]:
+def get_stdout(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[TextIO | BinaryIO]:
     """
     Returns the stout of the command and pathname of the file if redirection accours 
 
@@ -36,19 +36,19 @@ def get_stdout(command: List[str]) -> Optional[TextIO]:
     # Append output to file
     if ">>" in command or "&>>" in command:
         REDIRECT = ">>" if ">>" in command else "&>>"
-        MODE = "at"
+        MODE = "a"
     # Overwite file with output
     elif ">" in command or "1>" in command or "&>" in command :
         REDIRECT = ">" if ">" in command else "1>" if "1>" in command else "&>"
-        MODE = "wt"
+        MODE = "w"
 
     else:
-        return sys.stdout
+        return (sys.stdout if mode == 't' else sys.stdout.buffer)
 
-    return _get_stream(command, REDIRECT, MODE)
+    return _get_stream(command, REDIRECT, MODE + mode)
 
 
-def get_stderr(command: List[str]) -> Optional[TextIO]:
+def get_stderr(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[TextIO | BinaryIO]:
     """
     Returns the sterr of the command and pathname of the file if redirection accours 
 
@@ -61,20 +61,20 @@ def get_stderr(command: List[str]) -> Optional[TextIO]:
     # Append output to file
     if "&>>" in command:
         REDIRECT = ">>" if ">>" in command else "&>>"
-        MODE = "at"
+        MODE = "a"
     # Overwite file with output
     elif "2>" in command or "&>" in command:
         REDIRECT = "2>" if "2>" in command else "&>"
-        MODE = "wt"
+        MODE = "w"
 
     else:
-        return sys.stderr
+        return (sys.stderr if mode == 't' else sys.stderr.buffer)
 
 
-    return _get_stream(command, REDIRECT, MODE)
+    return _get_stream(command, REDIRECT, MODE + mode)
 
 
-def get_stdin(command: List[str]) -> Optional[TextIO]:
+def get_stdin(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[TextIO | BinaryIO]:
     """
     Returns the stin of the command and pathname of the file if redirection accours 
 
@@ -82,7 +82,6 @@ def get_stdin(command: List[str]) -> Optional[TextIO]:
     """
 
     REDIRECT: str
-    MODE: str = "rt"
 
     if "<<<" in command:
         REDIRECT = "<<<"
@@ -91,12 +90,12 @@ def get_stdin(command: List[str]) -> Optional[TextIO]:
     elif "<" in command:
         REDIRECT = "<"
     else:
-        return sys.stdin
+        return (sys.stdin if mode == 't' else sys.stdin.buffer)
 
-    return _get_stream(command, REDIRECT, MODE)
+    return _get_stream(command, REDIRECT, "r" + mode)
 
 
-def _get_stream(command: List[str], redirect: str, mode: str) -> Optional[TextIO]:
+def _get_stream(command: List[str], redirect: str, mode: str) -> Optional[TextIO | BinaryIO]:
     if command.index(redirect) < len(command) - 1:
         try:
             pathname = command.pop(command.index(redirect) + 1)
@@ -227,21 +226,6 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
         command.extend(tail)
         command_name = command[0]
 
-
-    # Check for stdout redirect
-    try:
-        stdout = get_stdout(command)
-        stderr = get_stderr(command)
-        stdin = get_stdin(command)
-
-    except Exception as e:
-        print(f"-flux: {e}\n", file=sys.stderr)
-        return None
-
-    # look for piping    
-    if stdout is sys.stdout and is_output_piped(command):
-        stdout = create_pipe(system.settings.syspaths.PIPES_FOLDER)
-
     # Load command
     try:
         if loader.get_search_priority():
@@ -262,6 +246,25 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
     if not CommandInterface._is_subclass(exec_command_class):
         print(f"-flux: {command_name}: command not found\n", file=sys.stderr)
         return None
+
+    if not isinstance(exec_command_class.PRELOAD_CONFIGS, loader.PreLoadConfigs):
+        print(f"-flux: {command_name}: unable to load command: has incorrectly set loader configurations\n", file=sys.stderr)
+        return None
+
+    preload_configs = exec_command_class.PRELOAD_CONFIGS
+
+    # Check for stdout redirect
+    try:
+        stdin = get_stdin(command, preload_configs.prefered_mode_stdin)
+        stdout = get_stdout(command, preload_configs.prefered_mode_stdout)
+        stderr = get_stderr(command, preload_configs.prefered_mode_stderr)
+    except Exception as e:
+        print(f"-flux: {e}\n", file=sys.stderr)
+        return None
+
+    # look for piping    
+    if stdout is sys.stdout and is_output_piped(command):
+        stdout = create_pipe(system.settings.syspaths.PIPES_FOLDER)
     
     is_thread = command[-1].endswith("&") and not command[0].endswith("&")
     exec_command = exec_command_class(system, command, is_thread, stdout=stdout, stderr=stderr, stdin=stdin, privileges=system.privileges.LOW)
