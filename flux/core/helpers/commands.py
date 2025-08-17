@@ -402,14 +402,16 @@ class CommandInterface(metaclass=_NoOverrideMeta):
     HELPER METHODS
     """
 
-    def input(self, __prompt: object = "", n: int = -1) -> Optional[str | bytes]:
+    def input(self, __prompt: object = "", n: int = -1) -> Optional[Union[str, bytes]]:
         """
         This method takes an input from the stdin and returns it as a string
 
         If a Ctrl-c is detected, returns None.
 
-        If n is greather than 0, the first n bytes will be returned,
-        otherwise reading will stop at the first newline found
+        :param int n: If n is greather than 0, the first n bytes will be returned,
+                        otherwise reading will stop at the first newline found
+        :returns: a string when `isinstance(self.stdin, TextIO)`, and bytes when `isinstance(self.stdin, BinaryIO)`.
+                    This can be controlled from `PRELOAD_CONFIGS`
         """
         try:
             if __prompt:
