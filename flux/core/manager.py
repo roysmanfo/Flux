@@ -7,7 +7,7 @@ with the respective command (if existent).
 import sys
 import os
 import tempfile
-from typing import Iterable, List, Literal, Optional, TextIO, BinaryIO
+from typing import Iterable, List, Literal, Optional, TextIO, BinaryIO, Union
 from pathlib import Path
 
 from flux.core.system.system import System
@@ -23,7 +23,7 @@ NULL_PATH = [
     Path(os.devnull).resolve() if os.name != "nt" else Path(os.devnull)
 ]
 
-def get_stdout(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[TextIO | BinaryIO]:
+def get_stdout(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[Union[TextIO, BinaryIO]]:
     """
     Returns the stout of the command and pathname of the file if redirection accours 
 
@@ -48,7 +48,7 @@ def get_stdout(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[Te
     return _get_stream(command, REDIRECT, MODE + mode)
 
 
-def get_stderr(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[TextIO | BinaryIO]:
+def get_stderr(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[Union[TextIO, BinaryIO]]:
     """
     Returns the sterr of the command and pathname of the file if redirection accours 
 
@@ -74,7 +74,7 @@ def get_stderr(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[Te
     return _get_stream(command, REDIRECT, MODE + mode)
 
 
-def get_stdin(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[TextIO | BinaryIO]:
+def get_stdin(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[Union[TextIO, BinaryIO]]:
     """
     Returns the stin of the command and pathname of the file if redirection accours 
 
@@ -95,7 +95,7 @@ def get_stdin(command: List[str], mode: Literal['t', 'b'] = 't') -> Optional[Tex
     return _get_stream(command, REDIRECT, "r" + mode)
 
 
-def _get_stream(command: List[str], redirect: str, mode: str) -> Optional[TextIO | BinaryIO]:
+def _get_stream(command: List[str], redirect: str, mode: str) -> Optional[Union[TextIO, BinaryIO]]:
     if command.index(redirect) < len(command) - 1:
         try:
             pathname = command.pop(command.index(redirect) + 1)
