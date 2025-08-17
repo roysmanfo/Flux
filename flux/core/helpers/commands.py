@@ -402,11 +402,14 @@ class CommandInterface(metaclass=_NoOverrideMeta):
     HELPER METHODS
     """
 
-    def input(self, __prompt: object = "") -> Optional[str | bytes]:
+    def input(self, __prompt: object = "", n: int = -1) -> Optional[str | bytes]:
         """
         This method takes an input from the stdin and returns it as a string
 
         If a Ctrl-c is detected, returns None.
+
+        If n is greather than 0, the first n bytes will be returned,
+        otherwise reading will stop at the first newline found
         """
         try:
             if __prompt:
@@ -415,7 +418,11 @@ class CommandInterface(metaclass=_NoOverrideMeta):
             if not self.stdin.readable():
                 return None
 
-            _source = self.stdin.readline()
+            if n > 0:
+                _source = self.stdin.read(n)
+            else:
+                _source = self.stdin.readline()
+
             if isinstance(_source, bytes):
                 _source = _source.replace(b'\r\n', b'\n')
             
