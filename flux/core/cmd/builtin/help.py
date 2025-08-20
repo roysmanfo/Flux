@@ -40,7 +40,7 @@ class Command(CommandInterface):
             "description",
             rows=command_descriptions.items(),
         )
-        print(result_table)
+        self.print(result_table)
 
     def get_description(self, command_name: str) -> str:
         """
