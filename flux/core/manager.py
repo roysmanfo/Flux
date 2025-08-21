@@ -183,6 +183,7 @@ def manage(command: List[str], system: System) -> None:
                     system.processes.add(system, command, exec_command, False)
                 else:
                     status = call(exec_command)
+                    system.variables.set("$?", str(status.value))
                     if status == Status.STATUS_ERR:
                         system.interrupt_handler.raise_interrupt(EventTriggers.COMMAND_FAILED)
                     elif status in [Status.STATUS_OK, Status.STATUS_WARN]:
