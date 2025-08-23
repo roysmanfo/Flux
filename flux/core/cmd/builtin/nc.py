@@ -2,7 +2,8 @@ from flux.core.helpers.commands import (
     CommandInterface,
     Parser,
     Status,
-    EventTriggers
+    EventTriggers,
+    PreLoadConfigs
 )
 
 import socket
@@ -11,6 +12,11 @@ from threading import Thread, Event
 ENTRY_POINT = "Netcat"
 
 class Netcat(CommandInterface):
+
+    PRELOAD_CONFIGS = CommandInterface.PRELOAD_CONFIGS
+    PRELOAD_CONFIGS.prefered_mode_stdout = 't'
+
+
     def init(self):
         self.parser = Parser("nc", usage="usage: nc [options] [destination] [port]", description="arbitrary TCP and UDP connections and listens")
         self.parser.add_argument("destination", nargs="?")
@@ -41,13 +47,6 @@ class Netcat(CommandInterface):
 
             self.args.port = self.args.PORT
 
-        if self.redirected_stdout:
-            # reopen file in binary mode as we are
-            # probably doing some sort of file transfer
-            file = self.stdout.name
-            self.stdout.close()
-            self.stdout = open(file, "wb")
-
         self.ihandle = self.register_interrupt(EventTriggers.SIGINT, target=self.close_connections)
         self.event = Event()
 
@@ -77,9 +76,7 @@ class Netcat(CommandInterface):
         sock.bind((bind_ip, self.args.port))
         sock.listen(5)
 
-        if self.args.verbose:
-            # print on the stdout
-            print(f"Listening on {bind_ip} {self.args.port}")
+        self.debug(f"Listening on {bind_ip} {self.args.port}")
         sock.settimeout(.1) # small timeout to allow the event to be set
 
         while not self.event.is_set():            
@@ -96,9 +93,8 @@ class Netcat(CommandInterface):
             addr = socket.getnameinfo(addr, 0) if not self.args.no_name_resolution else addr
         except socket.gaierror:
             pass
-        if self.args.verbose:
-            # print on the stdout
-            print(f"Connection received on {addr[0]} {addr[1]}")
+
+        self.debug(f"Connection received on {addr[0]} {addr[1]}")
         Thread(target=self.recv_messages, args=(client, self.event), daemon=True).start()
         self.send_messages(client, self.event)
 
