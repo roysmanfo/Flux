@@ -21,7 +21,10 @@ from flux.core.helpers.commands import (
 
 # we can specify the entry point of the command
 # by setting the ENTRY_POINT register to the name of the class
-# that inherits CommandInterface
+# that inherits CommandInterface.
+# This is not mandatory, ant it is just for clarity during development.
+# By default if not specified the flux loader will try to load
+# a class named [`Command`](./flux_api.md#the-classes-command-and-commandinterface)
 ENTRY_POINT = "Count"
 
 class Count(CommandInterface):
