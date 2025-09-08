@@ -22,9 +22,7 @@ from flux.core.helpers.commands import (
 # we can specify the entry point of the command
 # by setting the ENTRY_POINT register to the name of the class
 # that inherits CommandInterface.
-# This is not mandatory, ant it is just for clarity during development.
-# By default if not specified the flux loader will try to load
-# a class named Command
+# This is not mandatory, and is just for clarity during development. The default value is Command
 ENTRY_POINT = "Count"
 
 class Count(CommandInterface):
