@@ -138,7 +138,16 @@ class CommandInterface(metaclass=_NoOverrideMeta):
     It is possible for a command to define custom configurations for the command loader.
     These configurations will be used when loading the command and take effect BEFORE an instance of the command
     is even created. The loader will look for these configurations to determine how to create an instance of your command 
-                      
+
+    You con define your own configurations like this:
+    ```
+    class Command(CommandInterface):
+        PRELOAD_CONFIGS = PreLoadConfigs(
+                            prefered_mode_stdout="b", # self.stdout will always write in binary mode
+                            ...
+                        )
+    ```
+
     """
     
     """
@@ -496,6 +505,10 @@ class CommandInterface(metaclass=_NoOverrideMeta):
                 return
 
             print(txt, end=end, file=file, flush=flush)
+
+    """
+    PROPERTIES
+    """
 
     @property
     def redirected_stdout(self):
