@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   run_tests:
+    if: ${{ !(matrix.os == 'windows-latest' && matrix.python-version == '3.14') }} # windows-curses does not support 3.14 yet 
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
