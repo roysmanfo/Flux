@@ -2,7 +2,7 @@ import os
 import psutil
 import time
 
-from flux.core.helpers.services import ServiceInterface
+from flux.core.interfaces.services import ServiceInterface
 from flux.core.system.interrupts import EventTriggers
 
 class Service(ServiceInterface):

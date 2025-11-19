@@ -23,7 +23,8 @@ from flux.core.system.loader import PreLoadConfigs
 from flux.settings.settings import Settings
 from flux.utils import tables as _format
 from flux.utils.security import NoOverrideMeta as _NoOverrideMeta, prevent_override
-from .arguments import Parser
+from ._arguments import Parser
+from . import _colors
 
 STATUS_OK = Status.STATUS_OK
 STATUS_ERR = Status.STATUS_ERR
@@ -827,9 +828,8 @@ _lvl_val_to_name = {
 
 class Colors:
     def __init__(self) -> None:
-        from . import colors
-        self.Fore = colors.Foreground
-        self.Back = colors.Background
-        self.Style = colors.Styles
+        self.Fore = _colors.Foreground
+        self.Back = _colors.Background
+        self.Style = _colors.Styles
 
 

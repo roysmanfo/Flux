@@ -5,7 +5,7 @@ List information about the FILEs (the current directory by default).
 """
 
 from typing import List
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser,
     Status

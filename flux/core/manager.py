@@ -13,7 +13,7 @@ from pathlib import Path
 from flux.core.system.system import System
 from flux.core.system import loader
 from flux.core.system.interrupts import EventTriggers
-from flux.core.helpers.commands import CommandInterface, Status
+from flux.core.interfaces.commands import CommandInterface, Status
 from flux.utils import parsing
 from flux.utils.exceptions import FluxException
 

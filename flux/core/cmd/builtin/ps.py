@@ -3,7 +3,7 @@
 Allows to view running Flux processes
 """
 
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser
 )
