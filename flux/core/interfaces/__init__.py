@@ -1,9 +1,9 @@
 
 __all__ = [
-    "commands",
-    "services",
+    "CommandInterface",
+    "ServiceInterface",
 ]
 
-from . import commands
-from . import services
+from .commands import CommandInterface
+from .services import ServiceInterface
 
