@@ -84,7 +84,11 @@ class Servicemanager:
         self._start_enabled_services()
 
     def _get_default_services(self) -> dict[str, Union[str, bool]]:
-        return {"sys_usage": {"enabled": True}, "net_monitor": {"enabled": True}}
+        return {
+            "sys_usage": {"enabled": True},
+            "sys_cleaner": {"enabled": True},
+            "net_monitor": {"enabled": True},
+        }
 
     def update_service_db(self) -> None:
         """

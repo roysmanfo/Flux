@@ -209,9 +209,6 @@ def build(command: List[str], system: System) -> Optional[CommandInterface]:
     exec_command: CommandInterface
     exec_command_class = CommandInterface
 
-    # Remove completed Processes
-    system.processes.clean()
-
     # Check for variables
     if system.variables.exists(command[0]):
         command_name = system.variables.get(command[0]).value
