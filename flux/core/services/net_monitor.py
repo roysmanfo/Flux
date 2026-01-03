@@ -1,7 +1,7 @@
 import socket
 import random
 
-from flux.core.helpers.services import ServiceInterface
+from flux.core.interfaces import ServiceInterface
 from flux.core.system.interrupts import EventTriggers
 
 class Service(ServiceInterface):

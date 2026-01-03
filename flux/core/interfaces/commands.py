@@ -3,16 +3,28 @@ import os as _os
 from enum import IntEnum as _IntEnum
 from argparse import Namespace as _Namespace
 from abc import abstractmethod as _abstractmethod
-from typing import Any, Callable, Mapping, Optional, TextIO, List, Tuple, Union, final
-
+from typing import (
+    Any,
+    Callable,
+    Mapping,
+    Optional,
+    TextIO,
+    BinaryIO,
+    List,
+    Tuple,
+    Union,
+    final,
+)
 from flux.core.system.interrupts import EventTriggers, IHandle
 from flux.core.system.privileges import Privileges
 from flux.core.system.processes import Status
 from flux.core.system.system import System
+from flux.core.system.loader import PreLoadConfigs
 from flux.settings.settings import Settings
 from flux.utils import tables as _format
 from flux.utils.security import NoOverrideMeta as _NoOverrideMeta, prevent_override
-from .arguments import Parser
+from ._arguments import Parser
+from . import _colors
 
 STATUS_OK = Status.STATUS_OK
 STATUS_ERR = Status.STATUS_ERR
@@ -123,14 +135,35 @@ class CommandInterface(metaclass=_NoOverrideMeta):
     - `bool` `recv_from_pipe()`        True if `self.stdin` is pointing to a `pipe`
     - `bool` `send_to_pipe()`          True if `self.stdout` is pointing to a `pipe`
 
+    ### PRELOAD CONFIGS
+    It is possible for a command to define custom configurations for the command loader.
+    These configurations will be used when loading the command and take effect BEFORE an instance of the command
+    is even created. The loader will look for these configurations to determine how to create an instance of your command 
+
+    You con define your own configurations like this:
+    ```
+    class Command(CommandInterface):
+        PRELOAD_CONFIGS = PreLoadConfigs(
+                            prefered_mode_stdout="b", # self.stdout will always write in binary mode
+                            ...
+                        )
+    ```
+
     """
+    
+    """
+    PRELOAD CONFIGS
+    """
+
+    PRELOAD_CONFIGS = PreLoadConfigs()
+
     def __init__(self,
                  system: System,
                  command: List[str],
                  is_process: bool,
-                 stdout: Optional[TextIO] = _sys.stdout,
-                 stderr: Optional[TextIO] = _sys.stdout,
-                 stdin: Optional[TextIO] = _sys.stdin,
+                 stdout: Optional[Union[TextIO, BinaryIO]] = _sys.stdout,
+                 stderr: Optional[Union[TextIO, BinaryIO]] = _sys.stdout,
+                 stdin: Optional[Union[TextIO, BinaryIO]] = _sys.stdin,
                  privileges: Privileges = Privileges.LOW
                  ) -> None:
         
@@ -140,9 +173,9 @@ class CommandInterface(metaclass=_NoOverrideMeta):
         self.settings: Settings = self.system.settings
         self.line_args: List[str] = command
         self.status: Optional[Status] = None
-        self.stdout = stdout
-        self.stderr = stderr
-        self.stdin = stdin
+        self.stdout: Union[TextIO, BinaryIO] = stdout
+        self.stderr: Union[TextIO, BinaryIO] = stderr
+        self.stdin: Union[TextIO, BinaryIO] = stdin
         self.parser: Optional[Parser] = None
         self.args: Optional[_Namespace] = None
         self.errors: Errors = Errors()
@@ -355,9 +388,9 @@ class CommandInterface(metaclass=_NoOverrideMeta):
                     self.print(msg)
             else:
                 if use_color:
-                    self.print(f"{self.colors.Fore.YELLOW}{self.parser.prog}: {msg}{self.colors.Fore.RESET}")
+                    self.printerr(f"{self.colors.Fore.YELLOW}{self.parser.prog}: {msg}{self.colors.Fore.RESET}")
                 else:
-                    self.print(msg)
+                    self.printerr(msg)
 
         self.status = STATUS_WARN
 
@@ -379,11 +412,16 @@ class CommandInterface(metaclass=_NoOverrideMeta):
     HELPER METHODS
     """
 
-    def input(self, __prompt: object = "") -> Optional[str]:
+    def input(self, __prompt: object = "", n: int = -1) -> Optional[Union[str, bytes]]:
         """
         This method takes an input from the stdin and returns it as a string
 
         If a Ctrl-c is detected, returns None.
+
+        :param int n: If n is greather than 0, the first n bytes will be returned,
+                        otherwise reading will stop at the first newline found
+        :returns: a string when `isinstance(self.stdin, TextIO)`, and bytes when `isinstance(self.stdin, BinaryIO)`.
+                    This can be controlled from `PRELOAD_CONFIGS`
         """
         try:
             if __prompt:
@@ -392,12 +430,19 @@ class CommandInterface(metaclass=_NoOverrideMeta):
             if not self.stdin.readable():
                 return None
 
-            file_contents = self.stdin.readline()
+            if n > 0:
+                _source = self.stdin.read(n)
+            else:
+                _source = self.stdin.readline()
+
+            if isinstance(_source, bytes):
+                _source = _source.replace(b'\r\n', b'\n')
             
-            if file_contents == '':
+            if _source in ('', b''):
                 return None
             
-            return file_contents
+            
+            return _source
         except KeyboardInterrupt:
             return None
         
@@ -462,27 +507,40 @@ class CommandInterface(metaclass=_NoOverrideMeta):
 
             print(txt, end=end, file=file, flush=flush)
 
+    """
+    PROPERTIES
+    """
+
     @property
     def redirected_stdout(self):
         """
         returns true if the stdout has been redirected
         """
-        return not (self.stdout and self.stdout == _sys.stdout)
+        return not (
+            (self.stdout and self.stdout == _sys.stdout) or
+            (self.stdout == _sys.stdout.buffer)
+            )
 
     @property
     def redirected_stderr(self):
         """
         returns true if the stderr has been redirected
         """
-        return not (self.stderr and self.stderr == _sys.stderr)
+        return not (
+            (self.stderr and self.stderr == _sys.stderr) or
+            (self.stderr == _sys.stderr.buffer)
+        )
 
     @property
     def redirected_stdin(self):
         """
         returns true if the stdin has been redirected
         """
-        return not (self.stdin and self.stdin == _sys.stdin)
-    
+        return not (
+            (self.stdin and self.stdin == _sys.stdin) or
+            (self.stdin == _sys.stdin.buffer)
+            )
+
     @property
     def is_output_red(self):
         """
@@ -770,9 +828,8 @@ _lvl_val_to_name = {
 
 class Colors:
     def __init__(self) -> None:
-        from . import colors
-        self.Fore = colors.Foreground
-        self.Back = colors.Background
-        self.Style = colors.Styles
+        self.Fore = _colors.Foreground
+        self.Back = _colors.Background
+        self.Style = _colors.Styles
 
 

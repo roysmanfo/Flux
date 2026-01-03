@@ -3,8 +3,9 @@ import os
 import importlib
 from functools import lru_cache as _lru_cache, _CacheInfo
 from types import ModuleType
-from typing import Callable, Optional, TextIO, Union
+from typing import Callable, Optional, TextIO, BinaryIO, Union, Literal
 from pathlib import Path, WindowsPath, PosixPath
+from pydantic.dataclasses import dataclass
 
 from flux.utils.exceptions import FluxException
 
@@ -17,7 +18,18 @@ __initial_max_cache_size__ = 50
 _max_cache_size = __initial_max_cache_size__
 _search_priority: list[Path] = []
 
-CommandInterfaceType = Callable[[object, list[str], bool, Optional[TextIO], Optional[TextIO], Optional[TextIO], int], None]
+CommandInterfaceType = Callable[
+    [
+        object,                                 # System
+        list[str],                              # line_args
+        bool,                                   # is_process
+        Optional[Union[TextIO, BinaryIO]],      # stdout
+        Optional[Union[TextIO, BinaryIO]],      # stderr
+        Optional[Union[TextIO, BinaryIO]],      # stdin
+        int                                     # Privileges
+    ],
+    None
+]
 
 
 def use_cache(use: bool) -> None:
@@ -224,3 +236,20 @@ def set_max_cache_size(size: int) -> None:
     _max_cache_size = size if size > 0 else __initial_max_cache_size__
     load_command.cache_clear()
 
+
+@dataclass
+class PreLoadConfigs:
+    """
+    Configurations used to build the command
+
+    For convinience and performance, these configurations come
+    with preconfigured default values that should make sense in
+    the most part of cases
+    
+    (this is mainly to help avoiding to create and
+    modify these fields for each new command instance)
+    """
+    
+    prefered_mode_stdin: Literal['b', 't'] = 't'
+    prefered_mode_stderr: Literal['b', 't'] = 't'
+    prefered_mode_stdout: Literal['b', 't'] = 't'
