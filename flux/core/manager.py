@@ -279,6 +279,15 @@ def call(command_instance: CommandInterface) -> Status:
     """
     assert CommandInterface._is_subclass_instance(command_instance), "argument passed isn't an instance of CommandInterface"
 
+    def _(s):
+        if isinstance(s, int):
+            if not isinstance(s, Status):
+                s = Status(s)
+        else:
+            s = Status.STATUS_ERR
+        return s
+    
+
     try:
         command_instance.init()
         command_instance.setup()
@@ -289,7 +298,7 @@ def call(command_instance: CommandInterface) -> Status:
             command_instance.close()
             status = command_instance.exit()
             del command_instance
-            return status
+            return _(status)
 
         command_instance.run()
         command_instance.close()
@@ -300,5 +309,5 @@ def call(command_instance: CommandInterface) -> Status:
         status: int = command_instance.status
 
     del command_instance
-    return (status if isinstance(status, int) else Status.STATUS_ERR)
+    return _(status)
 
