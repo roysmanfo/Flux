@@ -1,6 +1,6 @@
 import os
 from typing import List
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser
 )

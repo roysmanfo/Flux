@@ -36,7 +36,7 @@ from pathlib import Path
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser
 )

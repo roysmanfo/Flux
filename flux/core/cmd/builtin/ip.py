@@ -1,4 +1,4 @@
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser,
     Status
@@ -55,7 +55,7 @@ class Command(CommandInterface):
                 nic_stats = stats[interface]
                 header += f" mtu: {nic_stats.mtu}"
                 header += f" state: {'UP' if nic_stats.isup else 'DOWN'}"
-            print(header)
+            self.print(header)
 
 
             for address in addresses:
@@ -69,7 +69,7 @@ class Command(CommandInterface):
 
                 
                 if address.family == AF_LINK:
-                    print(f"    link/ether {address.address} brd ff:ff:ff:ff:ff:ff")   
+                    self.print(f"    link/ether {address.address} brd ff:ff:ff:ff:ff:ff")   
                 else:
 
                     out = "   " + " " * (len(str(counter)) - 1)
@@ -95,8 +95,8 @@ class Command(CommandInterface):
                     if broadcast:
                         out += f" brd {broadcast}"
 
-                    print(out)
-            print()
+                    self.print(out)
+            self.print()
 
 
     def help(self):

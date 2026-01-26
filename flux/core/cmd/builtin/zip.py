@@ -3,7 +3,7 @@
 Zip stores files in zip archives.
 """
 
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser
 )

@@ -5,7 +5,7 @@ List information about the FILEs (the current directory by default).
 """
 
 from typing import List
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser,
     Status
@@ -14,9 +14,11 @@ from flux.utils import tables
 
 import sys
 import os
+import glob
 import stat
 import time
 import zipfile
+
 
 class Command(CommandInterface):
 
@@ -30,26 +32,45 @@ class Command(CommandInterface):
         self.parser.add_argument("-l", dest="l", action="store_true", help="use a long listing format")
 
     def run(self):
+        # expand user and env vars for glob handling
+        raw_path = self.args.PATH
+        path = os.path.expanduser(os.path.expandvars(raw_path))
 
-        if not os.path.exists(self.args.PATH):
-            self.error(f"cannot access '{self.args.PATH}': No such file or directory")
-            return
-        
-        dir_contents: List[str] = []
-        
-        if self.args.directory or os.path.isfile(self.args.PATH) or os.path.islink(self.args.PATH):
-            dir_contents = [self.args.PATH] 
-        
-        elif os.path.isdir(self.args.PATH) or os.path.ismount(self.args.PATH):
-            self.args.PATH = os.path.abspath(self.args.PATH)
-            try:
-                dir_contents = os.listdir(self.args.PATH)
-            except PermissionError:
-                self.error(f"cannot open `{self.args.PATH}` (permission denied)")
+        # if the provided path contains glob magic, use glob to resolve matches
+        if glob.has_magic(path):
+            matches = glob.glob(path, recursive=True)
+            if not matches:
+                self.error(f"cannot access '{raw_path}': No such file or directory")
                 return
+
+            matches = [os.path.abspath(m) for m in matches]
+            parents = [os.path.dirname(m) or '.' for m in matches]
+            common_dir = os.path.commonpath(parents) or '.'
+            self.args.PATH = common_dir
+
+            dir_contents: List[str] = [os.path.relpath(m, self.args.PATH) for m in matches]
+
         else:
-            # wtf is this path pointing to
-            pass
+            # no glob magic: behave like original ls
+            if not os.path.exists(path):
+                self.error(f"cannot access '{raw_path}': No such file or directory")
+                return
+
+            dir_contents: List[str] = []
+
+            if self.args.directory or os.path.isfile(path) or os.path.islink(path):
+                dir_contents = [self.args.PATH]
+
+            elif os.path.isdir(path) or os.path.ismount(path):
+                self.args.PATH = os.path.abspath(path)
+                try:
+                    dir_contents = os.listdir(self.args.PATH)
+                except PermissionError:
+                    self.error(f"cannot open `{raw_path}` (permission denied)")
+                    return
+            else:
+                # wtf is this path pointing to
+                pass
 
 
         #List all files

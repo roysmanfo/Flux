@@ -7,7 +7,7 @@ This command tells a random programming joke
 from ast import List
 import json
 import os
-from flux.core.helpers.commands import CommandInterface
+from flux.core.interfaces.commands import CommandInterface
 import random
 
 

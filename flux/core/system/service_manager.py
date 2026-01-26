@@ -12,7 +12,7 @@ from flux.utils import crash_handler
 class Servicemanager:
     def __init__(self, service_db_path: Path) -> None:
         from ..system.system import System
-        from ..helpers.services import ServiceInterface
+        from ..interfaces.services import ServiceInterface
 
         # maps the service name to the corresponding object
         self.service_table: dict[str, ServiceInterface] = {}        # name -> Service           (currently loaded in memory)
@@ -84,7 +84,11 @@ class Servicemanager:
         self._start_enabled_services()
 
     def _get_default_services(self) -> dict[str, Union[str, bool]]:
-        return {"sys_usage": {"enabled": True}, "net_monitor": {"enabled": True}}
+        return {
+            "sys_usage": {"enabled": True},
+            "sys_cleaner": {"enabled": True},
+            "net_monitor": {"enabled": True},
+        }
 
     def update_service_db(self) -> None:
         """
@@ -105,7 +109,7 @@ class Servicemanager:
         :param service_name: the name of the service to register
         :returns: True if the service has been found and added
         """
-        from ..helpers.services import ServiceInterface
+        from ..interfaces.services import ServiceInterface
 
         exec_service_class = loader.load_service(service_name)
         if not exec_service_class or not ServiceInterface._is_subclass(exec_service_class):

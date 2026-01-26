@@ -19,7 +19,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_public_key 
 
 
-from flux.core.helpers.commands import CommandInterface, Parser
+from flux.core.interfaces.commands import CommandInterface, Parser
 from flux.utils import paths, tables
 
 

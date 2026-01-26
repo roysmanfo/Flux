@@ -7,13 +7,13 @@ from typing import List
 from enum import Enum 
 
 # this file's folder
-_file_dir_path = os.path.dirname(os.path.realpath(__file__))
+_file_dir_path = pathlib.Path(__file__).parent
 
 # where the app root directory is 
-_flux_root = os.path.dirname(os.path.dirname(_file_dir_path))
+_flux_root = _file_dir_path.parent.parent
 
 # version
-with open(os.path.join(_file_dir_path, 'version'), mode='r', encoding='utf-8') as version:
+with open(_file_dir_path / 'version', mode='r', encoding='utf-8') as version:
     VERSION = version.read()
 
 _pathlib_class_type = type(pathlib.Path()) # PosixPath or WindowsPath
@@ -23,23 +23,23 @@ class SysPaths(_pathlib_class_type, Enum):
     PUBLIC_KEY_FILE = pathlib.Path(_flux_root, "security", "public.pem").resolve()
     
     # Configuration files
-    CONFIG_FOLDER = pathlib.Path(os.path.join(os.path.expanduser("~"), ".flux")).resolve()
-    SETTINGS_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "settings.json")).resolve()
-    SERVICES_FILE = pathlib.Path(os.path.join(CONFIG_FOLDER, "services.json")).resolve()
-    SETTINGS_FOLDER = pathlib.Path(os.path.dirname(SETTINGS_FILE)).resolve()
-    CACHE_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, "cache")).resolve()
-    LOCAL_FOLDER = pathlib.Path(os.path.join(CONFIG_FOLDER, ".local")).resolve()
+    CONFIG_FOLDER = pathlib.Path("~", ".flux").expanduser().resolve()
+    SETTINGS_FILE = CONFIG_FOLDER / "settings.json"
+    SERVICES_FILE = CONFIG_FOLDER / "services.json"
+    SETTINGS_FOLDER = SETTINGS_FILE.parent
+    CACHE_FOLDER = CONFIG_FOLDER / "cache"
+    LOCAL_FOLDER = CONFIG_FOLDER / ".local"
     
     # Temporary files
-    FLUX_TEMP_FOLDER = pathlib.Path(os.path.join(tempfile.gettempdir(), "flux-temp")).resolve()
-    LOGS_FOLDER = pathlib.Path(os.path.join(FLUX_TEMP_FOLDER, "logs")).resolve()
-    PIPES_FOLDER = pathlib.Path(os.path.join(FLUX_TEMP_FOLDER, "pipes")).resolve()
+    FLUX_TEMP_FOLDER = pathlib.Path(tempfile.gettempdir(), "flux-temp").resolve()
+    LOGS_FOLDER = FLUX_TEMP_FOLDER / "logs"
+    PIPES_FOLDER = FLUX_TEMP_FOLDER / "pipes"
     
     # Command folders
-    CMD_FOLDER = pathlib.Path(os.path.join(_flux_root, "flux", "core", "cmd")).resolve()
-    CMD_BUILTIN_FOLDER = pathlib.Path(os.path.join(CMD_FOLDER, "builtin")).resolve()
-    CMD_SCRIPTS_FOLDER = pathlib.Path(os.path.join(CMD_FOLDER, "scripts")).resolve()
-    CMD_FPM_FOLDER = pathlib.Path(os.path.join(CMD_FOLDER, "fpm")).resolve()
+    CMD_FOLDER = pathlib.Path(_flux_root, "flux", "core", "cmd").resolve()
+    CMD_BUILTIN_FOLDER = CMD_FOLDER / "builtin"
+    CMD_SCRIPTS_FOLDER = CMD_FOLDER / "scripts"
+    CMD_FPM_FOLDER = CMD_FOLDER / "fpm"
     
     def __str__(self):
         return str(self.value)

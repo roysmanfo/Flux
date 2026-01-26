@@ -34,6 +34,7 @@ class System():
         self.variables.add("$PATH", os.environ.get("PATH", ""), True)
         self.variables.add("$PWD", self.variables.get("$HOME").value, True)
         self.variables.add("$OLDPWD", self.variables.get("$PWD").value, True)
+        self.variables.add("$?", "0", True)
 
         for var in os.environ:
             self.variables.add("$"+var, os.environ[var], True)

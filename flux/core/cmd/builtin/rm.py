@@ -3,7 +3,7 @@
 Remove files and directories
 """
 
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser,
     Status

@@ -4,6 +4,8 @@ from typing import List, Callable, Optional, Union
 import os as _os
 from enum import IntEnum
 
+from pydantic import BaseModel
+
 from flux.core.system.interrupts import EventTriggers, InterruptHandler
 
 
@@ -12,32 +14,15 @@ class Status(IntEnum):
     STATUS_ERR = 1  # An error accoured
     STATUS_WARN = 2  # Exited with warnings
 
-class ProcessInfo:
-    def __init__(self, id: int, ppid: int, owner: str, name: str, native_id: int, time_alive: str, is_reserved_process: bool, line_args: List[str]) -> None:
-        self.id = id
-        self.ppid = ppid
-        self.owner = owner
-        self.name = name
-        self.native_id = native_id
-        self.time_alive = time_alive
-        self.is_reserved_process = is_reserved_process
-        self.line_args = line_args
-
-    def __str__(self) -> str:
-        s = "ProcessInfo("
-        s += f"id={self.id}, "
-        s += f"ppid={self.ppid}, "
-        s += f"owner={self.owner}, "
-        s += f"name={self.name}, "
-        s += f"native_id={self.native_id}, "
-        s += f"is_reserved_process={self.is_reserved_process}, "
-        s += f"time_alive={self.time_alive}"
-        s += f"line_args={self.line_args}"
-        s += ")"
-        return s
-
-    def __repr__(self) -> str:
-        return self.__str__()
+class ProcessInfo(BaseModel):
+    id: int
+    ppid: int
+    owner: str
+    name: str
+    native_id: int
+    time_alive: str
+    is_reserved_process: bool
+    line_args: List[str]
 
 
 class Process:
@@ -58,15 +43,16 @@ class Process:
             self.name = command_instance.parser.prog or self.name
 
     def get_info(self) -> ProcessInfo:
-        return ProcessInfo(self.id,
-                           _os.getppid(),
-                           self.owner,
-                           self.name,
-                           self.native_id,
-                           self._calculate_time(_time.time() - self.started_time),
-                           self.is_reserved_process,
-                           self.line_args
-                           )
+        return ProcessInfo(
+            id=self.id,
+            ppid=_os.getppid(),
+            owner=self.owner,
+            name=self.name,
+            native_id=self.native_id,
+            time_alive=self._calculate_time(_time.time() - self.started_time),
+            is_reserved_process=self.is_reserved_process,
+            line_args=self.line_args
+        )
 
     def __str__(self) -> str:
         return self.get_info().__str__()

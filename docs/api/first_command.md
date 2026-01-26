@@ -14,7 +14,7 @@ Basically the command `count` has takes a required parameter `LIMIT` and an opti
 Let's start by importing the [`CommandInterface`](./flux_api.md#the-classes-command-and-commandinterface) and [`Parser`](./flux_api.md#parser) classes
 and creating the entry point of our command
 ```py
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser
 )
@@ -112,7 +112,7 @@ Let's modify our code accordingly
 ```py
 # modify the imports to include the EventTriggers enum
 # containing all supported interrupts
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser,
     EventTriggers
@@ -153,7 +153,7 @@ and now we are done, you can use your new `count` command inside Flux
 
 # Complete code
 ```py
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser,
     EventTriggers
