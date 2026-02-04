@@ -3,7 +3,7 @@
 Allows the user to create temporary variables for later use
 """
 
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser
 )

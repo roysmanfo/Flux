@@ -2,7 +2,7 @@ import os
 from typing import Tuple
 
 from flux.utils import tables
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser
 )

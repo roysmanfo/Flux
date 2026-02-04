@@ -1,3 +1,0 @@
--r requirements.txt
-python-magic-bin==0.4.14
-pyreadline3==3.5.4

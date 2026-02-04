@@ -1,4 +1,4 @@
-from flux.core.helpers.commands import (
+from flux.core.interfaces.commands import (
     CommandInterface,
     Parser
 )
@@ -40,7 +40,7 @@ class Command(CommandInterface):
             "description",
             rows=command_descriptions.items(),
         )
-        print(result_table)
+        self.print(result_table)
 
     def get_description(self, command_name: str) -> str:
         """
@@ -52,9 +52,10 @@ class Command(CommandInterface):
             command_instance = command_class(system=self.system,
                                command=[],
                                is_process=False,
-                               stdout=self.stdout,
-                               stderr=self.stderr,
-                               stdin=self.stdin,
+                               # pass none instead of an actual stream (#193)
+                               stdout=None,
+                               stderr=None,
+                               stdin=None,
                                privileges=self.system.privileges.LOW)
             command_instance.init()
 
