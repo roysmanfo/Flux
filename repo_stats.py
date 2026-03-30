@@ -9,8 +9,10 @@ Gather some statistic data about the repository like:
 """
 
 import os
+from pathlib import Path
+from flux.utils.tables import create_table
 
-_root = os.path.dirname(os.path.realpath(__file__))
+_root = Path(__file__).parent
 
 # scan_dirs = [ i for i in os.listdir(_root) if os.path.isdir(i)]
 scan_ext = { ".py", "", ".sh" }
@@ -30,6 +32,9 @@ total_size = 0
 # scan_dirs = set(filter(lambda d: d in include_dirs, scan_dirs))
 # scan_ext = set(filter(lambda d: d in include_ext, scan_ext))
 
+cmd_dir = _root / "flux" / "core" / "cmd" / "builtin"
+n_cmd = len(set(cmd_dir.glob("*.py"))) - 1 # ignore __init__.py
+
 # data gathering
 for path in scan_dirs: # filter out some folders
     for dirpath, _, files in os.walk(path):
@@ -45,13 +50,31 @@ for path in scan_dirs: # filter out some folders
                     total_size += os.stat(os.path.join(dirpath, file)).st_size
 
 
-print("num files:", n_files)
-print("num lines:", n_lines)
-print("\nlanguages:")
 
+print(
+    create_table(
+        "", "",
+        rows=[
+            ("builtin commands:", n_cmd),
+            ("source files:", n_files),
+            ("lines of code:", n_lines),
+        ],
+        show_headers=False
+    )
+)
+
+lang_rows = []
 for ext, num in sorted(c_files.items(), key=lambda x: x[0]):
     lang = f"{ext or 'no_extension'} ({num})"
-    print(f" - {lang:30}{(num / n_files * 100):-5.1f}%")
+    lang_rows.append((lang, "{:-5.1f}%".format((num / n_files * 100))))
+
+print(
+    create_table(
+        "language", "percentage",
+        rows=lang_rows,
+    )
+)
+
 
 units = ('B', 'kB', 'MB', 'GB')
 i = 0
