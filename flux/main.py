@@ -77,7 +77,7 @@ def run():
                 # Pass the command to the manager
                 else:
                     if cmd[0] != "":
-                        manager.manage(cmd, SYSTEM)
+                        manager.run(cmd, SYSTEM)
         except KeyboardInterrupt:
             print()
         except ValueError as e:
@@ -98,7 +98,7 @@ def main():
         # check for line arguments
         if len(sys.argv) > 1:
             cmd = sys.argv[1:]
-            manager.manage(cmd, SYSTEM)
+            manager.run(cmd, SYSTEM)
             return 0
 
         SYSTEM.processes._add_main_process(SYSTEM, ['flux'], run)

@@ -133,7 +133,7 @@ def delete_used_pipes(pipe_files: Iterable[TextIO]) -> None:
                 pass  
     
 
-def manage(command: List[str], system: System) -> None:
+def run(command: List[str], system: System) -> None:
 
     if not loader.get_search_priority():
         loader.set_search_priority([
