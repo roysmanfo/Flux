@@ -13,8 +13,7 @@ _file_dir_path = pathlib.Path(__file__).parent
 _flux_root = _file_dir_path.parent.parent
 
 # version
-with open(_file_dir_path / 'version', mode='r', encoding='utf-8') as version:
-    VERSION = version.read()
+VERSION = (_file_dir_path / 'version').read_text(encoding="utf-8")
 
 _pathlib_class_type = type(pathlib.Path()) # PosixPath or WindowsPath
 
