@@ -6,14 +6,8 @@ DIR = Path(__file__).parent
 VERSION_FILE = DIR / "flux" / "settings" / "version"
 REQUIREMENTS_FILE = DIR / "requirements.txt"
 
-with open(REQUIREMENTS_FILE, 'r') as fp:
-    req = fp.read().splitlines()
-
-    # Add platform-dependent requirements
-    with open(DIR / f"{'win' if os.name == 'nt' else 'linux'}-requirements.txt") as fp2:
-        req += fp2.read().splitlines()[1:]
-
-    REQUIREMENTS = req if req else []
+with open(REQUIREMENTS_FILE, 'r') as fp: 
+    REQUIREMENTS = fp.read().splitlines()
 
 with open(VERSION_FILE, 'r') as fp:
     version = fp.read().splitlines()[0]
