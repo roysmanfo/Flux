@@ -30,5 +30,5 @@ dependencies = [
     "tomli==2.4.1",
     "urllib3==2.6.3",
     "watchdog==6.0.0",
-    "windows-curses==2.4.1 ; sys_platform == 'win32'",
+    "windows-curses==2.4.2 ; sys_platform == 'win32'",
 ]
