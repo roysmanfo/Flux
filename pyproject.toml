@@ -10,7 +10,7 @@ dependencies = [
     "chardet==7.4.0.post2",
     "charset-normalizer==3.4.7",
     "colorama==0.4.6",
-    "cryptography==46.0.6",
+    "cryptography==46.0.7",
     "idna==3.11",
     "iniconfig==2.3.0",
     "packaging==26.0",
