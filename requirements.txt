@@ -15,7 +15,7 @@ psutil==7.2.2
 pycodestyle==2.14.0
 pydantic==2.13.2
 pydub==0.25.1
-pypdf==6.10.0
+pypdf==6.10.2
 requests==2.33.1
 tomli==2.4.1
 urllib3==2.6.3
