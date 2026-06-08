@@ -6,7 +6,7 @@ colorama==0.4.6
 cryptography==47.0.0
 idna==3.11
 iniconfig==2.3.0
-paramiko==4.0.0
+paramiko==5.0.0
 packaging==26.2
 pillow==12.2.0
 ping3==5.1.5
