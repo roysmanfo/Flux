@@ -11,7 +11,7 @@ dependencies = [
     "charset-normalizer==3.4.7",
     "colorama==0.4.6",
     "cryptography==49.0.0",
-    "idna==3.11",
+    "idna==3.18",
     "iniconfig==2.3.0",
     "packaging==26.2",
     "paramiko==5.0.0",
