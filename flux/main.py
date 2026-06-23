@@ -42,20 +42,22 @@ def get_line_args() -> List[str]:
     home = SYSTEM.variables.get("$HOME").value.lower()
     cwd = path.replace(home, "~")
 
+    # short helper to make Linux based systems calculate the line
+    # length correctly (marks colors as zero-width chars) 
+    def C(code): return f"\001{code}\002"
+
     try:
         # setup autocompletion
         readline.set_completer_delims(" \t\n;")
         readline.parse_and_bind("tab: complete")
         readline.set_completer(path_completer)
 
-        print(
-            f"{Fore.GREEN}{SYSTEM.settings.user.username}{Fore.CYAN} Flux [{SYSTEM.version}] {Fore.YELLOW}" 
-            + cwd 
-            + f"{Fore.MAGENTA} $ ", end=""
-        )
-        command = input()
-        print(f"{Fore.WHITE}", end="")
-
+        prompt = (f"{C(Fore.GREEN)}{SYSTEM.settings.user.username}"
+                  f"{C(Fore.CYAN)} Flux [{SYSTEM.version}] "
+                  f"{C(Fore.YELLOW)}{cwd}"
+                  f"{C(Fore.MAGENTA)} ${C(Fore.RESET)} ")
+    
+        command = input(prompt)
         return utils.parsing.string_to_list(command)
 
     except (KeyboardInterrupt, EOFError):
@@ -77,7 +79,7 @@ def run():
                 # Pass the command to the manager
                 else:
                     if cmd[0] != "":
-                        manager.manage(cmd, SYSTEM)
+                        manager.run(cmd, SYSTEM)
         except KeyboardInterrupt:
             print()
         except ValueError as e:
@@ -98,7 +100,7 @@ def main():
         # check for line arguments
         if len(sys.argv) > 1:
             cmd = sys.argv[1:]
-            manager.manage(cmd, SYSTEM)
+            manager.run(cmd, SYSTEM)
             return 0
 
         SYSTEM.processes._add_main_process(SYSTEM, ['flux'], run)
