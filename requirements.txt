@@ -8,7 +8,7 @@ idna==3.18
 iniconfig==2.3.0
 paramiko==5.0.0
 packaging==26.2
-pillow==12.2.0
+pillow==12.3.0
 ping3==5.1.5
 pluggy==1.6.0
 psutil==7.2.2
