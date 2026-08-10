@@ -13,7 +13,7 @@ dependencies = [
     "cryptography==49.0.0",
     "idna==3.18",
     "iniconfig==2.3.0",
-    "packaging==26.2",
+    "packaging==26.3",
     "paramiko==5.0.0",
     "pillow==12.3.0",
     "ping3==5.1.5",
