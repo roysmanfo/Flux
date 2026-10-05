@@ -4,7 +4,7 @@ chardet==7.6.0
 charset-normalizer==3.4.9
 colorama==0.4.6
 cryptography==50.0.2
-idna==3.18
+idna==3.20
 iniconfig==2.3.0
 paramiko==5.0.0
 packaging==26.3
