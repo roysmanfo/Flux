@@ -25,7 +25,8 @@ class Servicemanager:
             self.reset_service_db()
         elif not os.path.isfile(self.service_db_path):
             # **please** do not create conflicts with paths
-            # otherwise each time you will startwith the default
+            # otherwise each time you run a new instance of flux,
+            # it will start with the default
             # services and default configurations
             # which means that every time you'll have to start
             # external services or the ones that do not start by default :(
@@ -37,7 +38,7 @@ class Servicemanager:
             except json.JSONDecodeError as e:
                 print(f"an error accoured when reading '{self.service_db_path}' ({type(e)})", file=sys.stderr)
                 _, log_path = crash_handler.write_error_log()
-                print(f"Thhe full traceback of this error can be found ere: \n{log_path}\n", file=sys.stderr)
+                print(f"The full traceback of this error can be found ere: \n{log_path}\n", file=sys.stderr)
 
                 if input("reset the file to default (N/y): ").lower() != 'y':
                     print("Aborting...", file=sys.stderr)
@@ -85,9 +86,10 @@ class Servicemanager:
 
     def _get_default_services(self) -> dict[str, Union[str, bool]]:
         return {
-            "sys_usage": {"enabled": True},
-            "sys_cleaner": {"enabled": True},
             "net_monitor": {"enabled": True},
+            "signal_daemon": {"enabled": True},
+            "sys_cleaner": {"enabled": True},
+            "sys_usage": {"enabled": True},
         }
 
     def update_service_db(self) -> None:
@@ -99,7 +101,7 @@ class Servicemanager:
                 json.dump(self.service_db, sdb, sort_keys=True, indent=2)
             except json.JSONDecodeError:
                 # before giving up try serializing
-                # the dictionary before writing it
+                # the dictionary manually before writing it
                 sdb.write(json.dumps(self.service_db, sort_keys=True, indent=2))
 
     def register_service(self, service_name: str) -> bool:
