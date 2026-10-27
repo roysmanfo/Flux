@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "autopep8==2.3.2",
-    "certifi==2026.7.22",
+    "certifi==2026.10.19",
     "chardet==7.7.0",
     "charset-normalizer==3.5.2",
     "colorama==0.4.6",
