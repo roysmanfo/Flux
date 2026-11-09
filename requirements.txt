@@ -19,7 +19,7 @@ pypdf==6.21.4
 requests==2.34.2
 tomli==2.5.0
 urllib3==2.8.0
-watchdog==6.0.0
+watchdog==7.1.0
 
 # Windows specific requirements
 
